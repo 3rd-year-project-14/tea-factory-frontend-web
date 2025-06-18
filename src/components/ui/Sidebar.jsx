@@ -18,6 +18,11 @@ const sidebarLinks = {
     { name: "Trips", path: "/driver/trips", icon: Truck },
     { name: "Emergency", path: "/driver/emergency", icon: Award },
   ],
+  TRANSPORT_MANAGER: [
+    { name: "Dashboard", path: "/transportManager/dashboard", icon: Home },
+    { name: "Trips", path: "/transportManager/trips", icon: Truck },
+    { name: "Emergency", path: "/transportManager/emergency", icon: Award },
+  ],
 };
 
 export default function Sidebar() {
