@@ -27,7 +27,7 @@ export default function UserAvatar({ name }) {
   };
 
   return (
-    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+    <div className="w-8 h-8 bg-emerald-800 rounded-full flex items-center justify-center">
       <span className="text-white font-semibold text-sm">
         {getInitials(name)}
       </span>

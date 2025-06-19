@@ -23,6 +23,11 @@ const sidebarLinks = {
     { name: "Trips", path: "/transportManager/trips", icon: Truck },
     { name: "Emergency", path: "/transportManager/emergency", icon: Award },
   ],
+  FERTILIZER_MANAGER: [
+    { name: "Dashboard", path: "/fertilizerManager/Dashboard", icon: Home },
+    { name: "Weight", path: "/fertilizerManager/weight", icon: Truck },
+    { name: "Emergency", path: "/fertilizerManager/emergency", icon: Award },
+  ],
 };
 
 export default function Sidebar() {
@@ -31,7 +36,7 @@ export default function Sidebar() {
   const role = user?.role;
 
   return (
-    <div className="w-62 h-screen bg-green-600 text-white flex flex-col">
+    <div className="w-62 h-screen bg-emerald-800 text-white flex flex-col">
       {/* Header */}
       <div className="p-6 border-b border-green-500">
         <div className="flex items-center space-x-3">
@@ -57,8 +62,8 @@ export default function Sidebar() {
               to={link.path}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 ${
                 isActive
-                  ? 'bg-green-500 text-white shadow-lg'
-                  : 'text-green-100 hover:bg-green-700 hover:text-white'
+                  ? 'bg-emerald-700 text-white shadow-lg'
+                  : 'text-green-100 hover:bg-emerald-900 hover:text-white'
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -70,9 +75,9 @@ export default function Sidebar() {
 
       {/* User Profile */}
       <div className="p-4">
-        <div className="bg-green-500 rounded-lg p-4">
+        <div className="bg-emerald-900 rounded-lg p-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-400 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-emerald-800 rounded-full flex items-center justify-center">
               <span className="text-white font-semibold text-sm">
                 {user?.username?.charAt(0).toUpperCase() || 'U'}
               </span>
