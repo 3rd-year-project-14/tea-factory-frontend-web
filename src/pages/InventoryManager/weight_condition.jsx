@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Dashboard() {
+export default function WeightCondition() {
   const [bags] = useState([
     { id: 'TN-B5', pastWeight: 24, condition: 'Good', newWeight: 24 },
     { id: 'TN-B6', pastWeight: 25, condition: 'Good', newWeight: 25 },

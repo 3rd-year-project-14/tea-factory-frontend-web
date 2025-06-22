@@ -1,7 +1,7 @@
 import Sidebar from "../components/ui/Sidebar";
 import Navbar from "../components/ui/Navbar";
 
-export default function FertilizerManagerLayout({ children }) {
+export default function InventoryManagerLayout({ children }) {
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />

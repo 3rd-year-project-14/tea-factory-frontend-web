@@ -28,6 +28,10 @@ const sidebarLinks = {
     { name: "Weight", path: "/fertilizerManager/weight", icon: Truck },
     { name: "Emergency", path: "/fertilizerManager/emergency", icon: Award },
   ],
+  INVENTORY_MANAGER: [
+    { name: "Dashboard", path: "/inventoryManager/Dashboard", icon: Home },
+    { name: "Leaf Weight", path: "/inventoryManager/leaf_weight", icon: Truck },
+  ],
 };
 
 export default function Sidebar() {

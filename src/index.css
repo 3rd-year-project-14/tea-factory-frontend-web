@@ -46,22 +46,23 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
+  border-radius: 6px;              /* slightly tighter corners */
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  padding: 0.43em 0.8em;            /* smaller padding = smaller button */
+  font-size: 0.875em;              /* slightly smaller text (14px approx) */
   font-weight: 500;
   font-family: inherit;
-  /* background-color: #ffffff; */
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #2aef18;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 1px solid #22c55e; 
+  outline-offset: 0px;
 }
 
 @media (prefers-color-scheme: light) {

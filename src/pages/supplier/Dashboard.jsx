@@ -3,7 +3,7 @@ import {
   CheckCircle, Clock, AlertTriangle, ShoppingCart, BarChart3
 } from 'lucide-react';
 
-const StatCard = ({ title, value, change, icon: Icon, trend }) => {
+const StatCard = ({ title, value, change, trend }) => {
   const isPositive = trend === 'up';
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
   

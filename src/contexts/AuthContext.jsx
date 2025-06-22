@@ -7,7 +7,7 @@ const AuthContext = createContext({
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState({
-    role: "FERTILIZER_MANAGER",
+    role: "INVENTORY_MANAGER",
     username: "Pasindu",
   });
 

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+
 
 export default function Route() {
   const [searchTerm, setSearchTerm] = useState('');
-  
+  const navigate = useNavigate();
+
   const [routes] = useState([
     { id: 'TN-1', routeName: 'Route - 1', driverName: 'Driver - 1', vehicleNo: 'DAD-2435', suppliers: 10 },
     { id: 'TK-1', routeName: 'Route - 2', driverName: 'Driver - 2', vehicleNo: 'DAD-2436', suppliers: 12 },
@@ -19,7 +22,7 @@ export default function Route() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="h-full bg-gray-50 p-4">
       <div className="max-w-6xl mx-auto space-y-4">
         
         {/* Top Statistics Cards */}
@@ -49,9 +52,9 @@ export default function Route() {
         {/* Action Bar */}
         <div className="bg-white rounded-lg shadow-sm border p-4">
           <div className="flex justify-between items-center gap-4">
-            <button className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 text-sm rounded transition-colors duration-200">
+            {/* <button className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 text-sm rounded transition-colors duration-200">
               Enter
-            </button>
+            </button> */}
             
             <div className="relative">
               <input
@@ -88,9 +91,16 @@ export default function Route() {
                 <div className="text-gray-600 text-sm">{route.vehicleNo}</div>
                 <div className="text-gray-900 font-medium text-sm">{route.suppliers}</div>
                 <div>
-                  <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-xs font-medium transition-colors duration-200">
+                  {/* <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-xs font-medium transition-colors duration-200">
                     View
-                  </button>
+                  </button> */}
+                    <button
+                        onClick={() => navigate(`/inventoryManager/route_leaf`)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-xs font-medium transition-colors duration-200"
+                        >
+                        View
+                    </button>
+
                 </div>
               </div>
             ))}
