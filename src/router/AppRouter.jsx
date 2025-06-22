@@ -32,7 +32,7 @@ export default function AppRouter() {
         )}
 
         {user?.role === "FERTILIZER_MANAGER" && (
-          <Route path="/transportManager/dashboard" element={<Layout><TransportManagerDashboard /></Layout>}/>
+          <Route path="/fertilizerManager/dashboard" element={<Layout><TransportManagerDashboard /></Layout>}/>
         )}
 
         {user?.role === "TRANSPORT_MANAGER" && (
