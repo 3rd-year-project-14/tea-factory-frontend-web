@@ -32,6 +32,10 @@ const sidebarLinks = {
     { name: "Dashboard", path: "/inventoryManager/Dashboard", icon: Home },
     { name: "Leaf Weight", path: "/inventoryManager/leaf_weight", icon: Truck },
   ],
+  FACTORY_MANAGER: [
+    { name: "Dashboard", path: "/factoryManager/Dashboard", icon: Home },
+    { name: "Suppliers", path: "/factoryManager/suppliers", icon: Truck },
+  ],
 };
 
 export default function Sidebar() {
