@@ -1,10 +1,160 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function SupplierRequestDetails({ supplier, onBack }) {
+  // Modal state (must be before any return)
+  const [showApproval, setShowApproval] = useState(false);
+  const [showRejection, setShowRejection] = useState(false);
+
   if (!supplier) return null;
   let statusText = "";
+
+  if (supplier.status === "pending") {
+    statusText = "Pending Review";
+  } else if (supplier.status === "approved") {
+    statusText = "Approved";
+  } else {
+    statusText = "Rejected";
+  }
+
+  // Modal close handlers
+  const closeApproval = () => setShowApproval(false);
+  const closeRejection = () => setShowRejection(false);
+
+  // Dummy handlers for confirm
+  const approveSupplier = () => {
+    // TODO: handle approval logic
+    closeApproval();
+  };
+  const rejectSupplier = () => {
+    // TODO: handle rejection logic
+    closeRejection();
+  };
+
   return (
     <div className="max-w-[1200px] mx-auto p-6 text-[#1e293b] font-sans flex flex-col overflow-hidden">
+      {/* Approval Modal */}
+      {showApproval && (
+        <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/20">
+          <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="flex justify-between items-center p-6 border-b border-[#e2e8f0]">
+              <h2 className="text-xl font-semibold text-[#0f172a]">
+                Approve Supplier
+              </h2>
+              <button
+                className="text-2xl text-[#64748b] hover:text-[#0f172a]"
+                onClick={closeApproval}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-[#64748b] mb-1">
+                    Assign Route
+                  </label>
+                  <select className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm">
+                    <option value="">Select Route</option>
+                    <option value="route1">Route A-01 (Colombo North)</option>
+                    <option value="route2">Route B-02 (Colombo South)</option>
+                    <option value="route3">Route C-03 (Colombo East)</option>
+                  </select>
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-[#64748b] mb-1">
+                    Supplier ID
+                  </label>
+                  <input
+                    type="text"
+                    className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    value={`SUP-2025-00${supplier.id}`}
+                    readOnly
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-[#64748b] mb-1">
+                    Initial Bag Limit
+                  </label>
+                  <input
+                    type="number"
+                    className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
+                    
+                  />
+                </div>
+                <div className="flex flex-col md:col-span-2">
+                  <label className="text-xs font-medium text-[#64748b] mb-1">
+                    Manager Notes (Internal)
+                  </label>
+                  <textarea
+                    className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm min-h-[80px] resize-y"
+                    placeholder="e.g., needs physical visit before first supply"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end p-6 border-t border-[#e2e8f0]">
+              <button
+                className="px-5 py-2 rounded-lg bg-[#f1f5f9] text-[#0f172a] font-semibold hover:bg-[#e2e8f0]"
+                onClick={closeApproval}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-5 py-2 rounded-lg bg-[#10b981] text-white font-semibold hover:bg-[#059669]"
+                onClick={approveSupplier}
+              >
+                Confirm Approval
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Rejection Modal */}
+      {showRejection && (
+        <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/20">
+          <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="flex justify-between items-center p-6 border-b border-[#e2e8f0]">
+              <h2 className="text-xl font-semibold text-[#0f172a]">
+                Reject Supplier
+              </h2>
+              <button
+                className="text-2xl text-[#64748b] hover:text-[#0f172a]"
+                onClick={closeRejection}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="mb-4 text-[#64748b]">
+                Are you sure you want to reject this supplier application?
+              </p>
+              <div className="flex flex-col">
+                <label className="text-xs font-medium text-[#64748b] mb-1">
+                  Reason for Rejection (Optional)
+                </label>
+                <textarea
+                  className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm min-h-[80px] resize-y"
+                  placeholder="This reason will be visible to the supplier..."
+                ></textarea>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end p-6 border-t border-[#e2e8f0]">
+              <button
+                className="px-5 py-2 rounded-lg bg-[#f1f5f9] text-[#0f172a] font-semibold hover:bg-[#e2e8f0]"
+                onClick={closeRejection}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-5 py-2 rounded-lg bg-[#ef4444] text-white font-semibold hover:bg-[#dc2626]"
+                onClick={rejectSupplier}
+              >
+                Confirm Rejection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="bg-white rounded-2xl p-8 mb-6 shadow flex-shrink-0 sticky top-0 z-30">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-5">
@@ -49,10 +199,16 @@ export default function SupplierRequestDetails({ supplier, onBack }) {
           <div className="flex gap-3 items-center">
             {supplier.status === "pending" && (
               <>
-                <button className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#10b981] text-white hover:bg-[#059669]">
+                <button
+                  className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#10b981] text-white hover:bg-[#059669]"
+                  onClick={() => setShowApproval(true)}
+                >
                   ✓ Approve
                 </button>
-                <button className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#ef4444] text-white hover:bg-[#dc2626]">
+                <button
+                  className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#ef4444] text-white hover:bg-[#dc2626]"
+                  onClick={() => setShowRejection(true)}
+                >
                   ✗ Reject
                 </button>
               </>
