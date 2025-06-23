@@ -9,11 +9,13 @@ import InventoryManagerDashboard from "../pages/InventoryManager/dashboard";
 import LeafWeight from "../pages/InventoryManager/leaf_weight";
 import RouteLeaf from "../pages/InventoryManager/route_leaf";
 import WeightCondition from "../pages/InventoryManager/weight_condition";
+import FactoryManagerDashboard from "../pages/FactoryManager.jsx/dashboard";
 
 import FertilizerManagerWeight from "../pages/FertilizerManager/weight";
 import Login from "../pages/login";
 
 import { useAuth } from "../contexts/AuthContext";
+import SupplierRegister from "../pages/FactoryManager.jsx/supplierRegister";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -40,7 +42,10 @@ export default function AppRouter() {
         )}
 
         {user?.role === "FACTORY_MANAGER" && (
-          <Route path="/transportManager/dashboard" element={<Layout><TransportManagerDashboard /></Layout>}/>
+          <>
+          <Route path="/factoryManager/dashboard" element={<Layout><FactoryManagerDashboard /></Layout>}/>
+          <Route path="/factoryManager/suppliers" element={<Layout><SupplierRegister /></Layout>}/>
+          </>
         )}
 
         {user?.role === "OWNER" && (
