@@ -23,14 +23,6 @@ export default function DriverRoute() {
     supplier.supplierName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleConfirm = (bagNo) => {
-    console.log(`Confirmed bag: ${bagNo}`);
-  };
-
-  const handleEdit = (bagNo) => {
-    console.log(`Edit bag: ${bagNo}`);
-  };
-
   return (
     <div className="h-full bg-gray-50 p-4">
       <div className="max-w-6xl mx-auto space-y-4">
@@ -108,42 +100,28 @@ export default function DriverRoute() {
         {/* Suppliers Table */}
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
           <div className="bg-green-600 text-white">
-            <div className="grid grid-cols-6 gap-4 p-3 font-medium text-sm">
+            <div className="grid grid-cols-6 gap-4 p-3 font-medium text-sm text-center">
               <div>Bag No</div>
               <div>Supplier No</div>
               <div>Supplier Name</div>
               <div>Weight</div>
-              <div>Condition</div>
-              <div>Action</div>
+
             </div>
           </div>
           
+          
           <div className="divide-y divide-gray-200">
             {filteredSuppliers.map((supplier, index) => (
-              <div key={index} className="grid grid-cols-6 gap-4 p-3 items-center hover:bg-gray-50">
-                <div className="font-medium text-gray-900 text-sm">{supplier.bagNo}</div>
-                <div className="text-gray-600 text-sm">{supplier.supplierNo}</div>
-                <div className="text-gray-600 text-sm">{supplier.supplierName}</div>
-                <div className="text-gray-900 font-medium text-sm">{supplier.weight}</div>
+              <div key={index}
+               onClick={() => navigate(`/inventoryManager/weight_bags_weight`)}
+               className="grid grid-cols-6 gap-4 p-3 items-center hover:bg-gray-50 cursor-pointer">
+                <div className="font-medium text-gray-900 text-center">{supplier.bagNo}</div>
+                <div className="text-gray-600 text-center">{supplier.supplierNo}</div>
+                <div className="text-gray-600 text-center">{supplier.supplierName}</div>
+                <div className="text-gray-900 font-medium text-center">{supplier.weight}</div>
                 <div></div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => handleConfirm(supplier.bagNo)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200"
-                  >
-                    Confirm
-                  </button>
-                    <button
-                    onClick={() => {
-                        handleEdit(supplier.bagNo); // your custom logic
-                        navigate(`/inventoryManager/weight_condition`); // navigate to next page
-                    }}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200"
-                    >
-                    Edit
-                    </button>
-
-                </div>
+                <div className="flex gap-2">                
+               </div>
               </div>
             ))}
             

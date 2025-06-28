@@ -5,10 +5,18 @@ import SupplierDashboard from "../pages/supplier/Dashboard";
 import DriverDashboard from "../pages/driver/Dashboard";
 import TransportManagerDashboard from "../pages/TransportManager/Dashboard";
 import FertilizerManagerDashboard from "../pages/FertilizerManager/dashboard";
+
+//Inventory Manager
 import InventoryManagerDashboard from "../pages/InventoryManager/dashboard";
-import LeafWeight from "../pages/InventoryManager/leaf_weight";
-import RouteLeaf from "../pages/InventoryManager/route_leaf";
+import LeafWeight from "../pages/InventoryManager/LeafWeight/leaf_weight";
+import RouteLeaf from "../pages/InventoryManager/LeafWeight/route_leaf";
+import LeafBagsWeight from "../pages/InventoryManager/LeafWeight/leaf_bags_weight";
 import WeightCondition from "../pages/InventoryManager/weight_condition";
+
+import History from "../pages/InventoryManager/History/history"
+
+
+//Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
 import SupplierRegister from "../pages/FactoryManager/supplierRegister";
 import Advance from "../pages/FactoryManager/advance";
@@ -32,6 +40,8 @@ export default function AppRouter() {
             <Route path="/inventoryManager/leaf_weight" element={<Layout>{" "}<LeafWeight />{" "}</Layout>}/>
             <Route path="/inventoryManager/route_leaf" element={<Layout>{" "}<RouteLeaf />{" "}</Layout>}/>
             <Route path="/inventoryManager/weight_condition" element={<Layout>{" "}<WeightCondition/>{" "}</Layout>}/>
+            <Route path="/inventoryManager/weight_bags_weight" element={<Layout>{" "}<LeafBagsWeight/>{" "}</Layout>}/>
+            <Route path="/inventoryManager/history" element={<Layout>{" "}<History/>{" "}</Layout>}/>
           </>
         )}
 

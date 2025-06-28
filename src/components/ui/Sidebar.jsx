@@ -31,6 +31,9 @@ const sidebarLinks = {
   INVENTORY_MANAGER: [
     { name: "Dashboard", path: "/inventoryManager/Dashboard", icon: Home },
     { name: "Leaf Weight", path: "/inventoryManager/leaf_weight", icon: Truck },
+    { name: "Bag Weight", path: "/inventoryManager/bag_weight", icon: Package },
+    { name: "History", path: "/inventoryManager/history", icon: Award },
+
   ],
   FACTORY_MANAGER: [
     { name: "Dashboard", path: "/factoryManager/Dashboard", icon: Home },

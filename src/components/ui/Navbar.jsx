@@ -10,10 +10,10 @@ export default function Navbar() {
     <nav className="bg-white border-b border-gray-200 px-6 py-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div>
+          {/* <div>
             <h3 className="text-2xl font-bold text-gray-900">Tea Factory Dashboard</h3>
             <p className="text-gray-600 text-sm">Welcome back, manage your tea production</p>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex items-center space-x-4">
