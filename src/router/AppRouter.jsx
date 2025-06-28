@@ -11,6 +11,11 @@ import InventoryManagerDashboard from "../pages/InventoryManager/dashboard";
 import LeafWeight from "../pages/InventoryManager/LeafWeight/leaf_weight";
 import RouteLeaf from "../pages/InventoryManager/LeafWeight/route_leaf";
 import LeafBagsWeight from "../pages/InventoryManager/LeafWeight/leaf_bags_weight";
+import EmptyBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight";
+import RouteBagsWeight from "../pages/InventoryManager/BagWeight/route_bags_weight";
+import SupplierBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight_supplier";
+
+
 import WeightCondition from "../pages/InventoryManager/weight_condition";
 
 import History from "../pages/InventoryManager/History/history"
@@ -41,6 +46,9 @@ export default function AppRouter() {
             <Route path="/inventoryManager/route_leaf" element={<Layout>{" "}<RouteLeaf />{" "}</Layout>}/>
             <Route path="/inventoryManager/weight_condition" element={<Layout>{" "}<WeightCondition/>{" "}</Layout>}/>
             <Route path="/inventoryManager/weight_bags_weight" element={<Layout>{" "}<LeafBagsWeight/>{" "}</Layout>}/>
+            <Route path="/inventoryManager/empty_bags_weight" element={<Layout>{" "}<EmptyBagsWeight/>{" "}</Layout>}/>
+            <Route path="/inventoryManager/route_bags_weight" element={<Layout>{" "}<RouteBagsWeight/>{" "}</Layout>}/>
+            <Route path="/inventoryManager/bags_weight_supplier" element={<Layout>{" "}<SupplierBagsWeight/>{" "}</Layout>}/>
             <Route path="/inventoryManager/history" element={<Layout>{" "}<History/>{" "}</Layout>}/>
           </>
         )}
