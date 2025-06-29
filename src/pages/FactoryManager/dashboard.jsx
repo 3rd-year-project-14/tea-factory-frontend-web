@@ -1,3 +1,5 @@
+import TeaSupplyChart from "../../components/charts/TeaSupplyChart";
+
 export default function FactoryManagerDashboard() {
   return (
     <div className="main-content flex-1 bg-[#f8f9fa] overflow-y-auto text-black">
@@ -90,14 +92,14 @@ export default function FactoryManagerDashboard() {
         </div>
         {/* Charts Section */}
         <div className="charts-section grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-          <div className="chart-card bg-white p-6 rounded-xl shadow-md col-span-2">
+          <div className="chart-card bg-white p-6 rounded-xl shadow-md col-span-2 flex flex-col">
             <h3 className="chart-title text-lg font-semibold text-[#2c2c2c] mb-5">
               Monthly Supply Chart
             </h3>
-            <div className="chart-placeholder h-52 bg-gradient-to-br from-[#f0f8f0] to-[#e8f5e8] rounded flex items-center justify-center text-[#4CAF50] font-medium border-2 border-dashed border-[#4CAF50]">
-              📈 Monthly Tea Supply Trend Chart
-              <br />
-              <small>(Chart implementation would go here)</small>
+            <div className="flex-1 min-h-[350px] flex items-center justify-center">
+              <div className="w-full h-full">
+                <TeaSupplyChart height={320} />
+              </div>
             </div>
           </div>
           <div className="chart-card bg-white p-6 rounded-xl shadow-md">
