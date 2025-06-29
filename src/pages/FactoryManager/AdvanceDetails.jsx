@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import AdvanceChart from "../../components/charts/AdvanceChart";
 
 export default function SupplierRequestDetails({ supplier, onBack }) {
   // Modal state (must be before any return)
@@ -38,58 +39,21 @@ export default function SupplierRequestDetails({ supplier, onBack }) {
           <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl">
             <div className="flex justify-between items-center p-6 border-b border-[#e2e8f0]">
               <h2 className="text-xl font-semibold text-[#0f172a]">
-                Approve Supplier
+                Approve Advance
               </h2>
-              <button
+              {/* <button
                 className="text-2xl text-[#64748b] hover:text-[#0f172a]"
                 onClick={closeApproval}
               >
                 &times;
-              </button>
+              </button> */}
             </div>
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="flex flex-col">
-                  <label className="text-xs font-medium text-[#64748b] mb-1">
-                    Assign Route
-                  </label>
-                  <select className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm">
-                    <option value="">Select Route</option>
-                    <option value="route1">Route A-01 (Colombo North)</option>
-                    <option value="route2">Route B-02 (Colombo South)</option>
-                    <option value="route3">Route C-03 (Colombo East)</option>
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-xs font-medium text-[#64748b] mb-1">
-                    Supplier ID
-                  </label>
-                  <input
-                    type="text"
-                    className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
-                    value={`SUP-2025-00${supplier.id}`}
-                    readOnly
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-xs font-medium text-[#64748b] mb-1">
-                    Initial Bag Limit
-                  </label>
-                  <input
-                    type="number"
-                    className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm"
-                    
-                  />
-                </div>
-                <div className="flex flex-col md:col-span-2">
-                  <label className="text-xs font-medium text-[#64748b] mb-1">
-                    Manager Notes (Internal)
-                  </label>
-                  <textarea
-                    className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm min-h-[80px] resize-y"
-                    placeholder="e.g., needs physical visit before first supply"
-                  ></textarea>
-                </div>
+              <div className="mb-6 text-[#0f172a] text-base">
+                <p className="mb-2 font-semibold text-align-center">
+                  Approve advance request for Rs. {supplier.amount} <br />
+                  from {supplier.name}?
+                </p>
               </div>
             </div>
             <div className="flex gap-3 justify-end p-6 border-t border-[#e2e8f0]">
@@ -126,7 +90,7 @@ export default function SupplierRequestDetails({ supplier, onBack }) {
             </div>
             <div className="p-6">
               <p className="mb-4 text-[#64748b]">
-                Are you sure you want to reject this supplier application?
+                Are you sure you want to reject this advance request?
               </p>
               <div className="flex flex-col">
                 <label className="text-xs font-medium text-[#64748b] mb-1">
@@ -224,155 +188,156 @@ export default function SupplierRequestDetails({ supplier, onBack }) {
       </div>
       {/* Content Grid (scrollable area) */}
       <div className="flex-1 min-h-0 overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Main Content */}
-          <div className="col-span-2 flex flex-col gap-6">
-            {/* Personal Information */}
-            <div className="bg-white rounded-2xl shadow overflow-hidden">
-              <div className="p-6 pb-0 border-b border-[#f1f5f9] mb-6">
-                <h2 className="text-lg font-bold text-[#0f172a] mb-2">
-                  Advance Request Details
-                </h2>
+        {/* Advance Request Details */}
+        <div className="bg-white shadow overflow-hidden mb-6 rounded border border-[#94a3b8]">
+          <div className="p-6 pb-0 border-b border-[#cbd5e1] mb-6">
+            <h2 className="text-lg font-bold text-[#0f172a] mb-2">
+              Advance Request Details
+            </h2>
+          </div>
+          <div className="px-6 pb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+              {/* Eligibility on the left, centered */}
+              <div className="flex flex-col items-center justify-center md:row-span-full md:h-full">
+                <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                  ELIGIBILITY
+                </span>
+                <span
+                  className={`text-xl font-bold text-[#0f172a] ${
+                    supplier.eligibility === "PASS"
+                      ? "text-[#10b981]"
+                      : "text-[#ef4444]"
+                  }`}
+                >
+                  {supplier.eligibility}
+                </span>
               </div>
-              <div className="px-6 pb-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                      REQUESTED AMOUNT
-                    </span>
-                    <span className="text-base font-bold text-[#0f172a]">
-                      Rs. {supplier.amount}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                      LAST MONTH INCOME
-                    </span>
-                    <span className="text-base font-bold text-[#0f172a]">
-                      Rs. {supplier.last_income}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                      THIS MONTH WEIGHT
-                    </span>
-                    <span className="text-base font-bold text-[#0f172a]">
-                      {supplier.this_weight}Kg
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                      EXITING LOANS
-                    </span>
-                    <span className="text-base font-bold text-[#0f172a]">
-                      Rs. {supplier.loans}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                      FERTILIZER LOANS
-                    </span>
-                    <span className="text-base font-bold text-[#0f172a]">
-                      Rs. {supplier.fertilizer_loans}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                      THIS MONTH INCOME
-                    </span>
-                    <span className="text-base font-bold text-[#0f172a]">
-                      Rs. {supplier.this_income}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                      ELIGIBILITY
-                    </span>
-                    <span className="text-base font-bold text-[#0f172a]">
-                      {supplier.eligibility}
-                    </span>
-                  </div>
+              {/* Other details */}
+              <div className="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                    REQUESTED AMOUNT
+                  </span>
+                  <span className="text-base font-bold text-[#0f172a]">
+                    Rs. {supplier.amount}
+                  </span>
                 </div>
-              </div>
-            </div>
-            {/* Land Information */}
-            <div className="bg-white rounded-2xl shadow overflow-hidden">
-              <div className="p-6 pb-0 border-b border-[#f1f5f9] mb-6">
-                <h2 className="text-lg font-bold text-[#0f172a] mb-2">
-                  Monthly Supply Performence
-                </h2>
-              </div>
-              <div className="px-6 pb-6">
-                <div className="h-[120px] bg-[#f1f5f9] rounded-xl flex items-center justify-center text-[#94a3b8] text-base mt-4">
-                  Supply chart show
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                    LAST MONTH INCOME
+                  </span>
+                  <span className="text-base font-bold text-[#0f172a]">
+                    Rs. {supplier.last_income}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                    THIS MONTH WEIGHT
+                  </span>
+                  <span className="text-base font-bold text-[#0f172a]">
+                    {supplier.this_weight}Kg
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                    EXITING LOANS
+                  </span>
+                  <span className="text-base font-bold text-[#0f172a]">
+                    Rs. {supplier.loans}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                    FERTILIZER LOANS
+                  </span>
+                  <span className="text-base font-bold text-[#0f172a]">
+                    Rs. {supplier.fertilizer_loans}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                    THIS MONTH INCOME
+                  </span>
+                  <span className="text-base font-bold text-[#0f172a]">
+                    Rs. {supplier.this_income}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-          {/* Sidebar */}
-          <div className="flex flex-col gap-6">
-            {/* Documents */}
-            {/* Activity Timeline */}
-            <div className="bg-white rounded-2xl shadow overflow-hidden">
-              <div className="p-6 pb-0 border-b border-[#f1f5f9] mb-6">
-                <h3 className="text-lg font-bold text-[#0f172a] mb-2">
-                  Activity Timeline
-                </h3>
-              </div>
-              <div className="px-6 pb-6">
-                <div className="flex flex-col">
-                  <div className="flex gap-3 py-4 border-b border-[#f1f5f9]">
-                    <div className="w-10 h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center text-lg">
-                      📝
+        </div>
+        {/* Chart and Timeline below Advance Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Monthly Supply Performance */}
+          <div className="bg-white shadow overflow-hidden rounded border border-[#94a3b8]">
+            <div className="p-6 pb-0 border-b border-[#cbd5e1] mb-6">
+              <h2 className="text-lg font-bold text-[#0f172a] mb-2">
+                Monthly Supply Performance
+              </h2>
+            </div>
+            <div className="px-6 pb-6">
+              <AdvanceChart />
+            </div>
+          </div>
+          {/* Activity Timeline */}
+          <div className="bg-white shadow overflow-hidden rounded border border-[#94a3b8]">
+            <div className="p-6 pb-0 border-b border-[#cbd5e1] mb-6">
+              <h3 className="text-lg font-bold text-[#0f172a] mb-2">
+                Activity Timeline
+              </h3>
+            </div>
+            <div className="px-6 pb-6">
+              <div className="flex flex-col">
+                <div className="flex gap-3 py-4 border-b border-[#f1f5f9]">
+                  <div className="w-10 h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center text-lg">
+                    📝
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-[#0f172a] mb-1">
+                      Application Submitted
                     </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold text-[#0f172a] mb-1">
-                        Application Submitted
-                      </div>
-                      <div className="text-xs text-[#64748b] mb-1">
-                        Supplier submitted registration request
-                      </div>
-                      <div className="text-xs text-[#94a3b8]">
-                        June 8, 2025 at 2:30 PM
-                      </div>
+                    <div className="text-xs text-[#64748b] mb-1">
+                      Supplier submitted registration request
+                    </div>
+                    <div className="text-xs text-[#94a3b8]">
+                      June 8, 2025 at 2:30 PM
                     </div>
                   </div>
-                  <div className="flex gap-3 py-4 border-b border-[#f1f5f9]">
-                    <div className="w-10 h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center text-lg">
-                      📋
+                </div>
+                <div className="flex gap-3 py-4 border-b border-[#f1f5f9]">
+                  <div className="w-10 h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center text-lg">
+                    📋
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-[#0f172a] mb-1">
+                      Documents Uploaded
                     </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold text-[#0f172a] mb-1">
-                        Documents Uploaded
-                      </div>
-                      <div className="text-xs text-[#64748b] mb-1">
-                        All required documents submitted
-                      </div>
-                      <div className="text-xs text-[#94a3b8]">
-                        June 8, 2025 at 2:35 PM
-                      </div>
+                    <div className="text-xs text-[#64748b] mb-1">
+                      All required documents submitted
+                    </div>
+                    <div className="text-xs text-[#94a3b8]">
+                      June 8, 2025 at 2:35 PM
                     </div>
                   </div>
-                  <div className="flex gap-3 py-4">
-                    <div className="w-10 h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center text-lg">
-                      👁️
+                </div>
+                <div className="flex gap-3 py-4">
+                  <div className="w-10 h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center text-lg">
+                    👁️
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-[#0f172a] mb-1">
+                      Under Review
                     </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold text-[#0f172a] mb-1">
-                        Under Review
-                      </div>
-                      <div className="text-xs text-[#64748b] mb-1">
-                        Application is being reviewed by manager
-                      </div>
-                      <div className="text-xs text-[#94a3b8]">
-                        June 9, 2025 at 9:00 AM
-                      </div>
+                    <div className="text-xs text-[#64748b] mb-1">
+                      Application is being reviewed by manager
+                    </div>
+                    <div className="text-xs text-[#94a3b8]">
+                      June 9, 2025 at 9:00 AM
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
           </div>
         </div>
       </div>
