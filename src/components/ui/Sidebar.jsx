@@ -1,9 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { 
-  Home, Leaf, Package, Settings, Users, Truck, Award, BarChart3, 
-  DollarSign, Calendar 
-} from 'lucide-react';
+import {
+  Home,
+  Leaf,
+  Package,
+  Settings,
+  Users,
+  Truck,
+  Award,
+  BarChart3,
+  DollarSign,
+  Calendar,
+} from "lucide-react";
 
 const sidebarLinks = {
   SUPPLIER: [
@@ -11,7 +19,6 @@ const sidebarLinks = {
     { name: "Tea Production", path: "/supplier/production", icon: Leaf },
     { name: "Inventory", path: "/supplier/inventory", icon: Package },
     { name: "Processing", path: "/supplier/processing", icon: Settings },
-    
   ],
   DRIVER: [
     { name: "Dashboard", path: "/driver/dashboard", icon: Home },
@@ -31,15 +38,18 @@ const sidebarLinks = {
   INVENTORY_MANAGER: [
     { name: "Dashboard", path: "/inventoryManager/Dashboard", icon: Home },
     { name: "Leaf Weight", path: "/inventoryManager/leaf_weight", icon: Truck },
-    { name: "Bag Weight", path: "/inventoryManager/empty_bags_weight", icon: Package },
+    { name: "Bag Weight",path: "/inventoryManager/empty_bags_weight",icon: Package},
     { name: "History", path: "/inventoryManager/history", icon: Award },
+
     { name: "Report", path: "/inventoryManager/report", icon: Users },
+
 
   ],
   FACTORY_MANAGER: [
     { name: "Dashboard", path: "/factoryManager/Dashboard", icon: Home },
-    { name: "Suppliers", path: "/factoryManager/suppliers", icon: Truck },
-    { name: "Advance", path: "/factoryManager/advance", icon: Truck },
+    { name: "Suppliers", path: "/factoryManager/suppliers", icon: Users },
+    { name: "Advance", path: "/factoryManager/advance", icon: DollarSign },
+    { name: "Loans", path: "/factoryManager/loans", icon: BarChart3 },
   ],
 };
 
@@ -68,15 +78,15 @@ export default function Sidebar() {
         {sidebarLinks[role]?.map((link) => {
           const Icon = link.icon;
           const isActive = location.pathname === link.path;
-          
+
           return (
             <Link
               key={link.name}
               to={link.path}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 ${
                 isActive
-                  ? 'bg-emerald-700 text-white shadow-lg'
-                  : 'text-green-100 hover:bg-emerald-900 hover:text-white'
+                  ? "bg-emerald-700 text-white shadow-lg"
+                  : "text-green-100 hover:bg-emerald-900 hover:text-white"
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -92,12 +102,16 @@ export default function Sidebar() {
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-emerald-800 rounded-full flex items-center justify-center">
               <span className="text-white font-semibold text-sm">
-                {user?.username?.charAt(0).toUpperCase() || 'U'}
+                {user?.username?.charAt(0).toUpperCase() || "U"}
               </span>
             </div>
             <div>
-              <p className="font-semibold text-sm">{user?.username || 'User'}</p>
-              <p className="text-green-200 text-xs capitalize">{role?.toLowerCase() || 'Role'}</p>
+              <p className="font-semibold text-sm">
+                {user?.username || "User"}
+              </p>
+              <p className="text-green-200 text-xs capitalize">
+                {role?.toLowerCase() || "Role"}
+              </p>
             </div>
           </div>
         </div>

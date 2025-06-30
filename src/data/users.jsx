@@ -1,11 +1,11 @@
 const users = [
   {
-    username: "Pasindu",
-    role: "INVENTORY_MANAGER",
-  },
-  {
     username: "Mahesh",
     role: "FACTORY_MANAGER",
+  },
+  {
+    username: "Pasindu",
+    role: "INVENTORY_MANAGER",
   },
   {
     username: "Madushan",
