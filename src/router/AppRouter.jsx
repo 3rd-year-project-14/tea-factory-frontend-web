@@ -19,6 +19,8 @@ import SupplierBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight_s
 import WeightCondition from "../pages/InventoryManager/weight_condition";
 
 import History from "../pages/InventoryManager/History/history"
+import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier"
+
 
 
 //Factory Manager
@@ -50,6 +52,8 @@ export default function AppRouter() {
             <Route path="/inventoryManager/route_bags_weight" element={<Layout>{" "}<RouteBagsWeight/>{" "}</Layout>}/>
             <Route path="/inventoryManager/bags_weight_supplier" element={<Layout>{" "}<SupplierBagsWeight/>{" "}</Layout>}/>
             <Route path="/inventoryManager/history" element={<Layout>{" "}<History/>{" "}</Layout>}/>
+            <Route path="/inventoryManager/report" element={<Layout>{" "}<SupplierAdd/>{" "}</Layout>}/>
+
           </>
         )}
 
