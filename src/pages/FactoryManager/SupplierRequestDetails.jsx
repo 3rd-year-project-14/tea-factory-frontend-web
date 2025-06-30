@@ -420,10 +420,9 @@ export default function SupplierRequestDetails({
             <div className="flex items-center space-x-3">
               <button
                 onClick={onBack}
-                className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-600 text-white font-medium hover:bg-gray-700 transition-colors"
+                className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#f1f5f9] text-[#000] border-none hover:bg-[#e2e8f0] ml-2"
               >
-                <X className="w-4 h-4 mr-2" />
-                Back
+                ← Back
               </button>
               {supplier.status === "pending" && (
                 <>
