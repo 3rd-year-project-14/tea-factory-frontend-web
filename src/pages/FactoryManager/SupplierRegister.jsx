@@ -343,16 +343,6 @@ export default function SupplierRegister() {
                 Supplier Management
               </p>
             </div>
-            {/* <div className="flex items-center space-x-3">
-              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                <Download className="h-4 w-4 mr-2" />
-                Export Excel
-              </button>
-              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                <Mail className="h-4 w-4 mr-2" />
-                Bulk Contact
-              </button>
-            </div> */}
           </div>
         </div>
       </div>
@@ -465,32 +455,14 @@ export default function SupplierRegister() {
                   <ChevronDown className="h-4 w-4 ml-2" />
                 </button>
 
-                {/* <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </button> */}
+                
               </div>
             </div>
 
             {/* Enhanced Filters */}
             {showFilters && (
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    value={filters.status}
-                    onChange={handleFilterChange}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div> */}
+                
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
