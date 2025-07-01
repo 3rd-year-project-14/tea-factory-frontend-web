@@ -38,18 +38,22 @@ const sidebarLinks = {
   INVENTORY_MANAGER: [
     { name: "Dashboard", path: "/inventoryManager/Dashboard", icon: Home },
     { name: "Leaf Weight", path: "/inventoryManager/leaf_weight", icon: Truck },
-    { name: "Bag Weight",path: "/inventoryManager/empty_bags_weight",icon: Package},
+    {
+      name: "Bag Weight",
+      path: "/inventoryManager/empty_bags_weight",
+      icon: Package,
+    },
     { name: "History", path: "/inventoryManager/history", icon: Award },
 
     { name: "Report", path: "/inventoryManager/report", icon: Users },
-
-
   ],
   FACTORY_MANAGER: [
     { name: "Dashboard", path: "/factoryManager/Dashboard", icon: Home },
     { name: "Suppliers", path: "/factoryManager/suppliers", icon: Users },
     { name: "Advance", path: "/factoryManager/advance", icon: DollarSign },
     { name: "Loans", path: "/factoryManager/loans", icon: BarChart3 },
+    { name: "Tea Rate", path: "/factoryManager/teaRate", icon: Leaf },
+    { name: "Payments", path: "/factoryManager/payments", icon: DollarSign },
   ],
 };
 

@@ -14,7 +14,7 @@ import {
   Building,
   TrendingUp,
 } from "lucide-react";
-import AdvanceChart from "../../components/charts/AdvanceChart";
+import AdvanceChart from "../../../components/charts/AdvanceChart";
 
 export default function SupplierRequestDetails({
   supplier,

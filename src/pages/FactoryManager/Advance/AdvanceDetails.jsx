@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Check, X, Clock, FileText } from "lucide-react";
-import AdvanceChart from "../../components/charts/AdvanceChart";
+import AdvanceChart from "../../../components/charts/AdvanceChart";
 
 export default function AdvanceDetails({
   supplier,
