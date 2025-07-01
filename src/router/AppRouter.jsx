@@ -24,10 +24,11 @@ import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier"
 
 //Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
-import SupplierRegister from "../pages/FactoryManager/supplierRegister";
-import Advance from "../pages/FactoryManager/advance";
-import LoanManagement from "../pages/FactoryManager/LoanManagement";
-
+import SupplierRegister from "../pages/FactoryManager/Suppliers/supplierRegister";
+import AdvanceManagement from "../pages/FactoryManager/Advance/AdvanceManagement";
+import LoanManagement from "../pages/FactoryManager/Loans/LoanManagement";
+import TeaRateAdjustment from "../pages/FactoryManager/TeaRate/TeaRateAdjustment";
+import PaymentManagement from "../pages/FactoryManager/Payments/PaymentManagement";
 import FertilizerManagerWeight from "../pages/FertilizerManager/weight";
 import Login from "../pages/login";
 
@@ -58,73 +59,26 @@ export default function AppRouter() {
         )}
 
         {user?.role === "FERTILIZER_MANAGER" && (
-          <Route
-            path="/fertilizerManager/dashboard"
-            element={
-              <Layout>
-                <TransportManagerDashboard />
-              </Layout>
-            }
-          />
+          <Route path="/fertilizerManager/dashboard" element={<Layout>{" "}<TransportManagerDashboard />{" "}</Layout>}/>
         )}
 
         {user?.role === "TRANSPORT_MANAGER" && (
-          <Route
-            path="/transportManager/dashboard"
-            element={
-              <Layout>
-                <TransportManagerDashboard />
-              </Layout>
-            }
-          />
+          <Route path="/transportManager/dashboard" element={<Layout>{" "}<TransportManagerDashboard />{" "}</Layout>}/>
         )}
 
         {user?.role === "FACTORY_MANAGER" && (
           <>
-            <Route
-              path="/factoryManager/dashboard"
-              element={
-                <Layout>
-                  <FactoryManagerDashboard />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/suppliers"
-              element={
-                <Layout>
-                  <SupplierRegister />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/advance"
-              element={
-                <Layout>
-                  <Advance />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/loans"
-              element={
-                <Layout>
-                  <LoanManagement />
-                </Layout>
-              }
-            />
+            <Route path="/factoryManager/dashboard" element={<Layout>{" "}<FactoryManagerDashboard />{" "}</Layout>}/>
+            <Route path="/factoryManager/suppliers" element={<Layout>{" "}<SupplierRegister />{" "}</Layout>}/>
+            <Route path="/factoryManager/advance" element={<Layout>{" "}<AdvanceManagement />{" "}</Layout>}/>
+            <Route path="/factoryManager/loans" element={<Layout>{" "}<LoanManagement />{" "}</Layout>}/>
+            <Route path="/factoryManager/teaRate" element={<Layout>{" "}<TeaRateAdjustment />{" "}</Layout>}/>
+            <Route path="/factoryManager/payments" element={<Layout>{" "}<PaymentManagement />{" "}</Layout>}/>
           </>
         )}
 
         {user?.role === "OWNER" && (
-          <Route
-            path="/transportManager/dashboard"
-            element={
-              <Layout>
-                <TransportManagerDashboard />
-              </Layout>
-            }
-          />
+          <Route path="/transportManager/dashboard" element={<Layout>{" "}<TransportManagerDashboard />{" "}</Layout>}/>
         )}
 
         <Route path="/login" element={<Login />} />

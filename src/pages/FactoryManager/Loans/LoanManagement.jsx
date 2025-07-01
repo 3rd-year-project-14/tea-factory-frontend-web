@@ -18,6 +18,7 @@ const initialLoans = [
     startDate: "2025-06-10",
     nextPaymentDate: "2025-07-10",
     status: "active",
+    route: "Route A",
     repaymentLog: [
       {
         id: 1,
@@ -43,6 +44,7 @@ const initialLoans = [
     startDate: "2025-05-18",
     nextPaymentDate: "2025-07-18",
     status: "active",
+    route: "Route B",
     repaymentLog: [
       {
         id: 1,
@@ -76,6 +78,7 @@ const initialLoans = [
     startDate: "2025-04-15",
     nextPaymentDate: null,
     status: "completed",
+    route: "Route C",
     repaymentLog: [
       {
         id: 1,
@@ -117,6 +120,7 @@ const initialLoans = [
     startDate: "2025-06-01",
     nextPaymentDate: "2025-07-01",
     status: "active",
+    route: "Route D",
     repaymentLog: [
       {
         id: 1,
@@ -166,6 +170,7 @@ const initialLoans = [
     paymentStatus: "0/4 Paid",
     requestDate: "2025-06-25", // Pending loan application
     status: "pending",
+    route: "Route A",
     repaymentLog: [],
   },
   {
@@ -181,6 +186,7 @@ const initialLoans = [
     paymentStatus: "0/5 Paid",
     requestDate: "2025-06-30", // Pending loan application
     status: "pending",
+    route: "Route E",
     repaymentLog: [],
   },
   {
@@ -196,6 +202,7 @@ const initialLoans = [
     paymentStatus: "0/3 Paid",
     requestDate: "2025-05-15", // Older pending request
     status: "pending",
+    route: "Route B",
     repaymentLog: [],
   },
   {
@@ -212,6 +219,7 @@ const initialLoans = [
     startDate: "2024-12-01",
     nextPaymentDate: "2025-01-01", // Missed multiple payments
     status: "defaulted",
+    route: "Route C",
     repaymentLog: [
       {
         id: 1,
@@ -237,6 +245,7 @@ const initialLoans = [
     startDate: "2024-11-15",
     nextPaymentDate: "2024-12-15", // Long overdue
     status: "defaulted",
+    route: "Route D",
     repaymentLog: [
       {
         id: 1,
@@ -262,6 +271,7 @@ export default function LoanManagement() {
     amountRange: "",
     duration: "",
     year: "",
+    route: "",
   });
 
   // Date selection state - default to current month/year
@@ -321,6 +331,7 @@ export default function LoanManagement() {
       amountRange: "",
       duration: "",
       year: "",
+      route: "",
     });
     setSearchTerm("");
   };
@@ -452,7 +463,19 @@ export default function LoanManagement() {
         // since these are current loans and year filtering doesn't apply
       }
 
-      return matchesSearch && matchesAmount && matchesDuration && matchesYear;
+      // Route filter
+      let matchesRoute = true;
+      if (filters.route) {
+        matchesRoute = loan.route === filters.route;
+      }
+
+      return (
+        matchesSearch &&
+        matchesAmount &&
+        matchesDuration &&
+        matchesYear &&
+        matchesRoute
+      );
     });
   }, [loansBySelectedDate, searchTerm, currentView, filters]);
 
@@ -775,8 +798,8 @@ export default function LoanManagement() {
               <div
                 className={`grid grid-cols-1 gap-4 p-4 bg-gray-50 rounded-lg ${
                   currentView === "completed"
-                    ? "sm:grid-cols-4"
-                    : "sm:grid-cols-3"
+                    ? "sm:grid-cols-5"
+                    : "sm:grid-cols-4"
                 }`}
               >
                 <div>
@@ -809,6 +832,24 @@ export default function LoanManagement() {
                     <option value="short">Short Term (≤3 months)</option>
                     <option value="medium">Medium Term (4-6 months)</option>
                     <option value="long">Long Term (&gt;6 months)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Route
+                  </label>
+                  <select
+                    name="route"
+                    value={filters.route}
+                    onChange={handleFilterChange}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  >
+                    <option value="">All Routes</option>
+                    <option value="Route A">Route A</option>
+                    <option value="Route B">Route B</option>
+                    <option value="Route C">Route C</option>
+                    <option value="Route D">Route D</option>
+                    <option value="Route E">Route E</option>
                   </select>
                 </div>
                 {/* Only show year filter for completed loans */}
@@ -849,12 +890,13 @@ export default function LoanManagement() {
         {/* Enhanced Table */}
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
           <div className="bg-green-600 text-white">
-            <div className="grid grid-cols-6 gap-4 p-4 font-medium text-sm">
-              <div className="text-left">Loan ID</div>
+            <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm">
+              <div className="text-left">
+                {currentView === "pending" ? "Supplier ID" : "Loan ID"}
+              </div>
               <div className="text-left">Supplier Name</div>
               <div className="text-left">Total Loan (Rs)</div>
               <div className="text-left">Monthly Installment</div>
-              <div className="text-left">Payment Status</div>
               <div className="text-center">View Details</div>
             </div>
           </div>
@@ -863,10 +905,10 @@ export default function LoanManagement() {
             {filteredLoans.map((loan) => (
               <div
                 key={loan.id}
-                className="grid grid-cols-6 gap-4 p-3 items-center hover:bg-gray-50 transition-colors"
+                className="grid grid-cols-5 gap-4 p-3 items-center hover:bg-gray-50 transition-colors"
               >
                 <div className="font-semibold text-green-600 text-sm bg-green-50 px-3 py-1 rounded-full inline-block w-fit">
-                  {loan.id}
+                  {loan.status === "pending" ? loan.supplierId : loan.id}
                 </div>
                 <div className="font-medium text-gray-900 text-sm">
                   {loan.supplierName}
@@ -876,11 +918,6 @@ export default function LoanManagement() {
                 </div>
                 <div className="text-sm font-bold text-gray-900">
                   Rs. {loan.monthlyInstallment.toLocaleString()}
-                </div>
-                <div className="text-sm text-gray-900">
-                  <div className="flex flex-col">
-                    <span className="font-medium">{loan.paymentStatus}</span>
-                  </div>
                 </div>
                 <div className="flex justify-center">
                   <button

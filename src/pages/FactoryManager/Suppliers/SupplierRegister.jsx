@@ -454,16 +454,12 @@ export default function SupplierRegister() {
                   Filters
                   <ChevronDown className="h-4 w-4 ml-2" />
                 </button>
-
-                
               </div>
             </div>
 
             {/* Enhanced Filters */}
             {showFilters && (
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
-                
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Route
