@@ -1,5 +1,13 @@
 const users = [
   {
+    username: "Dasun",
+    role: "OWNER",
+  },
+  {
+    username: "Mahesh",
+    role: "FACTORY_MANAGER",
+  },
+  {
     username: "Pasindu",
     role: "INVENTORY_MANAGER",
   },
@@ -7,6 +15,9 @@ const users = [
     username: "Mahesh",
     role: "FACTORY_MANAGER",
   }, 
+  
+  
+  
   {
     username: "Madushan",
     role: "FERTILIZER_MANAGER",
@@ -15,7 +26,6 @@ const users = [
     username: "Uma",
     role: "DRIVER",
   },
-  
   {
     username: "Tharushi",
     role: "TRANSPORT_MANAGER",
