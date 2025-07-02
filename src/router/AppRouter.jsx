@@ -28,6 +28,7 @@ import LoanManagement from "../pages/FactoryManager/Loans/LoanManagement";
 import TeaRateAdjustment from "../pages/FactoryManager/TeaRate/TeaRateAdjustment";
 import PaymentManagement from "../pages/FactoryManager/Payments/PaymentManagement";
 import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
+import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
 import FertilizerManagerWeight from "../pages/FertilizerManager/weight";
 import Login from "../pages/login";
 
@@ -220,6 +221,15 @@ export default function AppRouter() {
                 <Layout>
                   {" "}
                   <RouteManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/inventory"
+              element={
+                <Layout>
+                  {" "}
+                  <InventoryManagement />{" "}
                 </Layout>
               }
             />

@@ -56,6 +56,7 @@ const sidebarLinks = {
     { name: "Loans", path: "/factoryManager/loans", icon: BarChart3 },
     { name: "Tea Rate", path: "/factoryManager/teaRate", icon: Leaf },
     { name: "Payments", path: "/factoryManager/payments", icon: DollarSign },
+    { name: "Inventory", path: "/factoryManager/inventory", icon: Package },
   ],
 };
 
