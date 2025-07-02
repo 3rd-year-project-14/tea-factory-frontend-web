@@ -17,10 +17,8 @@ import SupplierBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight_s
 
 import WeightCondition from "../pages/InventoryManager/weight_condition";
 
-
-import History from "../pages/InventoryManager/History/history"
-import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier"
-
+import History from "../pages/InventoryManager/History/history";
+import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier";
 
 //Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
@@ -29,6 +27,7 @@ import AdvanceManagement from "../pages/FactoryManager/Advance/AdvanceManagement
 import LoanManagement from "../pages/FactoryManager/Loans/LoanManagement";
 import TeaRateAdjustment from "../pages/FactoryManager/TeaRate/TeaRateAdjustment";
 import PaymentManagement from "../pages/FactoryManager/Payments/PaymentManagement";
+import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
 import FertilizerManagerWeight from "../pages/FertilizerManager/weight";
 import Login from "../pages/login";
 
@@ -42,43 +41,201 @@ export default function AppRouter() {
       <Routes>
         {user?.role === "INVENTORY_MANAGER" && (
           <>
-
-            <Route path="/inventoryManager/dashboard" element={<Layout>{" "}<InventoryManagerDashboard />{" "}</Layout>}/>
-            <Route path="/inventoryManager/leaf_weight" element={<Layout>{" "}<LeafWeight />{" "}</Layout>}/>
-            <Route path="/inventoryManager/route_leaf" element={<Layout>{" "}<RouteLeaf />{" "}</Layout>}/>
-            <Route path="/inventoryManager/weight_condition" element={<Layout>{" "}<WeightCondition/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/weight_bags_weight" element={<Layout>{" "}<LeafBagsWeight/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/empty_bags_weight" element={<Layout>{" "}<EmptyBagsWeight/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/route_bags_weight" element={<Layout>{" "}<RouteBagsWeight/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/bags_weight_supplier" element={<Layout>{" "}<SupplierBagsWeight/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/history" element={<Layout>{" "}<History/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/report" element={<Layout>{" "}<SupplierAdd/>{" "}</Layout>}/>
-
-
+            <Route
+              path="/inventoryManager/dashboard"
+              element={
+                <Layout>
+                  {" "}
+                  <InventoryManagerDashboard />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/leaf_weight"
+              element={
+                <Layout>
+                  {" "}
+                  <LeafWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/route_leaf"
+              element={
+                <Layout>
+                  {" "}
+                  <RouteLeaf />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/weight_condition"
+              element={
+                <Layout>
+                  {" "}
+                  <WeightCondition />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/weight_bags_weight"
+              element={
+                <Layout>
+                  {" "}
+                  <LeafBagsWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/empty_bags_weight"
+              element={
+                <Layout>
+                  {" "}
+                  <EmptyBagsWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/route_bags_weight"
+              element={
+                <Layout>
+                  {" "}
+                  <RouteBagsWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/bags_weight_supplier"
+              element={
+                <Layout>
+                  {" "}
+                  <SupplierBagsWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/history"
+              element={
+                <Layout>
+                  {" "}
+                  <History />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/report"
+              element={
+                <Layout>
+                  {" "}
+                  <SupplierAdd />{" "}
+                </Layout>
+              }
+            />
           </>
         )}
 
         {user?.role === "FERTILIZER_MANAGER" && (
-          <Route path="/fertilizerManager/dashboard" element={<Layout>{" "}<TransportManagerDashboard />{" "}</Layout>}/>
+          <Route
+            path="/fertilizerManager/dashboard"
+            element={
+              <Layout>
+                {" "}
+                <TransportManagerDashboard />{" "}
+              </Layout>
+            }
+          />
         )}
 
         {user?.role === "TRANSPORT_MANAGER" && (
-          <Route path="/transportManager/dashboard" element={<Layout>{" "}<TransportManagerDashboard />{" "}</Layout>}/>
+          <Route
+            path="/transportManager/dashboard"
+            element={
+              <Layout>
+                {" "}
+                <TransportManagerDashboard />{" "}
+              </Layout>
+            }
+          />
         )}
 
         {user?.role === "FACTORY_MANAGER" && (
           <>
-            <Route path="/factoryManager/dashboard" element={<Layout>{" "}<FactoryManagerDashboard />{" "}</Layout>}/>
-            <Route path="/factoryManager/suppliers" element={<Layout>{" "}<SupplierRegister />{" "}</Layout>}/>
-            <Route path="/factoryManager/advance" element={<Layout>{" "}<AdvanceManagement />{" "}</Layout>}/>
-            <Route path="/factoryManager/loans" element={<Layout>{" "}<LoanManagement />{" "}</Layout>}/>
-            <Route path="/factoryManager/teaRate" element={<Layout>{" "}<TeaRateAdjustment />{" "}</Layout>}/>
-            <Route path="/factoryManager/payments" element={<Layout>{" "}<PaymentManagement />{" "}</Layout>}/>
+            <Route
+              path="/factoryManager/dashboard"
+              element={
+                <Layout>
+                  {" "}
+                  <FactoryManagerDashboard />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/suppliers"
+              element={
+                <Layout>
+                  {" "}
+                  <SupplierRegister />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/advance"
+              element={
+                <Layout>
+                  {" "}
+                  <AdvanceManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/loans"
+              element={
+                <Layout>
+                  {" "}
+                  <LoanManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/teaRate"
+              element={
+                <Layout>
+                  {" "}
+                  <TeaRateAdjustment />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/payments"
+              element={
+                <Layout>
+                  {" "}
+                  <PaymentManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/routes"
+              element={
+                <Layout>
+                  {" "}
+                  <RouteManagement />{" "}
+                </Layout>
+              }
+            />
           </>
         )}
 
         {user?.role === "OWNER" && (
-          <Route path="/transportManager/dashboard" element={<Layout>{" "}<TransportManagerDashboard />{" "}</Layout>}/>
+          <Route
+            path="/transportManager/dashboard"
+            element={
+              <Layout>
+                {" "}
+                <TransportManagerDashboard />{" "}
+              </Layout>
+            }
+          />
         )}
 
         <Route path="/login" element={<Login />} />
