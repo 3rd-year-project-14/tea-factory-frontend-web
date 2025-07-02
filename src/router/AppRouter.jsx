@@ -32,6 +32,14 @@ import PaymentManagement from "../pages/FactoryManager/Payments/PaymentManagemen
 import FertilizerManagerWeight from "../pages/FertilizerManager/weight";
 import Login from "../pages/login";
 
+//owner
+import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
+import OwnerDashboard from "../pages/Owner/dashboard";
+import OwnerManagers from "../pages/Owner/Managerview/viewManagers";
+import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
+import OwnerReports from "../pages/Owner/Reports/reports";
+import OwnerPaymnets from "../pages/Owner/Payments/payment";
+
 import { useAuth } from "../contexts/AuthContext";
 
 export default function AppRouter() {
@@ -78,7 +86,14 @@ export default function AppRouter() {
         )}
 
         {user?.role === "OWNER" && (
-          <Route path="/transportManager/dashboard" element={<Layout>{" "}<TransportManagerDashboard />{" "}</Layout>}/>
+          <>
+          <Route path="/owner/dashboard" element={<Layout>{" "}<OwnerDashboard />{" "}</Layout>}/>
+          <Route path="/owner/teaRate" element={<Layout>{" "}<OwnerTeaRate />{" "}</Layout>}/>
+          <Route path="/owner/managers" element={<Layout>{" "}<OwnerManagers />{" "}</Layout>}/>
+          <Route path="/owner/annoucement" element={<Layout>{" "}<OwnerAnnoucement />{" "}</Layout>}/>
+          <Route path="/owner/reports" element={<Layout>{" "}<OwnerReports />{" "}</Layout>}/>
+          <Route path="/owner/payments" element={<Layout>{" "}<OwnerPaymnets />{" "}</Layout>}/>
+          </>
         )}
 
         <Route path="/login" element={<Login />} />
