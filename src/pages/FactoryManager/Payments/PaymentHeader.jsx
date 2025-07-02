@@ -4,7 +4,6 @@ export default function PaymentHeader({
   currentView,
   selectedRoute,
   onGoBack,
-  onDownloadCSV,
   onProceedPayments,
   selectedMonth,
   selectedYear,
@@ -65,21 +64,12 @@ export default function PaymentHeader({
                 </button>
               )}
               {currentView === "suppliers" && (
-                <>
-                  <button
-                    onClick={handleGoBack}
-                    className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#f1f5f9] text-[#000] border-none hover:bg-[#e2e8f0]"
-                  >
-                    ← Back
-                  </button>
-                  <button
-                    onClick={onDownloadCSV}
-                    className="bg-[#4CAF50] text-white px-4 py-2 rounded-lg hover:bg-[#45a049] transition-all flex items-center gap-2"
-                  >
-                    <Download className="h-4 w-4" />
-                    Download Bank CSV
-                  </button>
-                </>
+                <button
+                  onClick={handleGoBack}
+                  className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#f1f5f9] text-[#000] border-none hover:bg-[#e2e8f0]"
+                >
+                  ← Back
+                </button>
               )}
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-gray-700">
