@@ -15,6 +15,22 @@ export default function PaymentManagement() {
   const [selectedMonth, setSelectedMonth] = useState(5); // June (0-indexed, so 5 = June)
   const [selectedYear, setSelectedYear] = useState(2025);
 
+  // Payment processing state
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentView, setPaymentView] = useState("summary"); // "summary", "bank", "cash"
+
+  // Tea rate information
+  const [teaRate] = useState({
+    submittedDate: "2025-06-28",
+    rates: {
+      gradeA: 85.0,
+      gradeB: 82.0,
+      gradeC: 78.0,
+    },
+    status: "Approved",
+    approvedBy: "Tea Board Authority",
+  });
+
   // Month names for display
   const monthNames = [
     "January",
@@ -698,6 +714,96 @@ export default function PaymentManagement() {
     return { total: 0, paid: 0, pending: 0, bankPayments: 0, cashPayments: 0 };
   }, [currentView, filteredData]);
 
+  // Payment processing functions
+  const openPaymentModal = () => {
+    setShowPaymentModal(true);
+    setPaymentView("summary");
+  };
+
+  const closePaymentModal = () => {
+    setShowPaymentModal(false);
+  };
+
+  const handlePaymentTypeToggle = (type) => {
+    setPaymentView(type);
+  };
+
+  // Calculate payment statistics for all routes
+  const getPaymentStatistics = () => {
+    const allSuppliers = suppliers.filter((supplier) => {
+      if (supplier.paymentDate) {
+        const paymentDate = new Date(supplier.paymentDate);
+        return (
+          paymentDate.getMonth() === selectedMonth &&
+          paymentDate.getFullYear() === selectedYear
+        );
+      }
+      return true;
+    });
+
+    const totalAmount = allSuppliers.reduce(
+      (sum, supplier) => sum + supplier.finalAmount,
+      0
+    );
+    const bankPayments = allSuppliers.filter((s) => s.paymentMethod === "Bank");
+    const cashPayments = allSuppliers.filter((s) => s.paymentMethod === "Cash");
+
+    const bankAmount = bankPayments.reduce(
+      (sum, supplier) => sum + supplier.finalAmount,
+      0
+    );
+    const cashAmount = cashPayments.reduce(
+      (sum, supplier) => sum + supplier.finalAmount,
+      0
+    );
+
+    // Group bank payments by route
+    const bankPaymentsByRoute = routes
+      .map((route) => {
+        const routeBankPayments = bankPayments.filter(
+          (s) => s.routeId === route.id
+        );
+        return {
+          ...route,
+          suppliers: routeBankPayments,
+          totalAmount: routeBankPayments.reduce(
+            (sum, s) => sum + s.finalAmount,
+            0
+          ),
+          supplierCount: routeBankPayments.length,
+        };
+      })
+      .filter((route) => route.suppliers.length > 0);
+
+    // Group cash payments by route
+    const cashPaymentsByRoute = routes
+      .map((route) => {
+        const routeCashPayments = cashPayments.filter(
+          (s) => s.routeId === route.id
+        );
+        return {
+          ...route,
+          suppliers: routeCashPayments,
+          totalAmount: routeCashPayments.reduce(
+            (sum, s) => sum + s.finalAmount,
+            0
+          ),
+          supplierCount: routeCashPayments.length,
+        };
+      })
+      .filter((route) => route.suppliers.length > 0);
+
+    return {
+      totalAmount,
+      bankAmount,
+      cashAmount,
+      bankPayments: bankPayments.length,
+      cashPayments: cashPayments.length,
+      bankPaymentsByRoute,
+      cashPaymentsByRoute,
+    };
+  };
+
   // Navigation functions
   const viewRoute = (route) => {
     setSelectedRoute(route);
@@ -900,6 +1006,272 @@ export default function PaymentManagement() {
     return null;
   };
 
+  // Payment Modal Component
+  const PaymentModal = () => {
+    if (!showPaymentModal) return null;
+
+    const stats = getPaymentStatistics();
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          {/* Modal Header */}
+          <div className="bg-green-600 text-white p-6 rounded-t-lg">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold">Payment Processing</h2>
+                <p className="text-green-100 mt-1">
+                  {monthNames[selectedMonth]} {selectedYear} - Tea Leaf Payments
+                </p>
+              </div>
+              <button
+                onClick={closePaymentModal}
+                className="text-white hover:text-gray-200 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+
+          <div className="p-6">
+            {/* Tea Rate Information */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                Submitted Tea Rate
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-blue-600">
+                    <span className="font-medium">Submission Date:</span>{" "}
+                    {teaRate.submittedDate}
+                  </p>
+                  <p className="text-sm text-blue-600">
+                    <span className="font-medium">Status:</span>{" "}
+                    {teaRate.status}
+                  </p>
+                  <p className="text-sm text-blue-600">
+                    <span className="font-medium">Approved By:</span>{" "}
+                    {teaRate.approvedBy}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-blue-600">
+                    <span className="font-medium">Grade A:</span> Rs.{" "}
+                    {teaRate.rates.gradeA}/kg
+                  </p>
+                  <p className="text-sm text-blue-600">
+                    <span className="font-medium">Grade B:</span> Rs.{" "}
+                    {teaRate.rates.gradeB}/kg
+                  </p>
+                  <p className="text-sm text-blue-600">
+                    <span className="font-medium">Grade C:</span> Rs.{" "}
+                    {teaRate.rates.gradeC}/kg
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {paymentView === "summary" && (
+              <div>
+                {/* Payment Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-green-800 mb-2">
+                      Total Payments
+                    </h3>
+                    <p className="text-2xl font-bold text-green-600">
+                      Rs. {stats.totalAmount.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div
+                    className="bg-blue-50 border border-blue-200 rounded-lg p-4 cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={() => handlePaymentTypeToggle("bank")}
+                  >
+                    <h3 className="text-lg font-semibold text-blue-800 mb-2">
+                      Bank Payments
+                    </h3>
+                    <p className="text-2xl font-bold text-blue-600">
+                      Rs. {stats.bankAmount.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-blue-600">
+                      {stats.bankPayments} suppliers
+                    </p>
+                  </div>
+
+                  <div
+                    className="bg-orange-50 border border-orange-200 rounded-lg p-4 cursor-pointer hover:bg-orange-100 transition-colors"
+                    onClick={() => handlePaymentTypeToggle("cash")}
+                  >
+                    <h3 className="text-lg font-semibold text-orange-800 mb-2">
+                      Cash Payments
+                    </h3>
+                    <p className="text-2xl font-bold text-orange-600">
+                      Rs. {stats.cashAmount.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-orange-600">
+                      {stats.cashPayments} suppliers
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {paymentView === "bank" && (
+              <div>
+                {/* Bank Payments Header */}
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-blue-800">
+                    Bank Payments by Route
+                  </h3>
+                  <button
+                    onClick={() => setPaymentView("summary")}
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    ← Back to Summary
+                  </button>
+                </div>
+
+                {/* Route-wise Bank Payments */}
+                <div className="space-y-4">
+                  {stats.bankPaymentsByRoute.map((route) => (
+                    <div
+                      key={route.id}
+                      className="bg-blue-50 border border-blue-200 rounded-lg p-4"
+                    >
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="font-semibold text-blue-800">
+                          {route.routeName} ({route.routeNumber})
+                        </h4>
+                        <div className="text-blue-600">
+                          <span className="font-medium">
+                            Total: Rs. {route.totalAmount.toLocaleString()}
+                          </span>
+                          <span className="text-sm ml-2">
+                            ({route.supplierCount} suppliers)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded border overflow-hidden">
+                        <div className="bg-blue-100 grid grid-cols-4 gap-4 p-3 font-medium text-sm text-blue-800">
+                          <div>Supplier Name</div>
+                          <div>Supplier ID</div>
+                          <div className="text-right">Amount</div>
+                          <div>Status</div>
+                        </div>
+                        {route.suppliers.map((supplier) => (
+                          <div
+                            key={supplier.id}
+                            className="grid grid-cols-4 gap-4 p-3 border-t text-sm"
+                          >
+                            <div className="font-medium">
+                              {supplier.supplierName}
+                            </div>
+                            <div className="text-blue-600">{supplier.id}</div>
+                            <div className="text-right font-medium">
+                              Rs. {supplier.finalAmount.toLocaleString()}
+                            </div>
+                            <div>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  supplier.status === "Paid"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-orange-100 text-orange-800"
+                                }`}
+                              >
+                                {supplier.status}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {paymentView === "cash" && (
+              <div>
+                {/* Cash Payments Header */}
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-orange-800">
+                    Cash Payments by Route
+                  </h3>
+                  <button
+                    onClick={() => setPaymentView("summary")}
+                    className="text-orange-600 hover:text-orange-800 font-medium"
+                  >
+                    ← Back to Summary
+                  </button>
+                </div>
+
+                {/* Route-wise Cash Payments */}
+                <div className="space-y-4">
+                  {stats.cashPaymentsByRoute.map((route) => (
+                    <div
+                      key={route.id}
+                      className="bg-orange-50 border border-orange-200 rounded-lg p-4"
+                    >
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="font-semibold text-orange-800">
+                          {route.routeName} ({route.routeNumber})
+                        </h4>
+                        <div className="text-orange-600">
+                          <span className="font-medium">
+                            Total: Rs. {route.totalAmount.toLocaleString()}
+                          </span>
+                          <span className="text-sm ml-2">
+                            ({route.supplierCount} suppliers)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded border overflow-hidden">
+                        <div className="bg-orange-100 grid grid-cols-4 gap-4 p-3 font-medium text-sm text-orange-800">
+                          <div>Supplier Name</div>
+                          <div>Supplier ID</div>
+                          <div className="text-right">Amount</div>
+                          <div>Status</div>
+                        </div>
+                        {route.suppliers.map((supplier) => (
+                          <div
+                            key={supplier.id}
+                            className="grid grid-cols-4 gap-4 p-3 border-t text-sm"
+                          >
+                            <div className="font-medium">
+                              {supplier.supplierName}
+                            </div>
+                            <div className="text-orange-600">{supplier.id}</div>
+                            <div className="text-right font-medium">
+                              Rs. {supplier.finalAmount.toLocaleString()}
+                            </div>
+                            <div>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  supplier.status === "Paid"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-orange-100 text-orange-800"
+                                }`}
+                              >
+                                {supplier.status}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="main-content flex-1 bg-[#f8f9fa] overflow-y-auto text-black">
       <PaymentHeader
@@ -908,6 +1280,7 @@ export default function PaymentManagement() {
         selectedSupplier={selectedSupplier}
         onGoBack={handleGoBack}
         onDownloadCSV={downloadCSV}
+        onProceedPayments={openPaymentModal}
         selectedMonth={selectedMonth}
         selectedYear={selectedYear}
         setSelectedMonth={setSelectedMonth}
@@ -934,6 +1307,9 @@ export default function PaymentManagement() {
 
         {/* Main Content */}
         {renderMainContent()}
+
+        {/* Payment Modal - always render this at the end */}
+        <PaymentModal />
       </div>
     </div>
   );
