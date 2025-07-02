@@ -41,13 +41,14 @@ export const downloadCSV = (filteredData, selectedRoute) => {
   URL.revokeObjectURL(url);
 };
 
-// Calculate payment statistics for all routes
+// Calculate payment statistics for all routes - UNIFIED CALCULATION
 export const getPaymentStatistics = (
   suppliers,
   routes,
   selectedMonth,
   selectedYear
 ) => {
+  // Filter suppliers by payment date (same logic as main dashboard)
   const allSuppliers = suppliers.filter((supplier) => {
     if (supplier.paymentDate) {
       const paymentDate = new Date(supplier.paymentDate);
@@ -59,10 +60,12 @@ export const getPaymentStatistics = (
     return true;
   });
 
+  // Calculate totals using finalAmount (consistent with dashboard summary)
   const totalAmount = allSuppliers.reduce(
     (sum, supplier) => sum + supplier.finalAmount,
     0
   );
+
   const bankPayments = allSuppliers.filter((s) => s.paymentMethod === "Bank");
   const cashPayments = allSuppliers.filter((s) => s.paymentMethod === "Cash");
 
@@ -119,6 +122,9 @@ export const getPaymentStatistics = (
     cashPayments: cashPayments.length,
     bankPaymentsByRoute,
     cashPaymentsByRoute,
+    // Additional data for consistency verification
+    totalSuppliers: allSuppliers.length,
+    allSuppliers, // Include all suppliers for debugging
   };
 };
 
@@ -284,4 +290,149 @@ export const getCurrentData = (
     return selectedSupplier;
   }
   return [];
+};
+
+// Unified summary calculation to ensure consistency between dashboard and modal
+export const getUnifiedSummary = (
+  suppliers,
+  routes,
+  selectedMonth,
+  selectedYear,
+  currentView,
+  filters = {},
+  selectedRoute = null
+) => {
+  // ALWAYS get the same payment statistics as the modal - this is the source of truth
+  const paymentStats = getPaymentStatistics(
+    suppliers,
+    routes,
+    selectedMonth,
+    selectedYear
+  );
+
+  if (currentView === "routes") {
+    // For routes view, still show route-based data but use payment modal totals for consistency
+    const filteredRoutes = routes.filter((route) => {
+      const matchesSearch =
+        !filters.search ||
+        route.routeName.toLowerCase().includes(filters.search.toLowerCase()) ||
+        route.routeNumber.toLowerCase().includes(filters.search.toLowerCase());
+      return matchesSearch;
+    });
+
+    // Calculate route-specific stats for display
+    const routeCount = filteredRoutes.length;
+    const supplierCount = filteredRoutes.reduce(
+      (acc, route) => acc + route.supplierCount,
+      0
+    );
+    const totalWeight = filteredRoutes.reduce(
+      (acc, route) => acc + route.totalWeight,
+      0
+    );
+
+    return {
+      total: paymentStats.totalAmount, // USE PAYMENT MODAL TOTAL - SOURCE OF TRUTH
+      routeCount,
+      supplierCount,
+      totalWeight,
+      paid: 0,
+      pending: 0,
+      bankPayments: paymentStats.bankPayments, // USE PAYMENT MODAL COUNTS
+      cashPayments: paymentStats.cashPayments, // USE PAYMENT MODAL COUNTS
+      // Add payment stats for consistency verification
+      paymentModalTotal: paymentStats.totalAmount,
+      paymentModalBank: paymentStats.bankAmount,
+      paymentModalCash: paymentStats.cashAmount,
+    };
+  } else if (currentView === "suppliers") {
+    // For suppliers view, filter by selected route first, then apply additional filters
+    let routeSuppliers = paymentStats.allSuppliers;
+
+    // If a route is selected, filter suppliers for that route only
+    if (selectedRoute) {
+      routeSuppliers = paymentStats.allSuppliers.filter(
+        (supplier) => supplier.routeId === selectedRoute.id
+      );
+    }
+
+    // Apply additional filters if provided
+    const filteredSuppliers = routeSuppliers.filter((supplier) => {
+      const matchesStatus =
+        !filters.status ||
+        filters.status === "All" ||
+        supplier.status === filters.status;
+      const matchesPaymentMethod =
+        !filters.paymentMethod ||
+        filters.paymentMethod === "All" ||
+        supplier.paymentMethod === filters.paymentMethod;
+      const matchesSearch =
+        !filters.search ||
+        supplier.supplierName
+          .toLowerCase()
+          .includes(filters.search.toLowerCase()) ||
+        supplier.id.toLowerCase().includes(filters.search.toLowerCase());
+
+      return matchesStatus && matchesPaymentMethod && matchesSearch;
+    });
+
+    // Apply sorting if provided
+    let sortedSuppliers = [...filteredSuppliers];
+    if (filters.sortOrder) {
+      sortedSuppliers.sort((a, b) => {
+        if (filters.sortOrder === "high") {
+          return b.finalAmount - a.finalAmount;
+        } else if (filters.sortOrder === "low") {
+          return a.finalAmount - b.finalAmount;
+        }
+        return 0;
+      });
+    }
+
+    const total = sortedSuppliers.reduce(
+      (acc, supplier) => acc + supplier.finalAmount,
+      0
+    );
+    const totalWeight = sortedSuppliers.reduce(
+      (acc, supplier) => acc + supplier.totalWeight,
+      0
+    );
+    const paid = sortedSuppliers
+      .filter((s) => s.status === "Paid")
+      .reduce((acc, s) => acc + s.finalAmount, 0);
+    const pending = sortedSuppliers
+      .filter((s) => s.status === "Pending")
+      .reduce((acc, s) => acc + s.finalAmount, 0);
+    const bankPayments = sortedSuppliers.filter(
+      (s) => s.paymentMethod === "Bank"
+    ).length;
+    const cashPayments = sortedSuppliers.filter(
+      (s) => s.paymentMethod === "Cash"
+    ).length;
+
+    return {
+      total,
+      totalWeight,
+      paid,
+      pending,
+      bankPayments,
+      cashPayments,
+      // Add payment stats for consistency verification
+      paymentModalTotal: paymentStats.totalAmount,
+      paymentModalBank: paymentStats.bankAmount,
+      paymentModalCash: paymentStats.cashAmount,
+      filteredSuppliers: sortedSuppliers,
+    };
+  }
+
+  return {
+    total: paymentStats.totalAmount, // ALWAYS use payment modal total
+    paid: 0,
+    pending: 0,
+    bankPayments: paymentStats.bankPayments,
+    cashPayments: paymentStats.cashPayments,
+    paymentModalTotal: paymentStats.totalAmount,
+    paymentModalBank: paymentStats.bankAmount,
+    paymentModalCash: paymentStats.cashAmount,
+  };
 };

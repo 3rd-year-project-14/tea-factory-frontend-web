@@ -11,7 +11,7 @@ import {
   availableYears,
   getAvailableMonths,
 } from "./paymentData";
-import { getPaymentStatistics } from "./paymentUtils";
+import { getPaymentStatistics, getUnifiedSummary } from "./paymentUtils";
 
 export default function PaymentManagement() {
   // Navigation state
@@ -140,59 +140,18 @@ export default function PaymentManagement() {
     return [];
   };
 
-  // Calculate summary statistics based on current view
+  // Calculate summary statistics based on current view - UNIFIED WITH PAYMENT MODAL
   const summary = useMemo(() => {
-    if (currentView === "routes") {
-      const total = filteredData.reduce(
-        (acc, route) => acc + route.totalAmount,
-        0
-      );
-      const routeCount = filteredData.length;
-      const supplierCount = filteredData.reduce(
-        (acc, route) => acc + route.supplierCount,
-        0
-      );
-      const totalWeight = filteredData.reduce(
-        (acc, route) => acc + route.totalWeight,
-        0
-      );
-
-      return {
-        total,
-        routeCount,
-        supplierCount,
-        totalWeight,
-        paid: 0,
-        pending: 0,
-        bankPayments: 0,
-        cashPayments: 0,
-      };
-    } else if (currentView === "suppliers") {
-      const total = filteredData.reduce(
-        (acc, supplier) => acc + supplier.finalAmount,
-        0
-      );
-      const totalWeight = filteredData.reduce(
-        (acc, supplier) => acc + supplier.totalWeight,
-        0
-      );
-      const paid = filteredData
-        .filter((s) => s.status === "Paid")
-        .reduce((acc, s) => acc + s.finalAmount, 0);
-      const pending = filteredData
-        .filter((s) => s.status === "Pending")
-        .reduce((acc, s) => acc + s.finalAmount, 0);
-      const bankPayments = filteredData.filter(
-        (s) => s.paymentMethod === "Bank"
-      ).length;
-      const cashPayments = filteredData.filter(
-        (s) => s.paymentMethod === "Cash"
-      ).length;
-
-      return { total, totalWeight, paid, pending, bankPayments, cashPayments };
-    }
-    return { total: 0, paid: 0, pending: 0, bankPayments: 0, cashPayments: 0 };
-  }, [currentView, filteredData]);
+    return getUnifiedSummary(
+      suppliers,
+      routes,
+      selectedMonth,
+      selectedYear,
+      currentView,
+      filters,
+      selectedRoute // Pass selectedRoute for route-specific calculations
+    );
+  }, [currentView, selectedMonth, selectedYear, filters, selectedRoute]);
 
   // Payment processing functions
   const openPaymentModal = () => {
@@ -318,7 +277,7 @@ export default function PaymentManagement() {
   };
 
   return (
-    <div className="main-content flex-1 bg-[#f8f9fa] overflow-y-auto text-black">
+    <div className="min-h-screen bg-gray-50">
       <PaymentHeader
         currentView={currentView}
         selectedRoute={selectedRoute}
@@ -333,7 +292,7 @@ export default function PaymentManagement() {
         availableYears={availableYears}
         getAvailableMonths={getAvailableMonths}
       />
-      <div className="dashboard-content p-6">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Summary Cards - show before filters for routes and suppliers views */}
         {currentView !== "bill" && (
           <SummaryCards currentView={currentView} summary={summary} />

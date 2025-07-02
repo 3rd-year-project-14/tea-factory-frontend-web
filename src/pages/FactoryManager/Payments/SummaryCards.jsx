@@ -3,28 +3,44 @@ export default function SummaryCards({ currentView, summary }) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {/* Total Weight Card */}
-        <div className="bg-white p-4 rounded-xl shadow-md border-l-4 border-orange-500">
-          <div className="text-orange-600 text-sm font-medium">
-            Total Weight
-          </div>
-          <div className="text-2xl font-bold text-[#2c2c2c]">
-            {summary.totalWeight?.toFixed(1) || "0.0"} kg
-          </div>
-          <div className="text-xs text-[#666] mt-1">
-            {summary.routeCount || 0} routes • {summary.supplierCount || 0}{" "}
-            suppliers
+        <div className="bg-white p-6 rounded-lg shadow-md border border-emerald-200 transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-emerald-700">
+                Total Weight
+              </p>
+              <p className="text-2xl font-bold text-emerald-800">
+                {summary.totalWeight?.toFixed(1) || "0.0"} kg
+              </p>
+              <p className="text-xs text-emerald-600">
+                {summary.routeCount || 0} routes • {summary.supplierCount || 0}{" "}
+                suppliers
+              </p>
+            </div>
+            <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
+              <div className="text-emerald-600 text-2xl">⚖️</div>
+            </div>
           </div>
         </div>
 
         {/* Total Amount Card */}
-        <div className="bg-white p-4 rounded-xl shadow-md border-l-4 border-green-500">
-          <div className="text-green-600 text-sm font-medium">Total Amount</div>
-          <div className="text-2xl font-bold text-[#2c2c2c]">
-            Rs. {summary.total?.toLocaleString() || "0"}
-          </div>
-          <div className="text-xs text-[#666] mt-1">
-            {summary.routeCount || 0} routes • {summary.supplierCount || 0}{" "}
-            suppliers
+        <div className="bg-white p-6 rounded-lg shadow-md border border-emerald-200 transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-emerald-700">
+                Total Amount
+              </p>
+              <p className="text-2xl font-bold text-emerald-800">
+                Rs. {summary.total?.toLocaleString() || "0"}
+              </p>
+              <p className="text-xs text-emerald-600">
+                {summary.routeCount || 0} routes • {summary.supplierCount || 0}{" "}
+                suppliers
+              </p>
+            </div>
+            <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
+              <div className="text-emerald-600 text-2xl">💰</div>
+            </div>
           </div>
         </div>
       </div>
@@ -34,22 +50,34 @@ export default function SummaryCards({ currentView, summary }) {
       {
         label: "Total Weight",
         value: `${summary.totalWeight?.toFixed(1) || "0.0"} kg`,
-        colorClass: "text-orange-600 border-orange-500",
+        colorClass: "text-emerald-800",
+        bgColorClass: "bg-emerald-100",
+        iconColorClass: "text-emerald-600",
+        emoji: "⚖️",
       },
       {
         label: "Total Amount",
         value: `Rs. ${summary.total?.toLocaleString() || "0"}`,
-        colorClass: "text-blue-600 border-blue-500",
+        colorClass: "text-emerald-800",
+        bgColorClass: "bg-blue-100",
+        iconColorClass: "text-blue-600",
+        emoji: "💰",
       },
       {
         label: "Paid",
         value: `Rs. ${summary.paid?.toLocaleString() || "0"}`,
-        colorClass: "text-green-600 border-green-500",
+        colorClass: "text-emerald-800",
+        bgColorClass: "bg-green-100",
+        iconColorClass: "text-green-600",
+        emoji: "✅",
       },
       {
         label: "Pending",
         value: `Rs. ${summary.pending?.toLocaleString() || "0"}`,
-        colorClass: "text-orange-600 border-orange-500",
+        colorClass: "text-emerald-800",
+        bgColorClass: "bg-orange-100",
+        iconColorClass: "text-orange-600",
+        emoji: "⏳",
       },
     ];
 
@@ -58,17 +86,24 @@ export default function SummaryCards({ currentView, summary }) {
         {cards.map((card, index) => (
           <div
             key={index}
-            className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${
-              card.colorClass.split(" ")[1]
-            }`}
+            className="bg-white p-6 rounded-lg shadow-md border border-emerald-200 transition-all duration-200 hover:shadow-lg hover:border-emerald-300"
           >
-            <div
-              className={`${card.colorClass.split(" ")[0]} text-sm font-medium`}
-            >
-              {card.label}
-            </div>
-            <div className="text-2xl font-bold text-[#2c2c2c]">
-              {card.value}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-emerald-700">
+                  {card.label}
+                </p>
+                <p className={`text-2xl font-bold ${card.colorClass}`}>
+                  {card.value}
+                </p>
+              </div>
+              <div
+                className={`h-12 w-12 ${card.bgColorClass} rounded-full flex items-center justify-center`}
+              >
+                <div className={`${card.iconColorClass} text-2xl`}>
+                  {card.emoji}
+                </div>
+              </div>
             </div>
           </div>
         ))}

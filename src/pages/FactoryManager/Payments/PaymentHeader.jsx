@@ -32,12 +32,14 @@ export default function PaymentHeader({
   // Show enhanced header with month/year selection for routes and suppliers views
   if (currentView === "routes" || currentView === "suppliers") {
     return (
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-md border-b border-emerald-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
             <div>
-              <p className="text-3xl font-bold text-gray-900">{getTitle()}</p>
-              <div className="text-xl font-bold text-blue-600 px-4 py-2 rounded-lg">
+              <p className="text-3xl font-bold text-emerald-800">
+                {getTitle()}
+              </p>
+              <div className="text-lg font-semibold text-emerald-600 mt-1">
                 {monthNames[selectedMonth]} {selectedYear}
               </div>
             </div>
@@ -45,7 +47,7 @@ export default function PaymentHeader({
               {currentView === "routes" && (
                 <button
                   onClick={onProceedPayments}
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-colors duration-200 flex items-center gap-2"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors duration-200 flex items-center gap-2"
                 >
                   <svg
                     className="w-5 h-5"
@@ -66,19 +68,19 @@ export default function PaymentHeader({
               {currentView === "suppliers" && (
                 <button
                   onClick={handleGoBack}
-                  className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#f1f5f9] text-[#000] border-none hover:bg-[#e2e8f0]"
+                  className="px-6 py-3 rounded-lg text-sm font-semibold bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200 transition-colors duration-200"
                 >
                   ← Back
                 </button>
               )}
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-emerald-700">
                   Month:
                 </label>
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
+                  className="px-3 py-2 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-emerald-800 font-medium bg-white"
                 >
                   {getAvailableMonths(selectedYear).map((monthIndex) => (
                     <option key={monthIndex} value={monthIndex}>
@@ -88,7 +90,7 @@ export default function PaymentHeader({
                 </select>
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-emerald-700">
                   Year:
                 </label>
                 <select
@@ -104,7 +106,7 @@ export default function PaymentHeader({
                       );
                     }
                   }}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
+                  className="px-3 py-2 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-emerald-800 font-medium bg-white"
                 >
                   {availableYears.map((year) => (
                     <option key={year} value={year}>
@@ -123,30 +125,32 @@ export default function PaymentHeader({
   // Enhanced header for bill view with month/year selection
   if (currentView === "bill") {
     return (
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-md border-b border-emerald-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
             <div>
-              <p className="text-3xl font-bold text-gray-900">{getTitle()}</p>
-              <div className="text-xl font-bold text-blue-600 px-4 py-2 rounded-lg">
+              <p className="text-3xl font-bold text-emerald-800">
+                {getTitle()}
+              </p>
+              <div className="text-lg font-semibold text-emerald-600 mt-1">
                 {monthNames[selectedMonth]} {selectedYear}
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <button
                 onClick={handleGoBack}
-                className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#f1f5f9] text-[#000] border-none hover:bg-[#e2e8f0]"
+                className="px-6 py-3 rounded-lg text-sm font-semibold bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200 transition-colors duration-200"
               >
                 ← Back
               </button>
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-emerald-700">
                   Month:
                 </label>
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
+                  className="px-3 py-2 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-emerald-800 font-medium bg-white"
                 >
                   {getAvailableMonths(selectedYear).map((monthIndex) => (
                     <option key={monthIndex} value={monthIndex}>
@@ -156,7 +160,7 @@ export default function PaymentHeader({
                 </select>
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-emerald-700">
                   Year:
                 </label>
                 <select
@@ -172,7 +176,7 @@ export default function PaymentHeader({
                       );
                     }
                   }}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
+                  className="px-3 py-2 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-emerald-800 font-medium bg-white"
                 >
                   {availableYears.map((year) => (
                     <option key={year} value={year}>
