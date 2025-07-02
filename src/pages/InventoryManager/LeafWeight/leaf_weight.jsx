@@ -24,7 +24,7 @@ export default function Route() {
   return (
     <div className="h-full bg-gray-50 p-4">
       <div className="max-w-6xl mx-auto space-y-4">
-        
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Leaf Weight</h1>
         {/* Top Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="bg-white rounded-lg shadow-sm border p-3">
@@ -72,34 +72,34 @@ export default function Route() {
         {/* Routes Table */}
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
           <div className="bg-green-600 text-white">
-            <div className="grid grid-cols-6 gap-4 p-3 font-medium text-sm">
+            <div className="grid grid-cols-6 gap-4 p-3 font-medium text-center">
               <div>Route No</div>
               <div>Route Name</div>
               <div>Driver Name</div>
-              <div>Vehicle No</div>
-              <div>No of Suppliers</div>
-              <div>Action</div>
+              <div>No of Bags</div>
             </div>
           </div>
           
           <div className="divide-y divide-gray-200">
             {filteredRoutes.map((route, index) => (
-              <div key={index} className="grid grid-cols-6 gap-4 p-3 items-center hover:bg-gray-50">
-                <div className="font-medium text-gray-900 text-sm">{route.id}</div>
-                <div className="text-gray-600 text-sm">{route.routeName}</div>
-                <div className="text-gray-600 text-sm">{route.driverName}</div>
-                <div className="text-gray-600 text-sm">{route.vehicleNo}</div>
-                <div className="text-gray-900 font-medium text-sm">{route.suppliers}</div>
+              <div key={index} 
+              onClick={() => navigate(`/inventoryManager/route_leaf`)}
+              className="grid grid-cols-6 gap-4 p-4 items-center hover:bg-gray-50">
+                
+                <div className="font-medium text-gray-900 text-center">{route.id}</div>
+                <div className="text-gray-600 text-center">{route.routeName}</div>
+                <div className="text-gray-600 text-center">{route.driverName}</div>
+                <div className="text-gray-900 font-medium text-center">{route.suppliers}</div>
                 <div>
                   {/* <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-xs font-medium transition-colors duration-200">
                     View
                   </button> */}
-                    <button
+                    {/* <button
                         onClick={() => navigate(`/inventoryManager/route_leaf`)}
                         className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-xs font-medium transition-colors duration-200"
                         >
                         View
-                    </button>
+                    </button> */}
 
                 </div>
               </div>
