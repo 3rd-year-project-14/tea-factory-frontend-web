@@ -130,15 +130,17 @@ const FertilizerManager = () => {
 
     return filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'stock':
-          return b.currentStock - a.currentStock;
-        case 'status':
-          const statusA = getStockStatus(a.currentStock, a.minStock, a.maxStock);
-          const statusB = getStockStatus(b.currentStock, b.minStock, b.maxStock);
-          return statusA.localeCompare(statusB);
-        default:
-          return a.name.localeCompare(b.name);
-      }
+  case 'stock':
+    return b.currentStock - a.currentStock;
+  case 'status': {
+    const statusA = getStockStatus(a.currentStock, a.minStock, a.maxStock);
+    const statusB = getStockStatus(b.currentStock, b.minStock, b.maxStock);
+    return statusA.localeCompare(statusB);
+  }
+  default:
+    return a.name.localeCompare(b.name);
+}
+
     });
   }, [fertilizers, searchTerm, filterStatus, sortBy]);
 
@@ -157,54 +159,66 @@ const FertilizerManager = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-xl shadow-sm border border-green-100 p-3 
+              hover:shadow-lg hover:scale-[1.03] hover:border-green-300
+              transition duration-300 ease-in-out">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-600 text-sm font-medium">Total Items</p>
-                <p className="text-3xl font-bold text-gray-900">{fertilizers.length}</p>
+                <p className="text-green-600 text-xs font-medium">Total Items</p>
+                <p className="text-2xl font-bold text-gray-900">{fertilizers.length}</p>
               </div>
-              <div className="bg-green-100 p-3 rounded-xl">
-                <Package className="w-6 h-6 text-green-600" />
+              <div className="bg-green-100 p-2 rounded-xl">
+                <Package className="w-5 h-5 text-green-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-red-600 text-sm font-medium">Low Stock Alert</p>
-                <p className="text-3xl font-bold text-gray-900">{lowStockItems}</p>
-              </div>
-              <div className="bg-red-100 p-3 rounded-xl">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-600 text-sm font-medium">Total Value</p>
-                <p className="text-3xl font-bold text-gray-900">${totalValue.toLocaleString()}</p>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-xl">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
+          
 
-          <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-600 text-sm font-medium">Categories</p>
-                <p className="text-3xl font-bold text-gray-900">{new Set(fertilizers.map(f => f.category)).size}</p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-xl">
-                <Filter className="w-6 h-6 text-green-600" />
-              </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-4 
+            hover:shadow-lg hover:scale-[1.03] hover:border-green-300
+            transition duration-300 ease-in-out">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-red-600 text-xs font-medium">Low Stock Alert</p>
+              <p className="text-2xl font-bold text-gray-900">{lowStockItems}</p>
+            </div>
+            <div className="bg-red-100 p-2 rounded-xl">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
           </div>
         </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-4 
+            hover:shadow-lg hover:scale-[1.03] hover:border-green-300
+            transition duration-300 ease-in-out">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-600 text-xs font-medium">Total Value</p>
+              <p className="text-2xl font-bold text-gray-900">${totalValue.toLocaleString()}</p>
+            </div>
+            <div className="bg-blue-100 p-2 rounded-xl">
+              <TrendingUp className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-4 
+            hover:shadow-lg hover:scale-[1.03] hover:border-green-300
+            transition duration-300 ease-in-out">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-green-600 text-xs font-medium">Categories</p>
+              <p className="text-2xl font-bold text-gray-900">{new Set(fertilizers.map(f => f.category)).size}</p>
+            </div>
+            <div className="bg-green-100 p-2 rounded-xl">
+              <Filter className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
 
         {/* Search and Filter Controls */}
         <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 mb-8">
