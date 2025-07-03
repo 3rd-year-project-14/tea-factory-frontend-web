@@ -4,21 +4,23 @@ import Layout from "../layouts/Layout";
 import FertlizerManagerDashboard from "../pages/FertilizerManager/dashboard";
 import inventoryManagerRoutes from "./InventoryManagerRoutes";
 
-import fertilizerManagerRoutes from "./FertlizerManagerRoutes";
-
 //Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
 import SupplierRegister from "../pages/FactoryManager/Suppliers/supplierRegister";
-import AdvanceManagement from "../pages/FactoryManager/Advance/AdvanceManagement";
-import LoanManagement from "../pages/FactoryManager/Loans/LoanManagement";
-import TeaRateAdjustment from "../pages/FactoryManager/TeaRate/TeaRateAdjustment";
-import PaymentManagement from "../pages/FactoryManager/Payments/PaymentManagement";
 import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
 import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
 import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
 
 // //Fertilizer Manager
 // import FertilizerManagerDashboard from "../pages/FertilizerManager/dashboard";
+
+//Payment Manager
+import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
+import AdvanceManagement from "../pages/PaymentManager/Advance/AdvanceManagement";
+import LoanManagement from "../pages/PaymentManager/Loans/LoanManagement";
+import TeaRateAdjustment from "../pages/PaymentManager/TeaRate/TeaRateAdjustment";
+import PaymentManagement from "../pages/PaymentManager/Payments/PaymentManagement";
+
 
 //Transport Manager
 import TransportManagerDashboard from "../pages/TransportManager/dashboard";
@@ -44,9 +46,11 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
+
         {user?.role === "INVENTORY_MANAGER" && inventoryManagerRoutes}
 
         {user?.role === "FERTILIZER_MANAGER" && fertilizerManagerRoutes}
+
 
         {user?.role === "TRANSPORT_MANAGER" && (
           <>
@@ -99,8 +103,7 @@ export default function AppRouter() {
               path="/factoryManager/dashboard"
               element={
                 <Layout>
-                  {" "}
-                  <FactoryManagerDashboard />{" "}
+                  <FactoryManagerDashboard />
                 </Layout>
               }
             />
@@ -108,8 +111,7 @@ export default function AppRouter() {
               path="/factoryManager/suppliers"
               element={
                 <Layout>
-                  {" "}
-                  <SupplierRegister />{" "}
+                  <SupplierRegister />
                 </Layout>
               }
             />
@@ -117,17 +119,7 @@ export default function AppRouter() {
               path="/factoryManager/drivers"
               element={
                 <Layout>
-                  {" "}
-                  <DriverManagement />{" "}
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/advance"
-              element={
-                <Layout>
-                  {" "}
-                  <AdvanceManagement />{" "}
+                  <DriverManagement />
                 </Layout>
               }
             />
@@ -135,35 +127,7 @@ export default function AppRouter() {
               path="/factoryManager/inventory"
               element={
                 <Layout>
-                  {" "}
-                  <InventoryManagement />{" "}
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/loans"
-              element={
-                <Layout>
-                  {" "}
-                  <LoanManagement />{" "}
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/teaRate"
-              element={
-                <Layout>
-                  {" "}
-                  <TeaRateAdjustment />{" "}
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/payments"
-              element={
-                <Layout>
-                  {" "}
-                  <PaymentManagement />{" "}
+                  <InventoryManagement />
                 </Layout>
               }
             />
@@ -171,8 +135,52 @@ export default function AppRouter() {
               path="/factoryManager/routes"
               element={
                 <Layout>
-                  {" "}
-                  <RouteManagement />{" "}
+                  <RouteManagement />
+                </Layout>
+              }
+            />
+          </>
+        )}
+
+        {user?.role === "PAYMENT_MANAGER" && (
+          <>
+            <Route
+              path="/paymentManager/dashboard"
+              element={
+                <Layout>
+                  <PaymentManagerDashboard />
+                </Layout>
+              }
+            />
+            <Route
+              path="/paymentManager/advance"
+              element={
+                <Layout>
+                  <AdvanceManagement />
+                </Layout>
+              }
+            />
+            <Route
+              path="/paymentManager/loans"
+              element={
+                <Layout>
+                  <LoanManagement />
+                </Layout>
+              }
+            />
+            <Route
+              path="/paymentManager/payments"
+              element={
+                <Layout>
+                  <PaymentManagement />
+                </Layout>
+              }
+            />
+            <Route
+              path="/paymentManager/teaRate"
+              element={
+                <Layout>
+                  <TeaRateAdjustment />
                 </Layout>
               }
             />
@@ -185,8 +193,7 @@ export default function AppRouter() {
               path="/owner/dashboard"
               element={
                 <Layout>
-                  {" "}
-                  <OwnerDashboard />{" "}
+                  <OwnerDashboard />
                 </Layout>
               }
             />
@@ -194,8 +201,7 @@ export default function AppRouter() {
               path="/owner/teaRate"
               element={
                 <Layout>
-                  {" "}
-                  <OwnerTeaRate />{" "}
+                  <OwnerTeaRate />
                 </Layout>
               }
             />
@@ -203,8 +209,7 @@ export default function AppRouter() {
               path="/owner/managers"
               element={
                 <Layout>
-                  {" "}
-                  <OwnerManagers />{" "}
+                  <OwnerManagers />
                 </Layout>
               }
             />
@@ -212,8 +217,7 @@ export default function AppRouter() {
               path="/owner/annoucement"
               element={
                 <Layout>
-                  {" "}
-                  <OwnerAnnoucement />{" "}
+                  <OwnerAnnoucement />
                 </Layout>
               }
             />
@@ -221,8 +225,7 @@ export default function AppRouter() {
               path="/owner/reports"
               element={
                 <Layout>
-                  {" "}
-                  <OwnerReports />{" "}
+                  <OwnerReports />
                 </Layout>
               }
             />
@@ -230,8 +233,7 @@ export default function AppRouter() {
               path="/owner/payments"
               element={
                 <Layout>
-                  {" "}
-                  <OwnerPaymnets />{" "}
+                  <OwnerPaymnets />
                 </Layout>
               }
             />
