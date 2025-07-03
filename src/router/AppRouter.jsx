@@ -20,24 +20,6 @@ import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier";
 
 //Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
-import Advance from "../pages/FactoryManager/advance";
-
-//Transport Manager
-<<<<<<< Updated upstream
-=======
-import TransportManagerDashboard from "../pages/TransportManager/dashboard";
->>>>>>> Stashed changes
-import Vehicle from "../pages/TransportManager/vehicle";
-import TrackRoutes from "../pages/TransportManager/trackRoutes";
-import Emergency from "../pages/TransportManager/emergency";
-import Assignment from "../pages/TransportManager/assignments";
-
-<<<<<<< Updated upstream
-=======
-//Fertilizer Manager
-import FertilizerManagerDashboard from "../pages/FertilizerManager/dashboard";
-
->>>>>>> Stashed changes
 import SupplierRegister from "../pages/FactoryManager/Suppliers/supplierRegister";
 import AdvanceManagement from "../pages/FactoryManager/Advance/AdvanceManagement";
 import LoanManagement from "../pages/FactoryManager/Loans/LoanManagement";
@@ -45,8 +27,20 @@ import TeaRateAdjustment from "../pages/FactoryManager/TeaRate/TeaRateAdjustment
 import PaymentManagement from "../pages/FactoryManager/Payments/PaymentManagement";
 import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
 import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
-import FertilizerManagerWeight from "../pages/FertilizerManager/weight";
-import Login from "../pages/login";
+import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
+
+
+//Transport Manager
+import TransportManagerDashboard from "../pages/TransportManager/dashboard";
+import Vehicle from "../pages/TransportManager/vehicle";
+import TrackRoutes from "../pages/TransportManager/trackRoutes";
+import Emergency from "../pages/TransportManager/emergency";
+import Assignment from "../pages/TransportManager/assignments";
+
+//Fertilizer Manager
+import FertilizerManagerDashboard from "../pages/FertilizerManager/dashboard";
+
+
 
 //owner
 import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
@@ -57,6 +51,7 @@ import OwnerReports from "../pages/Owner/Reports/reports";
 import OwnerPaymnets from "../pages/Owner/Payments/payment";
 
 import { useAuth } from "../contexts/AuthContext";
+import Login from "../pages/login";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -66,25 +61,111 @@ export default function AppRouter() {
       <Routes>
         {user?.role === "INVENTORY_MANAGER" && (
           <>
-
-            <Route path="/inventoryManager/dashboard" element={<Layout>{" "}<InventoryManagerDashboard />{" "}</Layout>}/>
-            <Route path="/inventoryManager/leaf_weight" element={<Layout>{" "}<LeafWeight />{" "}</Layout>}/>
-            <Route path="/inventoryManager/route_leaf" element={<Layout>{" "}<RouteLeaf />{" "}</Layout>}/>
-            <Route path="/inventoryManager/weight_condition" element={<Layout>{" "}<WeightCondition/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/weight_bags_weight" element={<Layout>{" "}<LeafBagsWeight/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/empty_bags_weight" element={<Layout>{" "}<EmptyBagsWeight/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/route_bags_weight" element={<Layout>{" "}<RouteBagsWeight/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/bags_weight_supplier" element={<Layout>{" "}<SupplierBagsWeight/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/history" element={<Layout>{" "}<History/>{" "}</Layout>}/>
-            <Route path="/inventoryManager/report" element={<Layout>{" "}<SupplierAdd/>{" "}</Layout>}/>
-
+            <Route
+              path="/inventoryManager/dashboard"
+              element={
+                <Layout>
+                  {" "}
+                  <InventoryManagerDashboard />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/leaf_weight"
+              element={
+                <Layout>
+                  {" "}
+                  <LeafWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/route_leaf"
+              element={
+                <Layout>
+                  {" "}
+                  <RouteLeaf />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/weight_condition"
+              element={
+                <Layout>
+                  {" "}
+                  <WeightCondition />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/weight_bags_weight"
+              element={
+                <Layout>
+                  {" "}
+                  <LeafBagsWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/empty_bags_weight"
+              element={
+                <Layout>
+                  {" "}
+                  <EmptyBagsWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/route_bags_weight"
+              element={
+                <Layout>
+                  {" "}
+                  <RouteBagsWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/bags_weight_supplier"
+              element={
+                <Layout>
+                  {" "}
+                  <SupplierBagsWeight />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/history"
+              element={
+                <Layout>
+                  {" "}
+                  <History />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/inventoryManager/report"
+              element={
+                <Layout>
+                  {" "}
+                  <SupplierAdd />{" "}
+                </Layout>
+              }
+            />
           </>
         )}
 
         {user?.role === "FERTILIZER_MANAGER" && (
           <>
-          <Route path="/fertilizerManager/dashboard" element={<Layout>{" "}<FertilizerManagerDashboard />{" "}</Layout>}/>
-          <Route path="/fertilizerManager/stock" element={<Layout>{" "}<Stock />{" "}</Layout>}/>
+            <Route
+              path="/fertilizerManager/dashboard"
+              element={
+                <Layout>
+                  {" "}
+                  <FertilizerManagerDashboard />{" "}
+                </Layout>
+              }
+            />
+            
           </>
         )}
 
@@ -154,11 +235,29 @@ export default function AppRouter() {
               }
             />
             <Route
+              path="/factoryManager/drivers"
+              element={
+                <Layout>
+                  {" "}
+                  <DriverManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
               path="/factoryManager/advance"
               element={
                 <Layout>
                   {" "}
                   <AdvanceManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/inventory"
+              element={
+                <Layout>
+                  {" "}
+                  <InventoryManagement />{" "}
                 </Layout>
               }
             />
@@ -198,26 +297,66 @@ export default function AppRouter() {
                 </Layout>
               }
             />
-            <Route
-              path="/factoryManager/inventory"
-              element={
-                <Layout>
-                  {" "}
-                  <InventoryManagement />{" "}
-                </Layout>
-              }
-            />
+            
           </>
         )}
 
         {user?.role === "OWNER" && (
           <>
-          <Route path="/owner/dashboard" element={<Layout>{" "}<OwnerDashboard />{" "}</Layout>}/>
-          <Route path="/owner/teaRate" element={<Layout>{" "}<OwnerTeaRate />{" "}</Layout>}/>
-          <Route path="/owner/managers" element={<Layout>{" "}<OwnerManagers />{" "}</Layout>}/>
-          <Route path="/owner/annoucement" element={<Layout>{" "}<OwnerAnnoucement />{" "}</Layout>}/>
-          <Route path="/owner/reports" element={<Layout>{" "}<OwnerReports />{" "}</Layout>}/>
-          <Route path="/owner/payments" element={<Layout>{" "}<OwnerPaymnets />{" "}</Layout>}/>
+            <Route
+              path="/owner/dashboard"
+              element={
+                <Layout>
+                  {" "}
+                  <OwnerDashboard />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/owner/teaRate"
+              element={
+                <Layout>
+                  {" "}
+                  <OwnerTeaRate />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/owner/managers"
+              element={
+                <Layout>
+                  {" "}
+                  <OwnerManagers />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/owner/annoucement"
+              element={
+                <Layout>
+                  {" "}
+                  <OwnerAnnoucement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/owner/reports"
+              element={
+                <Layout>
+                  {" "}
+                  <OwnerReports />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/owner/payments"
+              element={
+                <Layout>
+                  {" "}
+                  <OwnerPaymnets />{" "}
+                </Layout>
+              }
+            />
           </>
         )}
 
