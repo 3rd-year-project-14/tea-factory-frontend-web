@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "../layouts/Layout";
 
-import SupplierDashboard from "../pages/supplier/Dashboard";
-import DriverDashboard from "../pages/driver/Dashboard";
+import FertlizerManagerDashboard from "../pages/FertilizerManager/dashboard";
+
 
 
 //Inventory Manager
