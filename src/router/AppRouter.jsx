@@ -15,24 +15,36 @@ import RouteBagsWeight from "../pages/InventoryManager/BagWeight/route_bags_weig
 import SupplierBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight_supplier";
 import WeightCondition from "../pages/InventoryManager/weight_condition";
 
+import History from "../pages/InventoryManager/History/history";
+import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier";
 
 //Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
-import SupplierRegister from "../pages/FactoryManager/supplierRegister";
 import Advance from "../pages/FactoryManager/advance";
-import LoanManagement from "../pages/FactoryManager/LoanManagement";
 
 //Transport Manager
+<<<<<<< Updated upstream
+=======
+import TransportManagerDashboard from "../pages/TransportManager/dashboard";
+>>>>>>> Stashed changes
 import Vehicle from "../pages/TransportManager/vehicle";
 import TrackRoutes from "../pages/TransportManager/trackRoutes";
 import Emergency from "../pages/TransportManager/emergency";
 import Assignment from "../pages/TransportManager/assignments";
 
+<<<<<<< Updated upstream
+=======
+//Fertilizer Manager
+import FertilizerManagerDashboard from "../pages/FertilizerManager/dashboard";
+
+>>>>>>> Stashed changes
 import SupplierRegister from "../pages/FactoryManager/Suppliers/supplierRegister";
 import AdvanceManagement from "../pages/FactoryManager/Advance/AdvanceManagement";
 import LoanManagement from "../pages/FactoryManager/Loans/LoanManagement";
 import TeaRateAdjustment from "../pages/FactoryManager/TeaRate/TeaRateAdjustment";
 import PaymentManagement from "../pages/FactoryManager/Payments/PaymentManagement";
+import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
+import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
 import FertilizerManagerWeight from "../pages/FertilizerManager/weight";
 import Login from "../pages/login";
 
@@ -123,12 +135,78 @@ export default function AppRouter() {
 
         {user?.role === "FACTORY_MANAGER" && (
           <>
-            <Route path="/factoryManager/dashboard" element={<Layout>{" "}<FactoryManagerDashboard />{" "}</Layout>}/>
-            <Route path="/factoryManager/suppliers" element={<Layout>{" "}<SupplierRegister />{" "}</Layout>}/>
-            <Route path="/factoryManager/advance" element={<Layout>{" "}<AdvanceManagement />{" "}</Layout>}/>
-            <Route path="/factoryManager/loans" element={<Layout>{" "}<LoanManagement />{" "}</Layout>}/>
-            <Route path="/factoryManager/teaRate" element={<Layout>{" "}<TeaRateAdjustment />{" "}</Layout>}/>
-            <Route path="/factoryManager/payments" element={<Layout>{" "}<PaymentManagement />{" "}</Layout>}/>
+            <Route
+              path="/factoryManager/dashboard"
+              element={
+                <Layout>
+                  {" "}
+                  <FactoryManagerDashboard />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/suppliers"
+              element={
+                <Layout>
+                  {" "}
+                  <SupplierRegister />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/advance"
+              element={
+                <Layout>
+                  {" "}
+                  <AdvanceManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/loans"
+              element={
+                <Layout>
+                  {" "}
+                  <LoanManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/teaRate"
+              element={
+                <Layout>
+                  {" "}
+                  <TeaRateAdjustment />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/payments"
+              element={
+                <Layout>
+                  {" "}
+                  <PaymentManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/routes"
+              element={
+                <Layout>
+                  {" "}
+                  <RouteManagement />{" "}
+                </Layout>
+              }
+            />
+            <Route
+              path="/factoryManager/inventory"
+              element={
+                <Layout>
+                  {" "}
+                  <InventoryManagement />{" "}
+                </Layout>
+              }
+            />
           </>
         )}
 

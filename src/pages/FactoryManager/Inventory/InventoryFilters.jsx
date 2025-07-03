@@ -1,11 +1,10 @@
 import { Filter, X, Search, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
-export default function PaymentFilters({
+export default function InventoryFilters({
   filters,
-  setFilters,
+  onFiltersChange,
   currentView,
-  onClearFilters,
 }) {
   const [showFilters, setShowFilters] = useState(false);
 
@@ -13,6 +12,14 @@ export default function PaymentFilters({
     if (currentView === "routes") return "Search routes...";
     if (currentView === "suppliers") return "Search suppliers...";
     return "Search...";
+  };
+
+  const onClearFilters = () => {
+    onFiltersChange({
+      search: "",
+      sortOrder: "",
+      status: "All",
+    });
   };
 
   return (
@@ -29,7 +36,7 @@ export default function PaymentFilters({
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 value={filters.search}
                 onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, search: e.target.value }))
+                  onFiltersChange({ ...filters, search: e.target.value })
                 }
               />
             </div>
@@ -49,66 +56,43 @@ export default function PaymentFilters({
 
         {/* Enhanced Filters */}
         {showFilters && (
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sort by Amount
+                Sort by Weight
               </label>
               <select
                 value={filters.sortOrder || ""}
                 onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, sortOrder: e.target.value }))
+                  onFiltersChange({ ...filters, sortOrder: e.target.value })
                 }
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               >
                 <option value="">Default Order</option>
-                <option value="high">High Payment First</option>
-                <option value="low">Low Payment First</option>
+                <option value="desc">High Weight First</option>
+                <option value="asc">Low Weight First</option>
               </select>
             </div>
 
-            {currentView === "suppliers" && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Status
-                  </label>
-                  <select
-                    value={filters.status || "All"}
-                    onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        status: e.target.value,
-                      }))
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                  >
-                    <option value="All">All Status</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Pending">Pending</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Method
-                  </label>
-                  <select
-                    value={filters.paymentMethod || "All"}
-                    onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        paymentMethod: e.target.value,
-                      }))
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                  >
-                    <option value="All">All Methods</option>
-                    <option value="Bank">Bank</option>
-                    <option value="Cash">Cash</option>
-                  </select>
-                </div>
-              </>
+            {currentView === "routes" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Route Status
+                </label>
+                <select
+                  value={filters.status || "All"}
+                  onChange={(e) =>
+                    onFiltersChange({ ...filters, status: e.target.value })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                >
+                  <option value="All">All Status</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Under Maintenance">Under Maintenance</option>
+                  <option value="Suspended">Suspended</option>
+                </select>
+              </div>
             )}
 
             <div className="flex items-end">

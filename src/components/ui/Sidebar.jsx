@@ -69,6 +69,7 @@ const sidebarLinks = {
   FACTORY_MANAGER: [
     { name: "Dashboard", path: "/factoryManager/Dashboard", icon: Home },
     { name: "Suppliers", path: "/factoryManager/suppliers", icon: Users },
+    { name: "Routes", path: "/factoryManager/routes", icon: Route },
     { name: "Advance", path: "/factoryManager/advance", icon: DollarSign },
     { name: "Loans", path: "/factoryManager/loans", icon: BarChart3 },
     { name: "Tea Rate", path: "/factoryManager/teaRate", icon: Leaf },
