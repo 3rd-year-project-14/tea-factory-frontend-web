@@ -11,6 +11,9 @@ import {
   BarChart3,
   DollarSign,
   Calendar,
+  Route,
+  BadgeAlert,
+  ListCheck,
   UserCheck,
   FileBarChart,
   Bell,
@@ -33,8 +36,18 @@ const sidebarLinks = {
 
   TRANSPORT_MANAGER: [
     { name: "Dashboard", path: "/transportManager/dashboard", icon: Home },
-    { name: "Trips", path: "/transportManager/trips", icon: Truck },
-    { name: "Emergency", path: "/transportManager/emergency", icon: Award },
+    { name: "Vehicle", path: "/transportManager/vehicle", icon: Truck },
+    { name: "Route", path: "/transportManager/trackRoutes", icon: Route },
+    {
+      name: "Assignments",
+      path: "/transportManager/assignments",
+      icon: ListCheck,
+    },
+    {
+      name: "Emergency",
+      path: "/transportManager/emergency",
+      icon: BadgeAlert,
+    },
   ],
 
   INVENTORY_MANAGER: [

@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout";
 
 import SupplierDashboard from "../pages/supplier/Dashboard";
 import DriverDashboard from "../pages/driver/Dashboard";
-import TransportManagerDashboard from "../pages/TransportManager/Dashboard";
+
 
 //Inventory Manager
 import InventoryManagerDashboard from "../pages/InventoryManager/dashboard";
@@ -14,18 +14,20 @@ import EmptyBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight";
 import RouteBagsWeight from "../pages/InventoryManager/BagWeight/route_bags_weight";
 import SupplierBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight_supplier";
 import WeightCondition from "../pages/InventoryManager/weight_condition";
-import History from "../pages/InventoryManager/History/history"
-import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier"
-
-//Fertilizer Manager
-import FertilizerManagerDashboard from "../pages/FertilizerManager/dashboard";
-import Stock from "../pages/FertilizerManager/Stock/stock";
-
-
 
 
 //Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
+import SupplierRegister from "../pages/FactoryManager/supplierRegister";
+import Advance from "../pages/FactoryManager/advance";
+import LoanManagement from "../pages/FactoryManager/LoanManagement";
+
+//Transport Manager
+import Vehicle from "../pages/TransportManager/vehicle";
+import TrackRoutes from "../pages/TransportManager/trackRoutes";
+import Emergency from "../pages/TransportManager/emergency";
+import Assignment from "../pages/TransportManager/assignments";
+
 import SupplierRegister from "../pages/FactoryManager/Suppliers/supplierRegister";
 import AdvanceManagement from "../pages/FactoryManager/Advance/AdvanceManagement";
 import LoanManagement from "../pages/FactoryManager/Loans/LoanManagement";
@@ -52,6 +54,7 @@ export default function AppRouter() {
       <Routes>
         {user?.role === "INVENTORY_MANAGER" && (
           <>
+
             <Route path="/inventoryManager/dashboard" element={<Layout>{" "}<InventoryManagerDashboard />{" "}</Layout>}/>
             <Route path="/inventoryManager/leaf_weight" element={<Layout>{" "}<LeafWeight />{" "}</Layout>}/>
             <Route path="/inventoryManager/route_leaf" element={<Layout>{" "}<RouteLeaf />{" "}</Layout>}/>
@@ -62,6 +65,7 @@ export default function AppRouter() {
             <Route path="/inventoryManager/bags_weight_supplier" element={<Layout>{" "}<SupplierBagsWeight/>{" "}</Layout>}/>
             <Route path="/inventoryManager/history" element={<Layout>{" "}<History/>{" "}</Layout>}/>
             <Route path="/inventoryManager/report" element={<Layout>{" "}<SupplierAdd/>{" "}</Layout>}/>
+
           </>
         )}
 
@@ -73,7 +77,48 @@ export default function AppRouter() {
         )}
 
         {user?.role === "TRANSPORT_MANAGER" && (
-          <Route path="/transportManager/dashboard" element={<Layout>{" "}<TransportManagerDashboard />{" "}</Layout>}/>
+          <>
+            <Route
+              path="/transportManager/dashboard"
+              element={
+                <Layout>
+                  <TransportManagerDashboard />
+                </Layout>
+              }
+            />
+            <Route
+              path="/transportManager/vehicle"
+              element={
+                <Layout>
+                  <Vehicle />
+                </Layout>
+              }
+            />
+            <Route
+              path="/transportManager/trackRoutes"
+              element={
+                <Layout>
+                  <TrackRoutes />
+                </Layout>
+              }
+            />
+            <Route
+              path="/transportManager/assignments"
+              element={
+                <Layout>
+                  <Assignment />
+                </Layout>
+              }
+            />
+            <Route
+              path="/transportManager/emergency"
+              element={
+                <Layout>
+                  <Emergency />
+                </Layout>
+              }
+            />
+          </>
         )}
 
         {user?.role === "FACTORY_MANAGER" && (
