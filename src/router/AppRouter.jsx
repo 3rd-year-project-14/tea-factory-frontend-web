@@ -32,8 +32,21 @@ import TrackRoutes from "../pages/TransportManager/trackRoutes";
 import Emergency from "../pages/TransportManager/emergency";
 import Assignment from "../pages/TransportManager/assignments";
 
+import SupplierRegister from "../pages/FactoryManager/Suppliers/supplierRegister";
+import AdvanceManagement from "../pages/FactoryManager/Advance/AdvanceManagement";
+import LoanManagement from "../pages/FactoryManager/Loans/LoanManagement";
+import TeaRateAdjustment from "../pages/FactoryManager/TeaRate/TeaRateAdjustment";
+import PaymentManagement from "../pages/FactoryManager/Payments/PaymentManagement";
 import FertilizerManagerWeight from "../pages/FertilizerManager/weight";
 import Login from "../pages/login";
+
+//owner
+import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
+import OwnerDashboard from "../pages/Owner/dashboard";
+import OwnerManagers from "../pages/Owner/Managerview/viewManagers";
+import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
+import OwnerReports from "../pages/Owner/Reports/reports";
+import OwnerPaymnets from "../pages/Owner/Payments/payment";
 
 import { useAuth } from "../contexts/AuthContext";
 
@@ -139,14 +152,7 @@ export default function AppRouter() {
         )}
 
         {user?.role === "FERTILIZER_MANAGER" && (
-          <Route
-            path="/fertilizerManager/dashboard"
-            element={
-              <Layout>
-                <TransportManagerDashboard />
-              </Layout>
-            }
-          />
+          <Route path="/fertilizerManager/dashboard" element={<Layout>{" "}<TransportManagerDashboard />{" "}</Layout>}/>
         )}
 
         {user?.role === "TRANSPORT_MANAGER" && (
@@ -196,50 +202,24 @@ export default function AppRouter() {
 
         {user?.role === "FACTORY_MANAGER" && (
           <>
-            <Route
-              path="/factoryManager/dashboard"
-              element={
-                <Layout>
-                  <FactoryManagerDashboard />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/suppliers"
-              element={
-                <Layout>
-                  <SupplierRegister />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/advance"
-              element={
-                <Layout>
-                  <Advance />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/loans"
-              element={
-                <Layout>
-                  <LoanManagement />
-                </Layout>
-              }
-            />
+            <Route path="/factoryManager/dashboard" element={<Layout>{" "}<FactoryManagerDashboard />{" "}</Layout>}/>
+            <Route path="/factoryManager/suppliers" element={<Layout>{" "}<SupplierRegister />{" "}</Layout>}/>
+            <Route path="/factoryManager/advance" element={<Layout>{" "}<AdvanceManagement />{" "}</Layout>}/>
+            <Route path="/factoryManager/loans" element={<Layout>{" "}<LoanManagement />{" "}</Layout>}/>
+            <Route path="/factoryManager/teaRate" element={<Layout>{" "}<TeaRateAdjustment />{" "}</Layout>}/>
+            <Route path="/factoryManager/payments" element={<Layout>{" "}<PaymentManagement />{" "}</Layout>}/>
           </>
         )}
 
         {user?.role === "OWNER" && (
-          <Route
-            path="/transportManager/dashboard"
-            element={
-              <Layout>
-                <TransportManagerDashboard />
-              </Layout>
-            }
-          />
+          <>
+          <Route path="/owner/dashboard" element={<Layout>{" "}<OwnerDashboard />{" "}</Layout>}/>
+          <Route path="/owner/teaRate" element={<Layout>{" "}<OwnerTeaRate />{" "}</Layout>}/>
+          <Route path="/owner/managers" element={<Layout>{" "}<OwnerManagers />{" "}</Layout>}/>
+          <Route path="/owner/annoucement" element={<Layout>{" "}<OwnerAnnoucement />{" "}</Layout>}/>
+          <Route path="/owner/reports" element={<Layout>{" "}<OwnerReports />{" "}</Layout>}/>
+          <Route path="/owner/payments" element={<Layout>{" "}<OwnerPaymnets />{" "}</Layout>}/>
+          </>
         )}
 
         <Route path="/login" element={<Login />} />
