@@ -1,8 +1,19 @@
 const users = [
+   {
+    username: "Madushan",
+    role: "FERTILIZER_MANAGER",
+  },
+  {
+    username: "Pasindu",
+    role: "INVENTORY_MANAGER",
+  },
   {
     username: "Mahesh",
     role: "FACTORY_MANAGER",
   },
+  
+ 
+  
   {
     username: "Tharushi",
     role: "TRANSPORT_MANAGER",
@@ -12,18 +23,9 @@ const users = [
     role: "OWNER",
   },
   {
-    username: "Pasindu",
-    role: "INVENTORY_MANAGER",
-  }, 
-  {
-    username: "Madushan",
-    role: "FERTILIZER_MANAGER",
-  },
-  {
     username: "Uma",
     role: "DRIVER",
   },
-  
   {
     username: "Hamdi",
     role: "SUPPLIER",

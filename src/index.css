@@ -15,11 +15,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-/* :root {
+:root {
   color-scheme: light;
   color: #213547;
   background-color: #ffffff;
-} */
+}
 
 html, body, #root {
   height: 100%;
