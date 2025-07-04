@@ -35,12 +35,6 @@ const ViewStockPage = () => {
     lastUpdated: "2024-06-20",
   });
 
-  const [showRequestModal, setShowRequestModal] = useState(false);
-  const [requestQuantity, setRequestQuantity] = useState("");
-  const [requestUnit, setRequestUnit] = useState(fertilizer.unit);
-  const [requestNotes, setRequestNotes] = useState("");
-  const [formError, setFormError] = useState("");
-
   const getStockStatus = (current, min, max) => {
     if (current <= min) return "low";
     if (current >= max * 0.8) return "high";
@@ -129,7 +123,9 @@ const ViewStockPage = () => {
                 <span>Delete</span>
               </button>
               <button
-                onClick={() => setShowRequestModal(true)}
+                onClick={() =>
+                  (window.location.href = "/fertilizerManager/stockRequest")
+                }
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 font-semibold shadow"
               >
                 <Package className="w-4 h-4" />
@@ -343,106 +339,6 @@ const ViewStockPage = () => {
           </p>
         </div>
       </div>
-      {/* Request Fertilizer Centered Modal */}
-      {showRequestModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-green-700 flex items-center gap-2">
-                <Package className="w-5 h-5" /> Request Fertilizer
-              </h3>
-              <button
-                onClick={() => {
-                  setShowRequestModal(false);
-                  setFormError("");
-                }}
-                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-                aria-label="Close"
-              >
-                &times;
-              </button>
-            </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (
-                  !requestQuantity ||
-                  isNaN(requestQuantity) ||
-                  Number(requestQuantity) <= 0
-                ) {
-                  setFormError("Please enter a valid quantity.");
-                  return;
-                }
-                setShowRequestModal(false);
-                setRequestQuantity("");
-                setRequestUnit(fertilizer.unit);
-                setRequestNotes("");
-                setFormError("");
-                alert("Fertilizer request submitted!");
-              }}
-            >
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Quantity
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={requestQuantity}
-                  onChange={(e) => setRequestQuantity(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none"
-                  placeholder="Enter quantity"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Unit
-                </label>
-                <input
-                  type="text"
-                  value={requestUnit}
-                  onChange={(e) => setRequestUnit(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notes (optional)
-                </label>
-                <textarea
-                  value={requestNotes}
-                  onChange={(e) => setRequestNotes(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none resize-none min-h-[60px]"
-                  placeholder="Add any notes..."
-                />
-              </div>
-              {formError && (
-                <div className="text-red-600 mb-2 text-sm">{formError}</div>
-              )}
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowRequestModal(false);
-                    setFormError("");
-                  }}
-                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg font-medium text-white bg-green-600 hover:bg-green-700"
-                >
-                  Submit Request
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
