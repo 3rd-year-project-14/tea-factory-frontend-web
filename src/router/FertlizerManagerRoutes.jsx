@@ -9,6 +9,7 @@ import EditStock from "../pages/FertilizerManager/Stock/EditStock";
 import Request from "../pages/FertilizerManager/Request/supplierRequest";
 import StockRequest from "../pages/FertilizerManager/Stock/stockRequest";
 import ReportPage from "../pages/FertilizerManager/Report/report";
+import History from "../pages/InventoryManager/History/history";
 
 export default [
   <Route
@@ -69,6 +70,15 @@ export default [
     element={
       <Layout>
         <ReportPage />
+      </Layout>
+    }
+  />,
+  <Route
+    key="history"
+    path="/fertilizerManager/history"
+    element={
+      <Layout>
+        <History />
       </Layout>
     }
   />,
