@@ -26,7 +26,7 @@ export default function PaymentFilters({
               <input
                 type="text"
                 placeholder={getSearchPlaceholder()}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-gray-900"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 value={filters.search}
                 onChange={(e) =>
                   setFilters((prev) => ({ ...prev, search: e.target.value }))
@@ -38,7 +38,7 @@ export default function PaymentFilters({
           <div className="flex gap-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#4CAF50]"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <Filter className="h-4 w-4 mr-2" />
               Filters
@@ -59,7 +59,7 @@ export default function PaymentFilters({
                 onChange={(e) =>
                   setFilters((prev) => ({ ...prev, sortOrder: e.target.value }))
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-gray-900"
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               >
                 <option value="">Default Order</option>
                 <option value="high">High Payment First</option>
@@ -81,7 +81,7 @@ export default function PaymentFilters({
                         status: e.target.value,
                       }))
                     }
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-gray-900"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   >
                     <option value="All">All Status</option>
                     <option value="Paid">Paid</option>
@@ -101,7 +101,7 @@ export default function PaymentFilters({
                         paymentMethod: e.target.value,
                       }))
                     }
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-gray-900"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   >
                     <option value="All">All Methods</option>
                     <option value="Bank">Bank</option>
@@ -114,7 +114,7 @@ export default function PaymentFilters({
             <div className="flex items-end">
               <button
                 onClick={onClearFilters}
-                className="w-30 px-4 py-2 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] shadow-sm"
+                className="w-30 px-4 py-2 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
               >
                 Clear Filters
               </button>

@@ -107,7 +107,7 @@ export default function SupplierBillView({
                 {selectedSupplier.status}
               </div>
             </div>
-            <div className="space-y-1 text-sm text-[#666]">
+            <div className="space-y-1 text-sm text-gray-600">
               <p>
                 <span className="font-medium">Route:</span>{" "}
                 {selectedRoute?.routeName}
@@ -126,17 +126,17 @@ export default function SupplierBillView({
             <div className="text-lg font-bold text-[#4CAF50]">
               Rs. {selectedSupplier.finalAmount.toLocaleString()}
             </div>
-            <div className="text-sm text-[#666]">Final Amount</div>
+            <div className="text-sm text-gray-600">Final Amount</div>
 
             {/* Upcoming Payments Info */}
             <div className="mt-4 space-y-1">
-              <div className="text-sm font-medium text-[#666] border-b border-gray-200 pb-1 mb-2">
+              <div className="text-sm font-medium text-gray-600 border-b border-gray-200 pb-1 mb-2">
                 Next Month Due:
               </div>
 
               {/* Loan installment due */}
               {selectedSupplier.upcomingPayments?.loanInstallment && (
-                <div className="flex justify-between items-center text-sm text-[#666]">
+                <div className="flex justify-between items-center text-sm text-gray-600">
                   <span>Loan Installment:</span>
                   <span className="font-mono">
                     Rs.{" "}
@@ -147,7 +147,7 @@ export default function SupplierBillView({
 
               {/* Fertilizer payment due */}
               {selectedSupplier.upcomingPayments?.fertilizerDue && (
-                <div className="flex justify-between items-center text-sm text-[#666]">
+                <div className="flex justify-between items-center text-sm text-gray-600">
                   <span>Fertilizer Due:</span>
                   <span className="font-mono">
                     Rs.{" "}
@@ -160,7 +160,7 @@ export default function SupplierBillView({
               {selectedSupplier.upcomingPayments &&
                 (selectedSupplier.upcomingPayments.loanInstallment ||
                   selectedSupplier.upcomingPayments.fertilizerDue) && (
-                  <div className="flex justify-between items-center text-sm font-medium text-[#666] border-t border-gray-200 pt-1 mt-2">
+                  <div className="flex justify-between items-center text-sm font-medium text-gray-600 border-t border-gray-200 pt-1 mt-2">
                     <span>Total Due:</span>
                     <span className="font-mono">
                       Rs.{" "}
@@ -177,7 +177,7 @@ export default function SupplierBillView({
               {(!selectedSupplier.upcomingPayments ||
                 (!selectedSupplier.upcomingPayments.loanInstallment &&
                   !selectedSupplier.upcomingPayments.fertilizerDue)) && (
-                <div className="text-sm text-[#666] italic">
+                <div className="text-sm text-gray-600 italic">
                   No payments due next month
                 </div>
               )}
@@ -189,7 +189,7 @@ export default function SupplierBillView({
       {/* Tea Leaf Entries */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="p-4 bg-[#f8f9fa] border-b border-[#e0e0e0]">
-          <h3 className="text-lg font-semibold text-[#2c2c2c] flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Calendar className="h-5 w-5" />
             Tea Leaf Deliveries
           </h3>
@@ -199,25 +199,25 @@ export default function SupplierBillView({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#e0e0e0] bg-[#f8f9fa]">
-                <th className="text-center py-3 px-2 font-medium text-[#666]">
+                <th className="text-center py-3 px-2 font-medium text-gray-700">
                   Date
                 </th>
-                <th className="text-center py-3 px-2 font-medium text-[#666]">
+                <th className="text-center py-3 px-2 font-medium text-gray-700">
                   Bag Count
                 </th>
-                <th className="text-right py-3 px-2 font-medium text-[#666]">
+                <th className="text-right py-3 px-2 font-medium text-gray-700">
                   Total Weight (kg)
                 </th>
-                <th className="text-right py-3 px-2 font-medium text-[#666]">
+                <th className="text-right py-3 px-2 font-medium text-gray-700">
                   Bag Weight (kg)
                 </th>
-                <th className="text-right py-3 px-2 font-medium text-[#666]">
+                <th className="text-right py-3 px-2 font-medium text-gray-700">
                   Water (kg)
                 </th>
-                <th className="text-right py-3 px-2 font-medium text-[#666]">
+                <th className="text-right py-3 px-2 font-medium text-gray-700">
                   Coarse Leaf (kg)
                 </th>
-                <th className="text-right py-3 px-2 font-medium text-[#666]">
+                <th className="text-right py-3 px-2 font-medium text-gray-700">
                   Net Weight (kg)
                 </th>
               </tr>
@@ -230,31 +230,31 @@ export default function SupplierBillView({
                     dayData.netWeight > 0 ? "bg-white" : "bg-gray-50"
                   }`}
                 >
-                  <td className="py-2 px-2 text-center font-mono">
+                  <td className="py-2 px-2 text-center font-mono text-gray-900">
                     {dayData.day}
                   </td>
-                  <td className="py-2 px-2 text-center font-mono">
+                  <td className="py-2 px-2 text-center font-mono text-gray-900">
                     {dayData.bagCount > 0 ? dayData.bagCount : "-"}
                   </td>
-                  <td className="py-2 px-2 text-right font-mono">
+                  <td className="py-2 px-2 text-right font-mono text-gray-900">
                     {dayData.totalWeight > 0
                       ? dayData.totalWeight.toFixed(1)
                       : "-"}
                   </td>
-                  <td className="py-2 px-2 text-right font-mono">
+                  <td className="py-2 px-2 text-right font-mono text-gray-900">
                     {dayData.bagWeight > 0 ? dayData.bagWeight.toFixed(1) : "-"}
                   </td>
-                  <td className="py-2 px-2 text-right font-mono">
+                  <td className="py-2 px-2 text-right font-mono text-gray-900">
                     {dayData.waterContent > 0
                       ? dayData.waterContent.toFixed(1)
                       : "-"}
                   </td>
-                  <td className="py-2 px-2 text-right font-mono">
+                  <td className="py-2 px-2 text-right font-mono text-gray-900">
                     {dayData.coarseLeaf > 0
                       ? dayData.coarseLeaf.toFixed(1)
                       : "-"}
                   </td>
-                  <td className="py-2 px-2 text-right font-mono font-bold">
+                  <td className="py-2 px-2 text-right font-mono font-bold text-gray-900">
                     {dayData.netWeight > 0 ? dayData.netWeight.toFixed(1) : "-"}
                   </td>
                 </tr>
@@ -262,26 +262,26 @@ export default function SupplierBillView({
             </tbody>
             <tfoot>
               <tr className="border-t-2 border-[#e0e0e0] bg-[#f8f9fa] font-bold">
-                <td className="py-3 px-2 text-center">Total</td>
-                <td className="py-3 px-2 text-center font-mono">
+                <td className="py-3 px-2 text-center text-gray-900">Total</td>
+                <td className="py-3 px-2 text-center font-mono text-gray-900">
                   {monthlyData.reduce((sum, day) => sum + day.bagCount, 0)}
                 </td>
-                <td className="py-3 px-2 text-right font-mono">
+                <td className="py-3 px-2 text-right font-mono text-gray-900">
                   {monthlyData
                     .reduce((sum, day) => sum + day.totalWeight, 0)
                     .toFixed(1)}
                 </td>
-                <td className="py-3 px-2 text-right font-mono">
+                <td className="py-3 px-2 text-right font-mono text-gray-900">
                   {monthlyData
                     .reduce((sum, day) => sum + day.bagWeight, 0)
                     .toFixed(1)}
                 </td>
-                <td className="py-3 px-2 text-right font-mono">
+                <td className="py-3 px-2 text-right font-mono text-gray-900">
                   {monthlyData
                     .reduce((sum, day) => sum + day.waterContent, 0)
                     .toFixed(1)}
                 </td>
-                <td className="py-3 px-2 text-right font-mono">
+                <td className="py-3 px-2 text-right font-mono text-gray-900">
                   {monthlyData
                     .reduce((sum, day) => sum + day.coarseLeaf, 0)
                     .toFixed(1)}
@@ -297,13 +297,13 @@ export default function SupplierBillView({
         {/* Total Summary */}
         <div className="p-4 bg-[#f8f9fa] border-t border-[#e0e0e0]">
           <div className="flex justify-between items-center">
-            <div className="text-lg font-semibold text-[#2c2c2c]">
+            <div className="text-lg font-semibold text-gray-900">
               Total Net Weight:{" "}
               <span className="text-[#4CAF50]">
                 {totalNetWeight.toFixed(1)} kg
               </span>
             </div>
-            <div className="text-lg font-semibold text-[#2c2c2c]">
+            <div className="text-lg font-semibold text-gray-900">
               Total Amount:{" "}
               <span className="text-[#4CAF50]">
                 Rs. {totalAmount.toLocaleString()}
@@ -315,50 +315,50 @@ export default function SupplierBillView({
 
       {/* Payment Summary */}
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <h3 className="text-lg font-semibold text-[#2c2c2c] mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <DollarSign className="h-5 w-5" />
           Payment Summary
         </h3>
 
         <div className="space-y-3">
           <div className="flex justify-between">
-            <span className="text-[#666]">Gross Amount:</span>
-            <span className="font-mono">
+            <span className="text-gray-600">Gross Amount:</span>
+            <span className="font-mono text-gray-900">
               Rs. {selectedSupplier.grossAmount.toLocaleString()}
             </span>
           </div>
 
           <div className="border-t border-[#e0e0e0] pt-3">
-            <div className="text-sm font-medium text-[#666] mb-2">
+            <div className="text-sm font-medium text-gray-600 mb-2">
               Deductions:
             </div>
             <div className="space-y-2 ml-4">
               <div className="flex justify-between text-sm">
-                <span>Advances:</span>
+                <span className="text-gray-600">Advances:</span>
                 <span className="font-mono text-red-600">
                   - Rs. {selectedSupplier.advances.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Fertilizer:</span>
+                <span className="text-gray-600">Fertilizer:</span>
                 <span className="font-mono text-red-600">
                   - Rs. {selectedSupplier.fertilizer.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Transport:</span>
+                <span className="text-gray-600">Transport:</span>
                 <span className="font-mono text-red-600">
                   - Rs. {selectedSupplier.transport.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Others:</span>
+                <span className="text-gray-600">Others:</span>
                 <span className="font-mono text-red-600">
                   - Rs. {selectedSupplier.others.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-sm font-medium border-t border-[#f0f0f0] pt-2">
-                <span>Total Deductions:</span>
+                <span className="text-gray-600">Total Deductions:</span>
                 <span className="font-mono text-red-600">
                   - Rs. {selectedSupplier.totalDeductions.toLocaleString()}
                 </span>
@@ -367,14 +367,14 @@ export default function SupplierBillView({
           </div>
 
           <div className="border-t border-[#e0e0e0] pt-3 flex justify-between text-lg font-bold">
-            <span>Final Amount:</span>
+            <span className="text-gray-900">Final Amount:</span>
             <span className="font-mono text-[#4CAF50]">
               Rs. {selectedSupplier.finalAmount.toLocaleString()}
             </span>
           </div>
 
           <div className="border-t border-[#e0e0e0] pt-3 flex justify-between text-sm">
-            <span>Payment Method:</span>
+            <span className="text-gray-600">Payment Method:</span>
             <span
               className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
                 selectedSupplier.paymentMethod === "Bank"
@@ -393,8 +393,10 @@ export default function SupplierBillView({
 
           {selectedSupplier.paidDate && (
             <div className="flex justify-between text-sm">
-              <span>Payment Date:</span>
-              <span className="font-mono">{selectedSupplier.paidDate}</span>
+              <span className="text-gray-600">Payment Date:</span>
+              <span className="font-mono text-gray-900">
+                {selectedSupplier.paidDate}
+              </span>
             </div>
           )}
         </div>
