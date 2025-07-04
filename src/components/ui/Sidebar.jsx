@@ -11,7 +11,7 @@ import {
   BarChart3,
   DollarSign,
   Calendar,
-  UserCheck,
+  UserCheck ,
   FileBarChart,
   Bell,
 } from "lucide-react";
@@ -66,7 +66,6 @@ const sidebarLinks = {
     { name: "manager works", path: "/owner/managers", icon: UserCheck  },
     { name: "Tea Rate", path: "/owner/teaRate", icon: Leaf },
     { name: "Reports", path: "/owner/reports", icon: FileBarChart },
-    
   ]
 
 };
