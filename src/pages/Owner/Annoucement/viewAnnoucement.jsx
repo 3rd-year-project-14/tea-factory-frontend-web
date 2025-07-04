@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Paperclip, Download, X, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Download, Paperclip, Plus, X, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function PureLeafDashboard() {
   const [announcements, setAnnouncements] = useState([
     {
       id: 1,
+      topic: "General",
       subject: "",
       content: "",
       factories: ["Factory A"],
@@ -15,6 +16,7 @@ export default function PureLeafDashboard() {
     },
     {
       id: 2,
+      topic: "Urgent",
       subject: "",
       content: "",
       factories: ["Factory A", "Factory B"],
@@ -27,12 +29,14 @@ export default function PureLeafDashboard() {
   const [updateAnnouncementId, setUpdateAnnouncementId] = useState(null);
   const [notification, setNotification] = useState(null);
   const [newAnnouncement, setNewAnnouncement] = useState({
+    topic: "",
     subject: "",
     content: "",
     factories: [],
     attachments: []
   });
   const [updateAnnouncement, setUpdateAnnouncement] = useState({
+    topic: "",
     subject: "",
     content: "",
     factories: [],
@@ -64,6 +68,7 @@ export default function PureLeafDashboard() {
     const announcement = announcements.find(ann => ann.id === id);
     if (announcement) {
       setUpdateAnnouncement({
+        topic: announcement.topic || "",
         subject: announcement.subject,
         content: announcement.content,
         factories: [...announcement.factories],
@@ -83,21 +88,20 @@ export default function PureLeafDashboard() {
       showNotification('Please enter subject or content', 'error');
       return;
     }
-    
     if (newAnnouncement.factories.length === 0) {
       showNotification('Please select at least one factory', 'error');
       return;
     }
-
     const announcement = {
       id: Date.now(),
+      topic: newAnnouncement.topic,
       subject: newAnnouncement.subject,
       content: newAnnouncement.content,
       factories: newAnnouncement.factories,
       attachments: newAnnouncement.attachments
     };
     setAnnouncements([...announcements, announcement]);
-    setNewAnnouncement({ subject: "", content: "", factories: [], attachments: [] });
+    setNewAnnouncement({ topic: "", subject: "", content: "", factories: [], attachments: [] });
     setShowAddForm(false);
     showNotification('Announcement created successfully', 'success');
   };
@@ -107,16 +111,15 @@ export default function PureLeafDashboard() {
       showNotification('Please enter subject or content', 'error');
       return;
     }
-    
     if (updateAnnouncement.factories.length === 0) {
       showNotification('Please select at least one factory', 'error');
       return;
     }
-
     const updatedAnnouncements = announcements.map(ann => 
       ann.id === updateAnnouncementId 
         ? {
             ...ann,
+            topic: updateAnnouncement.topic,
             subject: updateAnnouncement.subject,
             content: updateAnnouncement.content,
             factories: updateAnnouncement.factories,
@@ -124,9 +127,8 @@ export default function PureLeafDashboard() {
           }
         : ann
     );
-    
     setAnnouncements(updatedAnnouncements);
-    setUpdateAnnouncement({ subject: "", content: "", factories: [], attachments: [] });
+    setUpdateAnnouncement({ topic: "", subject: "", content: "", factories: [], attachments: [] });
     setUpdateAnnouncementId(null);
     setShowUpdateForm(false);
     showNotification('Announcement updated successfully', 'success');
@@ -313,16 +315,16 @@ export default function PureLeafDashboard() {
                         <label className="block text-lg font-normal text-gray-800 mb-2">Announcement ID: {announcement.id}</label>
                         <div className="min-h-[20px]"></div>
                       </div>
-                      
-                      {/* Horizontal line after Announcement ID */}
                       <hr className="border-gray-300 mb-4" />
-                      
+                      <div className="mb-4">
+                        <label className="block text-lg font-normal text-gray-800 mb-2">Topic</label>
+                        <div className="min-h-[40px] p-3 border border-gray-200 rounded bg-gray-50">{announcement.topic || <span className='text-gray-400'>-</span>}</div>
+                      </div>
+                      <hr className="border-gray-300 mb-4" />
                       <div className="mb-4">
                         <label className="block text-lg font-normal text-gray-800 mb-2">Subject</label>
-                        <div className="min-h-[40px] p-3 border border-gray-200 rounded bg-gray-50"></div>
+                        <div className="min-h-[40px] p-3 border border-gray-200 rounded bg-gray-50">{announcement.subject || <span className='text-gray-400'>-</span>}</div>
                       </div>
-                      
-                      {/* Horizontal line after Subject */}
                       <hr className="border-gray-300 mb-4" />
                       
                       <div className="mb-4">
@@ -401,7 +403,19 @@ export default function PureLeafDashboard() {
 
             {/* Add Form */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="space-y-6">
+            <div className="space-y-6">
+                <div>
+                  <label className="block text-lg font-normal text-gray-800 mb-2">Topic</label>
+                  <input
+                    type="text"
+                    value={newAnnouncement.topic}
+                    onChange={(e) => handleInputChange('topic', e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
+                    placeholder="Enter announcement topic"
+                  />
+                </div>
+
+                <hr className="border-gray-300" />
                 <div>
                   <label className="block text-lg font-normal text-gray-800 mb-2">Subject</label>
                   <input
@@ -537,7 +551,19 @@ export default function PureLeafDashboard() {
 
             {/* Update Form */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="space-y-6">
+            <div className="space-y-6">
+                <div>
+                  <label className="block text-lg font-normal text-gray-800 mb-2">Topic</label>
+                  <input
+                    type="text"
+                    value={updateAnnouncement.topic}
+                    onChange={(e) => handleUpdateInputChange('topic', e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
+                    placeholder="Enter announcement topic"
+                  />
+                </div>
+
+                <hr className="border-gray-300" />
                 <div>
                   <label className="block text-lg font-normal text-gray-800 mb-2">Subject</label>
                   <input

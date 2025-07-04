@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ManagerDashboard() {
   const [selectedRole, setSelectedRole] = useState('');
@@ -8,7 +8,7 @@ export default function ManagerDashboard() {
 
   const [managers, setManagers] = useState([
     {
-      id: 1,
+      id: 'MG_A_001',
       name: 'Gayan sadamal',
       email: 'gayan@gmail.com',
       role: 'Manager',
@@ -16,7 +16,7 @@ export default function ManagerDashboard() {
       factory: 'A'
     },
     {
-      id: 2,
+      id: 'MG_A_011',
       name: 'Gayan sadamal',
       email: 'gayan@gmail.com',
       role: 'Manager',
@@ -24,7 +24,7 @@ export default function ManagerDashboard() {
       factory: 'A'
     },
     {
-      id: 3,
+      id: 'MG_A_023',
       name: 'Gayan sadamal',
       email: 'gayan@gmail.com',
       role: 'Manager',
@@ -32,7 +32,7 @@ export default function ManagerDashboard() {
       factory: 'A'
     },
     {
-      id: 4,
+      id: 'MG_B_001',
       name: 'John Smith',
       email: 'john@gmail.com',
       role: 'Supervisor',
@@ -40,7 +40,7 @@ export default function ManagerDashboard() {
       factory: 'B'
     },
     {
-      id: 5,
+      id: 'MG_C_111',
       name: 'Sarah Wilson',
       email: 'sarah@gmail.com',
       role: 'Admin',
@@ -48,7 +48,7 @@ export default function ManagerDashboard() {
       factory: 'C'
     },
     {
-      id: 6,
+      id: 'MG_B_001',
       name: 'Mike Johnson',
       email: 'mike@gmail.com',
       role: 'Manager',
@@ -61,10 +61,9 @@ export default function ManagerDashboard() {
   const filteredManagers = managers.filter(manager => {
     const matchesRole = !selectedRole || manager.role.toLowerCase() === selectedRole.toLowerCase();
     const matchesFactory = !selectedFactory || manager.factory === selectedFactory;
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       manager.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      manager.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
+      manager.id.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesRole && matchesFactory && matchesSearch;
   });
 
@@ -80,70 +79,76 @@ export default function ManagerDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Main Content */}
-      <div className="p-8">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Managers</h1>
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Managers</h1>
+              <p className="text-gray-600 mt-1">Owner Dashboard - Manager Overview & Control</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <button
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow"
+                onClick={() => window.location.href = '/Owner/ManagerView/addManagers'}
+              >
+                <span className="font-semibold text-base">+ Add Manager</span>
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Filters and Search */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex items-center space-x-4">
-            <button className="flex items-center px-4 py-2 bg-gray-100 hover:bg-green-100 rounded-lg transition-colors">
-              <Filter className="w-5 h-5 text-gray-500 mr-2" />
-              <span className="text-gray-700 font-medium">Filter</span>
-            </button>
-            
-            {/* Role Select */}
-            <div className="flex-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Filters */}
+        <div className="bg-white/80 backdrop-blur p-6 rounded-lg shadow-md mb-6">
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="min-w-48">
               <select 
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none shadow-sm"
               >
-                <option value="">Select Role</option>
+                <option value="">All Roles</option>
                 <option value="Manager">Manager</option>
                 <option value="Supervisor">Supervisor</option>
                 <option value="Admin">Admin</option>
               </select>
             </div>
-
-            {/* Factory Select */}
-            <div className="flex-1">
+            <div className="min-w-48">
               <select 
                 value={selectedFactory}
                 onChange={(e) => setSelectedFactory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none shadow-sm"
               >
-                <option value="">Select Factory</option>
+                <option value="">All Factories</option>
                 <option value="A">Factory A</option>
                 <option value="B">Factory B</option>
                 <option value="C">Factory C</option>
               </select>
             </div>
-
-            {/* Search */}
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 pl-4 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-              <Search className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
+            <div className="flex-1 min-w-64">
+              <div className="relative">
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search managers ..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <table className="w-full">
             <thead className="bg-green-600 text-white">
               <tr>
+                <th className="px-6 py-4 text-left font-semibold">Manager ID</th>
                 <th className="px-6 py-4 text-left font-semibold">Name</th>
-                <th className="px-6 py-4 text-left font-semibold">Email</th>
                 <th className="px-6 py-4 text-left font-semibold">Role</th>
                 <th className="px-6 py-4 text-left font-semibold">Status</th>
                 <th className="px-6 py-4 text-left font-semibold">Factory</th>
@@ -153,8 +158,8 @@ export default function ManagerDashboard() {
             <tbody className="divide-y divide-gray-200">
               {filteredManagers.map((manager) => (
                 <tr key={manager.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 text-gray-900">{manager.id}</td>
                   <td className="px-6 py-4 text-gray-900">{manager.name}</td>
-                  <td className="px-6 py-4 text-gray-900">{manager.email}</td>
                   <td className="px-6 py-4 text-gray-900">{manager.role}</td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
