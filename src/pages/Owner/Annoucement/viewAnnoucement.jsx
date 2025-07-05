@@ -318,7 +318,27 @@ export default function PureLeafDashboard() {
                       <hr className="border-gray-300 mb-4" />
                       <div className="mb-4">
                         <label className="block text-lg font-normal text-gray-800 mb-2">Topic</label>
-                        <div className="min-h-[40px] p-3 border border-gray-200 rounded bg-gray-50">{announcement.topic || <span className='text-gray-400'>-</span>}</div>
+                        <div className="min-h-[40px] flex items-center">
+                          {announcement.topic ? (
+                            <span
+                              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-2 border-blue-500 bg-blue-50 text-blue-700 font-semibold text-base shadow-sm"
+                              style={{
+                                minWidth: '90px',
+                                textAlign: 'center',
+                                letterSpacing: '0.01em',
+                                fontFamily: 'inherit',
+                                lineHeight: '1.5',
+                                marginRight: '0.5rem',
+                                boxShadow: '0 1px 4px 0 rgba(59,130,246,0.10)'
+                              }}
+                            >
+                              <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
+                              {announcement.topic}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </div>
                       </div>
                       <hr className="border-gray-300 mb-4" />
                       <div className="mb-4">
