@@ -1,13 +1,15 @@
 import { AlertCircle, CheckCircle, Download, Paperclip, Plus, X, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function PureLeafDashboard() {
+  const navigate = useNavigate();
   const [announcements, setAnnouncements] = useState([
     {
       id: 1,
       topic: "General",
-      subject: "",
-      content: "",
+      subject: "System Maintenance",
+      content: "The system will be down for maintenance on Saturday from 2am to 4am.",
       factories: ["Factory A"],
       attachments: [
         { id: 1, name: "report.pdf", size: "2.5 MB" },
@@ -17,8 +19,8 @@ export default function PureLeafDashboard() {
     {
       id: 2,
       topic: "Urgent",
-      subject: "",
-      content: "",
+      subject: "Payment Delay",
+      content: "Supplier payments will be delayed due to a bank holiday.",
       factories: ["Factory A", "Factory B"],
       attachments: []
     }
@@ -80,7 +82,7 @@ export default function PureLeafDashboard() {
   };
 
   const handleAddNew = () => {
-    setShowAddForm(true);
+    navigate('/owner/annoucement/add');
   };
 
   const handleSaveAnnouncement = () => {
@@ -285,423 +287,99 @@ export default function PureLeafDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200">
+    <div className="min-h-screen bg-gray-100">
       <NotificationComponent />
-      {/* Main Content */}
-      <div className="p-6">
-        {!showAddForm && !showUpdateForm ? (
-          <>
-            {/* Header */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-normal text-gray-800">Announcements</h2>
-                <button
-                  onClick={handleAddNew}
-                  className="flex items-center space-x-2 bg-green-400 hover:bg-green-500 text-white px-6 py-2 rounded-lg transition-colors font-medium"
-                >
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Announcements</h1>
+              <p className="text-gray-600 mt-1">Owner Dashboard - Announcement Center</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleAddNew}
+                className="flex items-center bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow"
+              >
+                <span className="flex items-center gap-2">
                   <Plus className="w-5 h-5" />
-                  <span>Add New</span>
-                </button>
-              </div>
+                  Add New
+                </span>
+              </button>
             </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Announcements */}
-            <div className="space-y-4">
-              {announcements.map((announcement) => (
-                <div key={announcement.id} className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex-1">
-                      <div className="mb-4">
-                        <label className="block text-lg font-normal text-gray-800 mb-2">Announcement ID: {announcement.id}</label>
-                        <div className="min-h-[20px]"></div>
-                      </div>
-                      <hr className="border-gray-300 mb-4" />
-                      <div className="mb-4">
-                        <label className="block text-lg font-normal text-gray-800 mb-2">Topic</label>
-                        <div className="min-h-[40px] flex items-center">
-                          {announcement.topic ? (
-                            <span
-                              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-2 border-blue-500 bg-blue-50 text-blue-700 font-semibold text-base shadow-sm"
-                              style={{
-                                minWidth: '90px',
-                                textAlign: 'center',
-                                letterSpacing: '0.01em',
-                                fontFamily: 'inherit',
-                                lineHeight: '1.5',
-                                marginRight: '0.5rem',
-                                boxShadow: '0 1px 4px 0 rgba(59,130,246,0.10)'
-                              }}
-                            >
-                              <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
-                              {announcement.topic}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {announcements.map((announcement) => (
+            <div key={announcement.id} className="bg-white rounded-lg shadow-md border-l-4 border-blue-500 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-2 border-blue-500 bg-blue-50 text-blue-700 font-semibold text-base shadow-sm"
+                    style={{
+                      minWidth: '90px',
+                      textAlign: 'center',
+                      letterSpacing: '0.01em',
+                      fontFamily: 'inherit',
+                      lineHeight: '1.5',
+                      marginRight: '0.5rem',
+                      boxShadow: '0 1px 4px 0 rgba(59,130,246,0.10)'
+                    }}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
+                    {announcement.topic}
+                  </span>
+                  <span className="text-xs text-gray-500 italic"># {announcement.factories.join(', ')}</span>
+                </div>
+                <div className="mb-2">
+                  <span className="block text-lg font-semibold text-gray-800">{announcement.subject || <span className='text-gray-400'>-</span>}</span>
+                </div>
+                <div className="mb-4">
+                  <span className="block text-gray-700 text-base">{announcement.content || <span className='text-gray-400'>-</span>}</span>
+                </div>
+                {announcement.attachments && announcement.attachments.length > 0 && (
+                  <div className="mb-4">
+                    <div className="font-medium text-gray-700 mb-1">Attachments</div>
+                    <div className="space-y-2">
+                      {announcement.attachments.map((attachment) => (
+                        <div key={attachment.id} className="flex items-center justify-between p-3 border border-gray-200 rounded bg-gray-50">
+                          <div className="flex items-center space-x-3">
+                            <Paperclip className="w-4 h-4 text-gray-500" />
+                            <span className="text-sm text-gray-700">{attachment.name}</span>
+                            <span className="text-xs text-gray-500">({attachment.size})</span>
+                          </div>
+                          <button
+                            onClick={() => handleDownloadAttachment(attachment)}
+                            className="p-1 text-green-600 hover:text-green-800 transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
                         </div>
-                      </div>
-                      <hr className="border-gray-300 mb-4" />
-                      <div className="mb-4">
-                        <label className="block text-lg font-normal text-gray-800 mb-2">Subject</label>
-                        <div className="min-h-[40px] p-3 border border-gray-200 rounded bg-gray-50">{announcement.subject || <span className='text-gray-400'>-</span>}</div>
-                      </div>
-                      <hr className="border-gray-300 mb-4" />
-                      
-                      <div className="mb-4">
-                        <label className="block text-lg font-normal text-gray-800 mb-2">Content</label>
-                        <div className="min-h-[60px] p-3 border border-gray-200 rounded bg-gray-50"></div>
-                      </div>
-                      
-                      {/* Show attachments if any */}
-                      {announcement.attachments && announcement.attachments.length > 0 && (
-                        <>
-                          <hr className="border-gray-300 mb-4" />
-                          <div className="mb-4">
-                            <label className="block text-lg font-normal text-gray-800 mb-2">Attachments</label>
-                            <div className="space-y-2">
-                              {announcement.attachments.map((attachment) => (
-                                <div key={attachment.id} className="flex items-center justify-between p-3 border border-gray-200 rounded bg-gray-50">
-                                  <div className="flex items-center space-x-3">
-                                    <Paperclip className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm text-gray-700">{attachment.name}</span>
-                                    <span className="text-xs text-gray-500">({attachment.size})</span>
-                                  </div>
-                                  <button
-                                    onClick={() => handleDownloadAttachment(attachment)}
-                                    className="p-1 text-green-600 hover:text-green-800 transition-colors"
-                                  >
-                                    <Download className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-500 italic ml-6 mt-2">
-                      # {announcement.factories.join(', ')}
+                      ))}
                     </div>
                   </div>
-
-                  {/* Horizontal line before buttons */}
-                  <hr className="border-gray-300 mb-4" />
-
-                  <div className="flex space-x-3 justify-end">
-                    <button
-                      onClick={() => handleUpdate(announcement.id)}
-                      className="px-8 py-2 bg-green-400 hover:bg-green-500 text-white rounded font-medium transition-colors"
-                    >
-                      UPDATE
-                    </button>
-                    <button
-                      onClick={() => handleDelete(announcement.id)}
-                      className="px-8 py-2 bg-red-400 hover:bg-red-500 text-white rounded font-medium transition-colors"
-                    >
-                      DELETE
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : showAddForm ? (
-          /* Add New Announcement Form */
-          <>
-            {/* Header */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-normal text-gray-800">Add New Announcement</h2>
+                )}
+              </div>
+              <div className="flex space-x-3 justify-end mt-4">
                 <button
-                  onClick={handleCancelAdd}
-                  className="text-gray-500 hover:text-gray-700 text-lg font-medium"
+                  onClick={() => handleUpdate(announcement.id)}
+                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-medium transition-colors"
                 >
-                  ← Back to Announcements
+                  UPDATE
+                </button>
+                <button
+                  onClick={() => handleDelete(announcement.id)}
+                  className="px-6 py-2 bg-red-400 hover:bg-red-500 text-white rounded font-medium transition-colors"
+                >
+                  DELETE
                 </button>
               </div>
             </div>
-
-            {/* Add Form */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="space-y-6">
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">Topic</label>
-                  <input
-                    type="text"
-                    value={newAnnouncement.topic}
-                    onChange={(e) => handleInputChange('topic', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                    placeholder="Enter announcement topic"
-                  />
-                </div>
-
-                <hr className="border-gray-300" />
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">Subject</label>
-                  <input
-                    type="text"
-                    value={newAnnouncement.subject}
-                    onChange={(e) => handleInputChange('subject', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                    placeholder="Enter announcement subject"
-                  />
-                </div>
-
-                <hr className="border-gray-300" />
-
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">Content</label>
-                  <textarea
-                    value={newAnnouncement.content}
-                    onChange={(e) => handleInputChange('content', e.target.value)}
-                    rows={4}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent resize-none"
-                    placeholder="Enter announcement content"
-                  />
-                </div>
-
-                <hr className="border-gray-300" />
-
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">
-                    Factories ({newAnnouncement.factories.length} selected)
-                  </label>
-                  <div className="space-y-2 p-3 border border-gray-300 rounded-lg bg-gray-50">
-                    {factoryOptions.map((factory) => (
-                      <label key={factory} className="flex items-center space-x-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={newAnnouncement.factories.includes(factory)}
-                          onChange={() => handleFactoryToggle(factory)}
-                          className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
-                        />
-                        <span className="text-gray-700">{factory}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {newAnnouncement.factories.length === 0 && (
-                    <p className="text-sm text-red-500 mt-1">Please select at least one factory</p>
-                  )}
-                </div>
-
-                <hr className="border-gray-300" />
-
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">Attach Files</label>
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <input
-                        type="file"
-                        multiple
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        id="fileUpload"
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.xlsx,.xls"
-                      />
-                      <label
-                        htmlFor="fileUpload"
-                        className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors"
-                      >
-                        <Paperclip className="w-4 h-4" />
-                        <span>Choose Files</span>
-                      </label>
-                      <span className="ml-3 text-sm text-gray-500">
-                        Supported: PDF, DOC, DOCX, JPG, PNG, TXT, XLSX
-                      </span>
-                    </div>
-
-                    {/* Display selected files */}
-                    {newAnnouncement.attachments.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-gray-700">Selected Files:</p>
-                        {newAnnouncement.attachments.map((attachment) => (
-                          <div key={attachment.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
-                            <div className="flex items-center space-x-3">
-                              <Paperclip className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm text-gray-700">{attachment.name}</span>
-                              <span className="text-xs text-gray-500">({attachment.size})</span>
-                            </div>
-                            <button
-                              onClick={() => handleRemoveAttachment(attachment.id)}
-                              className="p-1 text-red-500 hover:text-red-700 transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <hr className="border-gray-300" />
-
-                <div className="flex space-x-3 justify-end">
-                  <button
-                    onClick={handleCancelAdd}
-                    className="px-8 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded font-medium transition-colors"
-                  >
-                    CANCEL
-                  </button>
-                  <button
-                    onClick={handleSaveAnnouncement}
-                    className="px-8 py-2 bg-green-400 hover:bg-green-500 text-white rounded font-medium transition-colors"
-                  >
-                    SAVE
-                  </button>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          /* Update Announcement Form */
-          <>
-            {/* Header */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-normal text-gray-800">Update Announcement</h2>
-                <button
-                  onClick={handleCancelUpdate}
-                  className="text-gray-500 hover:text-gray-700 text-lg font-medium"
-                >
-                  ← Back to Announcements
-                </button>
-              </div>
-            </div>
-
-            {/* Update Form */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="space-y-6">
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">Topic</label>
-                  <input
-                    type="text"
-                    value={updateAnnouncement.topic}
-                    onChange={(e) => handleUpdateInputChange('topic', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                    placeholder="Enter announcement topic"
-                  />
-                </div>
-
-                <hr className="border-gray-300" />
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">Subject</label>
-                  <input
-                    type="text"
-                    value={updateAnnouncement.subject}
-                    onChange={(e) => handleUpdateInputChange('subject', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                    placeholder="Enter announcement subject"
-                  />
-                </div>
-
-                <hr className="border-gray-300" />
-
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">Content</label>
-                  <textarea
-                    value={updateAnnouncement.content}
-                    onChange={(e) => handleUpdateInputChange('content', e.target.value)}
-                    rows={4}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent resize-none"
-                    placeholder="Enter announcement content"
-                  />
-                </div>
-
-                <hr className="border-gray-300" />
-
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">
-                    Factories ({updateAnnouncement.factories.length} selected)
-                  </label>
-                  <div className="space-y-2 p-3 border border-gray-300 rounded-lg bg-gray-50">
-                    {factoryOptions.map((factory) => (
-                      <label key={factory} className="flex items-center space-x-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={updateAnnouncement.factories.includes(factory)}
-                          onChange={() => handleUpdateFactoryToggle(factory)}
-                          className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
-                        />
-                        <span className="text-gray-700">{factory}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {updateAnnouncement.factories.length === 0 && (
-                    <p className="text-sm text-red-500 mt-1">Please select at least one factory</p>
-                  )}
-                </div>
-
-                <hr className="border-gray-300" />
-
-                <div>
-                  <label className="block text-lg font-normal text-gray-800 mb-2">Attach Files</label>
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <input
-                        type="file"
-                        multiple
-                        onChange={handleUpdateFileUpload}
-                        className="hidden"
-                        id="updateFileUpload"
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.xlsx,.xls"
-                      />
-                      <label
-                        htmlFor="updateFileUpload"
-                        className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors"
-                      >
-                        <Paperclip className="w-4 h-4" />
-                        <span>Choose Files</span>
-                      </label>
-                      <span className="ml-3 text-sm text-gray-500">
-                        Supported: PDF, DOC, DOCX, JPG, PNG, TXT, XLSX
-                      </span>
-                    </div>
-
-                    {/* Display selected files */}
-                    {updateAnnouncement.attachments.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-gray-700">Attached Files:</p>
-                        {updateAnnouncement.attachments.map((attachment) => (
-                          <div key={attachment.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
-                            <div className="flex items-center space-x-3">
-                              <Paperclip className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm text-gray-700">{attachment.name}</span>
-                              <span className="text-xs text-gray-500">({attachment.size})</span>
-                            </div>
-                            <button
-                              onClick={() => handleUpdateRemoveAttachment(attachment.id)}
-                              className="p-1 text-red-500 hover:text-red-700 transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <hr className="border-gray-300" />
-
-                <div className="flex space-x-3 justify-end">
-                  <button
-                    onClick={handleCancelUpdate}
-                    className="px-8 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded font-medium transition-colors"
-                  >
-                    CANCEL
-                  </button>
-                  <button
-                    onClick={handleSaveUpdate}
-                    className="px-8 py-2 bg-green-400 hover:bg-green-500 text-white rounded font-medium transition-colors"
-                  >
-                    UPDATE
-                  </button>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );
