@@ -69,15 +69,7 @@ export default function PureLeafDashboard() {
   const handleUpdate = (id) => {
     const announcement = announcements.find(ann => ann.id === id);
     if (announcement) {
-      setUpdateAnnouncement({
-        topic: announcement.topic || "",
-        subject: announcement.subject,
-        content: announcement.content,
-        factories: [...announcement.factories],
-        attachments: [...announcement.attachments]
-      });
-      setUpdateAnnouncementId(id);
-      setShowUpdateForm(true);
+      navigate('/owner/annoucement/update', { state: { announcement } });
     }
   };
 

@@ -11,6 +11,7 @@ import OwnerPaymnets from "../pages/Owner/Payments/payment";
 import AddManagers from "../pages/Owner/ManagerView/addManagers";
 import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
 import AddAnnouncement from "../pages/Owner/Annoucement/addAnnouncement";
+import UpdateAnnouncement from "../pages/Owner/Annoucement/updateAnnouncement";
 
 export default [
     <>
@@ -23,5 +24,6 @@ export default [
     <Route path="/Owner/ManagerView/addManagers" element={<Layout>{" "}<AddManagers />{"  "}</Layout>}/>
     <Route path="/Owner/ManagerView/giveaccess" element={<Layout>{" "}<GiveAccess />{" "}</Layout>}/>
     <Route path="/owner/annoucement/add" element={<Layout>{" "}<AddAnnouncement />{" "}</Layout>}/>
+    <Route path="/owner/annoucement/update" element={<Layout>{" "}<UpdateAnnouncement />{" "}</Layout>}/>
     </>
 ];
