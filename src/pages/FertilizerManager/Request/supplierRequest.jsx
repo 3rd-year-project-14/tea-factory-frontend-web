@@ -54,6 +54,9 @@ const FertilizerRequestsPage = () => {
       notes: "Quality concerns with previous batch",
     },
   ]);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectingId, setRejectingId] = useState(null);
 
   const handleApprove = (id) => {
     setRequests((prev) =>
@@ -64,11 +67,29 @@ const FertilizerRequestsPage = () => {
   };
 
   const handleReject = (id) => {
+    setRejectingId(id);
+    setRejectReason("");
+    setShowRejectModal(true);
+  };
+
+  const confirmReject = () => {
+    if (!rejectReason.trim()) return;
     setRequests((prev) =>
       prev.map((request) =>
-        request.id === id ? { ...request, status: "rejected" } : request
+        request.id === rejectingId
+          ? { ...request, status: "rejected", rejectReason }
+          : request
       )
     );
+    setShowRejectModal(false);
+    setRejectingId(null);
+    setRejectReason("");
+  };
+
+  const cancelReject = () => {
+    setShowRejectModal(false);
+    setRejectingId(null);
+    setRejectReason("");
   };
 
   const getStatusColor = (status) => {
@@ -112,9 +133,12 @@ const FertilizerRequestsPage = () => {
             Review and approve fertilizer requests from suppliers
           </p>
         </div>
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6 border">
+        {/* Stats Cards - Dashboard Style */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <button
+            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-yellow-500"
+            type="button"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
@@ -123,13 +147,17 @@ const FertilizerRequestsPage = () => {
                 <p className="text-2xl font-bold text-yellow-600">
                   {pendingRequests.length}
                 </p>
+                <p className="text-xs text-gray-500">Awaiting Action</p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-6 h-6 text-yellow-600" />
+              <div className="h-8 w-8 text-yellow-600 text-2xl flex items-center justify-center">
+                <Clock className="w-6 h-6" />
               </div>
             </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6 border">
+          </button>
+          <button
+            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-green-500"
+            type="button"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
@@ -138,27 +166,32 @@ const FertilizerRequestsPage = () => {
                 <p className="text-2xl font-bold text-green-600">
                   {requests.filter((req) => req.status === "approved").length}
                 </p>
+                <p className="text-xs text-gray-500">Processed</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Check className="w-6 h-6 text-green-600" />
+              <div className="h-8 w-8 text-green-600 text-2xl flex items-center justify-center">
+                <Check className="w-6 h-6" />
               </div>
             </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6 border">
+          </button>
+          <button
+            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-blue-500"
+            type="button"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
                   Total Requests
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-blue-600">
                   {requests.length}
                 </p>
+                <p className="text-xs text-gray-500">All Time</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Package className="w-6 h-6 text-blue-600" />
+              <div className="h-8 w-8 text-blue-600 text-2xl flex items-center justify-center">
+                <Package className="w-6 h-6" />
               </div>
             </div>
-          </div>
+          </button>
         </div>
         {/* Pending Requests Section */}
         <div className="mb-8">
@@ -243,6 +276,45 @@ const FertilizerRequestsPage = () => {
               </div>
             )}
           </div>
+          {/* Reject Reason Modal */}
+          {showRejectModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+              <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                <h3 className="text-lg font-bold mb-2 text-red-700 flex items-center gap-2">
+                  <X className="w-5 h-5" /> Reject Request
+                </h3>
+                <p className="mb-3 text-gray-700">
+                  Please provide a reason for rejection:
+                </p>
+                <textarea
+                  className="w-full border border-gray-300 rounded-lg p-3 mb-4 focus:ring-2 focus:ring-red-400 focus:border-transparent outline-none resize-none min-h-[80px]"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="Enter rejection reason..."
+                  autoFocus
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={cancelReject}
+                    className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmReject}
+                    disabled={!rejectReason.trim()}
+                    className={`px-4 py-2 rounded-lg font-medium text-white ${
+                      rejectReason.trim()
+                        ? "bg-red-600 hover:bg-red-700"
+                        : "bg-red-300 cursor-not-allowed"
+                    }`}
+                  >
+                    Confirm Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         {/* Processed Requests Section */}
         <div>

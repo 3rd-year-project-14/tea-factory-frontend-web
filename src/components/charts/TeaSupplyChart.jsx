@@ -1,11 +1,10 @@
-import React, { useRef} from "react";
-import { Line } from "react-chartjs-2";
+import React, { useRef } from "react";
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -15,118 +14,193 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
   ChartDataLabels
 );
 
-const TeaSupplyChart = ({ data }) => {
+const TeaSupplyChart = ({ data, period = "daily" }) => {
   const chartRef = useRef(null);
 
-  // Example data if not provided
-  const chartData = data || {
-    labels: ["Dec", "Jan", "Feb", "Mar", "Apr", "May"],
-    datasets: [
-      {
-        label: "Tea Supply (kg)",
-        data: [320, 410, 390, 450, 420, 480],
-        borderColor: "#3b82f6",
-        backgroundColor: (context) => {
-          const chart = context.chart;
-          const { ctx, chartArea } = chart;
-          if (!chartArea) return null;
-          const gradient = ctx.createLinearGradient(
-            0,
-            chartArea.bottom,
-            0,
-            chartArea.top
-          );
-          gradient.addColorStop(0, "rgba(59,130,246,0.05)");
-          gradient.addColorStop(1, "rgba(59,130,246,0.4)");
-          return gradient;
-        },
-        tension: 0.4,
-        fill: true,
-        pointRadius: 5,
-        pointBackgroundColor: "#3b82f6",
-        datalabels: {
-          anchor: "end",
-          align: "top",
-          color: "#1e293b",
-          font: { weight: "bold" },
-          formatter: (value) => value + " kg",
-        },
-      },
-    ],
+  // Different data sets for different periods
+  const getDataByPeriod = () => {
+    switch (period) {
+      case "daily":
+        return {
+          labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+          datasets: [
+            {
+              label: "Tea Supply (kg)",
+              data: [450, 520, 380, 600, 490, 670, 430],
+              backgroundColor: [
+                "#10b981",
+                "#059669",
+                "#047857",
+                "#065f46",
+                "#064e3b",
+                "#10b981",
+                "#059669",
+              ],
+              borderColor: "#065f46",
+              borderWidth: 1,
+              borderRadius: 8,
+              borderSkipped: false,
+            },
+          ],
+        };
+      case "monthly":
+        return {
+          labels: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ],
+          datasets: [
+            {
+              label: "Tea Supply (kg)",
+              data: [
+                12000, 14500, 13200, 15800, 16200, 17500, 18200, 16800, 15200,
+                13800, 12500, 11200,
+              ],
+              backgroundColor: [
+                "#10b981",
+                "#059669",
+                "#047857",
+                "#065f46",
+                "#064e3b",
+                "#10b981",
+                "#059669",
+                "#047857",
+                "#065f46",
+                "#064e3b",
+                "#10b981",
+                "#059669",
+              ],
+              borderColor: "#065f46",
+              borderWidth: 1,
+              borderRadius: 8,
+              borderSkipped: false,
+            },
+          ],
+        };
+      case "yearly":
+        return {
+          labels: ["2020", "2021", "2022", "2023", "2024", "2025"],
+          datasets: [
+            {
+              label: "Tea Supply (kg)",
+              data: [185000, 198000, 210000, 195000, 220000, 180000],
+              backgroundColor: [
+                "#10b981",
+                "#059669",
+                "#047857",
+                "#065f46",
+                "#064e3b",
+                "#10b981",
+              ],
+              borderColor: "#065f46",
+              borderWidth: 1,
+              borderRadius: 8,
+              borderSkipped: false,
+            },
+          ],
+        };
+      default:
+        return getDataByPeriod("daily");
+    }
   };
 
+  const chartData = data || getDataByPeriod();
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
       title: {
         display: true,
-        text: "Monthly Tea Collection",
+        text: `${
+          period.charAt(0).toUpperCase() + period.slice(1)
+        } Tea Collection`,
         font: { size: 18 },
         color: "#1e293b",
         padding: { top: 10, bottom: 20 },
       },
       datalabels: {
         display: true,
+        anchor: "end",
+        align: "top",
+        color: "#1e293b",
+        font: { weight: "bold", size: 11 },
+        formatter: (value) => value + " kg",
       },
       tooltip: {
         callbacks: {
-          label: function (context) {
-            const value = context.parsed.y;
-            const index = context.dataIndex;
-            const prev = context.dataset.data[index - 1];
-            let change = "";
-            if (typeof prev !== "undefined") {
-              const diff = value - prev;
-              const percent = ((diff / prev) * 100).toFixed(1);
-              change = ` (${diff >= 0 ? "+" : ""}${percent}%)`;
-            }
-            return `${value} kg${change}`;
+          label: (context) => {
+            return `${context.dataset.label}: ${context.parsed.y} kg`;
           },
         },
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        borderColor: "#3b82f6",
+        borderWidth: 1,
+        displayColors: false,
+        titleFont: { size: 14 },
+        bodyFont: { size: 12 },
+        cornerRadius: 8,
+        caretPadding: 10,
+        padding: 12,
       },
-    },
-    layout: {
-      padding: 24,
     },
     scales: {
       y: {
         beginAtZero: true,
         title: {
           display: true,
-          text: "kg",
+          text: "Tea Supply (kg)",
           color: "#1e293b",
           font: { weight: "bold" },
         },
         grid: {
-          color: "#e5e7eb",
+          color: "rgba(0, 0, 0, 0.1)",
         },
         ticks: {
-          color: "#64748b",
+          color: "#1e293b",
+          font: { size: 11 },
         },
       },
       x: {
+        title: {
+          display: true,
+          text: "Time Period",
+          color: "#1e293b",
+          font: { weight: "bold" },
+        },
         grid: {
           display: false,
         },
         ticks: {
-          color: "#64748b",
+          color: "#1e293b",
+          font: { size: 11 },
         },
       },
     },
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <Line
+    <div className="w-full h-full">
+      <Bar
         ref={chartRef}
         data={chartData}
         options={options}
