@@ -8,16 +8,16 @@ const users = [
     role: "FACTORY_MANAGER",
   },
   {
+    username: "Kavinda",
+    role: "PAYMENT_MANAGER",
+  },
+  {
     username: "Madushan",
     role: "FERTILIZER_MANAGER",
   },
   {
     username: "Pasindu",
     role: "INVENTORY_MANAGER",
-  },
-  {
-    username: "Kavinda",
-    role: "PAYMENT_MANAGER",
   },
   {
     username: "Pasindu",

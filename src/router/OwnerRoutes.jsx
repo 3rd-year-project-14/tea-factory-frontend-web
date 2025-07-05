@@ -12,6 +12,9 @@ import AddManagers from "../pages/Owner/ManagerView/addManagers";
 import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
 import AddAnnouncement from "../pages/Owner/Annoucement/addAnnouncement";
 import UpdateAnnouncement from "../pages/Owner/Annoucement/updateAnnouncement";
+import ViewAdvanceFactoryWise from "../pages/Owner/Payments/viewAdvanceFactoryWise";
+import ViewLoanFactoryWise from "../pages/Owner/Payments/viewLoanFactoryWise";
+import ViewPaymentFactoryWise from "../pages/Owner/Payments/viewPaymentFactoryWise";
 
 export default [
     <>
@@ -25,5 +28,8 @@ export default [
     <Route path="/Owner/ManagerView/giveaccess" element={<Layout>{" "}<GiveAccess />{" "}</Layout>}/>
     <Route path="/owner/annoucement/add" element={<Layout>{" "}<AddAnnouncement />{" "}</Layout>}/>
     <Route path="/owner/annoucement/update" element={<Layout>{" "}<UpdateAnnouncement />{" "}</Layout>}/>
+    <Route path="/owner/payments/viewAdvanceFactoryWise" element={<Layout>{" "}<ViewAdvanceFactoryWise />{" "}</Layout>}/>
+    <Route path="/owner/payments/viewLoanFactoryWise" element={<Layout>{" "}<ViewLoanFactoryWise />{" "}</Layout>}/>
+    <Route path="/owner/payments/viewPaymentFactoryWise" element={<Layout>{" "}<ViewPaymentFactoryWise />{" "}</Layout>}/>
     </>
 ];
