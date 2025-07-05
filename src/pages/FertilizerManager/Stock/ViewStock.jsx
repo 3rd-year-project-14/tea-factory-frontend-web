@@ -122,6 +122,15 @@ const ViewStockPage = () => {
                 <Trash2 className="w-4 h-4" />
                 <span>Delete</span>
               </button>
+              <button
+                onClick={() =>
+                  (window.location.href = "/fertilizerManager/stockRequest")
+                }
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 font-semibold shadow"
+              >
+                <Package className="w-4 h-4" />
+                <span>Request Fertilizer</span>
+              </button>
             </div>
           </div>
         </div>
