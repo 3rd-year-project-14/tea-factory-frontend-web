@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState as useReactState, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useState as useReactState } from 'react';
-import ViewPaymentFactoryWise from './viewPaymentFactoryWise';
-import ViewLoanFactoryWise from './viewLoanFactoryWise';
 import ViewAdvanceFactoryWise from './viewAdvanceFactoryWise';
+import ViewLoanFactoryWise from './viewLoanFactoryWise';
+import ViewPaymentFactoryWise from './viewPaymentFactoryWise';
 
 function Payment() {
   const navigate = useNavigate();
