@@ -1,4 +1,5 @@
 import { useState as useReactState, useState } from 'react';
+import OwnerPaymentReport from './OwnerPaymentReport';
 import ViewAdvanceFactoryWise from './viewAdvanceFactoryWise';
 import ViewLoanFactoryWise from './viewLoanFactoryWise';
 import ViewPaymentFactoryWise from './viewPaymentFactoryWise';
@@ -19,6 +20,7 @@ function Payment() {
   const [popup, setPopup] = useReactState(null); // 'tea' | 'loan' | 'advance' | 'factoryDetails' | null
   const [factorySearch, setFactorySearch] = useState('');
   const [selectedFactory, setSelectedFactory] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -34,6 +36,7 @@ function Payment() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* ...existing code... */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
         {/* Total Payment for Tea Leaves */}
         <button
@@ -91,7 +94,7 @@ function Payment() {
       </div>
 
       {/* Factory Details Card at the last position - full width, inline search/select */}
-      <div className="mb-8">
+      <div className="mb-4">
         <div className="bg-white rounded-lg shadow-md border-l-4 border-blue-400 p-8 flex flex-col justify-between w-full">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -102,7 +105,7 @@ function Payment() {
             <div className="mb-4">
               <p className="text-gray-700 text-base mb-2">You can view all payment, loan, and advance details for a specific factory. Use the search box below to find a factory and see its summary.</p>
             </div>
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-md relative">
               <input
                 type="text"
                 placeholder="Search factory name..."
@@ -112,18 +115,25 @@ function Payment() {
                   setFactorySearch(e.target.value);
                   setSelectedFactory(null);
                 }}
+                autoComplete="off"
+                onFocus={() => setShowDropdown(true)}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
               />
-              {/* Show filtered factory list as user types */}
-              {factorySearch && factoryData.filter(f => f.factory.toLowerCase().includes(factorySearch.toLowerCase())).length === 0 && (
-                <div className="bg-white rounded shadow border border-gray-200 p-3 text-gray-500 text-center mt-2">No factories found.</div>
-              )}
-              {factorySearch && factoryData.filter(f => f.factory.toLowerCase().includes(factorySearch.toLowerCase())).length > 0 && (
-                <div className="bg-white rounded shadow border border-gray-200 divide-y divide-gray-100 max-h-40 overflow-y-auto">
+              {/* Dropdown for filtered factories, only show when focused */}
+              {showDropdown && (
+                <div className="absolute left-0 right-0 z-20 bg-white rounded shadow border border-gray-200 divide-y divide-gray-100 max-h-48 overflow-y-auto mt-1">
+                  {factorySearch && factoryData.filter(f => f.factory.toLowerCase().includes(factorySearch.toLowerCase())).length === 0 && (
+                    <div className="p-3 text-gray-500 text-center">No factories found.</div>
+                  )}
                   {factoryData.filter(f => f.factory.toLowerCase().includes(factorySearch.toLowerCase())).map(f => (
                     <div
                       key={f.factory}
                       className="p-3 cursor-pointer hover:bg-blue-50 rounded transition"
-                      onClick={() => setSelectedFactory(f)}
+                      onMouseDown={() => {
+                        setSelectedFactory(f);
+                        setFactorySearch(f.factory);
+                        setShowDropdown(false);
+                      }}
                     >
                       <span className="font-medium text-blue-700">{f.factory}</span>
                     </div>
@@ -165,6 +175,10 @@ function Payment() {
           </div>
         </div>
       </div>
+      </div>
+      {/* Owner Payment Report Section - now at the end */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <OwnerPaymentReport />
       </div>
       {/* Popup Overlay */}
       {popup && (

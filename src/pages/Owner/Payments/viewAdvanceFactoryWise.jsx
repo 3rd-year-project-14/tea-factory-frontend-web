@@ -1,15 +1,14 @@
-import React from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  Legend
-} from 'recharts';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts';
 
 const factoryAdvances = [
   { factory: 'Factory A', amount: 70000 },

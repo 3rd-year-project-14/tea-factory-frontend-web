@@ -1,14 +1,13 @@
-import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
+  BarChart,
   CartesianGrid,
-  Legend
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts';
 
 const factoryPayments = [
