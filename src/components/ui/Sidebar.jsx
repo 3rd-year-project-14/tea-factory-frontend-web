@@ -11,16 +11,15 @@ import {
   BarChart3,
   DollarSign,
   Calendar,
+  UserCheck ,
   Route,
   BadgeAlert,
   ListCheck,
-  UserCheck,
   FileBarChart,
   Bell,
 } from "lucide-react";
 
 const sidebarLinks = {
-
   SUPPLIER: [
     { name: "Dashboard", path: "/supplier/dashboard", icon: Home },
     { name: "Tea Production", path: "/supplier/production", icon: Leaf },
@@ -53,39 +52,45 @@ const sidebarLinks = {
   INVENTORY_MANAGER: [
     { name: "Dashboard", path: "/inventoryManager/Dashboard", icon: Home },
     { name: "Leaf Weight", path: "/inventoryManager/leaf_weight", icon: Truck },
-    { name: "Bag Weight",path: "/inventoryManager/empty_bags_weight",icon: Package,},
+    {name: "Bag Weight",path: "/inventoryManager/empty_bags_weight",icon: Package,},
     { name: "History", path: "/inventoryManager/history", icon: Award },
     { name: "Report", path: "/inventoryManager/report", icon: Users },
+    { name: "CRUD", path: "/inventoryManager/crud", icon: Users },
   ],
 
   FERTILIZER_MANAGER: [
     { name: "Dashboard", path: "/fertilizerManager/Dashboard", icon: Home },
     { name: "Stock", path: "/fertilizerManager/stock", icon: Truck },
-    { name: "Request",path: "/fertilizerManager/request",icon: Package,},
+    { name: "Request", path: "/fertilizerManager/request", icon: Package },
     { name: "History", path: "/fertilizerManager/history", icon: Award },
     { name: "Report", path: "/fertilizerManager/report", icon: Users },
   ],
 
   FACTORY_MANAGER: [
-    { name: "Dashboard", path: "/factoryManager/Dashboard", icon: Home },
+    { name: "Dashboard", path: "/factoryManager/dashboard", icon: Home },
     { name: "Suppliers", path: "/factoryManager/suppliers", icon: Users },
     { name: "Routes", path: "/factoryManager/routes", icon: Route },
-    { name: "Advance", path: "/factoryManager/advance", icon: DollarSign },
-    { name: "Loans", path: "/factoryManager/loans", icon: BarChart3 },
-    { name: "Tea Rate", path: "/factoryManager/teaRate", icon: Leaf },
-    { name: "Payments", path: "/factoryManager/payments", icon: DollarSign },
     { name: "Inventory", path: "/factoryManager/inventory", icon: Package },
     { name: "Drivers", path: "/factoryManager/drivers", icon: Users },
+  ],
+
+  PAYMENT_MANAGER: [
+    { name: "Dashboard", path: "/paymentManager/dashboard", icon: Home },
+    { name: "Advance", path: "/paymentManager/advance", icon: DollarSign },
+    { name: "Loans", path: "/paymentManager/loans", icon: BarChart3 },
+    { name: "Payments", path: "/paymentManager/payments", icon: DollarSign },
+    { name: "Tea Rate", path: "/paymentManager/teaRate", icon: Leaf },
   ],
 
   OWNER: [
     { name: "Dashboard", path: "/owner/Dashboard", icon: Home },
     { name: "Annoucement", path: "/owner/annoucement", icon: Bell },
     { name: "Payments", path: "/owner/payments", icon: DollarSign },
-    { name: "manager works", path: "/owner/managers", icon: UserCheck  },
+    { name: "manager works", path: "/owner/managers", icon: UserCheck },
     { name: "Tea Rate", path: "/owner/teaRate", icon: Leaf },
     { name: "Reports", path: "/owner/reports", icon: FileBarChart },
-  ]
+
+  ],
 
 };
 
