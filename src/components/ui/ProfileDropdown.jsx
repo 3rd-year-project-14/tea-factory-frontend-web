@@ -48,7 +48,7 @@ const ProfileDropdown = ({ user, onClose }) => {
       {/* User Info Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center">
             <span className="text-white font-semibold text-lg">
               {user?.username?.charAt(0).toUpperCase() || 'J'}
             </span>
