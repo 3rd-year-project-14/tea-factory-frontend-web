@@ -11,6 +11,8 @@ import SupplierBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight_s
 import WeightCondition from "../pages/InventoryManager/weight_condition";
 import History from "../pages/InventoryManager/History/history";
 import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier";
+import CRUD from "../pages/InventoryManager/Report/inventorycrud"
+
 
 export default [
   <Route key="dashboard" path="/inventoryManager/dashboard" element={<Layout><InventoryManagerDashboard /></Layout>} />,
@@ -22,5 +24,14 @@ export default [
   <Route key="route_bags_weight" path="/inventoryManager/route_bags_weight" element={<Layout><RouteBagsWeight /></Layout>} />,
   <Route key="bags_weight_supplier" path="/inventoryManager/bags_weight_supplier" element={<Layout><SupplierBagsWeight /></Layout>} />,
   <Route key="history" path="/inventoryManager/history" element={<Layout><History /></Layout>} />,
-  <Route key="report" path="/inventoryManager/report" element={<Layout><SupplierAdd /></Layout>} />
+  <Route key="report" path="/inventoryManager/report" element={<Layout><SupplierAdd /></Layout>} />,
+  <Route
+    key="crud"
+    path="/inventoryManager/crud"
+    element={
+      <Layout>
+        <CRUD />
+      </Layout>
+    }
+  />,
 ];

@@ -1,51 +1,20 @@
-// import { initializeApp } from "firebase/app";
-// import { getAuth } from "firebase/auth";
-
-// const firebaseConfig = {
-//   apiKey: "YOUR_API_KEY",
-//   authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-//   projectId: "YOUR_PROJECT_ID",
-//   storageBucket: "YOUR_PROJECT_ID.appspot.com",
-//   messagingSenderId: "XXXXXX",
-//   appId: "XXXXXX"
-// };
-
-// const app = initializeApp(firebaseConfig);
-// export const auth = getAuth(app);
 // src/firebase.js
-
-
-//=========
-// import { initializeApp } from "firebase/app";
-// import { getAuth } from "firebase/auth";
-
-// const firebaseConfig = {
-//   apiKey: "YOUR_API_KEY",
-//   authDomain: "YOUR_AUTH_DOMAIN",
-//   projectId: "YOUR_PROJECT_ID",
-//   // ... add rest of your config here
-// };
-
-// const app = initializeApp(firebaseConfig);
-// export const auth = getAuth(app);
-// Import the functions you need from the SDKs you need
-// src/firebase.js
-
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBTIBxYq6s123vEbqPXonMiRf5cM4CkLbo",
+  apiKey: "AIzaSyBT1BxYq6sI23vEbqPXonMiRf5cM4CkLbo",
   authDomain: "tea-factory-project-902e0.firebaseapp.com",
   projectId: "tea-factory-project-902e0",
-  storageBucket: "tea-factory-project-902e.firebaseapp.com",
+  storageBucket: "tea-factory-project-902e0.firebasestorage.app",
   messagingSenderId: "501903422222",
-  appId: "1:501903422222:web:xxxxxx",
+  appId: "1:501903422222:web:158f2501246fbe9c279d5f",
   measurementId: "G-JVLYXWZDNJ"
 };
 
-// Initialize Firebase
+// Initialize Firebase App
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
-export { app, analytics };
+// Initialize Firebase Authentication and export
+export const auth = getAuth(app);
+export default app;

@@ -2,8 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "../layouts/Layout";
 
 import inventoryManagerRoutes from "./InventoryManagerRoutes";
+
 import fertilizerManagerRoutes from "./FertlizerManagerRoutes";
 import OwnerRoutes from "./OwnerRoutes";
+
 
 //Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
@@ -12,8 +14,6 @@ import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
 import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
 import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
 
-// //Fertilizer Manager
-// import FertilizerManagerDashboard from "../pages/FertilizerManager/dashboard";
 
 //Payment Manager
 import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
@@ -41,7 +41,9 @@ import Assignment from "../pages/TransportManager/assignments";
 // import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
 
 import { useAuth } from "../contexts/AuthContext";
-import Login from "../pages/login";
+import Auth from "../components/Auth"
+import Landing from "../components/landingNew";  
+import SignUp from "../components/SignupForm";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -208,9 +210,12 @@ export default function AppRouter() {
           </>
         )} */}
 
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Auth />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/landing" element={<Landing />} />
+        <Route path="" element={<Navigate to="/landing" />} />
 
-        <Route path="" element={<Navigate to="/login" />} />
+        {/* <Route path="" element={<Navigate to="/login" />} /> */}
       </Routes>
     </BrowserRouter>
   );
