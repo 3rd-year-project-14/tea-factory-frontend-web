@@ -3,7 +3,6 @@ const users = [
     username: "Pasindu",
     role: "INVENTORY_MANAGER",
   },
-  
   {
     username: "Dasun",
     role: "OWNER",

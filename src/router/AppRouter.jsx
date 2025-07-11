@@ -2,7 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "../layouts/Layout";
 
 import inventoryManagerRoutes from "./InventoryManagerRoutes";
-import fertilizerManagerRoutes from "./FertilizerManagerRoutes";
+
+import fertilizerManagerRoutes from "./FertlizerManagerRoutes";
+import OwnerRoutes from "./OwnerRoutes";
+
 
 //Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
@@ -28,14 +31,14 @@ import Emergency from "../pages/TransportManager/emergency";
 import Assignment from "../pages/TransportManager/assignments";
 
 //owner
-import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
-import OwnerDashboard from "../pages/Owner/dashboard";
-import OwnerManagers from "../pages/Owner/Managerview/viewManagers";
-import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
-import OwnerReports from "../pages/Owner/Reports/reports";
-import OwnerPaymnets from "../pages/Owner/Payments/payment";
-import AddManagers from "../pages/Owner/ManagerView/addManagers";
-import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
+// import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
+// import OwnerDashboard from "../pages/Owner/dashboard";
+// import OwnerManagers from "../pages/Owner/Managerview/viewManagers";
+// import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
+// import OwnerReports from "../pages/Owner/Reports/reports";
+// import OwnerPaymnets from "../pages/Owner/Payments/payment";
+// import AddManagers from "../pages/Owner/ManagerView/addManagers";
+// import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
 
 import { useAuth } from "../contexts/AuthContext";
 import Auth from "../components/Auth"
@@ -52,6 +55,8 @@ export default function AppRouter() {
         {user?.role === "INVENTORY_MANAGER" && inventoryManagerRoutes}
 
         {user?.role === "FERTILIZER_MANAGER" && fertilizerManagerRoutes}
+
+        {user?.role === "OWNER" && OwnerRoutes}
 
 
         {user?.role === "TRANSPORT_MANAGER" && (
@@ -189,7 +194,7 @@ export default function AppRouter() {
           </>
         )}
 
-        {user?.role === "OWNER" && (
+        {/* {user?.role === "OWNER" && (
           <>
 
           <Route path="/owner/dashboard" element={<Layout>{" "}<OwnerDashboard />{" "}</Layout>}/>
@@ -203,7 +208,7 @@ export default function AppRouter() {
 
             
           </>
-        )}
+        )} */}
 
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<SignUp />} />
