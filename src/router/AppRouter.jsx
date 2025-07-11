@@ -40,6 +40,7 @@ import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
 import { useAuth } from "../contexts/AuthContext";
 import Auth from "../components/Auth"
 import Landing from "../components/landingNew";  
+import SignUp from "../components/SignupForm";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -205,7 +206,7 @@ export default function AppRouter() {
         )}
 
         <Route path="/login" element={<Auth />} />
-
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/landing" element={<Landing />} />
         <Route path="" element={<Navigate to="/landing" />} />
 

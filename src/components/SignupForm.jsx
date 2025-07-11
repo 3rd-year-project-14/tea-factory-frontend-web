@@ -58,22 +58,25 @@ export default function SignupForm() {
         password
       );
       const token = await userCredential.user.getIdToken();
+
       // 2. Send token + additional data to backend
       await axios.post("http://localhost:8080/api/auth/signup", {
-        token,
-        name,
+        token, // <-- token sent
+        name, // <-- extra data sent
         nic,
         contactNo,
       });
+
       setSuccess("Signup Success! You can now login.");
       setTimeout(() => navigate("/login"), 1500);
-    } catch {
+    } catch (error) {
+      console.error(error);
       setError("Signup failed. Please try again.");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 flex items-center justify-center p-4 pt-20">
       <div className="w-full max-w-md bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10 border border-emerald-100">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-emerald-700 mb-2 tracking-tight drop-shadow">
@@ -246,9 +249,11 @@ export default function SignupForm() {
         <div className="text-center mt-6">
           <span className="text-gray-600">Already have an account? </span>
 
-          <a href="/login" 
-          className="text-black font-semibold hover:underline"
-          style={{ color: "green" }}>
+          <a
+            href="/login"
+            className="text-black font-semibold hover:underline"
+            style={{ color: "green" }}
+          >
             Login
           </a>
         </div>

@@ -25,10 +25,12 @@ export default function Auth() {
         password
       );
       const token = await userCredential.user.getIdToken();
-      // 2. Send token to backend
+
+      // 2. Send token to backend for verification + get role
       const res = await axios.post("http://localhost:8080/api/auth/login", {
         token,
       });
+
       setSuccess("Login Success! Redirecting...");
       // 3. Redirect user based on role
       const role = res.data.role;
@@ -62,7 +64,8 @@ export default function Auth() {
             navigate("/");
         }
       }, 1200);
-    } catch {
+    } catch (error) {
+      console.error(error);
       setError("Invalid credentials. Please try again.");
     }
   };
@@ -149,7 +152,6 @@ export default function Auth() {
           style={{ color: "green" }}>
             Sign Up
           </a>
-
         </div>
       </div>
     </div>
