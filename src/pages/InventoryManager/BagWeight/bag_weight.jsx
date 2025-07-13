@@ -78,13 +78,13 @@ export default function Route() {
                 <div className="h-6 w-6 text-green-600 text-xl">🌱</div>
               </div>
             </div>
-            <div className="p-2 rounded-lg shadow-sm ring-2 ring-blue-500 transition-colors hover:bg-gray-50 bg-white">
+            <div className="p-2 rounded-lg shadow-sm ring-2 ring-green-500 transition-colors hover:bg-gray-50 bg-white">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-gray-600">
                     Total Bags
                   </p>
-                  <p className="text-lg font-bold text-blue-600">12</p>
+                  <p className="text-lg font-bold text-green-600">12</p>
                   <p className="text-[10px] text-gray-500">All Bags</p>
                 </div>
                 <div className="h-6 w-6 text-blue-600 text-xl">📦</div>
