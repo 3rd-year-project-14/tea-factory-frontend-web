@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,6 +13,7 @@ export default function Auth() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,6 +32,8 @@ export default function Auth() {
       const res = await axios.post("http://localhost:8080/api/auth/login", {
         token,
       });
+      setUser(res.data);
+      console.log("Login response:", res.data);
 
       setSuccess("Login Success! Redirecting...");
       // 3. Redirect user based on role
