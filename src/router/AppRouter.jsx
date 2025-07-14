@@ -1,8 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "../layouts/Layout";
 
+// import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import fertilizerManagerRoutes from "./FertilizerManagerRoutes";
+import OwnerRoutes from "./OwnerRoutes";
 
 //Factory Manager
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
@@ -11,14 +13,12 @@ import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
 import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
 import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
 
-
 //Payment Manager
 import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
 import AdvanceManagement from "../pages/PaymentManager/Advance/AdvanceManagement";
 import LoanManagement from "../pages/PaymentManager/Loans/LoanManagement";
 import TeaRateAdjustment from "../pages/PaymentManager/TeaRate/TeaRateAdjustment";
 import PaymentManagement from "../pages/PaymentManager/Payments/PaymentManagement";
-
 
 //Transport Manager
 import TransportManagerDashboard from "../pages/TransportManager/dashboard";
@@ -28,20 +28,19 @@ import Emergency from "../pages/TransportManager/emergency";
 import Assignment from "../pages/TransportManager/assignments";
 
 //owner
-import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
-import OwnerDashboard from "../pages/Owner/dashboard";
-import OwnerManagers from "../pages/Owner/Managerview/viewManagers";
-import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
-import OwnerReports from "../pages/Owner/Reports/reports";
-import OwnerPaymnets from "../pages/Owner/Payments/payment";
-import AddManagers from "../pages/Owner/ManagerView/addManagers";
-import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
+// import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
+// import OwnerDashboard from "../pages/Owner/dashboard";
+// import OwnerManagers from "../pages/Owner/Managerview/viewManagers";
+// import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
+// import OwnerReports from "../pages/Owner/Reports/reports";
+// import OwnerPaymnets from "../pages/Owner/Payments/payment";
+// import AddManagers from "../pages/Owner/ManagerView/addManagers";
+// import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
 
 import { useAuth } from "../contexts/AuthContext";
-import Auth from "../components/Auth"
+import Auth from "../components/Auth";
 import Landing from "../components/landingNew";
 import SignupForm from "../components/SignupForm";
-  
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -49,11 +48,11 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-
         {user?.role === "INVENTORY_MANAGER" && inventoryManagerRoutes}
 
         {user?.role === "FERTILIZER_MANAGER" && fertilizerManagerRoutes}
 
+        {user?.role === "OWNER" && OwnerRoutes}
 
         {user?.role === "TRANSPORT_MANAGER" && (
           <>
@@ -190,7 +189,7 @@ export default function AppRouter() {
           </>
         )}
 
-        {user?.role === "OWNER" && (
+        {/* {user?.role === "OWNER" && (
           <>
 
           <Route path="/owner/dashboard" element={<Layout>{" "}<OwnerDashboard />{" "}</Layout>}/>
@@ -204,7 +203,7 @@ export default function AppRouter() {
 
             
           </>
-        )}
+        )} */}
 
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<SignupForm />} />
