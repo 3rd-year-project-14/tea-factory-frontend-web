@@ -3,8 +3,8 @@ import { Calendar, Mail, FileText } from "lucide-react";
 
 export default function QuickActionsCard() {
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-      <div className="px-6 py-4 border-b bg-gray-50">
+    <div className="bg-white rounded-xl shadow-sm border border-emerald-200 overflow-hidden">
+      <div className="px-6 py-4 border-b border-emerald-200 bg-emerald-50">
         <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
       </div>
       <div className="p-6">

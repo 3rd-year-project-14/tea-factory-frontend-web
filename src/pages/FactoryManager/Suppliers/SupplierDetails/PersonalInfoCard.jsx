@@ -3,10 +3,10 @@ import { User, Phone, Mail, MapPin } from "lucide-react";
 
 export default function PersonalInfoCard({ supplier }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-      <div className="px-6 py-4 border-b bg-gray-50">
+    <div className="bg-white rounded-xl shadow-sm border border-emerald-300 overflow-hidden">
+      <div className="px-6 py-4 border-b border-emerald-300 bg-emerald-50">
         <div className="flex items-center space-x-2">
-          <User className="w-5 h-5 text-blue-600" />
+          <User className="w-5 h-5 text-emerald-600" />
           <h2 className="text-lg font-semibold text-gray-900">
             Personal Information
           </h2>
@@ -44,7 +44,7 @@ export default function PersonalInfoCard({ supplier }) {
               Mobile Number
             </label>
             <div className="mt-1 flex items-center space-x-2">
-              <Phone className="w-4 h-4 text-gray-400" />
+              <Phone className="w-4 h-4 text-emerald-600" />
               <p className="text-sm font-medium text-gray-900">
                 {supplier.phone}
               </p>
@@ -55,7 +55,7 @@ export default function PersonalInfoCard({ supplier }) {
               Email Address
             </label>
             <div className="mt-1 flex items-center space-x-2">
-              <Mail className="w-4 h-4 text-gray-400" />
+              <Mail className="w-4 h-4 text-emerald-600" />
               <p className="text-sm font-medium text-gray-900">
                 kamal.perera@email.com
               </p>
@@ -66,7 +66,7 @@ export default function PersonalInfoCard({ supplier }) {
               Address
             </label>
             <div className="mt-1 flex items-start space-x-2">
-              <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+              <MapPin className="w-4 h-4 text-emerald-600 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-gray-900">
                   123, Galle Road
