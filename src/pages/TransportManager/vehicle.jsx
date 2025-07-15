@@ -140,7 +140,7 @@ export default function Vehicle() {
       {/* Top Bar */}
       <div className="flex justify-end mb-6">
         <button
-          onClick={() => navigate("/transportManager/vehicle/add")}
+          onClick={() => navigate("/transportManager/Vehicle/AddVehicle")}
           className="bg-green-700 px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-800 transition"
         >
           + New Vehicle
@@ -233,7 +233,9 @@ export default function Vehicle() {
                     <div className="flex gap-2">
                       <button
                         onClick={() =>
-                          navigate(`/transportManager/vehicle/view/${v.id}`)
+                          navigate(
+                            `/transportManager/Vehicle/ViewVehicle/${v.id}`
+                          )
                         }
                         className="p-1 rounded hover:bg-blue-100 hover:text-blue-700"
                       >
