@@ -97,7 +97,7 @@ export default function FactoryManagerDashboard() {
       </div>
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <div className="bg-white p-6 rounded-lg shadow-md border border-emerald-200 transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
             <div className="flex items-center justify-between">
               <div>
@@ -148,21 +148,7 @@ export default function FactoryManagerDashboard() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md border border-emerald-200 transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-emerald-700">
-                  Fertilizer Stock Level
-                </p>
-                <p className="text-2xl font-bold text-emerald-800">
-                  {dashboardData.fertilizerStock}
-                </p>
-              </div>
-              <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-2xl">🌱</div>
-              </div>
-            </div>
-          </div>
+          
         </div>
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
