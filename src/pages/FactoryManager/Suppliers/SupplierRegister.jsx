@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import SupplierRequestDetails from "./SupplierRequestDetails.jsx";
+import { useState, useMemo, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import SupplierHeader from "./SupplierHeader.jsx";
 import SupplierSummaryCards from "./SupplierSummaryCards.jsx";
 import SupplierFilters from "./SupplierFilters.jsx";
@@ -7,15 +7,28 @@ import SupplierTable from "./SupplierTable.jsx";
 import { initialSuppliers, supplierUtils } from "./supplierData.jsx";
 
 export default function SupplierRegister() {
-  const [suppliers, setSuppliers] = useState(initialSuppliers);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [suppliers] = useState(initialSuppliers);
   const [currentView, setCurrentView] = useState("approved"); // Default to approved (total suppliers)
   const [filters, setFilters] = useState({
     search: "",
     status: "",
     region: "",
   });
-  const [detailedSupplier, setDetailedSupplier] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Set current view based on route
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes("/pending")) {
+      setCurrentView("pending");
+    } else if (path.includes("/rejected")) {
+      setCurrentView("rejected");
+    } else {
+      setCurrentView("approved"); // Default view for /factoryManager/suppliers
+    }
+  }, [location.pathname]);
 
   // Calculate dashboard metrics
   const metrics = useMemo(() => {
@@ -30,45 +43,20 @@ export default function SupplierRegister() {
     setFilters({ search: "", status: "", region: "" });
   };
 
+  const handleViewChange = (view) => {
+    if (view === "pending") {
+      navigate("/factoryManager/suppliers/pending");
+    } else if (view === "rejected") {
+      navigate("/factoryManager/suppliers/rejected");
+    } else {
+      // For 'approved' or any other view, go to main suppliers page
+      navigate("/factoryManager/suppliers");
+    }
+  };
+
   const filteredSuppliers = useMemo(() => {
     return supplierUtils.filterSuppliers(suppliers, filters, currentView);
   }, [suppliers, filters, currentView]);
-
-  const approveSupplier = (id, approvalData) => {
-    const updatedSuppliers = supplierUtils.approveSupplier(
-      suppliers,
-      id,
-      approvalData
-    );
-    setSuppliers(updatedSuppliers);
-    alert(
-      `Supplier approved successfully! Route: ${approvalData.route}, Bag Limit: ${approvalData.bagLimit}`
-    );
-    setDetailedSupplier(null);
-  };
-
-  const rejectSupplier = (id, reason) => {
-    const updatedSuppliers = supplierUtils.rejectSupplier(
-      suppliers,
-      id,
-      reason
-    );
-    setSuppliers(updatedSuppliers);
-    alert(`Supplier rejected. Reason: ${reason}`);
-    setDetailedSupplier(null);
-  };
-
-  // Show detailed view if a supplier is selected
-  if (detailedSupplier) {
-    return (
-      <SupplierRequestDetails
-        supplier={detailedSupplier}
-        onBack={() => setDetailedSupplier(null)}
-        onApprove={approveSupplier}
-        onReject={rejectSupplier}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -78,7 +66,7 @@ export default function SupplierRegister() {
         <SupplierSummaryCards
           metrics={metrics}
           currentView={currentView}
-          setCurrentView={setCurrentView}
+          setCurrentView={handleViewChange}
         />
 
         <SupplierFilters
@@ -92,10 +80,7 @@ export default function SupplierRegister() {
         <SupplierTable
           filteredSuppliers={filteredSuppliers}
           currentView={currentView}
-          setDetailedSupplier={setDetailedSupplier}
         />
-
-        
       </div>
     </div>
   );

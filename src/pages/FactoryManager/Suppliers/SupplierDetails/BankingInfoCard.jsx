@@ -3,10 +3,10 @@ import { Building } from "lucide-react";
 
 export default function BankingInfoCard({ supplier }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-      <div className="px-6 py-4 border-b bg-gray-50">
+    <div className="bg-white rounded-xl shadow-sm border border-emerald-300 overflow-hidden">
+      <div className="px-6 py-4 border-b border-emerald-300 bg-emerald-50">
         <div className="flex items-center space-x-2">
-          <Building className="w-5 h-5 text-purple-600" />
+          <Building className="w-5 h-5 text-emerald-600" />
           <h2 className="text-lg font-semibold text-gray-900">
             Banking Information
           </h2>

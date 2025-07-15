@@ -9,12 +9,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function SupplierTable({
-  filteredSuppliers,
-  currentView,
-  setDetailedSupplier,
-}) {
+export default function SupplierTable({ filteredSuppliers, currentView }) {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // Show 10 suppliers per page
 
@@ -31,6 +29,10 @@ export default function SupplierTable({
 
   const goToPage = (page) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const handleViewDetails = (supplier) => {
+    navigate(`/factoryManager/suppliers/${supplier.id}`);
   };
   return (
     <div className="bg-white rounded-lg shadow-md border border-emerald-200 overflow-hidden">
@@ -88,7 +90,7 @@ export default function SupplierTable({
                 </div>
                 <div className="flex justify-center">
                   <button
-                    onClick={() => setDetailedSupplier(supplier)}
+                    onClick={() => handleViewDetails(supplier)}
                     className="text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 p-2 rounded-full transition-colors"
                     title="View Details"
                   >
@@ -114,7 +116,7 @@ export default function SupplierTable({
                 </div>
                 <div className="flex justify-center">
                   <button
-                    onClick={() => setDetailedSupplier(supplier)}
+                    onClick={() => handleViewDetails(supplier)}
                     className={`${
                       currentView === "pending"
                         ? "text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50"

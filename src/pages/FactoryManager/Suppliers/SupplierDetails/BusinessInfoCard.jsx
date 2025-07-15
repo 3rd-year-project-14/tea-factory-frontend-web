@@ -3,10 +3,10 @@ import { Building, TrendingUp, MapPin } from "lucide-react";
 
 export default function BusinessInfoCard({ supplier }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-      <div className="px-6 py-4 border-b bg-gray-50">
+    <div className="bg-white rounded-xl shadow-sm border border-emerald-300 overflow-hidden">
+      <div className="px-6 py-4 border-b border-emerald-300 bg-emerald-50">
         <div className="flex items-center space-x-2">
-          <Building className="w-5 h-5 text-green-600" />
+          <Building className="w-5 h-5 text-emerald-600" />
           <h2 className="text-lg font-semibold text-gray-900">
             Business & Land Information
           </h2>
@@ -76,13 +76,13 @@ export default function BusinessInfoCard({ supplier }) {
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="h-40 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
             <div className="text-center">
-              <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <MapPin className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
               <p className="text-sm text-gray-500">Land Location Map</p>
             </div>
           </div>
           <div className="h-40 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
             <div className="text-center">
-              <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <MapPin className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
               <p className="text-sm text-gray-500">Pickup Location Map</p>
             </div>
           </div>
