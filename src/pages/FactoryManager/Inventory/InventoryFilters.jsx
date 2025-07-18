@@ -23,7 +23,7 @@ export default function InventoryFilters({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border mb-6">
+    <div className="bg-white rounded-lg shadow-md border border-emerald-200 mb-6">
       <div className="p-4">
         {/* Search and Filter Toggle */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
@@ -33,7 +33,7 @@ export default function InventoryFilters({
               <input
                 type="text"
                 placeholder={getSearchPlaceholder()}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                className="w-full pl-10 pr-4 py-2 border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none text-gray-900 transition-colors"
                 value={filters.search}
                 onChange={(e) =>
                   onFiltersChange({ ...filters, search: e.target.value })
@@ -45,18 +45,22 @@ export default function InventoryFilters({
           <div className="flex gap-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="inline-flex items-center px-4 py-2 border-2 border-emerald-300 rounded-lg text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors shadow-sm"
             >
               <Filter className="h-4 w-4 mr-2" />
               Filters
-              <ChevronDown className="h-4 w-4 ml-2" />
+              <ChevronDown
+                className={`h-4 w-4 ml-2 transition-transform ${
+                  showFilters ? "rotate-180" : ""
+                }`}
+              />
             </button>
           </div>
         </div>
 
         {/* Enhanced Filters */}
         {showFilters && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg border border-emerald-200">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Sort by Weight
@@ -66,7 +70,7 @@ export default function InventoryFilters({
                 onChange={(e) =>
                   onFiltersChange({ ...filters, sortOrder: e.target.value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                className="w-full p-2 border border-emerald-200 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none text-gray-900 transition-colors"
               >
                 <option value="">Default Order</option>
                 <option value="desc">High Weight First</option>
@@ -74,31 +78,10 @@ export default function InventoryFilters({
               </select>
             </div>
 
-            {currentView === "routes" && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Route Status
-                </label>
-                <select
-                  value={filters.status || "All"}
-                  onChange={(e) =>
-                    onFiltersChange({ ...filters, status: e.target.value })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                >
-                  <option value="All">All Status</option>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Under Maintenance">Under Maintenance</option>
-                  <option value="Suspended">Suspended</option>
-                </select>
-              </div>
-            )}
-
             <div className="flex items-end">
               <button
                 onClick={onClearFilters}
-                className="w-30 px-4 py-2 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                className="w-30 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 border-2 border-emerald-300 rounded-md hover:bg-emerald-100 hover:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm transition-colors"
               >
                 Clear Filters
               </button>

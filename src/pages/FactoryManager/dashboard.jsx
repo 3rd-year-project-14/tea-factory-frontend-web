@@ -49,10 +49,10 @@ export default function FactoryManagerDashboard() {
             Dashboard Home
           </h1>
           <div className="filter-section float-right -mt-11 flex items-center gap-4">
-            <div className="period-filter flex bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+            <div className="period-filter flex bg-white border border-emerald-300 rounded-lg overflow-hidden shadow-sm">
               <button
                 onClick={() => handlePeriodChange("daily")}
-                className={`period-btn px-4 py-2 font-medium text-sm border-r border-gray-200 transition-all duration-300 ${
+                className={`period-btn px-4 py-2 font-medium text-sm border-r border-emerald-200 transition-all duration-300 min-w-[80px] ${
                   selectedPeriod === "daily"
                     ? "bg-emerald-600 text-white hover:bg-emerald-700"
                     : "bg-white text-emerald-600 hover:bg-emerald-50"
@@ -62,7 +62,7 @@ export default function FactoryManagerDashboard() {
               </button>
               <button
                 onClick={() => handlePeriodChange("monthly")}
-                className={`period-btn px-4 py-2 font-medium text-sm border-r border-gray-200 transition-all duration-300 ${
+                className={`period-btn px-4 py-2 font-medium text-sm border-r border-emerald-200 transition-all duration-300 min-w-[80px] ${
                   selectedPeriod === "monthly"
                     ? "bg-emerald-600 text-white hover:bg-emerald-700"
                     : "bg-white text-emerald-600 hover:bg-emerald-50"
@@ -72,7 +72,7 @@ export default function FactoryManagerDashboard() {
               </button>
               <button
                 onClick={() => handlePeriodChange("yearly")}
-                className={`period-btn px-4 py-2 font-medium text-sm transition-all duration-300 ${
+                className={`period-btn px-4 py-2 font-medium text-sm transition-all duration-300 min-w-[80px] ${
                   selectedPeriod === "yearly"
                     ? "bg-emerald-600 text-white hover:bg-emerald-700"
                     : "bg-white text-emerald-600 hover:bg-emerald-50"
@@ -89,7 +89,7 @@ export default function FactoryManagerDashboard() {
                 type="date"
                 id="dateFilter"
                 defaultValue="2025-07-04"
-                className="p-2 border border-gray-300 rounded-md text-sm min-w-[140px] text-gray-900 bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="p-2 border border-emerald-300 rounded-md text-sm min-w-[140px] text-gray-900 bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
             </div>
           </div>
@@ -148,7 +148,6 @@ export default function FactoryManagerDashboard() {
               </div>
             </div>
           </div>
-          
         </div>
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -175,11 +174,11 @@ export default function FactoryManagerDashboard() {
               Alerts & Notifications
             </h3>
             <div className="space-y-3">
-              <div className="p-3 bg-red-50 border-l-4 border-red-500 rounded">
+              <div className="p-3 bg-emerald-50 border-l-4 border-emerald-500 rounded">
                 <div className="flex items-start gap-2">
                   <span className="text-lg">🛑</span>
                   <div>
-                    <div className="text-sm font-medium text-red-700">
+                    <div className="text-sm font-medium text-emerald-700">
                       Driver Emergency
                     </div>
                     <div className="text-xs text-gray-600 mt-1">

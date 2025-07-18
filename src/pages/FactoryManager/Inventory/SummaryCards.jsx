@@ -1,7 +1,7 @@
 export default function SummaryCards({ currentView, summary }) {
   if (currentView === "routes") {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {/* Total Weight Card */}
         <div className="bg-white p-6 rounded-lg shadow-md border border-emerald-200 transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
           <div className="flex items-center justify-between">
@@ -11,10 +11,6 @@ export default function SummaryCards({ currentView, summary }) {
               </p>
               <p className="text-2xl font-bold text-emerald-800">
                 {summary.totalWeight?.toFixed(1) || "0.0"} kg
-              </p>
-              <p className="text-xs text-emerald-600">
-                {summary.totalRoutes || 0} routes •{" "}
-                {summary.totalSuppliers || 0} suppliers
               </p>
             </div>
             <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -31,13 +27,9 @@ export default function SummaryCards({ currentView, summary }) {
               <p className="text-2xl font-bold text-emerald-800">
                 {summary.totalBags || "0"}
               </p>
-              <p className="text-xs text-emerald-600">
-                {summary.totalRoutes || 0} routes •{" "}
-                {summary.totalSuppliers || 0} suppliers
-              </p>
             </div>
-            <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <div className="text-blue-600 text-2xl">📦</div>
+            <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
+              <div className="text-emerald-600 text-2xl">📦</div>
             </div>
           </div>
         </div>
@@ -50,13 +42,9 @@ export default function SummaryCards({ currentView, summary }) {
               <p className="text-2xl font-bold text-emerald-800">
                 {summary.netWeight?.toFixed(1) || "0.0"} kg
               </p>
-              <p className="text-xs text-emerald-600">
-                {summary.totalRoutes || 0} routes •{" "}
-                {summary.totalSuppliers || 0} suppliers
-              </p>
             </div>
-            <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <div className="text-purple-600 text-2xl">🔢</div>
+            <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
+              <div className="text-emerald-600 text-2xl">🔢</div>
             </div>
           </div>
         </div>
@@ -76,22 +64,22 @@ export default function SummaryCards({ currentView, summary }) {
         label: "Total Bags",
         value: `${summary.totalBags || "0"}`,
         colorClass: "text-emerald-800",
-        bgColorClass: "bg-blue-100",
-        iconColorClass: "text-blue-600",
+        bgColorClass: "bg-emerald-100",
+        iconColorClass: "text-emerald-600",
         emoji: "📦",
       },
       {
         label: "Net Weight",
         value: `${summary.netWeight?.toFixed(1) || "0.0"} kg`,
         colorClass: "text-emerald-800",
-        bgColorClass: "bg-purple-100",
-        iconColorClass: "text-purple-600",
+        bgColorClass: "bg-emerald-100",
+        iconColorClass: "text-emerald-600",
         emoji: "🔢",
       },
     ];
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {cards.map((card, index) => (
           <div
             key={index}

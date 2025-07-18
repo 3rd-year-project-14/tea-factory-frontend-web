@@ -7,6 +7,9 @@ import SupplierRegister from "../pages/FactoryManager/Suppliers/SupplierRegister
 import SupplierDetailsPage from "../pages/FactoryManager/Suppliers/SupplierDetailsPage";
 import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
 import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
+import InventoryRoutesPage from "../pages/FactoryManager/Inventory/InventoryRoutesPage";
+import InventorySuppliersPage from "../pages/FactoryManager/Inventory/InventorySuppliersPage";
+import InventorySupplierDetailPage from "../pages/FactoryManager/Inventory/InventorySupplierDetailPage";
 import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
 
 const FactoryManagerRoutes = (
@@ -63,7 +66,23 @@ const FactoryManagerRoutes = (
       path="/factoryManager/inventory"
       element={
         <Layout>
-          <InventoryManagement />
+          <InventoryRoutesPage />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/inventory/routes/:routeId"
+      element={
+        <Layout>
+          <InventorySuppliersPage />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/inventory/routes/:routeId/:supplierId"
+      element={
+        <Layout>
+          <InventorySupplierDetailPage />
         </Layout>
       }
     />
