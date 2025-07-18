@@ -1,3 +1,12 @@
+/*
+ * NOTE: This component has been refactored into separate route-based pages:
+ * - InventoryRoutesPage.jsx - Main routes view (/factoryManager/inventory)
+ * - InventorySuppliersPage.jsx - Suppliers for a specific route (/factoryManager/inventory/routes/:routeId/suppliers)
+ * - InventorySupplierDetailPage.jsx - Supplier detail view (/factoryManager/inventory/routes/:routeId/suppliers/:supplierId)
+ *
+ * This file is kept for backward compatibility but the new route structure should be used.
+ */
+
 import { useState, useMemo } from "react";
 import InventoryHeader from "./InventoryHeader";
 import InventoryFilters from "./InventoryFilters";
