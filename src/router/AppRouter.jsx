@@ -4,10 +4,14 @@ import Layout from "../layouts/Layout";
 // import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import fertilizerManagerRoutes from "./FertilizerManagerRoutes";
+
+import TransportManagerRoutes from "./TransportManagerRoutes";
+
 import FactoryManagerRoutes from "./FactoryManagerRoutes";
 import OwnerRoutes from "./OwnerRoutes";
 
 //Factory Manager - Now handled by FactoryManagerRoutes.jsx
+
 
 //Payment Manager
 import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
@@ -18,10 +22,10 @@ import PaymentManagement from "../pages/PaymentManager/Payments/PaymentManagemen
 
 //Transport Manager
 import TransportManagerDashboard from "../pages/TransportManager/dashboard";
-import Vehicle from "../pages/TransportManager/vehicle";
-import TrackRoutes from "../pages/TransportManager/trackRoutes";
-import Emergency from "../pages/TransportManager/emergency";
-import Assignment from "../pages/TransportManager/assignments";
+import Vehicle from "../pages/TransportManager/Vehicle/VehicleList";
+import TrackRoutes from "../pages/TransportManager/Route/RouteList";
+import Emergency from "../pages/TransportManager/Emergency/EmergencyList";
+import Assignment from "../pages/TransportManager/RoutePlanner/RoutePlan";
 
 //owner
 // import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
@@ -50,50 +54,7 @@ export default function AppRouter() {
 
         {user?.role === "OWNER" && OwnerRoutes}
 
-        {user?.role === "TRANSPORT_MANAGER" && (
-          <>
-            <Route
-              path="/transportManager/dashboard"
-              element={
-                <Layout>
-                  <TransportManagerDashboard />
-                </Layout>
-              }
-            />
-            <Route
-              path="/transportManager/vehicle"
-              element={
-                <Layout>
-                  <Vehicle />
-                </Layout>
-              }
-            />
-            <Route
-              path="/transportManager/trackRoutes"
-              element={
-                <Layout>
-                  <TrackRoutes />
-                </Layout>
-              }
-            />
-            <Route
-              path="/transportManager/assignments"
-              element={
-                <Layout>
-                  <Assignment />
-                </Layout>
-              }
-            />
-            <Route
-              path="/transportManager/emergency"
-              element={
-                <Layout>
-                  <Emergency />
-                </Layout>
-              }
-            />
-          </>
-        )}
+        {user?.role === "TRANSPORT_MANAGER" && TransportManagerRoutes}
 
         {user?.role === "FACTORY_MANAGER" && FactoryManagerRoutes}
 

@@ -36,10 +36,10 @@ const sidebarLinks = {
   TRANSPORT_MANAGER: [
     { name: "Dashboard", path: "/transportManager/dashboard", icon: Home },
     { name: "Vehicle", path: "/transportManager/vehicle", icon: Truck },
-    { name: "Route", path: "/transportManager/trackRoutes", icon: Route },
+    { name: "Route", path: "/transportManager/routeList", icon: Route },
     {
-      name: "Assignments",
-      path: "/transportManager/assignments",
+      name: "Route Planner",
+      path: "/transportManager/routePlan",
       icon: ListCheck,
     },
     {
@@ -89,9 +89,7 @@ const sidebarLinks = {
     { name: "manager works", path: "/owner/managers", icon: UserCheck },
     { name: "Tea Rate", path: "/owner/teaRate", icon: Leaf },
     { name: "Reports", path: "/owner/reports", icon: FileBarChart },
-
   ],
-
 };
 
 export default function Sidebar() {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users,
   CheckCircle2,
@@ -8,24 +9,6 @@ import {
   Edit2,
   UserCircle,
 } from "lucide-react";
-
-const stats = [
-  {
-    label: "Total Routes",
-    value: 24,
-    icon: <Map className="text-brown-600" size={24} />,
-  },
-  {
-    label: "Active Today",
-    value: 16,
-    icon: <CheckCircle2 className="text-green-600" size={24} />,
-  },
-  {
-    label: "Suppliers",
-    value: 300,
-    icon: <Users className="text-green-700" size={24} />,
-  },
-];
 
 const routes = [
   {
@@ -91,29 +74,12 @@ const statusStyles = {
 };
 
 export default function RouteDashboard() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
     <div className=" bg-[#f7fafc]">
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="flex items-center bg-white rounded-xl shadow p-4 gap-4 border-t-4 border-green-100"
-          >
-            <div className="bg-gray-100 rounded-full p-2">{stat.icon}</div>
-            <div>
-              <div className="text-gray-500 text-sm">{stat.label}</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {stat.value}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
       {/* Filter and Add Route */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2 rounded-xl shadow-md p-2 border-green-100">
         <div className="flex items-center gap-2">
@@ -135,7 +101,10 @@ export default function RouteDashboard() {
             <option>Completed</option>
           </select>
         </div>
-        <button className="text-green-700 px-5 py-2 rounded-lg font-semibold shadow hover:bg-green-800 transition">
+        <button
+          onClick={() => navigate("/transportManager/route/add")}
+          className="text-green-700  bg-green-800 px-5 py-2 rounded-lg font-semibold shadow hover:bg-green-800 transition"
+        >
           + Add Route
         </button>
       </div>

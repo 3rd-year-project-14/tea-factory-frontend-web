@@ -111,14 +111,14 @@ export default function Emergency() {
       </div>
 
       {/* Breakdown vehicles list */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {breakdownVehicles.map((broken) => (
           <div
             key={broken.id}
-            className="bg-white rounded-xl shadow p-5 flex flex-col gap-4 border-l-8 border-red-500"
+            className="bg-white rounded-xl shadow p-5 flex flex-col gap-4"
           >
-            <div className="flex items-center gap-3">
-              <Truck className="text-red-600" size={28} />
+            <div className="flex items-center gap-2">
+              <Truck className="text-green-600" size={28} />
               <div>
                 <div className="font-bold text-lg">
                   {broken.id} - {broken.model}
