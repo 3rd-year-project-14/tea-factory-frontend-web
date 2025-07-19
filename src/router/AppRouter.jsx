@@ -4,15 +4,14 @@ import Layout from "../layouts/Layout";
 // import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import fertilizerManagerRoutes from "./FertilizerManagerRoutes";
+
 import TransportManagerRoutes from "./TransportManagerRoutes";
+
+import FactoryManagerRoutes from "./FactoryManagerRoutes";
 import OwnerRoutes from "./OwnerRoutes";
 
-//Factory Manager
-import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
-import SupplierRegister from "../pages/FactoryManager/Suppliers/supplierRegister";
-import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
-import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
-import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
+//Factory Manager - Now handled by FactoryManagerRoutes.jsx
+
 
 //Payment Manager
 import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
@@ -57,50 +56,7 @@ export default function AppRouter() {
 
         {user?.role === "TRANSPORT_MANAGER" && TransportManagerRoutes}
 
-        {user?.role === "FACTORY_MANAGER" && (
-          <>
-            <Route
-              path="/factoryManager/dashboard"
-              element={
-                <Layout>
-                  <FactoryManagerDashboard />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/suppliers"
-              element={
-                <Layout>
-                  <SupplierRegister />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/drivers"
-              element={
-                <Layout>
-                  <DriverManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/inventory"
-              element={
-                <Layout>
-                  <InventoryManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/routes"
-              element={
-                <Layout>
-                  <RouteManagement />
-                </Layout>
-              }
-            />
-          </>
-        )}
+        {user?.role === "FACTORY_MANAGER" && FactoryManagerRoutes}
 
         {user?.role === "PAYMENT_MANAGER" && (
           <>

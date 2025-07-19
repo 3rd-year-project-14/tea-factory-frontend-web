@@ -111,13 +111,13 @@ const AdvanceChart = ({ data, selectedMonth, selectedYear }) => {
     <div className="w-full">
       {/* Toggle for all chart types */}
       <div className="flex items-center justify-center mb-4">
-        <div className="bg-gray-100 rounded-lg p-1 flex">
+        <div className="bg-emerald-50 rounded-lg p-1 flex border-2 border-emerald-300">
           <button
             onClick={() => setViewType("daily")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               viewType === "daily"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "text-emerald-700 hover:bg-emerald-100"
             }`}
           >
             Daily View
@@ -126,8 +126,8 @@ const AdvanceChart = ({ data, selectedMonth, selectedYear }) => {
             onClick={() => setViewType("monthly")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               viewType === "monthly"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "text-emerald-700 hover:bg-emerald-100"
             }`}
           >
             Monthly View
