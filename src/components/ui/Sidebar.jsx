@@ -36,10 +36,10 @@ const sidebarLinks = {
   TRANSPORT_MANAGER: [
     { name: "Dashboard", path: "/transportManager/dashboard", icon: Home },
     { name: "Vehicle", path: "/transportManager/vehicle", icon: Truck },
-    { name: "Route", path: "/transportManager/trackRoutes", icon: Route },
+    { name: "Route", path: "/transportManager/routeList", icon: Route },
     {
       name: "Route Planner",
-      path: "/transportManager/assignments",
+      path: "/transportManager/routePlan",
       icon: ListCheck,
     },
     {
@@ -59,6 +59,7 @@ const sidebarLinks = {
     },
     { name: "History", path: "/inventoryManager/history", icon: Award },
     { name: "Report", path: "/inventoryManager/report", icon: Users },
+    { name: "CRUD", path: "/inventoryManager/crud", icon: Users },
   ],
 
   FERTILIZER_MANAGER: [
@@ -139,7 +140,7 @@ export default function Sidebar() {
       </nav>
 
       {/* User Profile */}
-      <div className="p-4">
+      {/* <div className="p-4">
         <div className="bg-emerald-900 rounded-lg p-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-emerald-800 rounded-full flex items-center justify-center">
@@ -157,7 +158,7 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

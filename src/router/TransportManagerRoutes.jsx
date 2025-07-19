@@ -2,13 +2,14 @@ import React from "react";
 import { Route } from "react-router-dom";
 import Layout from "../layouts/Layout";
 import TransportManagerDashboard from "../pages/TransportManager/dashboard";
-import Vehicle from "../pages/TransportManager/vehicle";
-import AddVehicle from "../pages/TransportManager/Vehicle/addVehicle";
-import EditVehicle from "../pages/TransportManager/Vehicle/editVehicle";
-import ViewVehicle from "../pages/TransportManager/Vehicle/viewVehicle";
-import TrackRoutes from "../pages/TransportManager/trackRoutes";
-import Emergency from "../pages/TransportManager/emergency";
-import Assignment from "../pages/TransportManager/assignments";
+import Vehicle from "../pages/TransportManager/Vehicle/VehicleList";
+import AddVehicle from "../pages/TransportManager/Vehicle/AddVehicle";
+import EditVehicle from "../pages/TransportManager/Vehicle/EditVehicle";
+import ViewVehicle from "../pages/TransportManager/Vehicle/ViewVehicle";
+import TrackRoutes from "../pages/TransportManager/Route/RouteList";
+import Emergency from "../pages/TransportManager/Emergency/EmergencyList";
+import RoutePlan from "../pages/TransportManager/RoutePlanner/RoutePlan";
+import CreateRoute from "../pages/TransportManager/Route/CreateRoute";
 
 const transportManagerRoutes = [
   <Route
@@ -58,10 +59,19 @@ const transportManagerRoutes = [
   />,
   <Route
     key="track_routes"
-    path="/transportManager/track_routes"
+    path="/transportManager/routeList"
     element={
       <Layout>
         <TrackRoutes />
+      </Layout>
+    }
+  />,
+  <Route
+    key="create_route"
+    path="/transportManager/route/add"
+    element={
+      <Layout>
+        <CreateRoute />
       </Layout>
     }
   />,
@@ -75,11 +85,11 @@ const transportManagerRoutes = [
     }
   />,
   <Route
-    key="assignments"
-    path="/transportManager/assignments"
+    key="route_plan"
+    path="/transportManager/routePlan"
     element={
       <Layout>
-        <Assignment />
+        <RoutePlan />
       </Layout>
     }
   />,

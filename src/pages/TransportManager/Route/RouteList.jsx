@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users,
   CheckCircle2,
@@ -73,6 +74,7 @@ const statusStyles = {
 };
 
 export default function RouteDashboard() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -99,7 +101,10 @@ export default function RouteDashboard() {
             <option>Completed</option>
           </select>
         </div>
-        <button className="text-green-700  bg-green-800 px-5 py-2 rounded-lg font-semibold shadow hover:bg-green-800 transition">
+        <button
+          onClick={() => navigate("/transportManager/route/add")}
+          className="text-green-700  bg-green-800 px-5 py-2 rounded-lg font-semibold shadow hover:bg-green-800 transition"
+        >
           + Add Route
         </button>
       </div>

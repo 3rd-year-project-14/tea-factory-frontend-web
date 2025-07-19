@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Search, Bell, Menu } from 'lucide-react';
-import NotificationDropdown from './NotificationDropdown';
-import ProfileDropdown from './ProfileDropdown';
-import UserAvatar from './UserAvatar';
+import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { Search, Bell, Menu } from "lucide-react";
+import NotificationDropdown from "./NotificationDropdown";
+import ProfileDropdown from "./ProfileDropdown";
+import UserAvatar from "./UserAvatar";
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -28,6 +28,14 @@ const Navbar = () => {
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-2 relative">
       <div className="flex items-center justify-between">
+        {/* Company Name */}
+        <div
+          className="text-lg font-extrabold italic text-emerald-800 tracking-wide font-sans"
+          style={{ fontFamily: "Inter, Segoe UI, Arial, sans-serif" }}
+        >
+          Andaradeniya State Pvt LTD
+        </div>
+
         <div className="flex items-center justify-end space-x-4 ml-auto">
           {/* Notifications */}
           <div className="relative">
@@ -41,7 +49,7 @@ const Navbar = () => {
                 3
               </span>
             </button>
-            
+
             {showNotifications && (
               <NotificationDropdown onClose={closeDropdowns} />
             )}
@@ -56,16 +64,16 @@ const Navbar = () => {
               <UserAvatar name={user?.username} />
               <div className="hidden md:block text-left">
                 <p className="font-semibold text-sm text-gray-900">
-                  {user?.username || 'John Manager'}
+                  {user?.username || "John Manager"}
                 </p>
                 <p className="text-gray-600 text-xs capitalize">
-                  {user?.role?.toLowerCase() || 'Supervisor'}
+                  {user?.role?.toLowerCase() || "Supervisor"}
                 </p>
               </div>
               {/* Dropdown arrow */}
               <svg
                 className={`w-4 h-4 text-gray-400 transition-transform ${
-                  showProfile ? 'rotate-180' : ''
+                  showProfile ? "rotate-180" : ""
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -89,10 +97,7 @@ const Navbar = () => {
 
       {/* Backdrop to close dropdowns when clicking outside */}
       {(showNotifications || showProfile) && (
-        <div
-          className="fixed inset-0 z-10"
-          onClick={closeDropdowns}
-        />
+        <div className="fixed inset-0 z-10" onClick={closeDropdowns} />
       )}
     </nav>
   );

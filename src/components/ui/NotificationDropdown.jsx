@@ -60,7 +60,7 @@ const NotificationDropdown = ({ onClose }) => {
           <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
           <button
             onClick={markAllAsRead}
-            className="text-sm text-green-600 hover:text-green-800"
+            className="text-sm text-green-700 hover:text-green-800"
           >
             Mark all as read
           </button>
@@ -81,7 +81,7 @@ const NotificationDropdown = ({ onClose }) => {
                 key={notification.id}
                 className={`flex items-start space-x-3 p-3 hover:bg-green-50 cursor-pointer border-l-4 ${
                   notification.unread
-                    ? 'bg-green-50 border-l-green-400'
+                    ? 'bg-green-50 border-l-green-600'
                     : 'border-l-transparent'
                 }`}
                 onClick={() => markAsRead(notification.id)}
@@ -102,7 +102,7 @@ const NotificationDropdown = ({ onClose }) => {
                       {notification.time}
                     </span>
                     {notification.unread && (
-                      <span className="ml-2 w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span className="ml-2 w-2 h-2 bg-green-600 rounded-full"></span>
                     )}
                   </div>
                 </div>
