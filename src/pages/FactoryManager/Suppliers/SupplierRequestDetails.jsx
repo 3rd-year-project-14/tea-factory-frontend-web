@@ -69,7 +69,7 @@ export default function SupplierRequestDetails({
   // Enhanced handlers for confirm
   const handleApproveSupplier = () => {
     if (onApprove) {
-      onApprove(supplier.id, approvalData);
+      onApprove(supplier.id, approvalData.route, approvalData.bagLimit);
     }
     closeApproval();
   };
@@ -98,7 +98,7 @@ export default function SupplierRequestDetails({
         supplier={supplier}
         approvalData={approvalData}
         setApprovalData={setApprovalData}
-        onConfirm={handleApproveSupplier}
+        onApproveSupplierRequest={handleApproveSupplier}
       />
 
       <RejectionModal

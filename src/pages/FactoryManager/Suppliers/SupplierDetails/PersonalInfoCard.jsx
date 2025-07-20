@@ -19,7 +19,7 @@ export default function PersonalInfoCard({ supplier }) {
               Full Name
             </label>
             <p className="mt-1 text-sm font-medium text-gray-900">
-              {supplier.name}
+              {supplier.user.name}
             </p>
           </div>
           <div>
@@ -27,17 +27,8 @@ export default function PersonalInfoCard({ supplier }) {
               NIC Number
             </label>
             <p className="mt-1 text-sm font-medium text-gray-900">
-              {supplier.nic}
+              {supplier.user.nic}
             </p>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Date of Birth
-            </label>
-            <p className="mt-1 text-sm font-medium text-gray-900">
-              December 15, 1995
-            </p>
-            <p className="text-xs text-gray-500">29 years old</p>
           </div>
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
@@ -46,7 +37,7 @@ export default function PersonalInfoCard({ supplier }) {
             <div className="mt-1 flex items-center space-x-2">
               <Phone className="w-4 h-4 text-emerald-600" />
               <p className="text-sm font-medium text-gray-900">
-                {supplier.phone}
+                {supplier.user.contactNo}
               </p>
             </div>
           </div>
@@ -56,8 +47,8 @@ export default function PersonalInfoCard({ supplier }) {
             </label>
             <div className="mt-1 flex items-center space-x-2">
               <Mail className="w-4 h-4 text-emerald-600" />
-              <p className="text-sm font-medium text-gray-900">
-                kamal.perera@email.com
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {supplier.user.email}
               </p>
             </div>
           </div>
@@ -69,9 +60,8 @@ export default function PersonalInfoCard({ supplier }) {
               <MapPin className="w-4 h-4 text-emerald-600 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-gray-900">
-                  123, Galle Road
+                  {supplier.user.address}
                 </p>
-                <p className="text-xs text-gray-500">{supplier.location}</p>
               </div>
             </div>
           </div>

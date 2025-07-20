@@ -2,13 +2,14 @@ import React from "react";
 import { Building, TrendingUp, MapPin } from "lucide-react";
 
 export default function BusinessInfoCard({ supplier }) {
+  console.log("BusinessInfoCard supplier.status:", supplier.status);
   return (
     <div className="bg-white rounded-xl shadow-sm border border-emerald-300 overflow-hidden">
       <div className="px-6 py-4 border-b border-emerald-300 bg-emerald-50">
         <div className="flex items-center space-x-2">
           <Building className="w-5 h-5 text-emerald-600" />
           <h2 className="text-lg font-semibold text-gray-900">
-            Business & Land Information
+            Land Information
           </h2>
         </div>
       </div>
@@ -18,15 +19,16 @@ export default function BusinessInfoCard({ supplier }) {
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               Land Size
             </label>
-            <p className="mt-1 text-sm font-medium text-gray-900">2.5 acres</p>
-            <p className="text-xs text-gray-500">1.01 hectares</p>
+            <p className="mt-1 text-sm font-medium text-gray-900">
+              {supplier.landSize ? `${supplier.landSize} acres` : "-"}
+            </p>
           </div>
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               Land Location
             </label>
             <p className="mt-1 text-sm font-medium text-gray-900">
-              {supplier.location}
+              {supplier.landLocation ? supplier.landLocation : "Not specified"}
             </p>
           </div>
           <div>
@@ -34,39 +36,54 @@ export default function BusinessInfoCard({ supplier }) {
               Monthly Supply
             </label>
             <div className="mt-1 flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-green-500" />
               <p className="text-sm font-medium text-gray-900">
-                {supplier.supply}
+                {supplier.status === "approved"
+                  ? supplier.initialBagCount
+                    ? `${supplier.initialBagCount} kg`
+                    : "-"
+                  : supplier.monthlySupply
+                  ? `${supplier.monthlySupply} kg`
+                  : "-"}
               </p>
             </div>
           </div>
-          {supplier.status === "approved" && supplier.route && (
+          {supplier.status === "approved" && (
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Assigned Route
               </label>
               <p className="mt-1 text-sm font-medium text-gray-900">
-                {supplier.route}
+                {supplier.route?.name || "-"}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Start: {supplier.route?.startLocation || "-"}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                End: {supplier.route?.endLocation || "-"}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Bag count:{" "}
+                {supplier.route?.bagCount || supplier.initialBagCount || "-"}
               </p>
             </div>
           )}
-          {supplier.status === "pending" && (
+          {supplier.status !== "approved" && (
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Requested Route
               </label>
               <p className="mt-1 text-sm font-medium text-gray-900">
-                Nugegoda-Maharagama
+                {supplier.requestedRoute || "Not specified"}
               </p>
             </div>
           )}
-          {supplier.status === "rejected" && supplier.rejectionReason && (
+          {supplier.status === "rejected" && (
             <div className="md:col-span-2 lg:col-span-3">
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Rejection Reason
               </label>
               <p className="mt-1 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">
-                {supplier.rejectionReason}
+                {supplier.rejectReason}
               </p>
             </div>
           )}

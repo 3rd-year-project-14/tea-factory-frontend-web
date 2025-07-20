@@ -17,7 +17,9 @@ export default function RouteModal({
     bagCounts: "",
     distance: "",
     estimatedTime: "",
+    driverType: "inhouse", // 'inhouse' or 'private'
     assignedDriver: "",
+    assignedVehicle: "",
     status: "Active",
   });
 
@@ -44,7 +46,9 @@ export default function RouteModal({
         bagCounts: route.bagCounts || "",
         distance: route.distance || "",
         estimatedTime: route.estimatedTime || "",
+        driverType: route.driverType || "inhouse",
         assignedDriver: route.driverId || "",
+        assignedVehicle: route.assignedVehicle || "",
         status: route.status || "Active",
       });
     } else {
@@ -58,7 +62,9 @@ export default function RouteModal({
         bagCounts: "",
         distance: "",
         estimatedTime: "",
+        driverType: "inhouse",
         assignedDriver: "",
+        assignedVehicle: "",
         status: "Active",
       });
     }
@@ -69,6 +75,10 @@ export default function RouteModal({
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+      // Reset driver/vehicle if driverType changes
+      ...(name === "driverType"
+        ? { assignedDriver: "", assignedVehicle: "" }
+        : {}),
     }));
 
     // Clear error when user starts typing
@@ -187,6 +197,8 @@ export default function RouteModal({
         assignedDriver: formData.assignedDriver
           ? drivers.find((d) => d.id === formData.assignedDriver)?.name
           : null,
+        assignedVehicle:
+          formData.driverType === "private" ? formData.assignedVehicle : null,
       };
 
       await onSubmit(submitData);
@@ -202,7 +214,7 @@ export default function RouteModal({
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[100vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-emerald-200">
           <h2 className="text-2xl font-bold text-emerald-800">
@@ -328,73 +340,6 @@ export default function RouteModal({
               )}
             </div>
 
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-medium text-emerald-700 mb-2">
-                Status
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 transition-colors duration-200 appearance-none bg-white text-gray-900"
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-                <option value="Suspended">Suspended</option>
-              </select>
-            </div>
-
-            {/* Estimated Load */}
-            <div>
-              <label className="block text-sm font-medium text-emerald-700 mb-2">
-                Estimated Load (kg)
-              </label>
-              <input
-                type="number"
-                name="estimatedLoad"
-                value={formData.estimatedLoad}
-                onChange={handleChange}
-                min="0"
-                step="0.1"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 transition-colors duration-200 text-gray-900 ${
-                  errors.estimatedLoad ? "border-red-300" : "border-emerald-300"
-                }`}
-                placeholder="e.g., 350"
-              />
-              {errors.estimatedLoad && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <AlertCircle size={14} />
-                  {errors.estimatedLoad}
-                </div>
-              )}
-            </div>
-
-            {/* Bag Counts */}
-            <div>
-              <label className="block text-sm font-medium text-emerald-700 mb-2">
-                Estimated Bag Count
-              </label>
-              <input
-                type="number"
-                name="bagCounts"
-                value={formData.bagCounts}
-                onChange={handleChange}
-                min="0"
-                step="1"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 transition-colors duration-200 text-gray-900 ${
-                  errors.bagCounts ? "border-red-300" : "border-emerald-300"
-                }`}
-                placeholder="e.g., 25"
-              />
-              {errors.bagCounts && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <AlertCircle size={14} />
-                  {errors.bagCounts}
-                </div>
-              )}
-            </div>
-
             {/* Distance */}
             <div>
               <label className="block text-sm font-medium text-emerald-700 mb-2">
@@ -424,24 +369,83 @@ export default function RouteModal({
               />
             </div>
 
-            {/* Assigned Driver */}
+            {/* Driver Type Selection */}
             <div>
               <label className="block text-sm font-medium text-emerald-700 mb-2">
-                Assigned Driver
+                Driver Type *
               </label>
               <select
-                name="assignedDriver"
-                value={formData.assignedDriver}
+                name="driverType"
+                value={formData.driverType}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 transition-colors duration-200 appearance-none bg-white text-gray-900"
               >
-                <option value="">No driver assigned</option>
-                {drivers.map((driver) => (
-                  <option key={driver.id} value={driver.id}>
-                    {driver.name} - {driver.phone}
-                  </option>
-                ))}
+                <option value="inhouse">Inhouse Driver</option>
+                <option value="private">Private Driver</option>
               </select>
+            </div>
+
+            {/* Conditional Driver/Vehicle Selection - prevent scroll/jump by fixed height */}
+            <div style={{ minHeight: 180, transition: "min-height 0.2s" }}>
+              {formData.driverType === "inhouse" && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-700 mb-2">
+                      Assigned Inhouse Driver
+                    </label>
+                    <select
+                      name="assignedDriver"
+                      value={formData.assignedDriver}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 transition-colors duration-200 appearance-none bg-white text-gray-900"
+                    >
+                      <option value="">No driver assigned</option>
+                      {drivers
+                        .filter((d) => d.type === "inhouse-driver")
+                        .map((driver) => (
+                          <option key={driver.id} value={driver.id}>
+                            {driver.name} - {driver.phone}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-700 mb-2">
+                      Assigned Inhouse Vehicle
+                    </label>
+                    <input
+                      type="text"
+                      name="assignedVehicle"
+                      value={formData.assignedVehicle}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 transition-colors duration-200 appearance-none bg-white text-gray-900"
+                      placeholder="Enter inhouse vehicle details"
+                    />
+                  </div>
+                </>
+              )}
+              {formData.driverType === "private" && (
+                <div>
+                  <label className="block text-sm font-medium text-emerald-700 mb-2">
+                    Assigned Private Driver
+                  </label>
+                  <select
+                    name="assignedDriver"
+                    value={formData.assignedDriver}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 transition-colors duration-200 appearance-none bg-white text-gray-900"
+                  >
+                    <option value="">No driver assigned</option>
+                    {drivers
+                      .filter((d) => d.type === "private")
+                      .map((driver) => (
+                        <option key={driver.id} value={driver.id}>
+                          {driver.name} - {driver.phone}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
 

@@ -46,10 +46,9 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
         } text-white`}
       >
         {currentView === "approved" ? (
-          <div className="grid grid-cols-6 gap-4 p-4 font-medium text-sm">
+          <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm">
             <div className="text-center">Supplier ID</div>
             <div className="text-center">Supplier Name</div>
-            <div className="text-center">Supply</div>
             <div className="text-center">Route</div>
             <div className="text-center">Approved Date</div>
             <div className="text-center">View Details</div>
@@ -58,7 +57,7 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
           <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm">
             <div className="text-center">Supplier Name</div>
             <div className="text-center">Location</div>
-            <div className="text-center">Supply</div>
+            <div className="text-center">Monthly Supply</div>
             <div className="text-center">
               {currentView === "pending" ? "Request Date" : "Rejected Date"}
             </div>
@@ -70,20 +69,17 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
         {currentSuppliers.map((supplier) => (
           <div key={supplier.id}>
             {currentView === "approved" ? (
-              <div className="grid grid-cols-6 gap-4 p-4 items-center hover:bg-gray-50 transition-colors">
+              <div className="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50 transition-colors">
                 <div className="flex justify-center">
                   <span className="font-semibold text-emerald-600 text-sm bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                    {supplier.supplierId}
+                    SUP-{String(supplier.id).padStart(4, "0")}
                   </span>
                 </div>
                 <div className="font-medium text-gray-900 text-sm text-center">
                   {supplier.name}
                 </div>
-                <div className="text-sm text-gray-900 font-semibold text-center">
-                  {supplier.supply}
-                </div>
                 <div className="text-sm text-gray-900 font-medium text-center">
-                  {supplier.route}
+                  {supplier.requestedRoute}
                 </div>
                 <div className="text-sm text-gray-900 text-center">
                   {supplier.approvedDate}
@@ -107,11 +103,11 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
                   {supplier.location}
                 </div>
                 <div className="text-sm text-gray-900 font-semibold text-center">
-                  {supplier.supply}
+                  {supplier.monthlySupply} Kg
                 </div>
                 <div className="text-sm text-gray-900 text-center">
                   {currentView === "pending"
-                    ? supplier.date
+                    ? supplier.supplierCreatedDate
                     : supplier.rejectedDate}
                 </div>
                 <div className="flex justify-center">
