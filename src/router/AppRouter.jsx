@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "../layouts/Layout";
+import Profile from "../components/ui/Profile";
 
 // import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import inventoryManagerRoutes from "./InventoryManagerRoutes";
@@ -199,6 +200,14 @@ export default function AppRouter() {
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="/profile"
+          element={
+            <Layout>
+              <Profile />
+            </Layout>
+          }
+        />
 
         <Route path="/landing" element={<Landing />} />
         <Route path="" element={<Navigate to="/landing" />} />
