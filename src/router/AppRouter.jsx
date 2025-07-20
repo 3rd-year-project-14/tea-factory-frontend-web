@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "../layouts/Layout";
+import Profile from "../components/ui/Profile";
 
 // import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import inventoryManagerRoutes from "./InventoryManagerRoutes";
@@ -27,20 +28,11 @@ import TrackRoutes from "../pages/TransportManager/Route/RouteList";
 import Emergency from "../pages/TransportManager/Emergency/EmergencyList";
 import Assignment from "../pages/TransportManager/RoutePlanner/RoutePlan";
 
-//owner
-// import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
-// import OwnerDashboard from "../pages/Owner/dashboard";
-// import OwnerManagers from "../pages/Owner/Managerview/viewManagers";
-// import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
-// import OwnerReports from "../pages/Owner/Reports/reports";
-// import OwnerPaymnets from "../pages/Owner/Payments/payment";
-// import AddManagers from "../pages/Owner/ManagerView/addManagers";
-// import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
-
 import { useAuth } from "../contexts/AuthContext";
 import Auth from "../components/Auth";
 import Landing from "../components/landingNew";
 import SignupForm from "../components/SignupForm";
+import ForgotPassword from "../components/ui/ForgotPassword";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -123,6 +115,15 @@ export default function AppRouter() {
 
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<SignupForm />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="/profile"
+          element={
+            <Layout>
+              <Profile />
+            </Layout>
+          }
+        />
 
         <Route path="/landing" element={<Landing />} />
         <Route path="" element={<Navigate to="/landing" />} />

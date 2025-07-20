@@ -149,6 +149,8 @@ export default function Auth() {
             Sign In
           </button>
         </form>
+
+
         <div className="text-center mt-6">
           <span className="text-gray-600">Don't have an account? </span>
           <a href="/signup"
@@ -157,7 +159,20 @@ export default function Auth() {
             Sign Up
           </a>
         </div>
+        <div>
+          <a
+            href="/forgot-password"
+            className="text-sm hover:underline font-medium"
+            style={{ color: "green" }}
+          >
+            Forgot Password?
+          </a>
+        </div>
+
+
+
       </div>
     </div>
   );
 }
+

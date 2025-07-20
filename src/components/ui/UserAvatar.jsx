@@ -39,7 +39,7 @@ const UserAvatar = ({ name, size = "md", className = "" }) => {
     <div
       className={`
       ${sizeClasses[size]} 
-      bg-gradient-to-br from-emerald-500 to-emerald-700 
+      bg-gradient-to-br from-emerald-500 to-emerald-800 
       rounded-full 
       flex items-center justify-center 
       text-white font-semibold 
