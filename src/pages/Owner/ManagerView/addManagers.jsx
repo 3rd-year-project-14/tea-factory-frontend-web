@@ -2,6 +2,11 @@
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+import { auth } from '../../../firebase'; // adjust path if needed
+import { createUserWithEmailAndPassword, getIdToken } from "firebase/auth";
+
 
 export default function AddManagersInterface() {
   const [formData, setFormData] = useState({
@@ -10,7 +15,6 @@ export default function AddManagersInterface() {
     email: '',
     nic: '',
     mobile: '',
-    managerId: '',
     role: '',
     factory: ''
   });
@@ -46,13 +50,107 @@ export default function AddManagersInterface() {
   };
 
   const navigate = useNavigate();
-  const handleSave = () => {
-    navigate('/owner/managerview/giveaccess', { state: { manager: formData } });
-  };
+  // const handleSave = () => {
+  //   navigate('/owner/managerview/giveaccess', { state: { manager: formData } });
+  // };
+
+//   const handleSave = async () => {
+//   console.log('Saving manager data:', formData);
+
+//   // try {
+//   //   const response = await axios.post(
+//   //     'https://tea-factory-project-902e0-default-rtdb.asia-southeast1.firebasedatabase.app/userData.json',
+//   //     { ...formData }
+//   //   );
+//   //   console.log('Data saved:', response.data);
+
+//   //   // After successfully saving, navigate to the next page
+//   //   navigate('/owner/managerview/giveaccess', { state: { manager: formData } });
+//   // } catch (err) {
+//   //   console.error('Error saving data:', err);
+//   //   // Optionally show error to user here
+//   // }
+
+//   try {
+//     // 1. Get Firebase ID token of the created user
+//     // const user = firebase.auth().currentUser;
+//     // const token = await user.getIdToken();
+//     const user = auth.currentUser;
+// if (!user) {
+//   console.error("No user is currently logged in.");
+//   return;
+// }
+
+// const token = await getIdToken(user);
 
 
+//     // 2. Send to backend
+//     const response = await axios.post(
+//       'http://localhost:8080/api/users',  // your Spring Boot endpoint
+//       { ...formData },
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
 
-  const roles = ['Admin', 'Manager', 'Supervisor', 'Operator'];
+//     console.log('Data saved:', response.data);
+
+//     // Navigate after success
+//     navigate('/owner/managerview/giveaccess', { state: { manager: formData } });
+//   } catch (err) {
+//     console.error('Error saving data:', err);
+//     // Optionally display an error message in UI
+//   }
+
+// };
+
+const handleSave = async () => {
+  try {
+    // Firebase Auth එකෙන් Manager account එකක් create කරයි
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.password
+    );
+
+    const user = userCredential.user;
+    const firebaseUid = user.uid;
+
+
+    // Firebase ID Token එක ලබා ගනී
+    const token = await getIdToken(user);
+
+    // Backend එකට data + token යවයි
+    const response = await axios.post(
+      "http://localhost:8080/api/users",
+      {
+        firebaseUid: firebaseUid,
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        nic: formData.nic,
+        contactNo: formData.mobile,
+        role: formData.role,
+        factory: formData.factory,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log("Saved:", response.data);
+    navigate("/owner/managerview/giveaccess", { state: { manager: formData } });
+  } catch (error) {
+    console.error("Error creating manager:", error);
+  }
+};
+
+
+  const roles = ['Factory Manager', 'Inventory Manager', 'Fertilizer Manager', 'Transport Manager'];
   const factories = ['Factory A', 'Factory B', 'Factory C', 'Factory D'];
 
   return (
@@ -140,7 +238,7 @@ export default function AddManagersInterface() {
                 </div>
 
                 {/* Manager ID Field */}
-                <div>
+                {/* <div>
                   <label className="block text-gray-700 font-medium mb-2">
                     Manager ID :
                   </label>
@@ -152,7 +250,7 @@ export default function AddManagersInterface() {
                     className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-gray-900 placeholder-gray-400"
                     placeholder="Enter manager ID"
                   />
-                </div>
+                </div> */}
 
                 {/* Email Field */}
                 <div>
