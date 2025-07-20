@@ -1,134 +1,214 @@
 import React from "react";
 import {
   Truck,
-  CheckCircle2,
-  Wrench,
-  UserCheck,
-  AlertTriangle,
   Users,
   Map,
   BellRing,
+  CheckCircle2,
+  AlertTriangle,
+  ClipboardList,
+  UserCheck,
+  CirclePlus,
 } from "lucide-react";
 
 export default function TransportManagerDashboard() {
+  // Sample stats (replace with real data as needed)
   const stats = [
     {
       label: "Total Routes",
       value: 24,
-      icon: <Map className="text-brown-600" size={24} />,
+      icon: <div className="text-emerald-700 text-2xl">🗺️</div>,
+      bg: "bg-emerald-100",
     },
     {
-      label: "Active Today",
-      value: 16,
-      icon: <CheckCircle2 className="text-green-600" size={24} />,
+      label: "Active Trips",
+      value: 11,
+      icon: <div className="text-emerald-600 text-2xl">📋</div>,
+      bg: "bg-emerald-100",
     },
     {
-      label: "Suppliers",
-      value: 300,
-      icon: <Users className="text-green-700" size={24} />,
+      label: "Approved Drivers",
+      value: 18,
+      icon: <div className="text-emerald-700 text-2xl">✅</div>,
+      bg: "bg-emerald-100",
     },
   ];
-  // // Sample data - replace with API calls
-  // const vehicles = [
-  //   { id: "TRK-001", status: "Available" },
-  //   { id: "TRK-002", status: "In Use" },
-  //   { id: "TRK-003", status: "Maintenance" },
-  // ];
+
+  // Alerts for urgent attention (breakdowns, etc)
   const breakdowns = [
-    { id: "TRK-002", driver: "Mr. Perera", route: "Galle - Neluwa" },
+    { id: "TRK-002", driver: "Kasun Perera", route: "Galle - Neluwa" },
   ];
+
+  // Pending driver accounts awaiting approval
   const pendingDrivers = [
-    { id: "DRV-101", name: "Mr. Kamal", appliedOn: "2025-06-30" },
+    { id: "DRV-101", name: "Ajith Kumara", appliedOn: "2025-07-17" },
+    { id: "DRV-102", name: "Sanduni Silva", appliedOn: "2025-07-18" },
   ];
-  // const routes = [
-  //   { id: "A", driver: "Mr. Silva", vehicle: "TRK-001", status: "Ongoing" },
-  //   { id: "B", driver: "Mr. Perera", vehicle: "TRK-004", status: "Pending" },
-  // ];
+
+  // Example recent trips (can be replaced by recent activity if desired)
+  const recentTrips = [
+    {
+      route: "Galle - Neluwa",
+      driver: "Kasun Perera",
+      vehicle: "TRK-002",
+      status: "Ongoing",
+    },
+    {
+      route: "Deniyaya - Akuressa",
+      driver: "Ajith Kumara",
+      vehicle: "TRK-003",
+      status: "Completed",
+    },
+  ];
+
+  const statusBadge = {
+    Ongoing: "bg-yellow-100 text-yellow-800",
+    Completed: "bg-green-100 text-green-800",
+    Pending: "bg-gray-100 text-gray-700",
+  };
 
   return (
-    <div className="bg-gray-50">
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="flex items-center bg-white rounded-xl shadow p-4 gap-4 border-t-4 border-green-100"
+    <div className="bg-gray-50 py-4 px-2">
+      <div className="max-w-8xl mx-auto space-y-8">
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-emerald-700">
+                    {stat.label}
+                  </p>
+                  <p className="text-2xl font-bold text-emerald-800">
+                    {stat.value}
+                  </p>
+                </div>
+                <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <div className="text-orange-600 text-xl">{stat.icon}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Quick Trip Management */}
+        <section className="flex justify-end gap-3 mt-2">
+          <button
+            onClick={() => alert("Navigate to Assign Driver")}
+            className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-2 rounded-lg font-semibold shadow transition"
           >
-            <div className="bg-gray-100 rounded-full p-2">{stat.icon}</div>
-            <div>
-              <div className="text-gray-500 text-sm">{stat.label}</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {stat.value}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <header className="flex justify-between items-center"></header>
-      {/* Alerts */}
-      <section className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <BellRing className="text-yellow-500" /> Alerts & Notifications
-        </h2>
-        {breakdowns.length === 0 ? (
-          <p className="text-gray-600">No active alerts.</p>
-        ) : (
-          breakdowns.map((bd) => (
-            <div
-              key={bd.id}
-              className="border-l-4 border-red-500 bg-red-50 p-3 mb-3 rounded"
-            >
-              <p className="font-semibold">
-                Vehicle {bd.id} broke down on route {bd.route}
-              </p>
-              <p className="text-sm text-gray-700">Driver: {bd.driver}</p>
-            </div>
-          ))
-        )}
-      </section>
+            <CirclePlus size={20} /> Assign Driver to Route
+          </button>
+        </section>
 
-      {/* Pending Driver Approvals */}
-      <section className="bg-white rounded-lg shadow p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Users className="text-green-500" /> New Drivers Pending Assignment
-        </h2>
-        {pendingDrivers.length === 0 ? (
-          <p className="text-gray-600">No pending approvals.</p>
-        ) : (
-          pendingDrivers.map((drv) => (
-            <div
-              key={drv.id}
-              className="flex justify-between items-center border-b border-gray-200 py-2"
-            >
-              <div>
-                <p className="font-semibold">{drv.name}</p>
-                <p className="text-sm text-gray-500">
-                  Applied on: {drv.appliedOn}
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <button className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition">
-                  Approve
-                </button>
-                <button className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition">
-                  Reject
-                </button>
-              </div>
+        {/* Alert & Notifications */}
+        <section className="bg-white rounded-xl shadow-md border border-emerald-100 p-6">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-emerald-900">
+            <BellRing className="text-yellow-500" /> Alerts & Notifications
+          </h2>
+          {breakdowns.length === 0 ? (
+            <div className="text-emerald-800">
+              No active alerts for trips or vehicles.
             </div>
-          ))
-        )}
-      </section>
-    </div>
-  );
-}
+          ) : (
+            breakdowns.map((bd) => (
+              <div
+                key={bd.id}
+                className="flex items-center gap-3 border-l-4 border-red-500 bg-red-50 p-3 mb-2 rounded"
+              >
+                <AlertTriangle className="text-red-500" />
+                <div>
+                  <p className="font-semibold">
+                    Vehicle <span className="text-red-600">{bd.id}</span>{" "}
+                    breakdown on <b>{bd.route}</b>
+                  </p>
+                  <p className="text-sm text-gray-800">Driver: {bd.driver}</p>
+                </div>
+              </div>
+            ))
+          )}
+        </section>
 
-function KpiCard({ icon, label, value }) {
-  return (
-    <div className="bg-white rounded-xl shadow p-5 flex items-center gap-4 border-t-4 border-green-400">
-      <div className="text-3xl">{icon}</div>
-      <div>
-        <div className="text-gray-500 font-semibold">{label}</div>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Pending Drivers Approval */}
+          <section className="bg-white rounded-xl shadow-md border border-emerald-100 p-6">
+            <h2 className="text-lg font-bold mb-3 flex items-center gap-2 text-emerald-900">
+              <Users className="text-emerald-600" /> Drivers Activation &
+              Decline
+            </h2>
+            {pendingDrivers.length === 0 ? (
+              <div className="text-emerald-800">
+                No drivers awaiting review.
+              </div>
+            ) : (
+              pendingDrivers.map((drv) => (
+                <div
+                  key={drv.id}
+                  className="flex justify-between items-center border-b border-gray-100 py-2"
+                >
+                  <div>
+                    <div className="font-semibold text-gray-900">
+                      {drv.name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Applied on: {drv.appliedOn}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 transition font-medium">
+                      Approve
+                    </button>
+                    <button className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition font-medium">
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </section>
+
+          {/* Recent Trip Activity */}
+          <section className="bg-white rounded-xl shadow-md border border-emerald-100 p-6">
+            <h2 className="text-lg font-bold mb-3 flex items-center gap-2 text-emerald-900">
+              <Truck className="text-emerald-700" /> Recent Trip Activity
+            </h2>
+            {recentTrips.length === 0 ? (
+              <div className="text-gray-800 font-medium">
+                No recent trip events.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recentTrips.map((trip, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex justify-between items-center border-b border-gray-100 pb-2`}
+                  >
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        {trip.route}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        Driver:{" "}
+                        <span className="text-gray-900">{trip.driver}</span> |
+                        Vehicle: <span>{trip.vehicle}</span>
+                      </div>
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        statusBadge[trip.status]
+                      }`}
+                    >
+                      {trip.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );

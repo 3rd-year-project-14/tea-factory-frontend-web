@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Truck,
-  UserCircle,
-  AlertTriangle,
-  CheckCircle2,
-  Search,
-} from "lucide-react";
+import { UserCircle, AlertTriangle, CheckCircle2, Search } from "lucide-react";
 
 const allVehicles = [
   {
@@ -66,19 +60,19 @@ const breakdownVehicles = [
 
 export default function Emergency() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [assignments, setAssignments] = useState({}); // { brokenVehicleId: replacementVehicleId }
-  const [availableVehicles] = useState(
-    allVehicles.filter((v) => v.status === "Available")
-  );
+  const [assignments, setAssignments] = useState({});
 
-  // Filter available vehicles by search term
+  const availableVehicles = allVehicles.filter((v) => v.status === "Available");
+
   const filteredAvailable = availableVehicles.filter(
     (v) =>
       v.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.driver?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Handle assignment change
+  const isAssigned = (vehicleId) =>
+    Object.values(assignments).includes(vehicleId);
+
   function handleAssign(brokenId, replacementId) {
     setAssignments((prev) => ({
       ...prev,
@@ -86,91 +80,103 @@ export default function Emergency() {
     }));
   }
 
-  // Confirm assignments (you can expand this to save to backend)
   function handleConfirm() {
     alert("Assignments confirmed:\n" + JSON.stringify(assignments, null, 2));
   }
 
+  const allAssigned =
+    Object.keys(assignments).length === breakdownVehicles.length;
+
   return (
-    <div className="bg-[#f7fafc]">
-      <h1 className="text-3xl font-bold mb-6 text-red-700 flex items-center gap-3">
+    <div className="bg-[#f9fbfc] min-h-screen p-6">
+      {/* Title */}
+      <h1 className="text-3xl font-bold mb-4 text-red-700 flex items-center gap-3">
         <AlertTriangle size={32} />
         Emergency Vehicle Replacement
       </h1>
 
-      {/* Search available vehicles */}
-      <div className="mb-6 flex items-center gap-3 bg-white-100 rounded-2xl shadow p-4">
+      {/* Search Input */}
+      <div className="mb-6 max-w-xl bg-white shadow rounded-lg flex items-center gap-2 px-4 py-2 border">
         <Search size={20} className="text-gray-500" />
         <input
           type="text"
           placeholder="Search available vehicles or drivers..."
-          className="flex-grow rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
+          className="flex-grow bg-transparent outline-none text-sm text-gray-800"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      {/* Breakdown vehicles list */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Assign Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {breakdownVehicles.map((broken) => (
           <div
             key={broken.id}
-            className="bg-white rounded-xl shadow p-5 flex flex-col gap-4"
+            className="bg-white rounded-2xl shadow-md p-5 flex flex-col gap-4 border border-gray-100"
           >
-            <div className="flex items-center gap-2">
-              <Truck className="text-emerland-600" size={28} />
-              <div>
-                <div className="font-bold text-lg">
-                  {broken.id} - {broken.model}
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">🚛</div>
+                <div>
+                  <h2 className="font-bold text-lg text-gray-800">
+                    {broken.id} - {broken.model}
+                  </h2>
+                  <p className="text-sm text-gray-500">{broken.type}</p>
                 </div>
-                <div className="text-gray-600 text-sm">{broken.type}</div>
               </div>
             </div>
-            <div className="text-gray-700">
-              <strong>Driver:</strong> {broken.driver}
-            </div>
-            <div className="text-gray-700">
-              <strong>Route:</strong> {broken.route}
-            </div>
-            <div className="text-gray-700">
-              <strong>Breakdown Time:</strong> {broken.breakdownTime}
+
+            {/* Info */}
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>
+                <strong>Driver:</strong> {broken.driver}
+              </p>
+              <p>
+                <strong>Route:</strong> {broken.route}
+              </p>
+              <p>
+                <strong>Breakdown:</strong> {broken.breakdownTime}
+              </p>
             </div>
 
-            {/* Replacement vehicle selector */}
+            {/* Selector */}
             <div>
-              <label
-                htmlFor={`replacement-${broken.id}`}
-                className="block mb-1 font-semibold"
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Assign Replacement Vehicle
               </label>
               <select
-                id={`replacement-${broken.id}`}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
+                className="w-full border rounded-md px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-300"
                 value={assignments[broken.id] || ""}
                 onChange={(e) => handleAssign(broken.id, e.target.value)}
               >
                 <option value="">-- Select Vehicle --</option>
                 {filteredAvailable.map((v) => (
-                  <option key={v.id} value={v.id}>
+                  <option
+                    key={v.id}
+                    value={v.id}
+                    disabled={
+                      isAssigned(v.id) && assignments[broken.id] !== v.id
+                    }
+                  >
                     {v.id} - {v.driver || "No Driver"} ({v.type})
                   </option>
                 ))}
               </select>
             </div>
-            {/* Confirm button */}
-            <div className="flex justify-center">
+
+            {/* Confirm Button (per card, optional) */}
+            <div className="pt-2 text-center">
               <button
                 onClick={handleConfirm}
-                disabled={
-                  Object.keys(assignments).length !== breakdownVehicles.length
-                }
-                className={`px-6 py-3 rounded-lg font-semibold text-green-400 text transition ${
-                  Object.keys(assignments).length === breakdownVehicles.length
+                disabled={!allAssigned}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md text-white font-medium text-sm transition ${
+                  allAssigned
                     ? "bg-red-600 hover:bg-red-700"
-                    : "bg-red-300 cursor-not-allowed"
+                    : "bg-emerald-600 cursor-not-allowed"
                 }`}
               >
+                <CheckCircle2 size={18} />
                 Confirm Assignments
               </button>
             </div>
