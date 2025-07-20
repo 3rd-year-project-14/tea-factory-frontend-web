@@ -23,21 +23,9 @@ export default function ActivityTimelineCard({ supplier }) {
                 Application Submitted
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                {supplier.date} at 2:30 PM
-              </p>
-            </div>
-          </div>
-
-          <div className="flex space-x-3">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <Check className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">
-                Documents Verified
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                {supplier.date} at 2:45 PM
+                {supplier.user.createdAt
+                  ? supplier.user.createdAt.split("T")[0]
+                  : "Unknown Date"}
               </p>
             </div>
           </div>
@@ -52,13 +40,15 @@ export default function ActivityTimelineCard({ supplier }) {
                   Application Approved
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  {supplier.approvedDate} at 9:00 AM
+                  {supplier.approvedDate
+                    ? supplier.approvedDate.split("T")[0]
+                    : "Unknown Date"}
                 </p>
               </div>
             </div>
           )}
 
-          {supplier.status === "rejected" && supplier.rejectedDate && (
+          {supplier.status === "rejected" && (
             <div className="flex space-x-3">
               <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
                 <X className="w-4 h-4 text-red-600" />
@@ -68,7 +58,9 @@ export default function ActivityTimelineCard({ supplier }) {
                   Application Rejected
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  {supplier.rejectedDate} at 9:00 AM
+                  {supplier.rejectedDate
+                    ? supplier.rejectedDate.split("T")[0]
+                    : "Unknown Date"}
                 </p>
               </div>
             </div>
@@ -82,9 +74,6 @@ export default function ActivityTimelineCard({ supplier }) {
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">
                   Under Review
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Pending approval decision
                 </p>
               </div>
             </div>

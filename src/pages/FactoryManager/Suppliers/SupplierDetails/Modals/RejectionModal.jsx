@@ -7,7 +7,7 @@ export default function RejectionModal({
   supplier,
   rejectionReason,
   setRejectionReason,
-  onConfirm,
+  onRejectSupplierRequest,
 }) {
   useEffect(() => {
     if (show) {
@@ -22,6 +22,12 @@ export default function RejectionModal({
   }, [show]);
 
   if (!show) return null;
+
+  const handleConfirm = async () => {
+    if (!rejectionReason.trim()) return;
+    await onRejectSupplierRequest(supplier.id, rejectionReason);
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/30 overflow-hidden">
@@ -69,7 +75,7 @@ export default function RejectionModal({
           </button>
           <button
             className="px-6 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={onConfirm}
+            onClick={handleConfirm}
             disabled={!rejectionReason.trim()}
           >
             Confirm Rejection

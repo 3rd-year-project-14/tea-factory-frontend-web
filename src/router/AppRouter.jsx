@@ -54,9 +54,11 @@ export default function AppRouter() {
 
         {user?.role === "OWNER" && OwnerRoutes}
 
+        {user?.role === "FACTORY_MANAGER" && FactoryManagerRoutes}
+
         {user?.role === "TRANSPORT_MANAGER" && TransportManagerRoutes}
 
-        {user?.role === "FACTORY_MANAGER" && FactoryManagerRoutes}
+        
 
         {user?.role === "PAYMENT_MANAGER" && (
           <>
