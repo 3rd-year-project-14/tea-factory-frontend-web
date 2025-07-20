@@ -1,22 +1,3 @@
-// import { createContext, useContext, useState } from "react";
-// // import users from "../data/users";
-
-
-// const AuthContext = createContext({
-//   user: null,
-//   setUser() {},
-// });
-
-// export const AuthProvider = ({ children }) => {
-//   // Pick any one user for default login (e.g., index 0 = Pasindu)
-//   const [user, setUser] = useState([]);
-
-//   return (
-//     <AuthContext.Provider value={{ user, setUser }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
 
 // export const useAuth = () => useContext(AuthContext);
 import { createContext, useContext, useState, useEffect } from "react";
@@ -40,11 +21,21 @@ export const AuthProvider = ({ children }) => {
   // 🟩 Modified setUser to save to localStorage
   const setUser = (userData) => {
     setUserState(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    if (userData) {
+      localStorage.setItem("user", JSON.stringify(userData));
+    } else {
+      localStorage.removeItem("user");
+    }
+  };
+
+  // Add logout function
+  const logout = async () => {
+    setUser(null);
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

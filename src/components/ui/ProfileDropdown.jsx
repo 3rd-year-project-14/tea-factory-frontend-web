@@ -10,6 +10,7 @@ const ProfileDropdown = ({ user, onClose }) => {
     try {
       await logout();
       onClose();
+      navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
     }
