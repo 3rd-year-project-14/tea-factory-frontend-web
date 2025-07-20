@@ -10,6 +10,9 @@ import TrackRoutes from "../pages/TransportManager/Route/RouteList";
 import Emergency from "../pages/TransportManager/Emergency/EmergencyList";
 import RoutePlan from "../pages/TransportManager/RoutePlanner/RoutePlan";
 import CreateRoute from "../pages/TransportManager/Route/CreateRoute";
+import Drivers from "../pages/TransportManager/Drivers/DriverList";
+import DriverDetails from "../pages/TransportManager/Drivers/AddDriverDetails";
+import DriverUser from "../pages/TransportManager/Drivers/AddDriverUser";
 
 const transportManagerRoutes = [
   <Route
@@ -18,6 +21,33 @@ const transportManagerRoutes = [
     element={
       <Layout>
         <TransportManagerDashboard />
+      </Layout>
+    }
+  />,
+  <Route
+    key="driver"
+    path="/transportManager/drivers"
+    element={
+      <Layout>
+        <Drivers />
+      </Layout>
+    }
+  />,
+  <Route
+    key="driver_details"
+    path="/transportManager/drivers/details"
+    element={
+      <Layout>
+        <DriverDetails />
+      </Layout>
+    }
+  />,
+  <Route
+    key="driver_user"
+    path="/transportManager/drivers/user"
+    element={
+      <Layout>
+        <DriverUser />
       </Layout>
     }
   />,
