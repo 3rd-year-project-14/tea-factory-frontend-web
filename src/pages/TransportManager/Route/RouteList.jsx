@@ -80,6 +80,14 @@ export default function RouteDashboard() {
 
   return (
     <div className=" bg-[#f7fafc]">
+      <div className="flex justify-end mb-4 gap-3">
+        <button
+          onClick={() => navigate("/transportManager/route/add")}
+          className="text-white bg-emerald-800 px-5 py-2 rounded-lg font-semibold shadow hover:bg-emerald-700 transition"
+        >
+          + Add Route
+        </button>
+      </div>
       {/* Filter and Add Route */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2 rounded-xl shadow-md p-2 border-green-100">
         <div className="flex items-center gap-2">
@@ -101,12 +109,6 @@ export default function RouteDashboard() {
             <option>Completed</option>
           </select>
         </div>
-        <button
-          onClick={() => navigate("/transportManager/route/add")}
-          className="text-green-700  bg-green-800 px-5 py-2 rounded-lg font-semibold shadow hover:bg-green-800 transition"
-        >
-          + Add Route
-        </button>
       </div>
 
       {/* Route Cards */}
@@ -177,7 +179,7 @@ export default function RouteDashboard() {
                   className="ml-auto hover:bg-green-100 p-1 rounded transition text-green-100"
                   title="Edit Route"
                 >
-                  <Edit2 className="text-green-700" size={18} />
+                  <Edit2 className="text-emerald-800" size={18} />
                 </button>
               </div>
             </div>

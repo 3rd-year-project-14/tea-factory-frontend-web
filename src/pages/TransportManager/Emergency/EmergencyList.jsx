@@ -118,7 +118,7 @@ export default function Emergency() {
             className="bg-white rounded-xl shadow p-5 flex flex-col gap-4"
           >
             <div className="flex items-center gap-2">
-              <Truck className="text-green-600" size={28} />
+              <Truck className="text-emerland-600" size={28} />
               <div>
                 <div className="font-bold text-lg">
                   {broken.id} - {broken.model}

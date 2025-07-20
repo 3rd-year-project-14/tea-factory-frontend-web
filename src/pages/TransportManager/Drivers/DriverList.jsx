@@ -7,7 +7,7 @@ const initialDrivers = [
     id: "DRV-001",
     name: "Kasun Perera",
     email: "kasun.perera@example.com",
-    type: "INHOUSE",
+    type: "PRIVATE",
     assignedVehicle: "WP-AB-1234",
     phone: "0771234567",
     licenseNo: "B123456",
@@ -92,24 +92,24 @@ export default function DriversList() {
       <div className="flex justify-end mb-4 gap-3">
         <button
           onClick={() => navigate("/transportManager/drivers/user")}
-          className="bg-green-700 text-grren-800 px-4 py-2 rounded-lg hover:bg-green-800 transition shadow"
+          className="bg-emerald-800 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition shadow"
         >
           + Add Driver
         </button>
 
         <button
           onClick={() => navigate("/transportManager/drivers/details")}
-          className="bg-yellow-600 text-yellow-700 px-4 py-2 rounded-lg hover:bg-yellow-700 transition shadow"
+          className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition shadow"
         >
           View Pending Approvals
         </button>
       </div>
 
       {/* Drivers Table */}
-      <div className="bg-white rounded-xl shadow-lg overflow-x-auto">
+      <div className="bg-white rounded-xl shadow-lg overflow-x-auto pt-4">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="bg-green-900 text-white">
+            <tr className="bg-emerald-800 text-white">
               <th className="py-3 px-4 text-left">Driver</th>
               <th className="py-3 px-4 text-left">Email</th>
               <th className="py-3 px-4 text-left">Type</th>

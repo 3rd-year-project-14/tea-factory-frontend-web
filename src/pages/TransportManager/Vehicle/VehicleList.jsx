@@ -277,7 +277,7 @@ export default function Vehicle() {
           <div className="flex justify-center gap-4">
             <button
               onClick={cancelDelete}
-              className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded hover:bg-gray-200"
+              className="px-4 py-2 bg-white text-white border-gray-300 rounded hover:bg-gray-200"
             >
               Cancel
             </button>
