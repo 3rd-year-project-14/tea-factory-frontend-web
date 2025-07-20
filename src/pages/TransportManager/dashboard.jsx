@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Truck,
   CheckCircle2,
@@ -11,25 +11,59 @@ import {
 } from "lucide-react";
 
 export default function TransportManagerDashboard() {
-  // Sample data - replace with API calls
-  const vehicles = [
-    { id: "TRK-001", status: "Available" },
-    { id: "TRK-002", status: "In Use" },
-    { id: "TRK-003", status: "Maintenance" },
+  const stats = [
+    {
+      label: "Total Routes",
+      value: 24,
+      icon: <Map className="text-brown-600" size={24} />,
+    },
+    {
+      label: "Active Today",
+      value: 16,
+      icon: <CheckCircle2 className="text-green-600" size={24} />,
+    },
+    {
+      label: "Suppliers",
+      value: 300,
+      icon: <Users className="text-green-700" size={24} />,
+    },
   ];
+  // // Sample data - replace with API calls
+  // const vehicles = [
+  //   { id: "TRK-001", status: "Available" },
+  //   { id: "TRK-002", status: "In Use" },
+  //   { id: "TRK-003", status: "Maintenance" },
+  // ];
   const breakdowns = [
     { id: "TRK-002", driver: "Mr. Perera", route: "Galle - Neluwa" },
   ];
   const pendingDrivers = [
     { id: "DRV-101", name: "Mr. Kamal", appliedOn: "2025-06-30" },
   ];
-  const routes = [
-    { id: "A", driver: "Mr. Silva", vehicle: "TRK-001", status: "Ongoing" },
-    { id: "B", driver: "Mr. Perera", vehicle: "TRK-004", status: "Pending" },
-  ];
+  // const routes = [
+  //   { id: "A", driver: "Mr. Silva", vehicle: "TRK-001", status: "Ongoing" },
+  //   { id: "B", driver: "Mr. Perera", vehicle: "TRK-004", status: "Pending" },
+  // ];
 
   return (
     <div className="bg-gray-50">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="flex items-center bg-white rounded-xl shadow p-4 gap-4 border-t-4 border-green-100"
+          >
+            <div className="bg-gray-100 rounded-full p-2">{stat.icon}</div>
+            <div>
+              <div className="text-gray-500 text-sm">{stat.label}</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {stat.value}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
       <header className="flex justify-between items-center"></header>
       {/* Alerts */}
       <section className="bg-white rounded-lg shadow p-6">

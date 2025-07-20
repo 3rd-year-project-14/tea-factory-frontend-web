@@ -6,7 +6,6 @@ export default function MainContent({
   currentView,
   filteredData,
   summary,
-  getCurrentData,
   onViewRoute,
   onViewSupplierDetail,
   selectedSupplier,
@@ -17,7 +16,6 @@ export default function MainContent({
       <RoutesView
         filteredData={filteredData}
         summary={summary}
-        getCurrentData={getCurrentData}
         onViewRoute={onViewRoute}
       />
     );
@@ -26,7 +24,6 @@ export default function MainContent({
       <SuppliersView
         filteredData={filteredData}
         summary={summary}
-        getCurrentData={getCurrentData}
         onViewSupplierDetail={onViewSupplierDetail}
         selectedRoute={selectedRoute}
       />

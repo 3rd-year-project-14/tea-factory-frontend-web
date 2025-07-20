@@ -1,4 +1,3 @@
-
 // const users = [
 //   {
 //     username: "Mahesh",
@@ -24,6 +23,7 @@
 //   {
 //     username: "Mahesh",
 //     role: "FACTORY_MANAGER",
+
 //   },    
 //   {
 //     username: "Tharushi",
@@ -42,6 +42,5 @@
 //     role: "STATE_MANAGER",
 //   },
 // ];
-
 
 // export default users;
