@@ -4,7 +4,7 @@ import AdvanceChart from "../../../../components/charts/AdvanceChart";
 
 export default function PerformanceChart({ supplier }) {
   // Only show for approved suppliers
-  if (supplier.status !== "approved") return null;
+  if (supplier.status === "pending" || supplier.status === "rejected") return null;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-emerald-300 overflow-hidden">

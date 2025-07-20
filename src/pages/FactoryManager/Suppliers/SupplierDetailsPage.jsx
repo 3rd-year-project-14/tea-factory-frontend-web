@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Check, X, Mail } from "lucide-react";
 
@@ -12,13 +13,84 @@ import BankingInfoCard from "./SupplierDetails/BankingInfoCard";
 import DocumentsCard from "./SupplierDetails/DocumentsCard";
 import ActivityTimelineCard from "./SupplierDetails/ActivityTimelineCard";
 import PerformanceChart from "./SupplierDetails/PerformanceChart";
-import { initialSuppliers, supplierUtils } from "./supplierData.jsx";
 
 export default function SupplierDetailsPage() {
+  // Backend handler for approval
+  const [approvalError, setApprovalError] = useState("");
+  const handleApproveSupplierRequest = async () => {
+    setApprovalError("");
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/supplier-requests/${supplier.id}/approve?routeId=${approvalData.route}`
+      );
+      if (response.status >= 200 && response.status < 300) {
+        setSupplier({
+          ...supplier,
+          status: "approved",
+          approvedDate: new Date().toISOString(),
+        });
+        closeApproval();
+      } else {
+        setApprovalError("Failed to approve supplier.");
+      }
+    } catch {
+      setApprovalError("Failed to approve supplier.");
+    }
+  };
+  // Backend handler for rejection
+  const handleRejectSupplierRequest = async (id, reason) => {
+    try {
+      await axios.post(
+        `http://localhost:8080/api/supplier-requests/${id}/reject?reason=${encodeURIComponent(
+          reason
+        )}`
+      );
+      // Update local supplier state to reflect rejection
+      setSupplier({ ...supplier, status: "rejected", rejectReason: reason });
+      closeRejection();
+    } catch {
+      alert("Failed to reject supplier.");
+    }
+  };
   const { id } = useParams();
   const navigate = useNavigate();
-  const [suppliers, setSuppliers] = useState(initialSuppliers);
   const [supplier, setSupplier] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    // Decide which table to fetch from based on route or context
+    // If viewing approved supplier, get from supplier table only
+    // If viewing pending/rejected, get from request table only
+    // For this, you may need to pass a prop or use route context, but here we'll try supplier table first
+    axios
+      .get(`http://localhost:8080/api/suppliers/${id}`)
+      .then((res) => {
+        if (res.data && Object.keys(res.data).length > 0) {
+          setSupplier(res.data);
+          setLoading(false);
+        } else {
+          // If not found, try supplier-requests
+          axios
+            .get(`http://localhost:8080/api/supplier-requests/${id}`)
+            .then((res2) => {
+              setSupplier(res2.data);
+            })
+            .catch(() => setSupplier(null))
+            .finally(() => setLoading(false));
+        }
+      })
+      .catch(() => {
+        // If error, fallback to supplier-requests
+        axios
+          .get(`http://localhost:8080/api/supplier-requests/${id}`)
+          .then((res2) => {
+            setSupplier(res2.data);
+          })
+          .catch(() => setSupplier(null))
+          .finally(() => setLoading(false));
+      });
+  }, [id]);
 
   // Modal state
   const [showApproval, setShowApproval] = useState(false);
@@ -35,13 +107,27 @@ export default function SupplierDetailsPage() {
     message: "",
   });
 
-  // Find supplier by ID
-  useEffect(() => {
-    const foundSupplier = suppliers.find((s) => s.id === parseInt(id));
-    setSupplier(foundSupplier);
-  }, [id, suppliers]);
+  // ...existing code...
 
-  if (!supplier) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-emerald-500 border-solid mb-4"></div>
+          <span className="text-emerald-700 font-semibold text-lg">
+            Loading supplier details...
+          </span>
+          {approvalError && (
+            <span className="text-red-600 font-semibold mt-2">
+              {approvalError}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (!supplier && !loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -65,15 +151,25 @@ export default function SupplierDetailsPage() {
   let statusText = "";
   let statusColor = "";
 
-  if (supplier.status === "pending") {
+  // Fix: treat missing or falsy status as 'approved' if supplier is in approved view
+  let normalizedStatus = supplier.status;
+  // If supplier.status is missing and supplier is from supplier table, treat as approved
+  if (!normalizedStatus && supplier && supplier.approvedDate) {
+    normalizedStatus = "approved";
+  }
+
+  if (normalizedStatus === "pending") {
     statusText = "Pending Review";
     statusColor = "text-yellow-600 bg-yellow-100";
-  } else if (supplier.status === "approved") {
+  } else if (normalizedStatus === "rejected") {
+    statusText = "Rejected";
+    statusColor = "text-red-600 bg-red-100";
+  } else if (normalizedStatus === "approved") {
     statusText = "Approved";
     statusColor = "text-emerald-600 bg-emerald-100";
   } else {
-    statusText = "Rejected";
-    statusColor = "text-red-600 bg-red-100";
+    statusText = normalizedStatus || "Unknown";
+    statusColor = "text-gray-600 bg-gray-100";
   }
 
   // Modal close handlers
@@ -90,37 +186,6 @@ export default function SupplierDetailsPage() {
   const closeContact = () => {
     setShowContact(false);
     setContactData({ subject: "", message: "" });
-  };
-
-  // Enhanced handlers for confirm
-  const handleApproveSupplier = () => {
-    const updatedSuppliers = supplierUtils.approveSupplier(
-      suppliers,
-      supplier.id,
-      approvalData
-    );
-    setSuppliers(updatedSuppliers);
-    // Update current supplier
-    const updatedSupplier = updatedSuppliers.find((s) => s.id === supplier.id);
-    setSupplier(updatedSupplier);
-    alert(
-      `Supplier approved successfully! Route: ${approvalData.route}, Bag Limit: ${approvalData.bagLimit}`
-    );
-    closeApproval();
-  };
-
-  const handleRejectSupplier = () => {
-    const updatedSuppliers = supplierUtils.rejectSupplier(
-      suppliers,
-      supplier.id,
-      rejectionReason
-    );
-    setSuppliers(updatedSuppliers);
-    // Update current supplier
-    const updatedSupplier = updatedSuppliers.find((s) => s.id === supplier.id);
-    setSupplier(updatedSupplier);
-    alert(`Supplier rejected. Reason: ${rejectionReason}`);
-    closeRejection();
   };
 
   const handleSendMessage = () => {
@@ -143,7 +208,7 @@ export default function SupplierDetailsPage() {
         supplier={supplier}
         approvalData={approvalData}
         setApprovalData={setApprovalData}
-        onConfirm={handleApproveSupplier}
+        onApproveSupplierRequest={handleApproveSupplierRequest}
       />
 
       <RejectionModal
@@ -152,7 +217,7 @@ export default function SupplierDetailsPage() {
         supplier={supplier}
         rejectionReason={rejectionReason}
         setRejectionReason={setRejectionReason}
-        onConfirm={handleRejectSupplier}
+        onRejectSupplierRequest={handleRejectSupplierRequest}
       />
 
       <ContactModal
@@ -171,37 +236,9 @@ export default function SupplierDetailsPage() {
             <div className="flex items-center space-x-4">
               <div>
                 <p className="text-3xl font-bold text-emerald-800">
-                  {supplier.name}
+                  {supplier.user.name}
                 </p>
                 <div className="flex items-center space-x-4 mt-1">
-                  <span className="text-sm text-gray-500">
-                    ID: {supplier.supplierId || `2025-00${supplier.id}`}
-                  </span>
-                  <span className="text-sm text-gray-500">•</span>
-                  {supplier.status === "approved" && supplier.approvedDate && (
-                    <>
-                      <span className="text-sm text-gray-500">
-                        Approved: {supplier.approvedDate}
-                      </span>
-                      <span className="text-sm text-gray-500">•</span>
-                    </>
-                  )}
-                  {supplier.status === "pending" && (
-                    <>
-                      <span className="text-sm text-gray-500">
-                        Submitted: {supplier.date}
-                      </span>
-                      <span className="text-sm text-gray-500">•</span>
-                    </>
-                  )}
-                  {supplier.status === "rejected" && supplier.rejectedDate && (
-                    <>
-                      <span className="text-sm text-gray-500">
-                        Rejected: {supplier.rejectedDate}
-                      </span>
-                      <span className="text-sm text-gray-500">•</span>
-                    </>
-                  )}
                   <span
                     className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColor}`}
                   >
@@ -254,16 +291,23 @@ export default function SupplierDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Primary Information - Left Column */}
           <div className="lg:col-span-2 space-y-6">
-            <PersonalInfoCard supplier={supplier} />
-            <BusinessInfoCard supplier={supplier} />
-            <PerformanceChart supplier={supplier} />
+            <PersonalInfoCard supplier={{
+              ...supplier,
+              status: normalizedStatus,
+            }} />
+            <BusinessInfoCard supplier={{
+              ...supplier,
+              status: normalizedStatus,
+              
+            }} />
+            <PerformanceChart supplier={{ ...supplier, status: normalizedStatus }} />
           </div>
 
           {/* Sidebar - Right Column */}
           <div className="space-y-6">
-            <DocumentsCard />
-            <BankingInfoCard supplier={supplier} />
-            <ActivityTimelineCard supplier={supplier} />
+            <DocumentsCard supplier={{ ...supplier, status: normalizedStatus }} />
+            <BankingInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
+            <ActivityTimelineCard supplier={{ ...supplier, status: normalizedStatus }} />
           </div>
         </div>
       </div>

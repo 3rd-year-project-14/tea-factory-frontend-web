@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import { Check, X } from "lucide-react";
+import { useRoutes } from "../../../../../data/useRoutes";
+import axios from "axios";
 
 export default function ApprovalModal({
   show,
@@ -7,8 +9,9 @@ export default function ApprovalModal({
   supplier,
   approvalData,
   setApprovalData,
-  onConfirm,
+  onApproveSupplierRequest,
 }) {
+  const { routes, loading, error } = useRoutes();
   useEffect(() => {
     if (show) {
       document.body.style.overflow = "hidden";
@@ -22,6 +25,39 @@ export default function ApprovalModal({
   }, [show]);
 
   if (!show) return null;
+
+  const handleConfirm = async () => {
+    if (
+      !approvalData.route ||
+      !approvalData.bagLimit ||
+      isNaN(Number(approvalData.bagLimit)) ||
+      Number(approvalData.bagLimit) <= 0
+    )
+      return;
+    const bagLimitNum = Number(approvalData.bagLimit);
+    try {
+      const params = { routeId: approvalData.route };
+      if (bagLimitNum > 0) {
+        params.initialBagCount = bagLimitNum;
+      }
+      await axios.post(
+        `http://localhost:8080/api/supplier-requests/${supplier.id}/approve`,
+        null,
+        { params }
+      );
+      // Optionally call onApproveSupplierRequest for local state update
+      if (onApproveSupplierRequest) {
+        onApproveSupplierRequest(supplier.id, approvalData.route, bagLimitNum);
+      }
+      // Close modal and go back to pending suppliers
+      if (onClose) onClose();
+      if (window.history && window.history.length > 1) {
+        window.history.back();
+      }
+    } catch (error) {
+      console.error("Error approving supplier request:", error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/30 overflow-hidden">
@@ -42,10 +78,10 @@ export default function ApprovalModal({
               Supplier Information
             </h3>
             <p className="text-sm text-emerald-700">
-              {supplier.name} - {supplier.location}
+              {supplier.user.name} - {supplier.user.address}
             </p>
             <p className="text-sm text-emerald-700">
-              Expected Supply: {supplier.supply}
+              Expected Supply: {supplier.monthlySupply} Kg
             </p>
           </div>
 
@@ -65,57 +101,43 @@ export default function ApprovalModal({
                 }
               >
                 <option value="">Select Route</option>
-                <option value="route1">Route A-01 (Colombo North)</option>
-                <option value="route2">Route B-02 (Colombo South)</option>
-                <option value="route3">Route C-03 (Colombo East)</option>
-                <option value="route4">Route D-04 (Colombo West)</option>
+                {loading && <option disabled>Loading routes...</option>}
+                {error && <option disabled>Error loading routes</option>}
+                {routes &&
+                  Array.isArray(routes) &&
+                  routes.map((route) => (
+                    <option
+                      key={route.routeId || route._id || route.name}
+                      value={route.routeId || route._id || route.name}
+                    >
+                      {route.name}
+                    </option>
+                  ))}
               </select>
             </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 mb-2">
-                Supplier ID
-              </label>
-              <input
-                type="text"
-                className="border border-emerald-300 rounded-lg px-3 py-2 text-sm bg-emerald-50"
-                value={`SUP-2025-00${supplier.id}`}
-                readOnly
-              />
-            </div>
+
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-700 mb-2">
                 Initial Bag Limit *
               </label>
               <input
                 type="number"
+                min={1}
                 className="border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 placeholder="e.g., 50"
-                value={approvalData.bagLimit}
-                onChange={(e) =>
+                value={approvalData.bagLimit > 0 ? approvalData.bagLimit : ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Only set if valid number and > 0
                   setApprovalData({
                     ...approvalData,
-                    bagLimit: e.target.value,
-                  })
-                }
+                    bagLimit: val !== "" && Number(val) > 0 ? Number(val) : "",
+                  });
+                }}
               />
             </div>
 
-            <div className="flex flex-col md:col-span-2">
-              <label className="text-sm font-medium text-gray-700 mb-2">
-                Manager Notes (Internal)
-              </label>
-              <textarea
-                className="border border-emerald-300 rounded-lg px-3 py-2 text-sm min-h-[100px] resize-y focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                placeholder="Add any internal notes about this supplier approval..."
-                value={approvalData.notes}
-                onChange={(e) =>
-                  setApprovalData({
-                    ...approvalData,
-                    notes: e.target.value,
-                  })
-                }
-              ></textarea>
-            </div>
+            
           </div>
         </div>
         <div className="flex gap-3 justify-end p-6 border-t border-emerald-300 bg-emerald-50">
@@ -127,8 +149,13 @@ export default function ApprovalModal({
           </button>
           <button
             className="px-6 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={onConfirm}
-            disabled={!approvalData.route || !approvalData.bagLimit}
+            onClick={handleConfirm}
+            disabled={
+              !approvalData.route ||
+              !approvalData.bagLimit ||
+              approvalData.bagLimit <= 0 ||
+              isNaN(approvalData.bagLimit)
+            }
           >
             Confirm Approval
           </button>

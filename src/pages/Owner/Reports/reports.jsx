@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import axios from 'axios';
 
 export default function AddManagersInterface() {
   const [formData, setFormData] = useState({
@@ -43,6 +44,20 @@ export default function AddManagersInterface() {
   const handleSave = () => {
     console.log('Saving manager data:', formData);
     // Handle save logic here
+
+    try{
+
+      async function sendData() {
+        const response = await axios.post('https://tea-factory-project-902e0-default-rtdb.asia-southeast1.firebasedatabase.app/userData.json', { ...formData})
+        console.log(response);
+      }
+
+      sendData();
+
+    } catch (err) {
+      console.log(err);
+    }
+
   };
 
 
