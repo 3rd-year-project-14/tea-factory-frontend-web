@@ -15,6 +15,11 @@ const factoryAdvances = [
   { factory: 'Factory B', amount: 50000 },
   { factory: 'Factory C', amount: 40000 },
   { factory: 'Factory D', amount: 20000 },
+  { factory: 'Factory A', amount: 70000 },
+  { factory: 'Factory A', amount: 70000 },
+  { factory: 'Factory A', amount: 70000 },
+  { factory: 'Factory A', amount: 70000 },
+  { factory: 'Factory A', amount: 70000 },
 ];
 
 export default function ViewAdvanceFactoryWise() {
