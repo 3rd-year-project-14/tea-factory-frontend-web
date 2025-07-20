@@ -5,14 +5,14 @@ import Profile from "../components/ui/Profile";
 // import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import inventoryManagerRoutes from "./InventoryManagerRoutes";
 import fertilizerManagerRoutes from "./FertilizerManagerRoutes";
+
+import TransportManagerRoutes from "./TransportManagerRoutes";
+
+import FactoryManagerRoutes from "./FactoryManagerRoutes";
 import OwnerRoutes from "./OwnerRoutes";
 
-//Factory Manager
-import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
-import SupplierRegister from "../pages/FactoryManager/Suppliers/supplierRegister";
-import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
-import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
-import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
+//Factory Manager - Now handled by FactoryManagerRoutes.jsx
+
 
 //Payment Manager
 import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
@@ -23,10 +23,10 @@ import PaymentManagement from "../pages/PaymentManager/Payments/PaymentManagemen
 
 //Transport Manager
 import TransportManagerDashboard from "../pages/TransportManager/dashboard";
-import Vehicle from "../pages/TransportManager/vehicle";
-import TrackRoutes from "../pages/TransportManager/trackRoutes";
-import Emergency from "../pages/TransportManager/emergency";
-import Assignment from "../pages/TransportManager/assignments";
+import Vehicle from "../pages/TransportManager/Vehicle/VehicleList";
+import TrackRoutes from "../pages/TransportManager/Route/RouteList";
+import Emergency from "../pages/TransportManager/Emergency/EmergencyList";
+import Assignment from "../pages/TransportManager/RoutePlanner/RoutePlan";
 
 import { useAuth } from "../contexts/AuthContext";
 import Auth from "../components/Auth";
@@ -46,95 +46,11 @@ export default function AppRouter() {
 
         {user?.role === "OWNER" && OwnerRoutes}
 
-        {user?.role === "TRANSPORT_MANAGER" && (
-          <>
-            <Route
-              path="/transportManager/dashboard"
-              element={
-                <Layout>
-                  <TransportManagerDashboard />
-                </Layout>
-              }
-            />
-            <Route
-              path="/transportManager/vehicle"
-              element={
-                <Layout>
-                  <Vehicle />
-                </Layout>
-              }
-            />
-            <Route
-              path="/transportManager/trackRoutes"
-              element={
-                <Layout>
-                  <TrackRoutes />
-                </Layout>
-              }
-            />
-            <Route
-              path="/transportManager/assignments"
-              element={
-                <Layout>
-                  <Assignment />
-                </Layout>
-              }
-            />
-            <Route
-              path="/transportManager/emergency"
-              element={
-                <Layout>
-                  <Emergency />
-                </Layout>
-              }
-            />
-          </>
-        )}
+        {user?.role === "FACTORY_MANAGER" && FactoryManagerRoutes}
 
-        {user?.role === "FACTORY_MANAGER" && (
-          <>
-            <Route
-              path="/factoryManager/dashboard"
-              element={
-                <Layout>
-                  <FactoryManagerDashboard />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/suppliers"
-              element={
-                <Layout>
-                  <SupplierRegister />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/drivers"
-              element={
-                <Layout>
-                  <DriverManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/inventory"
-              element={
-                <Layout>
-                  <InventoryManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/factoryManager/routes"
-              element={
-                <Layout>
-                  <RouteManagement />
-                </Layout>
-              }
-            />
-          </>
-        )}
+        {user?.role === "TRANSPORT_MANAGER" && TransportManagerRoutes}
+
+        
 
         {user?.role === "PAYMENT_MANAGER" && (
           <>

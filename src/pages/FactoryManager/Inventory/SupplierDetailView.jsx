@@ -114,7 +114,7 @@ export default function SupplierDetailView({ supplier }) {
   return (
     <div className="space-y-6">
       {/* Basic Information */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-md border border-emerald-200 p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
           Basic Information
         </h3>
@@ -173,11 +173,11 @@ export default function SupplierDetailView({ supplier }) {
       </div>
 
       {/* Notice Section */}
-      <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-r-lg">
+      <div className="bg-emerald-50 border-l-4 border-emerald-400 p-4 rounded-r-lg">
         <div className="flex">
           <div className="flex-shrink-0">
             <svg
-              className="h-5 w-5 text-green-400"
+              className="h-5 w-5 text-emerald-400"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -189,8 +189,8 @@ export default function SupplierDetailView({ supplier }) {
             </svg>
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-green-800">Notice</h3>
-            <div className="mt-2 text-sm text-green-700">
+            <h3 className="text-sm font-medium text-emerald-800">Notice</h3>
+            <div className="mt-2 text-sm text-emerald-700">
               <p>Water is increasing weekly.</p>
             </div>
           </div>
@@ -198,13 +198,13 @@ export default function SupplierDetailView({ supplier }) {
       </div>
 
       {/* Manager Notes Section */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-md border border-emerald-200 p-6">
         <div className="space-y-4">
           {/* Show Add Note button when input is hidden */}
           {!showNoteInput && (
             <button
               onClick={handleShowNoteInput}
-              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Note
@@ -218,7 +218,7 @@ export default function SupplierDetailView({ supplier }) {
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-emerald-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm text-gray-900 bg-white"
                 placeholder="Enter your note about this supplier..."
                 style={{ color: "#111827" }}
                 autoFocus
@@ -227,14 +227,14 @@ export default function SupplierDetailView({ supplier }) {
               <div className="flex justify-end space-x-2">
                 <button
                   onClick={handleCancelNote}
-                  className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  className="px-4 py-2 border border-emerald-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAddNote}
                   disabled={!newNote.trim()}
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Save Note
@@ -245,11 +245,11 @@ export default function SupplierDetailView({ supplier }) {
 
           {/* Display existing note if available */}
           {supplier.notes && (
-            <div className="border-t pt-4">
+            <div className="pt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Current Note
               </label>
-              <div className="bg-gray-50 rounded-md p-3 border">
+              <div className="bg-emerald-50 rounded-md p-3 border border-emerald-200">
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">
                   {supplier.notes}
                 </p>
@@ -260,8 +260,8 @@ export default function SupplierDetailView({ supplier }) {
       </div>
 
       {/* Tea Leaf Entries */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="p-4 bg-[#f8f9fa] border-b border-[#e0e0e0]">
+      <div className="bg-white rounded-lg shadow-md border border-emerald-200 overflow-hidden">
+        <div className="p-4 bg-emerald-50 border-b border-emerald-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <Calendar className="h-5 w-5" />
@@ -273,7 +273,7 @@ export default function SupplierDetailView({ supplier }) {
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                className="px-3 py-2 border border-green-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm bg-white text-gray-900 hover:border-green-400"
+                className="px-3 py-2 border border-emerald-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm bg-white text-gray-900 hover:border-emerald-400"
               >
                 {Array.from({ length: 12 }, (_, i) => (
                   <option key={i} value={i} className="text-gray-900">
@@ -287,7 +287,7 @@ export default function SupplierDetailView({ supplier }) {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                className="px-3 py-2 border border-green-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm bg-white text-gray-900 hover:border-green-400"
+                className="px-3 py-2 border border-emerald-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm bg-white text-gray-900 hover:border-emerald-400"
               >
                 {Array.from({ length: 5 }, (_, i) => {
                   const year = new Date().getFullYear() - 2 + i;
@@ -303,13 +303,13 @@ export default function SupplierDetailView({ supplier }) {
         </div>
 
         {/* Monthly Summary Cards */}
-        <div className="p-4 bg-gray-50 border-b border-[#e0e0e0]">
+        <div className="p-4 bg-gray-50 border-b border-emerald-200">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white p-3 rounded-lg border">
+            <div className="bg-white p-3 rounded-lg border border-emerald-200">
               <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Delivery Days
               </div>
-              <div className="mt-1 text-lg font-semibold text-gray-900">
+              <div className="mt-1 text-lg font-semibold text-emerald-600">
                 {monthlyData.filter((day) => day.hasDelivery).length}
               </div>
               <div className="text-xs text-gray-500">
@@ -317,20 +317,20 @@ export default function SupplierDetailView({ supplier }) {
                 days
               </div>
             </div>
-            <div className="bg-white p-3 rounded-lg border">
+            <div className="bg-white p-3 rounded-lg border border-emerald-200">
               <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Total Bags
               </div>
-              <div className="mt-1 text-lg font-semibold text-green-600">
+              <div className="mt-1 text-lg font-semibold text-emerald-600">
                 {monthlyData.reduce((sum, day) => sum + day.bagCount, 0)}
               </div>
               <div className="text-xs text-gray-500">bags collected</div>
             </div>
-            <div className="bg-white p-3 rounded-lg border">
+            <div className="bg-white p-3 rounded-lg border border-emerald-200">
               <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Gross Weight
               </div>
-              <div className="mt-1 text-lg font-semibold text-blue-600">
+              <div className="mt-1 text-lg font-semibold text-emerald-600">
                 {monthlyData
                   .reduce((sum, day) => sum + day.totalWeight, 0)
                   .toFixed(1)}{" "}
@@ -338,11 +338,11 @@ export default function SupplierDetailView({ supplier }) {
               </div>
               <div className="text-xs text-gray-500">before deductions</div>
             </div>
-            <div className="bg-white p-3 rounded-lg border">
+            <div className="bg-white p-3 rounded-lg border border-emerald-200">
               <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Net Weight
               </div>
-              <div className="mt-1 text-lg font-semibold text-green-600">
+              <div className="mt-1 text-lg font-semibold text-emerald-600">
                 {monthlyData
                   .reduce((sum, day) => sum + day.netWeight, 0)
                   .toFixed(1)}{" "}
@@ -356,7 +356,7 @@ export default function SupplierDetailView({ supplier }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#e0e0e0] bg-[#f8f9fa]">
+              <tr className="border-b border-emerald-200 bg-emerald-50">
                 <th className="text-center py-3 px-2 font-medium text-gray-700">
                   Date
                 </th>
@@ -384,7 +384,7 @@ export default function SupplierDetailView({ supplier }) {
               {monthlyData.map((dayData) => (
                 <tr
                   key={dayData.day}
-                  className={`border-b border-[#f0f0f0] ${
+                  className={`border-b border-emerald-100 ${
                     dayData.netWeight > 0 ? "bg-white" : "bg-gray-50"
                   }`}
                 >
@@ -419,7 +419,7 @@ export default function SupplierDetailView({ supplier }) {
               ))}
             </tbody>
             <tfoot>
-              <tr className="border-t-2 border-[#e0e0e0] bg-[#f8f9fa] font-bold">
+              <tr className="border-t-2 border-emerald-200 bg-emerald-50 font-bold">
                 <td className="py-3 px-2 text-center text-gray-900">Total</td>
                 <td className="py-3 px-2 text-center font-mono text-gray-900">
                   {monthlyData.reduce((sum, day) => sum + day.bagCount, 0)}
@@ -444,7 +444,7 @@ export default function SupplierDetailView({ supplier }) {
                     .reduce((sum, day) => sum + day.coarseLeaf, 0)
                     .toFixed(1)}
                 </td>
-                <td className="py-3 px-2 text-right font-mono font-bold text-[#4CAF50]">
+                <td className="py-3 px-2 text-right font-mono font-bold text-emerald-600">
                   {monthlyData
                     .reduce((sum, day) => sum + day.netWeight, 0)
                     .toFixed(1)}
@@ -455,16 +455,77 @@ export default function SupplierDetailView({ supplier }) {
         </div>
 
         {/* Total Summary */}
-        <div className="p-4 bg-[#f8f9fa] border-t border-[#e0e0e0]">
+        <div className="p-4 bg-emerald-50 border-t border-emerald-200">
           <div className="flex justify-between items-center">
-            <div className="text-lg font-semibold text-gray-900">
-              Total Net Weight:{" "}
-              <span className="text-[#4CAF50]">
-                {monthlyData
-                  .reduce((sum, day) => sum + day.netWeight, 0)
-                  .toFixed(1)}{" "}
-                kg
-              </span>
+            <div>
+              <div className="text-lg font-semibold text-gray-900">
+                Total Net Weight:{" "}
+                <span className="text-emerald-600">
+                  {monthlyData
+                    .reduce((sum, day) => sum + day.netWeight, 0)
+                    .toFixed(1)}{" "}
+                  kg
+                </span>
+              </div>
+              <div className="flex gap-6 mt-2 text-sm text-gray-600">
+                <div>
+                  Total Bags:{" "}
+                  <span className="font-medium text-emerald-600">
+                    {monthlyData.reduce((sum, day) => sum + day.bagCount, 0)}
+                  </span>
+                </div>
+                <div>
+                  Gross Weight:{" "}
+                  <span className="font-medium text-emerald-600">
+                    {monthlyData
+                      .reduce((sum, day) => sum + day.totalWeight, 0)
+                      .toFixed(1)}{" "}
+                    kg
+                  </span>
+                </div>
+                <div>
+                  Total Deductions:{" "}
+                  <span className="font-medium text-red-600">
+                    {(
+                      monthlyData.reduce(
+                        (sum, day) => sum + day.totalWeight,
+                        0
+                      ) -
+                      monthlyData.reduce((sum, day) => sum + day.netWeight, 0)
+                    ).toFixed(1)}{" "}
+                    kg
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-6 mt-1 text-xs text-gray-500">
+                <div>
+                  Bag Weight:{" "}
+                  <span className="font-medium text-red-500">
+                    {monthlyData
+                      .reduce((sum, day) => sum + day.bagWeight, 0)
+                      .toFixed(1)}{" "}
+                    kg
+                  </span>
+                </div>
+                <div>
+                  Water Content:{" "}
+                  <span className="font-medium text-red-500">
+                    {monthlyData
+                      .reduce((sum, day) => sum + day.waterContent, 0)
+                      .toFixed(1)}{" "}
+                    kg
+                  </span>
+                </div>
+                <div>
+                  Coarse Leaf:{" "}
+                  <span className="font-medium text-red-500">
+                    {monthlyData
+                      .reduce((sum, day) => sum + day.coarseLeaf, 0)
+                      .toFixed(1)}{" "}
+                    kg
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -29,7 +29,7 @@ const Dashboard = () => {
               <p className="text-gray-600 mt-1">Comprehensive reporting system for all your tea factories</p>
             </div>
             <div className="flex items-center gap-4">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+              <button className="bg-green-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
                 <Bell className="w-4 h-4" />
                 Notifications
               </button>
@@ -105,7 +105,7 @@ const Dashboard = () => {
 
           {/* Top 5 Suppliers */}
           <div className="bg-white rounded-lg p-6 shadow-md border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Top 5 Suppliers (by weight)</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Top 5 Factory  (by tea collecting weight)</h3>
             <div className="space-y-4">
               {suppliers.map((supplier, index) => (
                 <div key={index} className="flex justify-between items-center py-2">

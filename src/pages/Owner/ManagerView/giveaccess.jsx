@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation , useNavigate } from 'react-router-dom';
 
 export default function GiveAccess() {
   const location = useLocation();
+  const navigate = useNavigate();
   const formData = location.state?.manager || {};
   const [emailSent, setEmailSent] = useState(false);
 
@@ -11,6 +12,10 @@ export default function GiveAccess() {
     // Simulate sending email
     setEmailSent(true);
     // In a real app, trigger email sending here
+  };
+
+  const handleAddNew = () => {
+    navigate('/owner/managers');
   };
 
   return (
@@ -47,7 +52,10 @@ export default function GiveAccess() {
             >
               {emailSent ? 'Email Sent' : 'Send Welcome Email'}
             </button>
-            <button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg font-medium transition-colors">
+            <button 
+            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg font-medium transition-colors"
+            onClick={handleAddNew}
+            >
               Go Back
             </button>
           </div>
