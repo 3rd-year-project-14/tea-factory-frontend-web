@@ -1,46 +1,48 @@
-import { User, Settings, LogOut, Shield } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { User, Settings, LogOut, Shield } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const ProfileDropdown = ({ user, onClose }) => {
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
       onClose();
+      navigate("/login");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
   const menuItems = [
     {
       icon: User,
-      label: 'Profile',
+      label: "Profile",
       action: () => {
-        // Navigate to profile page
-        console.log('Navigate to profile');
+        navigate("/profile");
         onClose();
-      }
+      },
     },
     {
       icon: Settings,
-      label: 'Settings',
+      label: "Settings",
       action: () => {
         // Navigate to settings page
-        console.log('Navigate to settings');
+        console.log("Navigate to settings");
         onClose();
-      }
+      },
     },
     {
       icon: Shield,
-      label: 'Privacy',
+      label: "Privacy",
       action: () => {
         // Navigate to privacy page
-        console.log('Navigate to privacy');
+        console.log("Navigate to privacy");
         onClose();
-      }
-    }
+      },
+    },
   ];
 
   return (
@@ -50,18 +52,18 @@ const ProfileDropdown = ({ user, onClose }) => {
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center">
             <span className="text-white font-semibold text-lg">
-              {user?.username?.charAt(0).toUpperCase() || 'J'}
+              {user?.username?.charAt(0).toUpperCase() || "J"}
             </span>
           </div>
           <div>
             <p className="font-semibold text-gray-900">
-              {user?.username || 'John Manager'}
+              {user?.username || "John Manager"}
             </p>
             <p className="text-gray-600 text-sm capitalize">
-              {user?.role?.toLowerCase() || 'Supervisor'}
+              {user?.role?.toLowerCase() || "Supervisor"}
             </p>
             <p className="text-gray-500 text-xs">
-              {user?.email || 'john.manager@teafactory.com'}
+              {user?.email || "john.manager@teafactory.com"}
             </p>
           </div>
         </div>

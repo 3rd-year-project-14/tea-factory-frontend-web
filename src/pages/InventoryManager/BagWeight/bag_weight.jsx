@@ -58,13 +58,14 @@ export default function Route() {
 
   return (
     <div className="h-full bg-gray-50 p-4">
-      <div className="max-w-6xl mx-auto space-y-4">
+      <div className="max-w-8xl mx-auto space-y-4">
         {/* All content inside one card */}
-        <div className="bg-green-50 rounded-2xl shadow-sm p-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Leaf Weight</h1>
           {/* Top Statistics Cards - Card 3 style */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="p-2 rounded-lg shadow-sm ring-2 ring-green-500 transition-colors hover:bg-gray-50 bg-white">
+            <div className="p-2 rounded-lg shadow-sm ring-1 ring-green-300 transition-colors hover:bg-gray-50 bg-white">
+              
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-gray-600">
@@ -123,10 +124,11 @@ export default function Route() {
             </div>
           </div>
 
+
           {/* Routes Table */}
           <div className="rounded-lg shadow-sm overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-green-600">
+              <thead className="bg-green-700">
                 <tr>
                   <th className="pl-24  py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
                     Route No
