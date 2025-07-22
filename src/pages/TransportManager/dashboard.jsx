@@ -71,11 +71,11 @@ export default function TransportManagerDashboard() {
     <div className="bg-gray-50 py-4 px-2">
       <div className="max-w-8xl mx-auto space-y-8">
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 \">
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300"
+              className="bg-white px-4 py-6 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300"
             >
               <div className="flex items-center justify-between">
                 <div>

@@ -132,7 +132,7 @@ export default function AddDriverUser() {
 
         <button
           type="submit"
-          className="w-full bg-green-700 text-green-900 p-3 rounded hover:bg-green-800 transition"
+          className="w-full bg-emerald-700 text-white p-3 rounded hover:bg-emerald-800 transition"
         >
           Create Driver Account
         </button>

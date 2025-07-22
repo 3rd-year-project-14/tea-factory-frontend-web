@@ -29,7 +29,6 @@ export default function AssignRouteForm() {
   function handleChange(e) {
     const { name, value } = e.target;
 
-    // If vehicle changes, update capacity automatically
     if (name === "vehicle") {
       const selectedVehicle = vehicles.find((v) => v.value === value);
       setForm({
@@ -48,29 +47,29 @@ export default function AssignRouteForm() {
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+    <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
       <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-800">
         <Map className="text-green-700" size={28} />
         Assign Route & Vehicle
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-5">
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
         {/* Route */}
         <div>
-          <label
-            className="block mb-1 font-semibold text-gray-700"
-            htmlFor="route"
-          >
+          <label className="block mb-1 font-semibold text-gray-700">
             Select Route
           </label>
           <div className="relative">
             <Map className="absolute left-3 top-3 text-green-500" size={18} />
             <select
-              id="route"
               name="route"
               value={form.route}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
               required
+              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
             >
               <option value="">Choose a route</option>
               {routes.map((r) => (
@@ -84,10 +83,7 @@ export default function AssignRouteForm() {
 
         {/* Driver */}
         <div>
-          <label
-            className="block mb-1 font-semibold text-gray-700"
-            htmlFor="driver"
-          >
+          <label className="block mb-1 font-semibold text-gray-700">
             Driver
           </label>
           <div className="relative">
@@ -96,12 +92,11 @@ export default function AssignRouteForm() {
               size={18}
             />
             <select
-              id="driver"
               name="driver"
               value={form.driver}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
               required
+              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
             >
               <option value="">Choose driver</option>
               {drivers.map((d) => (
@@ -115,10 +110,7 @@ export default function AssignRouteForm() {
 
         {/* Vehicle */}
         <div>
-          <label
-            className="block mb-1 font-semibold text-gray-700"
-            htmlFor="vehicle"
-          >
+          <label className="block mb-1 font-semibold text-gray-700">
             Vehicle
           </label>
           <div className="relative">
@@ -127,12 +119,11 @@ export default function AssignRouteForm() {
               size={18}
             />
             <select
-              id="vehicle"
               name="vehicle"
               value={form.vehicle}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
               required
+              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
             >
               <option value="">Choose vehicle</option>
               {vehicles.map((v) => (
@@ -144,31 +135,24 @@ export default function AssignRouteForm() {
           </div>
         </div>
 
-        {/* Vehicle Capacity (readonly) */}
+        {/* Vehicle Capacity */}
         <div>
-          <label
-            className="block mb-1 font-semibold text-gray-700"
-            htmlFor="vehicleCapacity"
-          >
+          <label className="block mb-1 font-semibold text-gray-700">
             Vehicle Capacity
           </label>
           <input
             type="text"
-            id="vehicleCapacity"
             name="vehicleCapacity"
             value={form.vehicleCapacity}
             readOnly
             className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-100 cursor-not-allowed"
-            placeholder="Select a vehicle to see capacity"
+            placeholder="Auto-filled from vehicle"
           />
         </div>
 
-        {/* Date of Issue */}
-        <div>
-          <label
-            className="block mb-1 font-semibold text-gray-700"
-            htmlFor="date"
-          >
+        {/* Date */}
+        <div className="md:col-span-2">
+          <label className="block mb-1 font-semibold text-gray-700">
             Date of Issue
           </label>
           <div className="relative">
@@ -178,23 +162,24 @@ export default function AssignRouteForm() {
             />
             <input
               type="date"
-              id="date"
               name="date"
               value={form.date}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
               required
+              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
             />
           </div>
         </div>
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full py-3 rounded-lg text-green-700 font-bold text-lg shadow hover:bg-green-800 transition"
-        >
-          Assign Route
-        </button>
+        <div className="md:col-span-2">
+          <button
+            type="submit"
+            className="w-full py-3 rounded-lg bg-emerald-700 text-white font-bold text-lg shadow hover:bg-emerald-800 transition"
+          >
+            Assign Route
+          </button>
+        </div>
       </form>
     </div>
   );

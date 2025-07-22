@@ -108,6 +108,9 @@ export default function Vehicle() {
       <div className="max-w-8xl mx-auto space-y-4">
         {/* Top Section: Title */}
         <div className="bg-gray-50 rounded-2xl shadow-2xl p-4 pb-6">
+          <h2 className="text-2xl font-bold text-emerald-900 text-center mb-4">
+            Vehicle Management
+          </h2>
           {/* Stats Cards */}
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">

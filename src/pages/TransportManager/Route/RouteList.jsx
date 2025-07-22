@@ -98,6 +98,9 @@ export default function RouteDashboard() {
     <div className="h-full bg-gray-50 p-4 min-h-screen overflow-hidden">
       <div className="max-w-8xl mx-auto space-y-4">
         <div className="bg-gray-50 rounded-2xl shadow-2xl p-4">
+          <h2 className="text-2xl font-bold text-emerald-900 text-center">
+            Route Management
+          </h2>
           <div className="flex justify-end mb-4">
             <button
               onClick={() => navigate("/transportManager/route/add")}
