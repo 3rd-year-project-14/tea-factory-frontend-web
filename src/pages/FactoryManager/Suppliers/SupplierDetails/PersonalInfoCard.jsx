@@ -1,19 +1,37 @@
 import React from "react";
 import { User, Phone, Mail, MapPin } from "lucide-react";
 
+
+const ACCENT_COLOR = "#165E52";
+const BORDER_COLOR = "#cfece6";
+const HEADER_BG = "#e1f4ef";
+
+
 export default function PersonalInfoCard({ supplier }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-emerald-300 overflow-hidden">
-      <div className="px-6 py-4 border-b border-emerald-300 bg-emerald-50">
-        <div className="flex items-center space-x-2">
-          <User className="w-5 h-5 text-emerald-600" />
-          <h2 className="text-lg font-semibold text-gray-900">
-            Personal Information
-          </h2>
-        </div>
+    <div
+      className="bg-white rounded-xl shadow-sm border overflow-hidden"
+      style={{ borderColor: BORDER_COLOR }}
+    >
+      {/* Header */}
+      <div
+        className="px-6 py-4 border-b flex items-center space-x-2"
+        style={{
+          borderColor: BORDER_COLOR,
+          backgroundColor: HEADER_BG,
+        }}
+      >
+        <User className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
+        <h2 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
+          Personal Information
+        </h2>
       </div>
+
+
+      {/* Card Body */}
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Full Name */}
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               Full Name
@@ -22,6 +40,9 @@ export default function PersonalInfoCard({ supplier }) {
               {supplier.user.name}
             </p>
           </div>
+
+
+          {/* NIC Number */}
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               NIC Number
@@ -30,39 +51,46 @@ export default function PersonalInfoCard({ supplier }) {
               {supplier.user.nic}
             </p>
           </div>
+
+
+          {/* Mobile Number */}
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               Mobile Number
             </label>
             <div className="mt-1 flex items-center space-x-2">
-              <Phone className="w-4 h-4 text-emerald-600" />
+              <Phone className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
               <p className="text-sm font-medium text-gray-900">
                 {supplier.user.contactNo}
               </p>
             </div>
           </div>
+
+
+          {/* Email Address */}
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               Email Address
             </label>
             <div className="mt-1 flex items-center space-x-2">
-              <Mail className="w-4 h-4 text-emerald-600" />
+              <Mail className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
               <p className="text-sm font-medium text-gray-900 truncate">
                 {supplier.user.email}
               </p>
             </div>
           </div>
+
+
+          {/* Address */}
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               Address
             </label>
             <div className="mt-1 flex items-start space-x-2">
-              <MapPin className="w-4 h-4 text-emerald-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {supplier.user.address}
-                </p>
-              </div>
+              <MapPin className="w-4 h-4 mt-0.5" style={{ color: ACCENT_COLOR }} />
+              <p className="text-sm font-medium text-gray-900">
+                {supplier.user.address}
+              </p>
             </div>
           </div>
         </div>
@@ -70,3 +98,6 @@ export default function PersonalInfoCard({ supplier }) {
     </div>
   );
 }
+
+
+

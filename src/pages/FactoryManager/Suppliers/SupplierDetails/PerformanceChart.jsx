@@ -2,9 +2,11 @@ import React from "react";
 import { TrendingUp } from "lucide-react";
 import AdvanceChart from "../../../../components/charts/AdvanceChart";
 
+
 export default function PerformanceChart({ supplier }) {
   // Only show for approved suppliers
   if (supplier.status === "pending" || supplier.status === "rejected") return null;
+
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-emerald-300 overflow-hidden">
@@ -22,3 +24,4 @@ export default function PerformanceChart({ supplier }) {
     </div>
   );
 }
+
