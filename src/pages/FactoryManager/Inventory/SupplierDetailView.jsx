@@ -1,4 +1,4 @@
-import { Calendar, Plus, ChevronDown } from "lucide-react";
+import { Calendar, Plus, ChevronDown, UserX } from "lucide-react";
 import { useState } from "react";
 
 export default function SupplierDetailView({ supplier }) {
@@ -9,19 +9,18 @@ export default function SupplierDetailView({ supplier }) {
 
   if (!supplier) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <p className="text-gray-500">No supplier selected</p>
+      <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col items-center">
+        <UserX className="w-12 h-12 text-gray-300 mb-2" />
+        <p className="text-gray-500 text-lg">No supplier selected</p>
       </div>
     );
   }
 
   const handleAddNote = () => {
     if (newNote.trim()) {
-      // Here you would typically save to database/API
-      console.log("Adding note:", newNote);
+      // Save note logic here
       setNewNote("");
-      setShowNoteInput(false); // Hide input after adding note
-      // You could also update the supplier object or trigger a callback
+      setShowNoteInput(false);
     }
   };
 
@@ -39,12 +38,9 @@ export default function SupplierDetailView({ supplier }) {
     return new Date(dateString).toLocaleDateString();
   };
 
-  // Generate monthly data (1-31 days) with actual delivery data
   const generateMonthlyData = () => {
     const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
     const monthlyData = [];
-
-    // Fallback sample data if supplier doesn't have teaLeafEntries
     const fallbackEntries = [
       { day: 1, weight: 125.5, hasWater: true, hasCoarseLeaf: true },
       { day: 3, weight: 142.2, hasWater: false, hasCoarseLeaf: true },
@@ -57,11 +53,9 @@ export default function SupplierDetailView({ supplier }) {
       { day: 20, weight: 108.9, hasWater: false, hasCoarseLeaf: false },
     ];
 
-    // Use supplier data if available, otherwise fallback
     const teaLeafEntries = supplier.teaLeafEntries || fallbackEntries;
 
     for (let day = 1; day <= daysInMonth; day++) {
-      // Find if there's a delivery for this day from supplier data
       const deliveryEntry = teaLeafEntries.find((entry) => entry.day === day);
 
       if (deliveryEntry) {
@@ -70,16 +64,9 @@ export default function SupplierDetailView({ supplier }) {
           1,
           Math.floor(totalWeight / 25) + Math.floor(Math.random() * 3)
         );
-
-        // Minimum 1 kg per bag deduction
         const bagWeight = Math.max(bagCount * 1.0, totalWeight * 0.02);
-
-        // Water content only if hasWater is true
         const waterContent = deliveryEntry.hasWater ? totalWeight * 0.15 : 0;
-
-        // Coarse leaf only if hasCoarseLeaf is true
         const coarseLeaf = deliveryEntry.hasCoarseLeaf ? totalWeight * 0.05 : 0;
-
         const netWeight = totalWeight - bagWeight - waterContent - coarseLeaf;
 
         monthlyData.push({
@@ -200,7 +187,6 @@ export default function SupplierDetailView({ supplier }) {
       {/* Manager Notes Section */}
       <div className="bg-white rounded-lg shadow-md border border-emerald-200 p-6">
         <div className="space-y-4">
-          {/* Show Add Note button when input is hidden */}
           {!showNoteInput && (
             <button
               onClick={handleShowNoteInput}
@@ -211,7 +197,6 @@ export default function SupplierDetailView({ supplier }) {
             </button>
           )}
 
-          {/* Show input area when toggled on */}
           {showNoteInput && (
             <div className="space-y-3">
               <textarea
@@ -223,7 +208,6 @@ export default function SupplierDetailView({ supplier }) {
                 style={{ color: "#111827" }}
                 autoFocus
               />
-
               <div className="flex justify-end space-x-2">
                 <button
                   onClick={handleCancelNote}
@@ -243,7 +227,6 @@ export default function SupplierDetailView({ supplier }) {
             </div>
           )}
 
-          {/* Display existing note if available */}
           {supplier.notes && (
             <div className="pt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -268,7 +251,6 @@ export default function SupplierDetailView({ supplier }) {
               Monthly Tea Leaf Deliveries
             </h3>
 
-            {/* Month/Year Selector */}
             <div className="flex items-center gap-2">
               <select
                 value={selectedMonth}
@@ -283,7 +265,6 @@ export default function SupplierDetailView({ supplier }) {
                   </option>
                 ))}
               </select>
-
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
@@ -313,8 +294,7 @@ export default function SupplierDetailView({ supplier }) {
                 {monthlyData.filter((day) => day.hasDelivery).length}
               </div>
               <div className="text-xs text-gray-500">
-                out of {new Date(selectedYear, selectedMonth + 1, 0).getDate()}{" "}
-                days
+                out of {new Date(selectedYear, selectedMonth + 1, 0).getDate()} days
               </div>
             </div>
             <div className="bg-white p-3 rounded-lg border border-emerald-200">
