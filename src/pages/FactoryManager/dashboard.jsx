@@ -36,9 +36,9 @@ export default function FactoryManagerDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-md border-b border-black">
+      <div className="bg-white shadow-md ">
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <h1 className="text-3xl font-bold text-black mb-1">Dashboard Home</h1>
+          <h1 className="text-3xl font-bold  mb-1" style={{ color: ACCENT_COLOR }}>Dashboard Home</h1>
           <div className="filter-section float-right -mt-11 flex items-center gap-4">
             <div className="period-filter flex bg-white border rounded-lg overflow-hidden shadow-sm" style={{ borderColor: ACCENT_COLOR }}>
               {["daily", "monthly", "yearly"].map((period, index) => (
