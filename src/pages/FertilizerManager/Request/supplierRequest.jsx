@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import { Check, X, Clock, Package, User, Calendar } from "lucide-react";
+import {
+  Check,
+  X,
+  Clock,
+  Package,
+  User,
+  Calendar,
+} from "lucide-react";
+
+const ACCENT_COLOR = "#165E52";
+const BTN_COLOR = "#01251F";
 
 const FertilizerRequestsPage = () => {
   const [requests, setRequests] = useState([
@@ -54,14 +64,15 @@ const FertilizerRequestsPage = () => {
       notes: "Quality concerns with previous batch",
     },
   ]);
+
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectingId, setRejectingId] = useState(null);
 
   const handleApprove = (id) => {
     setRequests((prev) =>
-      prev.map((request) =>
-        request.id === id ? { ...request, status: "approved" } : request
+      prev.map((req) =>
+        req.id === id ? { ...req, status: "approved" } : req
       )
     );
   };
@@ -75,15 +86,15 @@ const FertilizerRequestsPage = () => {
   const confirmReject = () => {
     if (!rejectReason.trim()) return;
     setRequests((prev) =>
-      prev.map((request) =>
-        request.id === rejectingId
-          ? { ...request, status: "rejected", rejectReason }
-          : request
+      prev.map((req) =>
+        req.id === rejectingId
+          ? { ...req, status: "rejected", rejectReason }
+          : req
       )
     );
-    setShowRejectModal(false);
-    setRejectingId(null);
     setRejectReason("");
+    setRejectingId(null);
+    setShowRejectModal(false);
   };
 
   const cancelReject = () => {
@@ -95,9 +106,9 @@ const FertilizerRequestsPage = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "bg-[#fefce8] text-[#854d0e] border-yellow-200";
       case "approved":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-[#e1f4ef] text-[#165E52] border-[#cfece6]";
       case "rejected":
         return "bg-red-100 text-red-800 border-red-200";
       default:
@@ -121,84 +132,68 @@ const FertilizerRequestsPage = () => {
   const pendingRequests = requests.filter((req) => req.status === "pending");
   const processedRequests = requests.filter((req) => req.status !== "pending");
 
+  // All cards: remove green border by setting border to transparent and width to 1px
+  const cardStyle = {
+    borderColor: "transparent",
+    borderWidth: "1px",
+    borderStyle: "solid",
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold mb-2" style={{ color: ACCENT_COLOR }}>
             Fertilizer Requests
           </h1>
           <p className="text-gray-600">
             Review and approve fertilizer requests from suppliers
           </p>
         </div>
-        {/* Stats Cards - Dashboard Style */}
+
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-yellow-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
+          <div className="bg-white p-4 rounded-lg shadow-sm transition-colors hover:bg-gray-50 ring-2 ring-[#165E52] flex items-center border" style={cardStyle}>
+            <div className="flex items-center justify-between w-full">
               <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Pending Requests
-                </p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {pendingRequests.length}
-                </p>
+                <p className="text-sm font-medium text-gray-600">Pending Requests</p>
+                <p className="text-2xl font-bold text-[#165E52]">{pendingRequests.length}</p>
                 <p className="text-xs text-gray-500">Awaiting Action</p>
               </div>
-              <div className="h-8 w-8 text-yellow-600 text-2xl flex items-center justify-center">
-                <Clock className="w-6 h-6" />
-              </div>
+              <Clock className="w-6 h-6 text-black" />
             </div>
-          </button>
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-green-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm transition-colors hover:bg-gray-50 ring-2 ring-[#165E52] flex items-center border" style={cardStyle}>
+            <div className="flex items-center justify-between w-full">
               <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Approved Today
-                </p>
-                <p className="text-2xl font-bold text-green-600">
-                  {requests.filter((req) => req.status === "approved").length}
+                <p className="text-sm font-medium text-gray-600">Approved</p>
+                <p className="text-2xl font-bold text-[#165E52]">
+                  {requests.filter((r) => r.status === "approved").length}
                 </p>
                 <p className="text-xs text-gray-500">Processed</p>
               </div>
-              <div className="h-8 w-8 text-green-600 text-2xl flex items-center justify-center">
-                <Check className="w-6 h-6" />
-              </div>
+              <Check className="w-6 h-6 text-black" />
             </div>
-          </button>
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-blue-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-sm transition-colors hover:bg-gray-50 ring-2 ring-[#165E52] flex items-center border" style={cardStyle}>
+            <div className="flex items-center justify-between w-full">
               <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Requests
-                </p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {requests.length}
-                </p>
+                <p className="text-sm font-medium text-gray-600">Total Requests</p>
+                <p className="text-2xl font-bold text-[#165E52]">{requests.length}</p>
                 <p className="text-xs text-gray-500">All Time</p>
               </div>
-              <div className="h-8 w-8 text-blue-600 text-2xl flex items-center justify-center">
-                <Package className="w-6 h-6" />
-              </div>
+              <Package className="w-6 h-6 text-black" />
             </div>
-          </button>
+          </div>
         </div>
-        {/* Pending Requests Section */}
+
+        {/* Pending Requests List */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>
             Pending Requests
           </h2>
-          <div className="bg-white rounded-lg shadow-sm border">
+          <div className="bg-white rounded-lg shadow-sm border" style={cardStyle}>
             {pendingRequests.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -206,65 +201,50 @@ const FertilizerRequestsPage = () => {
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
-                {pendingRequests.map((request) => (
-                  <div
-                    key={request.id}
-                    className="p-6 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
+                {pendingRequests.map((req) => (
+                  <div key={req.id} className="p-6 hover:bg-gray-50 transition">
+                    <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-4 mb-3">
-                          <div className="flex items-center gap-2">
+                        <div className="flex gap-6 mb-2 text-gray-700">
+                          <div className="flex items-center gap-2 text-sm">
                             <User className="w-4 h-4 text-gray-400" />
-                            <span className="font-medium text-gray-900">
-                              {request.supplier}
-                            </span>
+                            {req.supplier}
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 text-sm">
                             <Calendar className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-gray-600">
-                              {request.requestDate}
-                            </span>
+                            {req.requestDate}
                           </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                        <div className="grid grid-cols-2 gap-4 text-sm mb-2">
                           <div>
-                            <p className="text-sm font-medium text-gray-700">
-                              Fertilizer Type
-                            </p>
-                            <p className="text-gray-900">
-                              {request.fertilizerType}
-                            </p>
+                            <p className="font-medium text-gray-600">Fertilizer Type</p>
+                            <p className="text-gray-800">{req.fertilizerType}</p>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-700">
-                              Quantity
-                            </p>
-                            <p className="text-gray-900">
-                              {request.quantity.toLocaleString()} {request.unit}
+                            <p className="font-medium text-gray-600">Quantity</p>
+                            <p className="text-gray-800">
+                              {req.quantity.toLocaleString()} {req.unit}
                             </p>
                           </div>
                         </div>
-                        {request.notes && (
-                          <div className="mb-3">
-                            <p className="text-sm font-medium text-gray-700">
-                              Notes
-                            </p>
-                            <p className="text-gray-600">{request.notes}</p>
+                        {req.notes && (
+                          <div className="text-sm mt-1">
+                            <p className="font-medium text-gray-600">Notes</p>
+                            <p className="text-gray-700">{req.notes}</p>
                           </div>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 ml-6">
+                      <div className="flex flex-col sm:flex-row gap-3">
                         <button
-                          onClick={() => handleReject(request.id)}
-                          className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-2"
+                          onClick={() => handleReject(req.id)}
+                          className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 flex items-center gap-2"
                         >
                           <X className="w-4 h-4" />
                           Reject
                         </button>
                         <button
-                          onClick={() => handleApprove(request.id)}
-                          className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-green-600 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                          onClick={() => handleApprove(req.id)}
+                          className="px-4 py-2 text-sm font-medium text-white bg-[#165E52] border border-[#165E52] rounded-lg hover:bg-[#144d45] flex items-center gap-2"
                         >
                           <Check className="w-4 h-4" />
                           Approve
@@ -276,108 +256,92 @@ const FertilizerRequestsPage = () => {
               </div>
             )}
           </div>
-          {/* Reject Reason Modal */}
-          {showRejectModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-              <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-                <h3 className="text-lg font-bold mb-2 text-red-700 flex items-center gap-2">
-                  <X className="w-5 h-5" /> Reject Request
-                </h3>
-                <p className="mb-3 text-gray-700">
-                  Please provide a reason for rejection:
-                </p>
-                <textarea
-                  className="w-full border border-gray-300 rounded-lg p-3 mb-4 focus:ring-2 focus:ring-red-400 focus:border-transparent outline-none resize-none min-h-[80px]"
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                  placeholder="Enter rejection reason..."
-                  autoFocus
-                />
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={cancelReject}
-                    className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={confirmReject}
-                    disabled={!rejectReason.trim()}
-                    className={`px-4 py-2 rounded-lg font-medium text-white ${
-                      rejectReason.trim()
-                        ? "bg-red-600 hover:bg-red-700"
-                        : "bg-red-300 cursor-not-allowed"
-                    }`}
-                  >
-                    Confirm Reject
-                  </button>
-                </div>
+        </div>
+
+        {/* Reject Modal */}
+        {showRejectModal && (
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl border border-transparent"
+              style={{ borderWidth: "1px" }}
+            >
+              <h3 className="text-lg font-semibold flex items-center gap-2 mb-2 text-red-700">
+                <X className="w-5 h-5" /> Reject Request
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">Please provide a reason:</p>
+              <textarea
+                className="w-full border-gray-300 border p-3 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Enter reason..."
+              />
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  onClick={cancelReject}
+                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmReject}
+                  disabled={!rejectReason.trim()}
+                  className={`px-4 py-2 text-white rounded-lg ${
+                    rejectReason.trim()
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-red-300 cursor-not-allowed"
+                  }`}
+                >
+                  Confirm Reject
+                </button>
               </div>
             </div>
-          )}
-        </div>
-        {/* Processed Requests Section */}
+          </div>
+        )}
+
+        {/* Processed Requests */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>
             Recent Processed Requests
           </h2>
-          <div className="bg-white rounded-lg shadow-sm border">
+          <div className="bg-white rounded-lg shadow-sm border border-transparent" style={{ borderWidth: "1px" }}>
             <div className="divide-y divide-gray-200">
-              {processedRequests.map((request) => (
-                <div key={request.id} className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-4 mb-3">
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium text-gray-900">
-                            {request.supplier}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">
-                            {request.requestDate}
-                          </span>
-                        </div>
-                        <div
-                          className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-2 ${getStatusColor(
-                            request.status
-                          )}`}
-                        >
-                          {getStatusIcon(request.status)}
-                          {request.status.charAt(0).toUpperCase() +
-                            request.status.slice(1)}
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">
-                            Fertilizer Type
-                          </p>
-                          <p className="text-gray-900">
-                            {request.fertilizerType}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">
-                            Quantity
-                          </p>
-                          <p className="text-gray-900">
-                            {request.quantity.toLocaleString()} {request.unit}
-                          </p>
-                        </div>
-                      </div>
-                      {request.notes && (
-                        <div className="mt-3">
-                          <p className="text-sm font-medium text-gray-700">
-                            Notes
-                          </p>
-                          <p className="text-gray-600">{request.notes}</p>
-                        </div>
-                      )}
+              {processedRequests.map((req) => (
+                <div key={req.id} className="p-6">
+                  <div className="flex items-center gap-4 text-sm text-gray-700 mb-3">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-gray-400" />
+                      {req.supplier}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      {req.requestDate}
+                    </div>
+                    <div
+                      className={`px-3 py-1 text-xs font-medium rounded-full border flex items-center gap-2 ${getStatusColor(
+                        req.status
+                      )}`}
+                    >
+                      {getStatusIcon(req.status)}
+                      {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                     </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="font-medium text-gray-600">Fertilizer Type</p>
+                      <p className="text-gray-800">{req.fertilizerType}</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-600">Quantity</p>
+                      <p className="text-gray-800">
+                        {req.quantity.toLocaleString()} {req.unit}
+                      </p>
+                    </div>
+                  </div>
+                  {req.notes && (
+                    <div className="text-sm mt-3">
+                      <p className="font-medium text-gray-600">Notes</p>
+                      <p className="text-gray-700">{req.notes}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

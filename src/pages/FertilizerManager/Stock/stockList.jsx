@@ -4,18 +4,20 @@ import {
   Package,
   AlertTriangle,
   TrendingUp,
-  Filter,
   Plus,
   Edit3,
   Eye,
 } from "lucide-react";
+
+const ACCENT_COLOR = "#165E52";
+const BTN_COLOR = "#01251F";
+const BORDER_COLOR = "#cfece6";
 
 const FertilizerManager = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
 
-  // Sample fertilizer data
   const [fertilizers] = useState([
     {
       id: 1,
@@ -112,11 +114,11 @@ const FertilizerManager = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case "low":
-        return "text-red-600 bg-red-50";
+        return "text-red-600 bg-red-50 border border-red-200";
       case "high":
-        return "text-green-600 bg-green-50";
+        return "text-[#165E52] bg-[#e1f4ef] border border-[#cfece6]";
       default:
-        return "text-blue-600 bg-blue-50";
+        return "text-[#165E52] bg-[#e1f4ef] border border-[#cfece6]";
     }
   };
 
@@ -132,317 +134,181 @@ const FertilizerManager = () => {
   };
 
   const filteredAndSortedFertilizers = useMemo(() => {
-    let filtered = fertilizers.filter((fertilizer) => {
-      const matchesSearch =
-        fertilizer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        fertilizer.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        fertilizer.supplier.toLowerCase().includes(searchTerm.toLowerCase());
+    let filtered = fertilizers.filter((fert) => {
+      const matchSearch =
+        fert.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        fert.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        fert.supplier.toLowerCase().includes(searchTerm.toLowerCase());
 
-      if (filterStatus === "all") return matchesSearch;
+      if (filterStatus === "all") return matchSearch;
 
-      const status = getStockStatus(
-        fertilizer.currentStock,
-        fertilizer.minStock,
-        fertilizer.maxStock
-      );
-      return matchesSearch && status === filterStatus;
+      const status = getStockStatus(fert.currentStock, fert.minStock, fert.maxStock);
+      return matchSearch && status === filterStatus;
     });
 
     return filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "stock": {
-          return b.currentStock - a.currentStock;
-        }
-        case "status": {
-          const statusA = getStockStatus(
-            a.currentStock,
-            a.minStock,
-            a.maxStock
-          );
-          const statusB = getStockStatus(
-            b.currentStock,
-            b.minStock,
-            b.maxStock
-          );
-          return statusA.localeCompare(statusB);
-        }
-        default: {
-          return a.name.localeCompare(b.name);
-        }
+      if (sortBy === "stock") return b.currentStock - a.currentStock;
+      if (sortBy === "status") {
+        const aStatus = getStockStatus(a.currentStock, a.minStock, a.maxStock);
+        const bStatus = getStockStatus(b.currentStock, b.minStock, b.maxStock);
+        return aStatus.localeCompare(bStatus);
       }
+      return a.name.localeCompare(b.name);
     });
   }, [fertilizers, searchTerm, filterStatus, sortBy]);
 
   const lowStockItems = fertilizers.filter(
-    (fert) =>
-      getStockStatus(fert.currentStock, fert.minStock, fert.maxStock) === "low"
+    (f) => getStockStatus(f.currentStock, f.minStock, f.maxStock) === "low"
   ).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-white to-green-50">
-      {/* Heading and Add Stock Button */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-bold text-green-700 mb-4 sm:mb-0">
-          Fertilizer Stock List
-        </h1>
-        <button
-          type="button"
-          className="inline-flex items-center px-5 py-3 bg-green-600 text-white font-semibold rounded-xl shadow hover:bg-green-700 transition-colors text-base gap-2"
-          onClick={() => (window.location.href = "/inventoryManager/add_stock")}
-        >
-          <Plus className="w-5 h-5" />
-          Add Stock
-        </button>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Top Statistics Cards - styled like AdvanceManagement.jsx */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div className="min-h-screen bg-white py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h1 className="text-3xl font-bold mb-4 sm:mb-0" style={{ color: ACCENT_COLOR }}>
+            Fertilizer Stock List
+          </h1>
           <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-green-500"
-            type="button"
+            onClick={() => (window.location.href = "/inventoryManager/add_stock")}
+            className="flex items-center gap-2 text-white px-4 py-2 rounded-lg shadow text-sm font-medium hover:opacity-90"
+            style={{ backgroundColor: BTN_COLOR }}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Fertilizers
-                </p>
-                <p className="text-2xl font-bold text-green-600">
-                  {fertilizers.length}
-                </p>
-                <p className="text-xs text-gray-500">Tracked</p>
-              </div>
-              <div className="h-8 w-8 text-green-600 text-2xl">🌱</div>
-            </div>
-          </button>
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-blue-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Quantity
-                </p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {fertilizers.reduce(
-                    (total, fert) => total + fert.currentStock,
-                    0
-                  )}{" "}
-                  Kg
-                </p>
-                <p className="text-xs text-gray-500">All Stock</p>
-              </div>
-              <div className="h-8 w-8 text-blue-600 text-2xl">📦</div>
-            </div>
-          </button>
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-red-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Low Stock</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {lowStockItems}
-                </p>
-                <p className="text-xs text-gray-500">Below Threshold</p>
-              </div>
-              <div className="h-8 w-8 text-red-600 text-2xl">⚠️</div>
-            </div>
+            <Plus className="w-4 h-4" />
+            Add Stock
           </button>
         </div>
 
-        {/* Search and Filter Controls */}
-        <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-6">
-            <div className="relative flex-1 max-w-md">
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="bg-white p-4 rounded-lg shadow-md border" style={{ borderColor: BORDER_COLOR }}>
+            <p className="text-sm font-medium text-gray-600">Total Fertilizers</p>
+            <p className="text-2xl font-bold" style={{ color: ACCENT_COLOR }}>{fertilizers.length}</p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-md border" style={{ borderColor: BORDER_COLOR }}>
+            <p className="text-sm font-medium text-gray-600">Total Quantity</p>
+            <p className="text-2xl font-bold" style={{ color: ACCENT_COLOR }}>
+              {fertilizers.reduce((total, f) => total + f.currentStock, 0)} Kg
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-md border" style={{ borderColor: BORDER_COLOR }}>
+            <p className="text-sm font-medium text-gray-600">Low Stock</p>
+            <p className="text-2xl font-bold text-red-600">{lowStockItems}</p>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white p-6 rounded-lg shadow-md border mb-8" style={{ borderColor: BORDER_COLOR }}>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="relative md:w-1/2">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
-                type="text"
-                placeholder="Search fertilizers, categories, or suppliers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                placeholder="Search by name, category, supplier"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#165E52]"
               />
             </div>
-
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            <div className="flex gap-4">
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none bg-white"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#165E52]"
               >
-                <option value="all">All Stock Levels</option>
-                <option value="low">Low Stock</option>
-                <option value="normal">Normal Stock</option>
-                <option value="high">High Stock</option>
+                <option value="all">All</option>
+                <option value="low">Low</option>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
               </select>
-
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none bg-white"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#165E52]"
               >
                 <option value="name">Sort by Name</option>
-                <option value="stock">Sort by Stock Level</option>
+                <option value="stock">Sort by Stock</option>
                 <option value="status">Sort by Status</option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* Fertilizer Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Fertilizer Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredAndSortedFertilizers.map((fertilizer) => {
             const status = getStockStatus(
               fertilizer.currentStock,
               fertilizer.minStock,
               fertilizer.maxStock
             );
-            const stockPercentage =
-              (fertilizer.currentStock / fertilizer.maxStock) * 100;
+            const stockPct = (fertilizer.currentStock / fertilizer.maxStock) * 100;
 
             return (
-              <div
-                key={fertilizer.id}
-                className="bg-white rounded-2xl shadow-sm border border-green-100 hover:shadow-lg transition-all duration-200 overflow-hidden group"
-              >
-                <div className="p-6">
-                  {/* Header */}
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-1">
-                        {fertilizer.name}
-                      </h3>
-                      <p className="text-green-600 font-medium text-sm">
-                        {fertilizer.category}
-                      </p>
-                    </div>
+              <div key={fertilizer.id} className="bg-white rounded-lg shadow-md border p-6" style={{ borderColor: BORDER_COLOR }}>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900">{fertilizer.name}</h3>
+                    <p className="text-sm" style={{ color: ACCENT_COLOR }}>{fertilizer.category}</p>
+                  </div>
+                  <div className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${getStatusColor(status)}`}>
+                    {getStatusIcon(status)}
+                    <span>{status}</span>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <p className="text-xs text-gray-500">Stock level</p>
+                  <div className="w-full h-2 bg-gray-200 rounded-full mt-1">
                     <div
-                      className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${getStatusColor(
-                        status
-                      )}`}
-                    >
-                      {getStatusIcon(status)}
-                      <span className="capitalize">{status}</span>
-                    </div>
+                      className={`h-2 rounded-full ${status === "low" ? "bg-red-500" : "bg-[#165E52]"}`}
+                      style={{ width: `${Math.min(stockPct, 100)}%` }}
+                    ></div>
                   </div>
-
-                  {/* Stock Information */}
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium text-gray-600">
-                          Current Stock
-                        </span>
-                        <span className="text-2xl font-bold text-gray-900">
-                          {fertilizer.currentStock} {fertilizer.unit}
-                        </span>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                        <div
-                          className={`h-2 rounded-full transition-all duration-300 ${
-                            status === "low"
-                              ? "bg-red-500"
-                              : status === "high"
-                              ? "bg-green-500"
-                              : "bg-blue-500"
-                          }`}
-                          style={{
-                            width: `${Math.min(stockPercentage, 100)}%`,
-                          }}
-                        ></div>
-                      </div>
-
-                      <div className="flex justify-between text-xs text-gray-500">
-                        <span>
-                          Min: {fertilizer.minStock} {fertilizer.unit}
-                        </span>
-                        <span>
-                          Max: {fertilizer.maxStock} {fertilizer.unit}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                          Price/Unit
-                        </p>
-                        <p className="text-lg font-semibold text-gray-900">
-                          ${fertilizer.pricePerUnit}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                          Total Value
-                        </p>
-                        <p className="text-lg font-semibold text-gray-900">
-                          $
-                          {(
-                            fertilizer.currentStock * fertilizer.pricePerUnit
-                          ).toLocaleString()}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                          Location
-                        </p>
-                        <p className="text-sm font-medium text-gray-700">
-                          {fertilizer.location}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                          Supplier
-                        </p>
-                        <p className="text-sm font-medium text-gray-700">
-                          {fertilizer.supplier}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex space-x-2 pt-4">
-                      <button
-                        className="flex-1 bg-green-50 text-green-600 py-2 px-4 rounded-xl hover:bg-green-100 transition-colors font-medium flex items-center justify-center space-x-2"
-                        onClick={() =>
-                          (window.location.href = `/inventoryManager/view_stock?id=${fertilizer.id}`)
-                        }
-                      >
-                        <Eye className="w-4 h-4" />
-                        <span>View</span>
-                      </button>
-                      <button
-                        className="flex-1 bg-blue-50 text-blue-600 py-2 px-4 rounded-xl hover:bg-blue-100 transition-colors font-medium flex items-center justify-center space-x-2"
-                        onClick={() =>
-                          (window.location.href = `/inventoryManager/edit_stock?id=${fertilizer.id}`)
-                        }
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        <span>Edit</span>
-                      </button>
-                    </div>
+                  <div className="flex justify-between text-xs mt-1 text-gray-400">
+                    <span>Min: {fertilizer.minStock}</span>
+                    <span>Max: {fertilizer.maxStock}</span>
                   </div>
+                </div>
+                <div className="text-sm space-y-2 border-t pt-4 border-gray-100">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Price/Unit</span>
+                    <span className="font-semibold">${fertilizer.pricePerUnit}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Total Value</span>
+                    <span className="font-semibold">
+                      ${(fertilizer.currentStock * fertilizer.pricePerUnit).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="text-gray-500">Location: <span className="text-gray-700">{fertilizer.location}</span></div>
+                  <div className="text-gray-500">Supplier: <span className="text-gray-700">{fertilizer.supplier}</span></div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => (window.location.href = `/inventoryManager/view_stock?id=${fertilizer.id}`)}
+                    className="flex-1 border border-[#165E52] text-[#165E52] py-2 px-3 rounded-lg hover:bg-[#ecf7f4]"
+                  >
+                    <Eye className="w-4 h-4 inline mr-1" />
+                    View
+                  </button>
+                  <button
+                    onClick={() => (window.location.href = `/inventoryManager/edit_stock?id=${fertilizer.id}`)}
+                    className="flex-1 border border-[#165E52] text-[#165E52] py-2 px-3 rounded-lg hover:bg-[#ecf7f4]"
+                  >
+                    <Edit3 className="w-4 h-4 inline mr-1" />
+                    Edit
+                  </button>
                 </div>
               </div>
             );
           })}
         </div>
 
+        {/* Empty state */}
         {filteredAndSortedFertilizers.length === 0 && (
-          <div className="text-center py-12">
-            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-500 mb-2">
-              No fertilizers found
-            </h3>
-            <p className="text-gray-400">
-              Try adjusting your search or filter criteria
-            </p>
+          <div className="text-center py-12 text-gray-500">
+            <Package className="w-12 h-12 mx-auto mb-2" />
+            <p className="font-medium">No fertilizers found</p>
+            <p className="text-sm text-gray-400">Try adjusting your filters.</p>
           </div>
         )}
       </div>
