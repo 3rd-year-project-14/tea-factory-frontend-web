@@ -3,7 +3,6 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Check, X, Mail } from "lucide-react";
 
-
 // Modular components
 import ApprovalModal from "./SupplierDetails/Modals/ApprovalModal";
 import RejectionModal from "./SupplierDetails/Modals/RejectionModal";
@@ -14,26 +13,22 @@ import BankingInfoCard from "./SupplierDetails/BankingInfoCard";
 import DocumentsCard from "./SupplierDetails/DocumentsCard";
 import ActivityTimelineCard from "./SupplierDetails/ActivityTimelineCard";
 import PerformanceChart from "./SupplierDetails/PerformanceChart";
-
+import SupplierFilters from "./SupplierFilters"; // <-- Fix import path
 
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
-
 
 export default function SupplierDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-
   const [supplier, setSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
   const [approvalError, setApprovalError] = useState("");
 
-
   const [showApproval, setShowApproval] = useState(false);
   const [showRejection, setShowRejection] = useState(false);
   const [showContact, setShowContact] = useState(false);
-
 
   const [approvalData, setApprovalData] = useState({
     route: "",
@@ -41,17 +36,38 @@ export default function SupplierDetailsPage() {
     notes: "",
   });
 
-
   const [rejectionReason, setRejectionReason] = useState("");
   const [contactData, setContactData] = useState({
     subject: "",
     message: "",
   });
 
+  // Add filter state and handlers
+  const [filters, setFilters] = useState({
+    search: "",
+    region: "",
+    status: "all",
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      search: "",
+      region: "",
+      status: "all",
+    });
+  };
 
   useEffect(() => {
     setLoading(true);
-
 
     const fetchSupplier = async () => {
       try {
@@ -59,12 +75,16 @@ export default function SupplierDetailsPage() {
         if (res.data && Object.keys(res.data).length > 0) {
           setSupplier(res.data);
         } else {
-          const alt = await axios.get(`http://localhost:8080/api/supplier-requests/${id}`);
+          const alt = await axios.get(
+            `http://localhost:8080/api/supplier-requests/${id}`
+          );
           setSupplier(alt.data);
         }
       } catch {
         try {
-          const fallback = await axios.get(`http://localhost:8080/api/supplier-requests/${id}`);
+          const fallback = await axios.get(
+            `http://localhost:8080/api/supplier-requests/${id}`
+          );
           setSupplier(fallback.data);
         } catch {
           setSupplier(null);
@@ -74,10 +94,8 @@ export default function SupplierDetailsPage() {
       }
     };
 
-
     fetchSupplier();
   }, [id]);
-
 
   const handleApproveSupplierRequest = async () => {
     setApprovalError("");
@@ -100,11 +118,12 @@ export default function SupplierDetailsPage() {
     }
   };
 
-
   const handleRejectSupplierRequest = async (id, reason) => {
     try {
       await axios.post(
-        `http://localhost:8080/api/supplier-requests/${id}/reject?reason=${encodeURIComponent(reason)}`
+        `http://localhost:8080/api/supplier-requests/${id}/reject?reason=${encodeURIComponent(
+          reason
+        )}`
       );
       setSupplier({ ...supplier, status: "rejected", rejectReason: reason });
       closeRejection();
@@ -113,24 +132,20 @@ export default function SupplierDetailsPage() {
     }
   };
 
-
   const closeApproval = () => {
     setShowApproval(false);
     setApprovalData({ route: "", bagLimit: "", notes: "" });
   };
-
 
   const closeRejection = () => {
     setShowRejection(false);
     setRejectionReason("");
   };
 
-
   const closeContact = () => {
     setShowContact(false);
     setContactData({ subject: "", message: "" });
   };
-
 
   const handleSendMessage = () => {
     alert(
@@ -139,11 +154,9 @@ export default function SupplierDetailsPage() {
     closeContact();
   };
 
-
   const handleBack = () => {
     navigate("/factoryManager/suppliers");
   };
-
 
   // Normalize status
   let normalizedStatus = supplier?.status;
@@ -151,10 +164,8 @@ export default function SupplierDetailsPage() {
     normalizedStatus = "approved";
   }
 
-
   let statusText = "Unknown";
   let statusColor = "text-gray-600 bg-gray-100";
-
 
   if (normalizedStatus === "pending") {
     statusText = "Pending Review";
@@ -166,7 +177,6 @@ export default function SupplierDetailsPage() {
     statusText = "Approved";
     statusColor = "text-green-700 bg-green-100";
   }
-
 
   if (loading) {
     return (
@@ -186,15 +196,22 @@ export default function SupplierDetailsPage() {
     );
   }
 
-
   if (!supplier && !loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold" style={{ color: ACCENT_COLOR, marginBottom: "0.5rem" }}>
+          <h2
+            className="text-2xl font-bold"
+            style={{
+              color: ACCENT_COLOR,
+              marginBottom: "0.5rem",
+            }}
+          >
             Supplier Not Found
           </h2>
-          <p className="text-gray-600 mb-4">The supplier you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-4">
+            The supplier you're looking for doesn't exist.
+          </p>
           <button
             onClick={handleBack}
             className="px-4 py-2 bg-[#01251F] text-white rounded-lg hover:opacity-90"
@@ -205,7 +222,6 @@ export default function SupplierDetailsPage() {
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen bg-gray-50 overflow-auto">
@@ -235,13 +251,15 @@ export default function SupplierDetailsPage() {
         onConfirm={handleSendMessage}
       />
 
-
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-[#cfece6] sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
             <div>
-              <p className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
+              <p
+                className="text-3xl font-bold"
+                style={{ color: ACCENT_COLOR }}
+              >
                 {supplier.user?.name || supplier.name}
               </p>
               <div className="flex flex-wrap items-center text-sm text-gray-600 gap-x-2 mt-2">
@@ -264,7 +282,6 @@ export default function SupplierDetailsPage() {
                 </span>
               </div>
             </div>
-
 
             {/* Action Buttons */}
             <div className="flex items-center space-x-3">
@@ -306,9 +323,16 @@ export default function SupplierDetailsPage() {
         </div>
       </div>
 
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
+        {/* Add SupplierFilters here */}
+        <SupplierFilters
+          filters={filters}
+          handleFilterChange={handleFilterChange}
+          clearFilters={clearFilters}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+        />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <PersonalInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
