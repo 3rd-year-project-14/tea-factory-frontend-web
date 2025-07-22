@@ -1,6 +1,26 @@
 import React, { useState } from 'react';
 import { User, Mail, Building, Shield, Lock, Eye, EyeOff } from 'lucide-react';
 
+const ACCENT_COLOR = "#165E52";
+const BUTTON_COLOR = "#01251F";
+const BORDER_COLOR = "#cfece6";
+const BLACK = "#000000";
+
+function ProfileHeader() {
+  return (
+    <div className="bg-white shadow-md border-b" style={{ borderColor: BORDER_COLOR }}>
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        <h1 className="text-3xl font-bold mb-1" style={{ color: ACCENT_COLOR }}>
+          User Profile
+        </h1>
+        <p className="text-base" style={{ color: BLACK }}>
+          Manage your account information and security settings
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function Profile() {
   const [formData, setFormData] = useState({
     name: 'John Doe',
@@ -9,65 +29,61 @@ export default function Profile() {
     role: 'Manager',
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
-    confirm: false
+    confirm: false,
   });
 
   const [isEditing, setIsEditing] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const togglePasswordVisibility = (field) => {
-    setShowPasswords(prev => ({
+    setShowPasswords((prev) => ({
       ...prev,
-      [field]: !prev[field]
+      [field]: !prev[field],
     }));
   };
 
   const handleSave = () => {
-    // Handle save logic here
-    console.log('Saving profile data:', formData);
+    // Save logic here
     setIsEditing(false);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset form data if needed
+    // Optionally reset changes
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg mb-6 p-6 border-l-4 border-green-500">
-          <h1 className="text-3xl font-bold text-green-800 mb-2">User Profile</h1>
-          <p className="text-green-600">Manage your account information and security settings</p>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <ProfileHeader />
+      <div className="w-full px-6 mt-8">
 
-        {/* Profile Form */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Personal Information */}
+            {/* Personal Information Section */}
             <div className="space-y-6">
-              <h2 className="text-2xl font-semibold text-green-800 border-b-2 border-green-200 pb-2">
+              <h2
+                className="text-2xl font-semibold pb-2 border-b-2"
+                style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}
+              >
                 Personal Information
               </h2>
-
-              {/* Name Field */}
+              {/* Name */}
               <div className="space-y-2">
-                <label className="flex items-center text-green-700 font-medium">
-                  <User className="w-4 h-4 mr-2" />
+                <label className="flex items-center font-medium" style={{ color: ACCENT_COLOR }}>
+                  <User className="w-4 h-4 mr-2" color={ACCENT_COLOR} />
                   Full Name
                 </label>
                 <input
@@ -76,14 +92,19 @@ export default function Profile() {
                   value={formData.name}
                   onChange={handleInputChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 border-2 border-green-200 rounded-lg focus:border-green-500 focus:outline-none transition-colors disabled:bg-green-50 disabled:text-green-600"
+                  className="w-full px-4 py-3 rounded-lg transition-colors"
+                  style={{
+                    border: `2px solid ${BORDER_COLOR}`,
+                    ...(isEditing
+                      ? { outline: `2px solid ${ACCENT_COLOR}`, background: "#fff", color: ACCENT_COLOR }
+                      : { background: "#e1f4ef", color: ACCENT_COLOR, borderColor: BORDER_COLOR }),
+                  }}
                 />
               </div>
-
-              {/* Email Field */}
+              {/* Email */}
               <div className="space-y-2">
-                <label className="flex items-center text-green-700 font-medium">
-                  <Mail className="w-4 h-4 mr-2" />
+                <label className="flex items-center font-medium" style={{ color: ACCENT_COLOR }}>
+                  <Mail className="w-4 h-4 mr-2" color={ACCENT_COLOR} />
                   Email Address
                 </label>
                 <input
@@ -92,14 +113,19 @@ export default function Profile() {
                   value={formData.email}
                   onChange={handleInputChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 border-2 border-green-200 rounded-lg focus:border-green-500 focus:outline-none transition-colors disabled:bg-green-50 disabled:text-green-600"
+                  className="w-full px-4 py-3 rounded-lg transition-colors"
+                  style={{
+                    border: `2px solid ${BORDER_COLOR}`,
+                    ...(isEditing
+                      ? { outline: `2px solid ${ACCENT_COLOR}`, background: "#fff", color: ACCENT_COLOR }
+                      : { background: "#e1f4ef", color: ACCENT_COLOR, borderColor: BORDER_COLOR }),
+                  }}
                 />
               </div>
-
-              {/* Factory Name Field */}
+              {/* Factory Name */}
               <div className="space-y-2">
-                <label className="flex items-center text-green-700 font-medium">
-                  <Building className="w-4 h-4 mr-2" />
+                <label className="flex items-center font-medium" style={{ color: ACCENT_COLOR }}>
+                  <Building className="w-4 h-4 mr-2" color={ACCENT_COLOR} />
                   Factory Name
                 </label>
                 <input
@@ -108,14 +134,19 @@ export default function Profile() {
                   value={formData.factoryName}
                   onChange={handleInputChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 border-2 border-green-200 rounded-lg focus:border-green-500 focus:outline-none transition-colors disabled:bg-green-50 disabled:text-green-600"
+                  className="w-full px-4 py-3 rounded-lg transition-colors"
+                  style={{
+                    border: `2px solid ${BORDER_COLOR}`,
+                    ...(isEditing
+                      ? { outline: `2px solid ${ACCENT_COLOR}`, background: "#fff", color: ACCENT_COLOR }
+                      : { background: "#e1f4ef", color: ACCENT_COLOR, borderColor: BORDER_COLOR }),
+                  }}
                 />
               </div>
-
-              {/* Role Field */}
+              {/* Role */}
               <div className="space-y-2">
-                <label className="flex items-center text-green-700 font-medium">
-                  <Shield className="w-4 h-4 mr-2" />
+                <label className="flex items-center font-medium" style={{ color: ACCENT_COLOR }}>
+                  <Shield className="w-4 h-4 mr-2" color={ACCENT_COLOR} />
                   Role
                 </label>
                 <select
@@ -123,7 +154,13 @@ export default function Profile() {
                   value={formData.role}
                   onChange={handleInputChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 border-2 border-green-200 rounded-lg focus:border-green-500 focus:outline-none transition-colors disabled:bg-green-50 disabled:text-green-600"
+                  className="w-full px-4 py-3 rounded-lg transition-colors"
+                  style={{
+                    border: `2px solid ${BORDER_COLOR}`,
+                    ...(isEditing
+                      ? { outline: `2px solid ${ACCENT_COLOR}`, background: "#fff", color: ACCENT_COLOR }
+                      : { background: "#e1f4ef", color: ACCENT_COLOR, borderColor: BORDER_COLOR }),
+                  }}
                 >
                   <option value="Manager">Manager</option>
                   <option value="Supervisor">Supervisor</option>
@@ -132,17 +169,18 @@ export default function Profile() {
                 </select>
               </div>
             </div>
-
-            {/* Password Change Section */}
+            {/* Password Section */}
             <div className="space-y-6">
-              <h2 className="text-2xl font-semibold text-green-800 border-b-2 border-green-200 pb-2">
+              <h2
+                className="text-2xl font-semibold pb-2 border-b-2"
+                style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}
+              >
                 Change Password
               </h2>
-
               {/* Current Password */}
               <div className="space-y-2">
-                <label className="flex items-center text-green-700 font-medium">
-                  <Lock className="w-4 h-4 mr-2" />
+                <label className="flex items-center font-medium" style={{ color: ACCENT_COLOR }}>
+                  <Lock className="w-4 h-4 mr-2" color={ACCENT_COLOR} />
                   Current Password
                 </label>
                 <div className="relative">
@@ -152,24 +190,30 @@ export default function Profile() {
                     value={formData.currentPassword}
                     onChange={handleInputChange}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 pr-12 border-2 border-green-200 rounded-lg focus:border-green-500 focus:outline-none transition-colors disabled:bg-green-50"
+                    className="w-full px-4 py-3 pr-12 rounded-lg transition-colors"
                     placeholder="Enter current password"
+                    style={{
+                      border: `2px solid ${BORDER_COLOR}`,
+                      ...(isEditing
+                        ? { outline: `2px solid ${ACCENT_COLOR}`, background: "#fff", color: ACCENT_COLOR }
+                        : { background: "#e1f4ef", color: ACCENT_COLOR, borderColor: BORDER_COLOR }),
+                    }}
                   />
                   <button
                     type="button"
-                    onClick={() => togglePasswordVisibility('current')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 hover:text-green-800"
+                    onClick={() => togglePasswordVisibility("current")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    style={{ color: ACCENT_COLOR }}
                     disabled={!isEditing}
                   >
                     {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
-
               {/* New Password */}
               <div className="space-y-2">
-                <label className="flex items-center text-green-700 font-medium">
-                  <Lock className="w-4 h-4 mr-2" />
+                <label className="flex items-center font-medium" style={{ color: ACCENT_COLOR }}>
+                  <Lock className="w-4 h-4 mr-2" color={ACCENT_COLOR} />
                   New Password
                 </label>
                 <div className="relative">
@@ -179,24 +223,30 @@ export default function Profile() {
                     value={formData.newPassword}
                     onChange={handleInputChange}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 pr-12 border-2 border-green-200 rounded-lg focus:border-green-500 focus:outline-none transition-colors disabled:bg-green-50"
+                    className="w-full px-4 py-3 pr-12 rounded-lg transition-colors"
                     placeholder="Enter new password"
+                    style={{
+                      border: `2px solid ${BORDER_COLOR}`,
+                      ...(isEditing
+                        ? { outline: `2px solid ${ACCENT_COLOR}`, background: "#fff", color: ACCENT_COLOR }
+                        : { background: "#e1f4ef", color: ACCENT_COLOR, borderColor: BORDER_COLOR }),
+                    }}
                   />
                   <button
                     type="button"
-                    onClick={() => togglePasswordVisibility('new')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 hover:text-green-800"
+                    onClick={() => togglePasswordVisibility("new")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    style={{ color: ACCENT_COLOR }}
                     disabled={!isEditing}
                   >
                     {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
-
               {/* Confirm Password */}
               <div className="space-y-2">
-                <label className="flex items-center text-green-700 font-medium">
-                  <Lock className="w-4 h-4 mr-2" />
+                <label className="flex items-center font-medium" style={{ color: ACCENT_COLOR }}>
+                  <Lock className="w-4 h-4 mr-2" color={ACCENT_COLOR} />
                   Confirm New Password
                 </label>
                 <div className="relative">
@@ -206,24 +256,38 @@ export default function Profile() {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 pr-12 border-2 border-green-200 rounded-lg focus:border-green-500 focus:outline-none transition-colors disabled:bg-green-50"
+                    className="w-full px-4 py-3 pr-12 rounded-lg transition-colors"
                     placeholder="Confirm new password"
+                    style={{
+                      border: `2px solid ${BORDER_COLOR}`,
+                      ...(isEditing
+                        ? { outline: `2px solid ${ACCENT_COLOR}`, background: "#fff", color: ACCENT_COLOR }
+                        : { background: "#e1f4ef", color: ACCENT_COLOR, borderColor: BORDER_COLOR }),
+                    }}
                   />
                   <button
                     type="button"
-                    onClick={() => togglePasswordVisibility('confirm')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 hover:text-green-800"
+                    onClick={() => togglePasswordVisibility("confirm")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    style={{ color: ACCENT_COLOR }}
                     disabled={!isEditing}
                   >
                     {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
-
               {/* Password Requirements */}
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <h4 className="text-green-800 font-medium mb-2">Password Requirements:</h4>
-                <ul className="text-sm text-green-700 space-y-1">
+              <div
+                className="p-4 rounded-lg"
+                style={{
+                  background: "#e1f4ef",
+                  border: `1px solid ${BORDER_COLOR}`,
+                }}
+              >
+                <h4 className="font-medium mb-2" style={{ color: ACCENT_COLOR }}>
+                  Password Requirements:
+                </h4>
+                <ul className="text-sm" style={{ color: ACCENT_COLOR }}>
                   <li>• At least 8 characters long</li>
                   <li>• Contains uppercase and lowercase letters</li>
                   <li>• Contains at least one number</li>
@@ -232,13 +296,20 @@ export default function Profile() {
               </div>
             </div>
           </div>
-
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-green-200">
+          <div
+            className="flex justify-end space-x-4 mt-8 pt-6"
+            style={{ borderTop: `1px solid ${BORDER_COLOR}` }}
+          >
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                style={{
+                  background: BUTTON_COLOR,
+                  color: "#fff",
+                  fontWeight: 500,
+                }}
+                className="px-6 py-3 rounded-lg transition-colors hover:opacity-90"
               >
                 Edit Profile
               </button>
@@ -246,20 +317,30 @@ export default function Profile() {
               <>
                 <button
                   onClick={handleCancel}
-                  className="px-6 py-3 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  style={{
+                    background: "#ccc",
+                    color: "#333",
+                    fontWeight: 500,
+                  }}
+                  className="px-6 py-3 rounded-lg transition-colors hover:opacity-90"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                  style={{
+                    background: BUTTON_COLOR,
+                    color: "#fff",
+                    fontWeight: 500,
+                  }}
+                  className="px-6 py-3 rounded-lg transition-colors hover:opacity-90"
                 >
                   Save Changes
                 </button>
               </>
             )}
           </div>
-        </div>
+       
       </div>
     </div>
   );

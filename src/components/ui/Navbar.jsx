@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Search, Bell, Menu } from "lucide-react";
+import { Bell } from "lucide-react";
 import NotificationDropdown from "./NotificationDropdown";
 import ProfileDropdown from "./ProfileDropdown";
 import UserAvatar from "./UserAvatar";
+
+const ACCENT_COLOR = "#01251F";
+const FONT_FAMILY = "Inter, Segoe UI, Arial, sans-serif"; // More professional and modern
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -12,12 +15,12 @@ const Navbar = () => {
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
-    setShowProfile(false); // Close profile when opening notifications
+    setShowProfile(false);
   };
 
   const toggleProfile = () => {
     setShowProfile(!showProfile);
-    setShowNotifications(false); // Close notifications when opening profile
+    setShowNotifications(false);
   };
 
   const closeDropdowns = () => {
@@ -26,30 +29,36 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-2 relative">
+    <nav
+      className="bg-white border-b border-gray-200 px-6 py-2 shadow-sm relative"
+      style={{ fontFamily: FONT_FAMILY, fontWeight: 500 }}
+    >
       <div className="flex items-center justify-between">
         {/* Company Name */}
         <div
-          className="text-lg font-extrabold italic text-emerald-800 tracking-wide font-sans"
-          style={{ fontFamily: "Inter, Segoe UI, Arial, sans-serif" }}
+          className="text-xl font-bold text-black tracking-tight"
+          style={{
+            letterSpacing: "0.04em",
+            fontFamily: FONT_FAMILY,
+          }}
         >
           Andaradeniya State Pvt LTD
         </div>
 
-        <div className="flex items-center justify-end space-x-4 ml-auto">
+        <div className="flex items-center space-x-4 ml-auto">
           {/* Notifications */}
           <div className="relative">
             <button
               onClick={toggleNotifications}
-              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+              className="relative p-2 text-[#172526] hover:text-black hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#172526]/20"
+              aria-label="Notifications"
             >
               <Bell className="w-5 h-5" />
               {/* Notification badge */}
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold drop-shadow">
                 3
               </span>
             </button>
-
             {showNotifications && (
               <NotificationDropdown onClose={closeDropdowns} />
             )}
@@ -59,22 +68,20 @@ const Navbar = () => {
           <div className="relative">
             <button
               onClick={toggleProfile}
-              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[#172526]/20"
             >
               <UserAvatar name={user?.username} />
               <div className="hidden md:block text-left">
-                <p className="font-semibold text-sm text-gray-900">
+                <p className="font-semibold text-sm text-[#172526] leading-tight">
                   {user?.username || "John Manager"}
                 </p>
-                <p className="text-gray-600 text-xs capitalize">
+                <p className="text-gray-500 text-xs capitalize font-medium">
                   {user?.role?.toLowerCase() || "Supervisor"}
                 </p>
               </div>
-              {/* Dropdown arrow */}
+              {/* Dropdown Arrow */}
               <svg
-                className={`w-4 h-4 text-gray-400 transition-transform ${
-                  showProfile ? "rotate-180" : ""
-                }`}
+                className={`w-4 h-4 text-gray-400 ml-1 transition-transform ${showProfile ? "rotate-180" : ""}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -87,7 +94,6 @@ const Navbar = () => {
                 />
               </svg>
             </button>
-
             {showProfile && (
               <ProfileDropdown user={user} onClose={closeDropdowns} />
             )}
@@ -95,7 +101,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Backdrop to close dropdowns when clicking outside */}
+      {/* Backdrop for dropdowns */}
       {(showNotifications || showProfile) && (
         <div className="fixed inset-0 z-10" onClick={closeDropdowns} />
       )}
