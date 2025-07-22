@@ -197,7 +197,7 @@ const ACCENT_COLOR = "#165e52";
 
 // For your project logo, adjust the src path to match your assets location.
 // Example: "/assets/logo.png"
-const LOGO_SRC = "/assets/logo.png";
+const LOGO_SRC = "/assets/logo2.png";
 
 
 const sidebarLinks = {
