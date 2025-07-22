@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+
 import InventoryHeader from "./InventoryHeader";
 import MainContent from "./MainContent";
+
 import {
   routes,
   suppliers,
@@ -14,21 +16,15 @@ export default function InventorySupplierDetailPage() {
   const { routeId, supplierId } = useParams();
   const navigate = useNavigate();
 
-  // Find the selected route and supplier
   const selectedRoute = routes.find((route) => route.id === routeId);
   const selectedSupplier = suppliers.find(
     (supplier) => supplier.id === supplierId
   );
 
-  // View mode state - daily or monthly
   const [viewMode, setViewMode] = useState("daily");
-
-  // Date selection state
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-
-  // Month/Year selection state for monthly view
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
@@ -45,19 +41,21 @@ export default function InventorySupplierDetailPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            {!selectedRoute ? "Route Not Found" : "Supplier Not Found"}
+            {!selectedRoute
+              ? "Route Not Found"
+              : "Supplier Not Found"}
           </h2>
           <div className="space-x-4">
             <button
               onClick={handleBackToRoutes}
-              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700"
+              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition"
             >
               Back to Routes
             </button>
             {selectedRoute && (
               <button
                 onClick={handleBackToSuppliers}
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
               >
                 Back to Suppliers
               </button>
@@ -87,10 +85,11 @@ export default function InventorySupplierDetailPage() {
         onBackToRoutes={handleBackToRoutes}
         onBackToSuppliers={handleBackToSuppliers}
       />
+
       <div className="max-w-7xl mx-auto px-6 py-6">
         <MainContent
           currentView="detail"
-          filteredData={selectedSupplier}
+          filteredData={[selectedSupplier]} 
           selectedSupplier={selectedSupplier}
           selectedRoute={selectedRoute}
           viewMode={viewMode}

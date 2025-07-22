@@ -1,17 +1,16 @@
-import { Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight, Users } from "lucide-react";
+
 import { useState, useEffect } from "react";
 
 export default function SuppliersView({ filteredData, onViewSupplierDetail }) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Show 10 suppliers per page
+  const itemsPerPage = 10;
 
-  // Calculate pagination
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentSuppliers = filteredData.slice(startIndex, endIndex);
 
-  // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [filteredData.length]);
@@ -21,54 +20,53 @@ export default function SuppliersView({ filteredData, onViewSupplierDetail }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-emerald-200 overflow-hidden">
-      <div className="bg-emerald-600 text-white">
-        <div className="grid grid-cols-6 gap-4 p-4 font-medium text-sm">
+    <div className="bg-white rounded-xl shadow border border-[#d1e7dd] overflow-hidden">
+      {/* Table Header */}
+      <div className="bg-[#172526] text-white">
+        <div className="grid grid-cols-6 gap-4 p-4 font-semibold text-sm">
           <div className="text-center">Supplier ID</div>
           <div className="text-center">Supplier Name</div>
           <div className="text-center">Weight (kg)</div>
           <div className="text-center">Bags</div>
-          <div className="text-center">Net Weight (kg)</div>
-          <div className="text-center">View Details</div>
+          <div className="text-center">Net Weight</div>
+          <div className="text-center">Details</div>
         </div>
       </div>
 
-      <div className="divide-y divide-gray-200">
+      {/* Table Body */}
+      <div className="divide-y divide-gray-100">
         {currentSuppliers.map((supplier) => {
-          // Calculate net weight (total weight minus moisture content)
           const moisturePercent = supplier.moistureContent || 3.0;
           const netWeight = supplier.totalWeight * (1 - moisturePercent / 100);
-
           return (
             <div
               key={supplier.id}
-              className="grid grid-cols-6 gap-4 p-4 items-center hover:bg-gray-50 transition-colors"
+              className="grid grid-cols-6 gap-4 p-4 items-center hover:bg-gray-50 transition"
             >
               <div className="flex justify-center">
-                <span className="font-semibold text-emerald-600 text-sm bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                <span className="text-sm font-semibold text-[#172526] bg-[#edf3f2] px-3 py-1 rounded-full border border-[#d1e7dd]">
                   {supplier.id}
                 </span>
               </div>
-              <div className="font-medium text-gray-900 text-sm text-center">
+              <div className="text-center text-sm font-medium text-gray-800">
                 {supplier.supplierName}
               </div>
-              <div className="text-sm font-bold text-gray-900 text-center">
+              <div className="text-center text-sm text-gray-700 font-semibold">
                 {supplier.totalWeight.toFixed(1)}
               </div>
-              <div className="text-sm font-bold text-gray-900 text-center">
+              <div className="text-center text-sm text-gray-700 font-semibold">
                 {supplier.totalBags}
               </div>
-
-              <div className="text-sm font-medium text-gray-900 text-center">
+              <div className="text-center text-sm text-gray-700 font-medium">
                 {netWeight.toFixed(1)}
               </div>
               <div className="flex justify-center">
                 <button
                   onClick={() => onViewSupplierDetail(supplier)}
-                  className="text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 p-2 rounded-full transition-colors"
+                  className="text-[#172526] hover:bg-[#edf3f2] p-2 rounded-full transition"
                   title="View Details"
                 >
-                  <Eye className="h-4 w-4" />
+                  <Eye className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -76,78 +74,74 @@ export default function SuppliersView({ filteredData, onViewSupplierDetail }) {
         })}
 
         {filteredData.length === 0 && (
-          <div className="p-8 text-center text-gray-500">
-            <div className="h-12 w-12 text-gray-400 mx-auto mb-4 text-4xl">
-              👥
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <div className="p-10 text-center text-gray-500">
+          <div className="flex justify-center mb-2">
+  <Users className="w-12 h-12 text-gray-300" />
+</div>
+
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">
               No suppliers found
             </h3>
-            <p className="text-gray-600">
-              Try adjusting your search or filter criteria
+            <p className="text-gray-600 text-sm">
+              Please adjust your filters or search term.
             </p>
           </div>
         )}
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       {filteredData.length > 0 && (
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
           <div className="flex items-center justify-between">
-            <div className="flex items-center text-sm text-gray-700">
-              <span>
-                Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
-                <span className="font-medium">
-                  {Math.min(endIndex, filteredData.length)}
-                </span>{" "}
-                of <span className="font-medium">{filteredData.length}</span>{" "}
-                suppliers
-              </span>
-            </div>
+            <span className="text-sm text-gray-700">
+              Showing{" "}
+              <span className="font-medium">{startIndex + 1}</span> to{" "}
+              <span className="font-medium">
+                {Math.min(endIndex, filteredData.length)}
+              </span>{" "}
+              of <span className="font-medium">{filteredData.length}</span>{" "}
+              suppliers
+            </span>
 
-            {/* Only show pagination controls when there are multiple pages */}
             {totalPages > 1 && (
               <div className="flex items-center space-x-2">
-                {/* Previous Button */}
+                {/* Previous */}
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
                   className={`p-2 rounded-md ${
                     currentPage === 1
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  } transition-colors`}
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-[#172526] hover:bg-gray-100"
+                  }`}
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
 
                 {/* Page Numbers */}
                 <div className="flex space-x-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((page) => {
-                      // Show first page, last page, current page, and pages around current
-                      return (
+                    .filter(
+                      (page) =>
                         page === 1 ||
                         page === totalPages ||
                         (page >= currentPage - 1 && page <= currentPage + 1)
-                      );
-                    })
-                    .map((page, index, array) => {
-                      // Add ellipsis if there's a gap
-                      const showEllipsis =
-                        index > 0 && page - array[index - 1] > 1;
+                    )
+                    .map((page, i, arr) => {
+                      const prevPage = arr[i - 1];
+                      const showEllipsis = i > 0 && page - prevPage > 1;
                       return (
                         <div key={page} className="flex items-center">
                           {showEllipsis && (
-                            <span className="px-3 py-2 text-gray-500">...</span>
+                            <span className="px-2 text-gray-400">...</span>
                           )}
                           <button
                             onClick={() => goToPage(page)}
-                            className={`px-3 py-2 text-sm rounded-md ${
-                              currentPage === page
-                                ? "bg-emerald-600 text-white"
+                            className={`px-3 py-1 text-sm rounded-md transition ${
+                              page === currentPage
+                                ? "bg-[#172526] text-white font-medium"
                                 : "text-gray-700 hover:bg-gray-100"
-                            } transition-colors`}
+                            }`}
                           >
                             {page}
                           </button>
@@ -156,17 +150,17 @@ export default function SuppliersView({ filteredData, onViewSupplierDetail }) {
                     })}
                 </div>
 
-                {/* Next Button */}
+                {/* Next */}
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className={`p-2 rounded-md ${
                     currentPage === totalPages
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  } transition-colors`}
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-[#172526] hover:bg-gray-100"
+                  }`}
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             )}
