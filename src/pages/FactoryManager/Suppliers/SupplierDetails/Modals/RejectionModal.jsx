@@ -1,6 +1,12 @@
 import React, { useEffect } from "react";
 import { X } from "lucide-react";
 
+
+const BORDER_COLOR = "#cfece6";
+const HEADER_BG = "#e1f4ef";
+const ACCENT_GREEN = "#165E52";
+
+
 export default function RejectionModal({
   show,
   onClose,
@@ -15,13 +21,14 @@ export default function RejectionModal({
     } else {
       document.body.style.overflow = "unset";
     }
-
     return () => {
       document.body.style.overflow = "unset";
     };
   }, [show]);
 
+
   if (!show) return null;
+
 
   const handleConfirm = async () => {
     if (!rejectionReason.trim()) return;
@@ -29,19 +36,25 @@ export default function RejectionModal({
     onClose();
   };
 
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/30 overflow-hidden">
-      <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl border border-emerald-300">
-        <div className="p-6 border-b border-emerald-300 bg-emerald-50">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-              <X className="w-5 h-5 text-red-600" />
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Reject Supplier Registration
-            </h2>
+      <div
+        className="bg-white rounded-2xl w-full max-w-xl shadow-2xl border"
+        style={{ borderColor: BORDER_COLOR }}
+      >
+        {/* Header */}
+        <div className="p-6 border-b flex items-center space-x-3" style={{ borderColor: BORDER_COLOR, backgroundColor: HEADER_BG }}>
+          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+            <X className="w-5 h-5 text-red-600" />
           </div>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Reject Supplier Registration
+          </h2>
         </div>
+
+
+        {/* Body */}
         <div className="p-6">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <h3 className="font-medium text-red-900 mb-2">Confirm Rejection</h3>
@@ -49,34 +62,53 @@ export default function RejectionModal({
               Are you sure you want to reject the registration request from{" "}
               <strong>{supplier.name}</strong>?
             </p>
-            <p className="text-sm text-red-600 mt-2">
-              This action cannot be undone.
-            </p>
+            <p className="text-sm text-red-600 mt-2">This action cannot be undone.</p>
           </div>
+
 
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700 mb-2">
-              Reason for Rejection *
+              Reason for Rejection <span className="text-red-500">*</span>
             </label>
             <textarea
-              className="border border-emerald-300 rounded-lg px-3 py-2 text-sm min-h-[120px] resize-y focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="border rounded-lg px-3 py-2 text-sm min-h-[120px] resize-y focus:ring-2 focus:outline-none"
+              style={{
+                borderColor: BORDER_COLOR,
+                outlineColor: ACCENT_GREEN,
+                boxShadow: "none",
+              }}
               placeholder="Please provide a clear reason for rejection. This will be communicated to the supplier."
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
             ></textarea>
           </div>
         </div>
-        <div className="flex gap-3 justify-end p-6 border-t border-emerald-300 bg-emerald-50">
+
+
+        {/* Footer */}
+        <div
+          className="flex gap-3 justify-end p-6 border-t"
+          style={{ borderColor: BORDER_COLOR, backgroundColor: HEADER_BG }}
+        >
           <button
-            className="px-6 py-2 border-2 border-emerald-300 rounded-lg text-emerald-700 bg-emerald-50 font-medium hover:bg-emerald-100 hover:border-emerald-400 transition-colors"
             onClick={onClose}
+            className="px-6 py-2 rounded-lg text-sm font-medium transition shadow-sm"
+            style={{
+              backgroundColor: "transparent",
+              color: ACCENT_GREEN,
+              border: `2px solid ${BORDER_COLOR}`,
+            }}
           >
             Cancel
           </button>
           <button
-            className="px-6 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleConfirm}
             disabled={!rejectionReason.trim()}
+            className="px-6 py-2 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-50"
+            style={{
+              backgroundColor: "#d90429",
+              cursor: rejectionReason.trim() ? "pointer" : "not-allowed",
+            }}
           >
             Confirm Rejection
           </button>
@@ -85,3 +117,6 @@ export default function RejectionModal({
     </div>
   );
 }
+
+
+

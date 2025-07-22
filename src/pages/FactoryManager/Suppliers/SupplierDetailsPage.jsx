@@ -3,7 +3,8 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Check, X, Mail } from "lucide-react";
 
-// Import modular components
+
+// Modular components
 import ApprovalModal from "./SupplierDetails/Modals/ApprovalModal";
 import RejectionModal from "./SupplierDetails/Modals/RejectionModal";
 import ContactModal from "./SupplierDetails/Modals/ContactModal";
@@ -14,9 +15,70 @@ import DocumentsCard from "./SupplierDetails/DocumentsCard";
 import ActivityTimelineCard from "./SupplierDetails/ActivityTimelineCard";
 import PerformanceChart from "./SupplierDetails/PerformanceChart";
 
+
+const ACCENT_COLOR = "#165E52";
+const BTN_COLOR = "#01251F";
+
+
 export default function SupplierDetailsPage() {
-  // Backend handler for approval
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+
+  const [supplier, setSupplier] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [approvalError, setApprovalError] = useState("");
+
+
+  const [showApproval, setShowApproval] = useState(false);
+  const [showRejection, setShowRejection] = useState(false);
+  const [showContact, setShowContact] = useState(false);
+
+
+  const [approvalData, setApprovalData] = useState({
+    route: "",
+    bagLimit: "",
+    notes: "",
+  });
+
+
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [contactData, setContactData] = useState({
+    subject: "",
+    message: "",
+  });
+
+
+  useEffect(() => {
+    setLoading(true);
+
+
+    const fetchSupplier = async () => {
+      try {
+        const res = await axios.get(`http://localhost:8080/api/suppliers/${id}`);
+        if (res.data && Object.keys(res.data).length > 0) {
+          setSupplier(res.data);
+        } else {
+          const alt = await axios.get(`http://localhost:8080/api/supplier-requests/${id}`);
+          setSupplier(alt.data);
+        }
+      } catch {
+        try {
+          const fallback = await axios.get(`http://localhost:8080/api/supplier-requests/${id}`);
+          setSupplier(fallback.data);
+        } catch {
+          setSupplier(null);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
+    fetchSupplier();
+  }, [id]);
+
+
   const handleApproveSupplierRequest = async () => {
     setApprovalError("");
     try {
@@ -37,84 +99,81 @@ export default function SupplierDetailsPage() {
       setApprovalError("Failed to approve supplier.");
     }
   };
-  // Backend handler for rejection
+
+
   const handleRejectSupplierRequest = async (id, reason) => {
     try {
       await axios.post(
-        `http://localhost:8080/api/supplier-requests/${id}/reject?reason=${encodeURIComponent(
-          reason
-        )}`
+        `http://localhost:8080/api/supplier-requests/${id}/reject?reason=${encodeURIComponent(reason)}`
       );
-      // Update local supplier state to reflect rejection
       setSupplier({ ...supplier, status: "rejected", rejectReason: reason });
       closeRejection();
     } catch {
       alert("Failed to reject supplier.");
     }
   };
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [supplier, setSupplier] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-    // Decide which table to fetch from based on route or context
-    // If viewing approved supplier, get from supplier table only
-    // If viewing pending/rejected, get from request table only
-    // For this, you may need to pass a prop or use route context, but here we'll try supplier table first
-    axios
-      .get(`http://localhost:8080/api/suppliers/${id}`)
-      .then((res) => {
-        if (res.data && Object.keys(res.data).length > 0) {
-          setSupplier(res.data);
-          setLoading(false);
-        } else {
-          // If not found, try supplier-requests
-          axios
-            .get(`http://localhost:8080/api/supplier-requests/${id}`)
-            .then((res2) => {
-              setSupplier(res2.data);
-            })
-            .catch(() => setSupplier(null))
-            .finally(() => setLoading(false));
-        }
-      })
-      .catch(() => {
-        // If error, fallback to supplier-requests
-        axios
-          .get(`http://localhost:8080/api/supplier-requests/${id}`)
-          .then((res2) => {
-            setSupplier(res2.data);
-          })
-          .catch(() => setSupplier(null))
-          .finally(() => setLoading(false));
-      });
-  }, [id]);
 
-  // Modal state
-  const [showApproval, setShowApproval] = useState(false);
-  const [showRejection, setShowRejection] = useState(false);
-  const [showContact, setShowContact] = useState(false);
-  const [approvalData, setApprovalData] = useState({
-    route: "",
-    bagLimit: "",
-    notes: "",
-  });
-  const [rejectionReason, setRejectionReason] = useState("");
-  const [contactData, setContactData] = useState({
-    subject: "",
-    message: "",
-  });
+  const closeApproval = () => {
+    setShowApproval(false);
+    setApprovalData({ route: "", bagLimit: "", notes: "" });
+  };
 
-  // ...existing code...
+
+  const closeRejection = () => {
+    setShowRejection(false);
+    setRejectionReason("");
+  };
+
+
+  const closeContact = () => {
+    setShowContact(false);
+    setContactData({ subject: "", message: "" });
+  };
+
+
+  const handleSendMessage = () => {
+    alert(
+      `Message sent to ${supplier.name}!\nSubject: ${contactData.subject}\nMessage: ${contactData.message}`
+    );
+    closeContact();
+  };
+
+
+  const handleBack = () => {
+    navigate("/factoryManager/suppliers");
+  };
+
+
+  // Normalize status
+  let normalizedStatus = supplier?.status;
+  if (!normalizedStatus && supplier?.approvedDate) {
+    normalizedStatus = "approved";
+  }
+
+
+  let statusText = "Unknown";
+  let statusColor = "text-gray-600 bg-gray-100";
+
+
+  if (normalizedStatus === "pending") {
+    statusText = "Pending Review";
+    statusColor = "text-yellow-700 bg-yellow-100";
+  } else if (normalizedStatus === "rejected") {
+    statusText = "Rejected";
+    statusColor = "text-red-700 bg-red-100";
+  } else if (normalizedStatus === "approved") {
+    statusText = "Approved";
+    statusColor = "text-green-700 bg-green-100";
+  }
+
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-emerald-500 border-solid mb-4"></div>
-          <span className="text-emerald-700 font-semibold text-lg">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#165E52] border-solid mb-4"></div>
+          <span className="text-[#165E52] font-semibold text-lg">
             Loading supplier details...
           </span>
           {approvalError && (
@@ -127,19 +186,18 @@ export default function SupplierDetailsPage() {
     );
   }
 
+
   if (!supplier && !loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold" style={{ color: ACCENT_COLOR, marginBottom: "0.5rem" }}>
             Supplier Not Found
           </h2>
-          <p className="text-gray-600 mb-4">
-            The supplier you're looking for doesn't exist.
-          </p>
+          <p className="text-gray-600 mb-4">The supplier you're looking for doesn't exist.</p>
           <button
-            onClick={() => navigate("/factoryManager/suppliers")}
-            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+            onClick={handleBack}
+            className="px-4 py-2 bg-[#01251F] text-white rounded-lg hover:opacity-90"
           >
             Back to Suppliers
           </button>
@@ -148,59 +206,9 @@ export default function SupplierDetailsPage() {
     );
   }
 
-  let statusText = "";
-  let statusColor = "";
-
-  // Fix: treat missing or falsy status as 'approved' if supplier is in approved view
-  let normalizedStatus = supplier.status;
-  // If supplier.status is missing and supplier is from supplier table, treat as approved
-  if (!normalizedStatus && supplier && supplier.approvedDate) {
-    normalizedStatus = "approved";
-  }
-
-  if (normalizedStatus === "pending") {
-    statusText = "Pending Review";
-    statusColor = "text-yellow-600 bg-yellow-100";
-  } else if (normalizedStatus === "rejected") {
-    statusText = "Rejected";
-    statusColor = "text-red-600 bg-red-100";
-  } else if (normalizedStatus === "approved") {
-    statusText = "Approved";
-    statusColor = "text-emerald-600 bg-emerald-100";
-  } else {
-    statusText = normalizedStatus || "Unknown";
-    statusColor = "text-gray-600 bg-gray-100";
-  }
-
-  // Modal close handlers
-  const closeApproval = () => {
-    setShowApproval(false);
-    setApprovalData({ route: "", bagLimit: "", notes: "" });
-  };
-
-  const closeRejection = () => {
-    setShowRejection(false);
-    setRejectionReason("");
-  };
-
-  const closeContact = () => {
-    setShowContact(false);
-    setContactData({ subject: "", message: "" });
-  };
-
-  const handleSendMessage = () => {
-    alert(
-      `Message sent to ${supplier.name}!\nSubject: ${contactData.subject}\nMessage: ${contactData.message}`
-    );
-    closeContact();
-  };
-
-  const handleBack = () => {
-    navigate("/factoryManager/suppliers");
-  };
 
   return (
-    <div className="min-h-screen bg-gray-50 scrollbar-hide">
+    <div className="min-h-screen bg-gray-50 overflow-auto">
       {/* Modals */}
       <ApprovalModal
         show={showApproval}
@@ -210,7 +218,6 @@ export default function SupplierDetailsPage() {
         setApprovalData={setApprovalData}
         onApproveSupplierRequest={handleApproveSupplierRequest}
       />
-
       <RejectionModal
         show={showRejection}
         onClose={closeRejection}
@@ -219,7 +226,6 @@ export default function SupplierDetailsPage() {
         setRejectionReason={setRejectionReason}
         onRejectSupplierRequest={handleRejectSupplierRequest}
       />
-
       <ContactModal
         show={showContact}
         onClose={closeContact}
@@ -229,56 +235,70 @@ export default function SupplierDetailsPage() {
         onConfirm={handleSendMessage}
       />
 
-      {/* Enhanced Header with Quick Stats */}
-      <div className="bg-white shadow-md border-b border-emerald-300">
+
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-[#cfece6] sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-            <div className="flex items-center space-x-4">
-              <div>
-                <p className="text-3xl font-bold text-emerald-800">
-                  {supplier.user.name}
-                </p>
-                <div className="flex items-center space-x-4 mt-1">
-                  <span
-                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColor}`}
-                  >
-                    {statusText}
-                  </span>
-                </div>
+          <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <div>
+              <p className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
+                {supplier.user?.name || supplier.name}
+              </p>
+              <div className="flex flex-wrap items-center text-sm text-gray-600 gap-x-2 mt-2">
+                <span>ID: {supplier.supplierId || `2025-00${supplier.id}`}</span>
+                <span>•</span>
+                {normalizedStatus === "approved" && supplier.approvedDate && (
+                  <span>Approved: {supplier.approvedDate}</span>
+                )}
+                {normalizedStatus === "pending" && (
+                  <span>Submitted: {supplier.date}</span>
+                )}
+                {normalizedStatus === "rejected" && supplier.rejectedDate && (
+                  <span>Rejected: {supplier.rejectedDate}</span>
+                )}
+                <span
+                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColor}`}
+                  style={{ marginLeft: "0.5rem" }}
+                >
+                  {statusText}
+                </span>
               </div>
             </div>
 
-            {/* Action buttons */}
+
+            {/* Action Buttons */}
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleBack}
-                className="inline-flex items-center px-4 py-2 border-2 border-emerald-300 rounded-lg text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors shadow-sm"
+                className="px-5 py-2 border text-sm font-medium text-black bg-[#f1f5f9] rounded-md hover:bg-gray-100"
               >
                 ← Back
               </button>
               {supplier.status === "pending" && (
                 <>
                   <button
-                    className="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors"
+                    className="inline-flex items-center px-4 py-2 rounded-lg text-white font-medium"
                     onClick={() => setShowApproval(true)}
+                    style={{ backgroundColor: BTN_COLOR }}
                   >
-                    <Check className="w-4 h-4 mr-2 text-white" />
+                    <Check size={16} className="mr-2" />
                     Approve
                   </button>
                   <button
-                    className="inline-flex items-center px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors"
+                    className="inline-flex items-center px-4 py-2 rounded-lg text-white font-medium bg-red-600 hover:bg-red-700"
                     onClick={() => setShowRejection(true)}
                   >
-                    <X className="w-4 h-4 mr-2 text-white" />
+                    <X size={16} className="mr-2" />
                     Reject
                   </button>
                 </>
               )}
               <button
-                className="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors"
+                className="inline-flex items-center px-4 py-2 rounded-lg text-white font-medium"
                 onClick={() => setShowContact(true)}
+                style={{ backgroundColor: BTN_COLOR }}
               >
-                <Mail className="w-4 h-4 mr-2 text-white" />
+                <Mail size={16} className="mr-2" />
                 Contact
               </button>
             </div>
@@ -286,24 +306,15 @@ export default function SupplierDetailsPage() {
         </div>
       </div>
 
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Primary Information - Left Column */}
           <div className="lg:col-span-2 space-y-6">
-            <PersonalInfoCard supplier={{
-              ...supplier,
-              status: normalizedStatus,
-            }} />
-            <BusinessInfoCard supplier={{
-              ...supplier,
-              status: normalizedStatus,
-              
-            }} />
+            <PersonalInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
+            <BusinessInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
             <PerformanceChart supplier={{ ...supplier, status: normalizedStatus }} />
           </div>
-
-          {/* Sidebar - Right Column */}
           <div className="space-y-6">
             <DocumentsCard supplier={{ ...supplier, status: normalizedStatus }} />
             <BankingInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
@@ -314,3 +325,6 @@ export default function SupplierDetailsPage() {
     </div>
   );
 }
+
+
+
