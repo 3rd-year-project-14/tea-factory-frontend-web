@@ -1,28 +1,21 @@
 import {
-  Eye,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Users,
-  ChevronLeft,
-  ChevronRight,
+  Eye, Users, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+const ACCENT_COLOR = "#01251F";
+
 export default function SupplierTable({ filteredSuppliers, currentView }) {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Show 10 suppliers per page
+  const itemsPerPage = 10;
 
-  // Calculate pagination
   const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentSuppliers = filteredSuppliers.slice(startIndex, endIndex);
 
-  // Reset to first page when view or filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [filteredSuppliers.length, currentView]);
@@ -34,97 +27,98 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
   const handleViewDetails = (supplier) => {
     navigate(`/factoryManager/suppliers/${supplier.id}`);
   };
+
+  // ✅ Unified green header for all views
+  const getHeaderColor = () => ({
+    backgroundColor: ACCENT_COLOR,
+    color: "#ffffff",
+  });
+
+  const getBadgeColor = () => {
+    if (currentView === "approved")
+      return {
+        backgroundColor: "#e1f4ef",
+        color: "#165e52",
+        borderColor: "#165e52"
+      };
+    if (currentView === "pending")
+      return {
+        backgroundColor: "#fffbeb",
+        color: "#b45309",
+        borderColor: "#f59e0b"
+      };
+    if (currentView === "rejected")
+      return {
+        backgroundColor: "#fee2e2",
+        color: "#b91c1c",
+        borderColor: "#ef4444"
+      };
+    return {};
+  };
+
+  const getActionButton = (supplier) => (
+    <button
+      onClick={() => handleViewDetails(supplier)}
+      className="p-2 rounded-full transition-colors"
+      title="View Details"
+      style={
+        currentView === "rejected"
+          ? { border: "1.5px solid #dc2626", color: "#dc2626" }
+          : { border: `1.5px solid ${ACCENT_COLOR}`, color: ACCENT_COLOR }
+      }
+    >
+      <Eye className="h-4 w-4" />
+    </button>
+  );
+
   return (
-    <div className="bg-white rounded-lg shadow-md border border-emerald-200 overflow-hidden">
-      <div
-        className={`${
-          currentView === "approved"
-            ? "bg-emerald-600"
-            : currentView === "pending"
-            ? "bg-emerald-500"
-            : "bg-red-600"
-        } text-white`}
-      >
-        {currentView === "approved" ? (
-          <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm">
-            <div className="text-center">Supplier ID</div>
-            <div className="text-center">Supplier Name</div>
-            <div className="text-center">Route</div>
-            <div className="text-center">Approved Date</div>
-            <div className="text-center">View Details</div>
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+      <div style={getHeaderColor()}>
+        <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm text-center">
+          <div>Supplier ID</div>
+          <div>Supplier Name</div>
+          <div>Route</div>
+          <div>
+            {currentView === "pending"
+              ? "Request Date"
+              : currentView === "rejected"
+              ? "Rejected Date"
+              : "Approved Date"}
           </div>
-        ) : (
-          <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm">
-            <div className="text-center">Supplier Name</div>
-            <div className="text-center">Location</div>
-            <div className="text-center">Monthly Supply</div>
-            <div className="text-center">
-              {currentView === "pending" ? "Request Date" : "Rejected Date"}
-            </div>
-            <div className="text-center">View Details</div>
-          </div>
-        )}
+          <div>View Details</div>
+        </div>
       </div>
+
       <div className="divide-y divide-gray-200">
         {currentSuppliers.map((supplier) => (
-          <div key={supplier.id}>
-            {currentView === "approved" ? (
-              <div className="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50 transition-colors">
-                <div className="flex justify-center">
-                  <span className="font-semibold text-emerald-600 text-sm bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                    SUP-{String(supplier.id).padStart(4, "0")}
-                  </span>
-                </div>
-                <div className="font-medium text-gray-900 text-sm text-center">
-                  {supplier.name}
-                </div>
-                <div className="text-sm text-gray-900 font-medium text-center">
-                  {supplier.requestedRoute}
-                </div>
-                <div className="text-sm text-gray-900 text-center">
-                  {supplier.approvedDate}
-                </div>
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => handleViewDetails(supplier)}
-                    className="text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 p-2 rounded-full transition-colors"
-                    title="View Details"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50 transition-colors">
-                <div className="font-medium text-gray-900 text-sm text-center">
-                  {supplier.name}
-                </div>
-                <div className="font-medium text-gray-900 text-sm text-center">
-                  {supplier.location}
-                </div>
-                <div className="text-sm text-gray-900 font-semibold text-center">
-                  {supplier.monthlySupply} Kg
-                </div>
-                <div className="text-sm text-gray-900 text-center">
-                  {currentView === "pending"
-                    ? supplier.supplierCreatedDate
-                    : supplier.rejectedDate}
-                </div>
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => handleViewDetails(supplier)}
-                    className={`${
-                      currentView === "pending"
-                        ? "text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50"
-                        : "text-red-600 hover:text-red-800 hover:bg-red-50"
-                    } p-2 rounded-full transition-colors`}
-                    title="View Details"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            )}
+          <div
+            key={supplier.id}
+            className="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+          >
+            <div className="flex justify-center">
+              <span
+                className="font-semibold text-sm px-3 py-1 rounded-full border"
+                style={getBadgeColor()}
+              >
+                SUP-{String(supplier.id).padStart(4, "0")}
+              </span>
+            </div>
+            <div className="font-medium text-gray-900 text-sm text-center">
+              {supplier.name}
+            </div>
+            <div className="text-sm text-gray-900 font-medium text-center">
+              {supplier.requestedRoute}
+            </div>
+            <div className="text-sm text-gray-900 text-center">
+              {currentView === "pending"
+                ? supplier.supplierCreatedDate
+                : currentView === "rejected"
+                ? supplier.rejectedDate
+                : supplier.approvedDate}
+            </div>
+            <div className="flex justify-center">
+              {getActionButton(supplier)}
+            </div>
           </div>
         ))}
 
@@ -141,8 +135,8 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
             </p>
           </div>
         )}
-      </div>{" "}
-      {/* Pagination Controls */}
+      </div>
+
       {filteredSuppliers.length > 0 && (
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
           <div className="flex items-center justify-between">
@@ -157,28 +151,22 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
                 suppliers
               </span>
             </div>
-
-            {/* Only show pagination controls when there are multiple pages */}
             {totalPages > 1 && (
               <div className="flex items-center space-x-2">
-                {/* Previous Button */}
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
                   className={`p-2 rounded-md ${
                     currentPage === 1
                       ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      : "text-gray-600 hover:text-black hover:bg-gray-100"
                   } transition-colors`}
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-
-                {/* Page Numbers */}
                 <div className="flex space-x-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter((page) => {
-                      // Show first page, last page, current page, and pages around current
                       return (
                         page === 1 ||
                         page === totalPages ||
@@ -186,7 +174,6 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
                       );
                     })
                     .map((page, index, array) => {
-                      // Add ellipsis if there's a gap
                       const showEllipsis =
                         index > 0 && page - array[index - 1] > 1;
                       return (
@@ -196,10 +183,10 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
                           )}
                           <button
                             onClick={() => goToPage(page)}
-                            className={`px-3 py-2 text-sm rounded-md ${
+                            className={`px-3 py-2 text-sm rounded-md border ${
                               currentPage === page
-                                ? "bg-emerald-600 text-white"
-                                : "text-gray-700 hover:bg-gray-100"
+                                ? "border-gray-400 bg-[#165e52] text-white"
+                                : "border-gray-200 text-black hover:bg-gray-100"
                             } transition-colors`}
                           >
                             {page}
@@ -208,15 +195,13 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
                       );
                     })}
                 </div>
-
-                {/* Next Button */}
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className={`p-2 rounded-md ${
                     currentPage === totalPages
                       ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      : "text-gray-600 hover:text-black hover:bg-gray-100"
                   } transition-colors`}
                 >
                   <ChevronRight className="h-5 w-5" />

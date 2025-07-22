@@ -5,74 +5,82 @@ export default function SupplierSummaryCards({
   currentView,
   setCurrentView,
 }) {
+  const getBorderColor = (type) => {
+    switch (type) {
+      case "approved":
+        return "#000000";
+      case "pending":
+        return "#f59e0b";
+      case "rejected":
+        return "#ef4444";
+      default:
+        return "#d1d5db"; // default gray-300
+    }
+  };
+
+  const getRingClass = (type) => {
+    if (type === "approved") return ""; // No ring for approved
+    if (currentView === type) {
+      switch (type) {
+        case "pending":
+          return "ring-2 ring-[#f59e0b]/30";
+        case "rejected":
+          return "ring-2 ring-[#ef4444]/30";
+        default:
+          return "";
+      }
+    }
+    return "";
+  };
+
+  const cards = [
+    {
+      type: "approved",
+      label: "Total Suppliers",
+      value: metrics.approved,
+      icon: <Users size={30} color="black" />,
+    },
+    {
+      type: "pending",
+      label: "Pending Requests",
+      value: metrics.pending,
+      icon: <Clock size={30} color="black" />,
+    },
+    {
+      type: "rejected",
+      label: "Rejected",
+      value: metrics.rejected,
+      icon: <X size={30} color="#ef4444" />,
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-      <div
-        onClick={() => setCurrentView("approved")}
-        className={`bg-white p-6 rounded-lg shadow-md border border-emerald-200 transition-all duration-200 hover:shadow-lg hover:border-emerald-300 cursor-pointer ${
-          currentView === "approved"
-            ? "ring-2 ring-emerald-500 ring-opacity-50"
-            : ""
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-emerald-700">
-              Total Suppliers
-            </p>
-            <p className="text-2xl font-bold text-emerald-800">
-              {metrics.approved}
-            </p>
+      {cards.map((card) => {
+        const isApproved = card.type === "approved";
+        return (
+          <div
+            key={card.type}
+            onClick={() => setCurrentView(card.type)}
+            className={`bg-white p-6 rounded-lg shadow-md cursor-pointer transition-transform ${
+              !isApproved ? "hover:scale-[1.02]" : "hover:shadow-none"
+            } ${getRingClass(card.type)}`}
+            style={{
+              border: `1px solid ${getBorderColor(card.type)}`,
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-black">{card.label}</p>
+                <p className="text-2xl font-bold text-black">{card.value}</p>
+              </div>
+              <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
+                {card.icon}
+              </div>
+            </div>
           </div>
-          <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
-            <div className="text-emerald-600 text-2xl">👥</div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        onClick={() => setCurrentView("pending")}
-        className={`bg-white p-6 rounded-lg shadow-md border border-emerald-200 transition-all duration-200 hover:shadow-lg hover:border-emerald-300 cursor-pointer ${
-          currentView === "pending"
-            ? "ring-2 ring-emerald-500 ring-opacity-50"
-            : ""
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-emerald-700">
-              Pending Requests
-            </p>
-            <p className="text-2xl font-bold text-emerald-800">
-              {metrics.pending}
-            </p>
-          </div>
-          <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
-            <div className="text-emerald-600 text-2xl">🕐</div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        onClick={() => setCurrentView("rejected")}
-        className={`bg-white p-6 rounded-lg shadow-md border border-emerald-200 transition-all duration-200 hover:shadow-lg hover:border-emerald-300 cursor-pointer ${
-          currentView === "rejected"
-            ? "ring-2 ring-emerald-500 ring-opacity-50"
-            : ""
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-emerald-700">Rejected</p>
-            <p className="text-2xl font-bold text-emerald-800">
-              {metrics.rejected}
-            </p>
-          </div>
-          <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
-            <div className="text-emerald-600 text-2xl">❌</div>
-          </div>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 }

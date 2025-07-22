@@ -14,7 +14,7 @@ export default function Login() {
     setUser({ username, role });
 
     // Redirect to role-based dashboard
-    navigate(`/${role.toLowerCase()}/dashboard`);
+    navigate(/${role.toLowerCase()}/dashboard);
   };
 
   return (

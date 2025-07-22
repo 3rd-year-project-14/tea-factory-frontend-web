@@ -1,4 +1,8 @@
 import React, { useState } from "react";
+import { Users2, Package, Scale } from "lucide-react"; // Professional icons
+
+const ACCENT_COLOR = "#165e52";
+const BUTTON_COLOR = "#172526";
 
 export default function Dashboard() {
   const [bags] = useState([
@@ -10,122 +14,112 @@ export default function Dashboard() {
   const totalWeight = bags.reduce((sum, bag) => sum + bag.newWeight, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-6xl mx-auto space-y-4">
-        {/* Top Statistics Cards - styled like AdvanceManagement.jsx */}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-6 py-6 space-y-8">
+        {/* Top Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-green-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  No of Suppliers
-                </p>
-                <p className="text-2xl font-bold text-green-600">12</p>
-                <p className="text-xs text-gray-500">Active</p>
-              </div>
-              <div className="h-8 w-8 text-green-600 text-2xl">👤</div>
+          {/* Card 1 */}
+          <div className="bg-white p-6 rounded-lg shadow-md border border-black flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-black">No of Suppliers</p>
+              <p className="text-2xl font-bold text-black">12</p>
+              <p className="text-xs text-black mt-2">Active</p>
             </div>
-          </button>
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-blue-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">No of Bags</p>
-                <p className="text-2xl font-bold text-blue-600">12</p>
-                <p className="text-xs text-gray-500">Tracked</p>
-              </div>
-              <div className="h-8 w-8 text-blue-600 text-2xl">👜</div>
+            <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
+              <Users2 size={28} color="black" />
             </div>
-          </button>
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-yellow-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Weight
-                </p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {totalWeight} Kg
-                </p>
-                <p className="text-xs text-gray-500">Current</p>
-              </div>
-              <div className="h-8 w-8 text-yellow-600 text-2xl">⚖️</div>
+          </div>
+          {/* Card 2 */}
+          <div className="bg-white p-6 rounded-lg shadow-md border border-black flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-black">No of Bags</p>
+              <p className="text-2xl font-bold text-black">12</p>
+              <p className="text-xs text-black mt-2">Tracked</p>
             </div>
-          </button>
+            <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
+              <Package size={28} color="black" />
+            </div>
+          </div>
+          {/* Card 3 */}
+          <div className="bg-white p-6 rounded-lg shadow-md border border-black flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-black">Total Weight</p>
+              <p className="text-2xl font-bold text-black">{totalWeight} Kg</p>
+              <p className="text-xs text-black mt-2">Current</p>
+            </div>
+            <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
+              <Scale size={28} color="black" />
+            </div>
+          </div>
         </div>
 
         {/* Supplier Input Section */}
-        <div className="bg-white rounded-lg shadow-sm border p-4">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3 items-end">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-black">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 items-end">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-semibold mb-2" style={{ color: ACCENT_COLOR }}>
                 Supplier No
               </label>
               <input
                 type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-[#cfece6] rounded-md focus:outline-none focus:ring-2 focus:ring-[#165e52] focus:border-transparent transition"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-semibold mb-2" style={{ color: ACCENT_COLOR }}>
                 Supplier Name
               </label>
               <input
                 type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-[#cfece6] rounded-md focus:outline-none focus:ring-2 focus:ring-[#165e52] focus:border-transparent transition"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-semibold mb-2" style={{ color: ACCENT_COLOR }}>
                 Weight
               </label>
               <input
                 type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-[#cfece6] rounded-md focus:outline-none focus:ring-2 focus:ring-[#165e52] focus:border-transparent transition"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-semibold mb-2" style={{ color: ACCENT_COLOR }}>
                 Condition
               </label>
               <input
                 type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-[#cfece6] rounded-md focus:outline-none focus:ring-2 focus:ring-[#165e52] focus:border-transparent transition"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-semibold mb-2" style={{ color: ACCENT_COLOR }}>
                 New Weight
               </label>
               <input
                 type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-[#cfece6] rounded-md focus:outline-none focus:ring-2 focus:ring-[#165e52] focus:border-transparent transition"
               />
             </div>
-
             <div>
-              <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 text-sm rounded-md transition-colors duration-200">
+              <button
+                className="w-full p-3 rounded-lg text-white text-sm font-medium flex items-center justify-center transition-colors"
+                style={{
+                  backgroundColor: BUTTON_COLOR,
+                  border: "none",
+                }}
+              >
                 Enter
               </button>
             </div>
           </div>
         </div>
 
-        {/* Bags Table */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-          <div className="bg-green-600 text-white">
-            <div className="grid grid-cols-4 gap-4 p-3 font-medium text-sm">
+        {/* Bags Table - Updated Styles */}
+        <div className="bg-white rounded-lg shadow-md border border-black overflow-hidden">
+          {/* Table Header */}
+          <div className="bg-[#172526] text-white">
+            <div className="grid grid-cols-4 gap-4 p-4 font-semibold text-sm text-center">
               <div>Bag No</div>
               <div>Past Weight</div>
               <div>Condition</div>
@@ -133,48 +127,45 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="divide-y divide-gray-200">
+          {/* Table Body */}
+          <div className="divide-y divide-[#e5f1ed]">
             {bags.map((bag) => (
               <div
                 key={bag.id}
-                className="grid grid-cols-4 gap-4 p-3 items-center hover:bg-gray-50"
+                className="grid grid-cols-4 gap-4 px-4 py-3 items-center hover:bg-[#f4faf8] transition-colors text-center"
               >
-                <div className="font-medium text-gray-900 text-sm">
-                  {bag.id}
-                </div>
-                <div className="text-gray-600 text-sm">{bag.pastWeight} Kg</div>
+                <div className="font-medium text-black text-sm">{bag.id}</div>
+                <div className="text-gray-800 text-sm font-semibold">{bag.pastWeight} Kg</div>
                 <div>
                   <span
-                    className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                      bag.condition === "Good"
-                        ? "bg-green-100 text-green-800"
+                    className={`inline-block min-w-[75px] px-3 py-1 rounded-full text-xs font-semibold text-center shadow-sm ${
+                      bag.condition.toLowerCase() === "good"
+                        ? "bg-[#d9f1ea] text-[#165e52]"
                         : "bg-blue-100 text-blue-800"
                     }`}
                   >
                     {bag.condition}
                   </span>
                 </div>
-                <div className="text-gray-900 font-medium text-sm">
-                  {bag.newWeight} Kg
-                </div>
+                <div className="text-black font-bold text-sm">{bag.newWeight} Kg</div>
               </div>
             ))}
           </div>
 
-          {/* Total Weight Footer */}
-          <div className="bg-gray-50 border-t">
-            <div className="grid grid-cols-4 gap-4 p-3">
-              <div className="col-span-3"></div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-700 text-sm">
-                  Total Weight
-                </span>
-                <span className="bg-green-500 text-white px-3 py-1 rounded-full font-medium text-sm">
-                  {totalWeight} Kg
-                </span>
-              </div>
-            </div>
-          </div>
+          {/* Table Footer */}
+  <div className="bg-gray-50 border-t border-[#cfece6]">
+  <div className="grid grid-cols-4 p-4 items-center">
+    <div className="col-span-3 text-right">
+      <span className="text-base font-normal text-black">Total Net Weight :</span>
+    </div>
+    <div className="text-center">
+      <span className="text-base font-bold text-black">{totalWeight} Kg</span>
+    </div>
+  </div>
+</div>
+
+
+
         </div>
       </div>
     </div>
