@@ -214,6 +214,7 @@ const sidebarLinks = {
   ],
   TRANSPORT_MANAGER: [
     { name: "Dashboard", path: "/transportManager/dashboard", icon: Home },
+    { name: "Drivers", path: "/transportManager/drivers", icon: Users },
     { name: "Vehicle", path: "/transportManager/vehicle", icon: Truck },
     { name: "Route", path: "/transportManager/routeList", icon: Route },
     { name: "Route Planner", path: "/transportManager/routePlan", icon: ListCheck },
@@ -222,7 +223,13 @@ const sidebarLinks = {
   INVENTORY_MANAGER: [
     { name: "Dashboard", path: "/inventoryManager/Dashboard", icon: Home },
     { name: "Leaf Weight", path: "/inventoryManager/leaf_weight", icon: Truck },
-    { name: "Bag Weight", path: "/inventoryManager/empty_bags_weight", icon: Package },
+
+    {
+      name: "Bag Weight",
+      path: "/inventoryManager/empty_bags_weight",
+      icon: Package,
+    },
+
     { name: "History", path: "/inventoryManager/history", icon: Award },
     { name: "Report", path: "/inventoryManager/report", icon: Users },
     { name: "CRUD", path: "/inventoryManager/crud", icon: Users },
