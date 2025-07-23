@@ -319,15 +319,15 @@ export default function InventoryHistory() {
       <div className="max-w-8xl mx-auto space-y-4">
         
         {/* Header */}
-        <div className="bg-white shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white shadow-sm p-4 mb-6 ">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Inventory Management History</h1>
-            <div className="flex items-center gap-3 text-emerald-800">
+            <h1 className="text-2xl font-bold text-emerald-900">Inventory Management History</h1>
+            {/* <div className="flex items-center gap-3 text-emerald-800">
               <Calendar className="h-5 w-5" />
               <span className="text-lg font-semibold">{year}</span>
               <span className="text-md font-medium">{month}</span>
               <span className="text-lg font-semibold">{date}</span>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -335,85 +335,85 @@ export default function InventoryHistory() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div 
             onClick={() => setCurrentView(currentView === 'factory_routes' ? 'all' : 'factory_routes')}
-            className={`bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg cursor-pointer transform hover:scale-105 ${
-              currentView === 'factory_routes' ? 'border-emerald-500 bg-emerald-50' : 'border-emerald-200 hover:border-emerald-300'
+            className={`bg-white px-4 py-3 rounded-lg shadow-md border  ${
+              currentView === 'factory_routes' ? 'border-black-500 ' : 'border-black-200 '
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm font-medium ${currentView === 'factory_routes' ? 'text-emerald-800' : 'text-emerald-700'}`}>
+                <p className={`text-sm font-medium ${currentView === 'factory_routes' ? 'text-black-800' : 'text-black-700'}`}>
                   Total Routes in Factory
                 </p>
-                <p className={`text-2xl font-bold ${currentView === 'factory_routes' ? 'text-emerald-900' : 'text-emerald-800'}`}>
+                <p className={`text-2xl font-bold ${currentView === 'factory_routes' ? 'text-black-900' : 'text-black-800'}`}>
                   {factoryTotalRoutes}
                 </p>
-                <p className={`text-xs ${currentView === 'factory_routes' ? 'text-emerald-700' : 'text-emerald-600'}`}>
+                <p className={`text-xs ${currentView === 'factory_routes' ? 'text-black-700' : 'text-black-600'}`}>
                   Factory-wide Routes
                 </p>
               </div>
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                currentView === 'factory_routes' ? 'bg-emerald-200' : 'bg-emerald-100'
+                currentView === 'factory_routes' ? 'bg-gray-200' : 'bg-gray-100'
               }`}>
-                <MapPin className={`h-5 w-5 ${currentView === 'factory_routes' ? 'text-emerald-800' : 'text-emerald-600'}`} />
+                <MapPin className={`h-5 w-5 ${currentView === 'factory_routes' ? 'text-black-800' : 'text-black-600'}`} />
               </div>
             </div>
           </div>
 
           <div 
             onClick={() => setCurrentView(currentView === 'active_routes' ? 'all' : 'active_routes')}
-            className={`bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg cursor-pointer transform hover:scale-105 ${
-              currentView === 'active_routes' ? 'border-emerald-500 bg-emerald-50' : 'border-emerald-200 hover:border-emerald-300'
+            className={`bg-white px-4 py-3 rounded-lg shadow-md border ${
+              currentView === 'active_routes' ? 'border-black-500 bg-emerald-50' : 'border-black-200 '
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm font-medium ${currentView === 'active_routes' ? 'text-emerald-800' : 'text-emerald-700'}`}>
+                <p className={`text-sm font-medium ${currentView === 'active_routes' ? 'text-black-800' : 'text-black-700'}`}>
                   Active Routes
                 </p>
-                <p className={`text-2xl font-bold ${currentView === 'active_routes' ? 'text-emerald-900' : 'text-emerald-800'}`}>
+                <p className={`text-2xl font-bold ${currentView === 'active_routes' ? 'text-black-900' : 'text-black-800'}`}>
                   {activeRoutes}
                 </p>
-                <p className={`text-xs ${currentView === 'active_routes' ? 'text-emerald-700' : 'text-emerald-600'}`}>
+                <p className={`text-xs ${currentView === 'active_routes' ? 'text-black-700' : 'text-black-600'}`}>
                   {getDateFilterLabel()}
                 </p>
               </div>
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                currentView === 'active_routes' ? 'bg-emerald-200' : 'bg-emerald-100'
+                currentView === 'active_routes' ? 'bg-gray-200' : 'bg-gray-100'
               }`}>
-                <Activity className={`h-5 w-5 ${currentView === 'active_routes' ? 'text-emerald-800' : 'text-emerald-600'}`} />
+                <Activity className={`h-5 w-5 ${currentView === 'active_routes' ? 'text-black-800' : 'text-black-600'}`} />
               </div>
             </div>
           </div>
 
           <div 
             onClick={() => setCurrentView(currentView === 'suppliers_weights' ? 'all' : 'suppliers_weights')}
-            className={`bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg cursor-pointer transform hover:scale-105 ${
-              currentView === 'suppliers_weights' ? 'border-emerald-500 bg-emerald-50' : 'border-emerald-200 hover:border-emerald-300'
+            className={`bg-white px-4 py-3 rounded-lg shadow-md border  ${
+              currentView === 'suppliers_weights' ? 'border-black-500 bg-black-50' : 'border-black-200 '
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm font-medium ${currentView === 'suppliers_weights' ? 'text-emerald-800' : 'text-emerald-700'}`}>
+                <p className={`text-sm font-medium ${currentView === 'suppliers_weights' ? 'text-black-800' : 'text-black-700'}`}>
                   Suppliers with Weights
                 </p>
-                <p className={`text-2xl font-bold ${currentView === 'suppliers_weights' ? 'text-emerald-900' : 'text-emerald-800'}`}>
+                <p className={`text-2xl font-bold ${currentView === 'suppliers_weights' ? 'text-black-900' : 'text-black-800'}`}>
                   {uniqueSuppliers}
                 </p>
-                <p className={`text-xs ${currentView === 'suppliers_weights' ? 'text-emerald-700' : 'text-emerald-600'}`}>
+                <p className={`text-xs ${currentView === 'suppliers_weights' ? 'text-black-700' : 'text-black-600'}`}>
                   {getDateFilterLabel()}
                 </p>
               </div>
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                currentView === 'suppliers_weights' ? 'bg-emerald-200' : 'bg-emerald-100'
+                currentView === 'suppliers_weights' ? 'bg-gray-200' : 'bg-gray-100'
               }`}>
-                <User className={`h-5 w-5 ${currentView === 'suppliers_weights' ? 'text-emerald-800' : 'text-emerald-600'}`} />
+                <User className={`h-5 w-5 ${currentView === 'suppliers_weights' ? 'text-black-800' : 'text-black-600'}`} />
               </div>
             </div>
           </div>
         </div>
 
         {/* Filters and Search Bar */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {/* Search */}
             <div className="relative">
@@ -489,7 +489,7 @@ export default function InventoryHistory() {
         </div>
 
         {/* Results Header */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <h2 className="text-lg font-semibold text-gray-900">History Records</h2>
@@ -504,27 +504,27 @@ export default function InventoryHistory() {
         </div>
 
         {/* History Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-emerald-200 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm  overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead style={{ backgroundColor: '#01251F' }}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Activity
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Details
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Route/Supplier
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Weight/Count
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Time
                   </th>
                 </tr>
@@ -534,9 +534,7 @@ export default function InventoryHistory() {
                   <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
-                          {getTypeIcon(item.type)}
-                        </div>
+                        
                         <div>
                           <div className="text-sm font-medium text-gray-900">{item.action}</div>
                           <div className="text-xs text-gray-500">{item.details}</div>
@@ -570,7 +568,7 @@ export default function InventoryHistory() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        {getStatusBadge(item.status)}
+                        
                         <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
                           {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                         </span>
