@@ -11,6 +11,12 @@ import InventoryRoutesPage from "../pages/FactoryManager/Inventory/InventoryRout
 import InventorySuppliersPage from "../pages/FactoryManager/Inventory/InventorySuppliersPage";
 import InventorySupplierDetailPage from "../pages/FactoryManager/Inventory/InventorySupplierDetailPage";
 import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
+// Payment Manager Components
+import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
+import AdvanceManagement from "../pages/PaymentManager/Advance/AdvanceManagement";
+import LoanManagement from "../pages/PaymentManager/Loans/LoanManagement";
+import TeaRateAdjustment from "../pages/PaymentManager/TeaRate/TeaRateAdjustment";
+import PaymentManagement from "../pages/PaymentManager/Payments/PaymentManagement";
 
 const FactoryManagerRoutes = (
   <>
@@ -19,6 +25,47 @@ const FactoryManagerRoutes = (
       element={
         <Layout>
           <FactoryManagerDashboard />
+        </Layout>
+      }
+    />
+    {/* Payment Manager routes under Factory Manager */}
+    <Route
+      path="/factoryManager/payment/dashboard"
+      element={
+        <Layout>
+          <PaymentManagerDashboard />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/advance"
+      element={
+        <Layout>
+          <AdvanceManagement />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/loans"
+      element={
+        <Layout>
+          <LoanManagement />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/payments"
+      element={
+        <Layout>
+          <PaymentManagement />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/teaRate"
+      element={
+        <Layout>
+          <TeaRateAdjustment />
         </Layout>
       }
     />
