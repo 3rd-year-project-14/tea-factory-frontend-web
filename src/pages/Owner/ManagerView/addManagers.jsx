@@ -22,20 +22,13 @@ export default function AddManagersInterface() {
     mobile: "",
     role: "",
     factory: "",
+    address: ""
   });
 
   const [dropdowns, setDropdowns] = useState({
     role: false,
     factory: false,
   });
-
-  const roles = [
-    "Factory Manager",
-    "Inventory Manager",
-    "Fertilizer Manager",
-    "Transport Manager",
-  ];
-  const factories = ["Factory A", "Factory B", "Factory C", "Factory D"];
 
   const navigate = useNavigate();
 
@@ -66,29 +59,28 @@ export default function AddManagersInterface() {
 
   const handleSave = async () => {
     try {
-      // Create manager auth in Firebase
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formData.email,
         formData.password
       );
-      const user = userCredential.user;
 
-      // Get Firebase ID token
+      const user = userCredential.user;
       const token = await getIdToken(user);
 
-      // Post to backend
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8080/api/users",
         {
           firebaseUid: user.uid,
           name: formData.name,
           email: formData.email,
-          password: formData.password,
+          // password: formData.password,
           nic: formData.nic,
           contactNo: formData.mobile,
           role: formData.role,
-          factory: formData.factory,
+          // factory: formData.factory,
+          // factoryId: selectedFactoryId,
+          address: formData.address
         },
         {
           headers: {
@@ -97,7 +89,6 @@ export default function AddManagersInterface() {
         }
       );
 
-      console.log("Saved:", response.data);
       navigate("/owner/managerview/giveaccess", {
         state: { manager: formData },
       });
@@ -105,6 +96,20 @@ export default function AddManagersInterface() {
       console.error("Error creating manager:", error);
     }
   };
+
+  const roles = [
+    { label: 'Factory Manager', value: 'FACTORY_MANAGER' },
+    { label: 'Inventory Manager', value: 'INVENTORY_MANAGER' },
+    { label: 'Fertilizer Manager', value: 'FERTILIZER_MANAGER' },
+    { label: 'Transport Manager', value: 'TRANSPORT_MANAGER' }
+  ];
+
+  const factories = [
+    'Andaradeniya Tea Factory', 'Batuwangala Tea Factory', 'Ruhuna Tea Factory',
+    'Duli Ella Tea Factory', 'Fortune Tea Factory', 'Waulugala Tea Factory',
+    'Williegroup Tea Factory', 'Devonia Tea Factory', 'Galaxy Tea Factory',
+    'Nivithigala Tea Factory'
+  ];
 
   return (
     <div className="min-h-screen p-4">
@@ -136,7 +141,7 @@ export default function AddManagersInterface() {
                 style={{ backgroundColor: BTN_COLOR }}
                 type="button"
               >
-                Save &amp; Give Access
+                Save & Give Access
               </button>
             </div>
           </div>
@@ -145,23 +150,18 @@ export default function AddManagersInterface() {
         {/* Form Section */}
         <div className="px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Left Column - Personal Information */}
+
+            {/* Left Column */}
             <div className="space-y-6">
               <div className="border-b border-gray-100 pb-4 mb-6">
-                <h3
-                  className="text-lg font-semibold"
-                  style={{ color: ACCENT_COLOR }}
-                >
+                <h3 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
                   Personal Information
                 </h3>
               </div>
 
               {/* Name */}
               <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
+                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
                   Name :
                 </label>
                 <input
@@ -179,12 +179,29 @@ export default function AddManagersInterface() {
                 />
               </div>
 
+              {/* Address */}
+              <div>
+                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                  Address :
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className="w-full rounded-lg px-4 py-3 border h-12"
+                  style={{
+                    borderColor: BORDER_COLOR,
+                    backgroundColor: INPUT_BG,
+                    color: ACCENT_COLOR,
+                  }}
+                  placeholder="Enter manager address"
+                />
+              </div>
+
               {/* NIC */}
               <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
+                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
                   NIC :
                 </label>
                 <input
@@ -202,12 +219,9 @@ export default function AddManagersInterface() {
                 />
               </div>
 
-              {/* Mobile Number */}
+              {/* Mobile */}
               <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
+                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
                   Mobile Number :
                 </label>
                 <input
@@ -227,10 +241,7 @@ export default function AddManagersInterface() {
 
               {/* Email */}
               <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
+                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
                   E-mail :
                 </label>
                 <input
@@ -250,10 +261,7 @@ export default function AddManagersInterface() {
 
               {/* Password */}
               <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
+                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
                   Password :
                 </label>
                 <input
@@ -272,58 +280,44 @@ export default function AddManagersInterface() {
               </div>
             </div>
 
-            {/* Right Column - Role & Assignment */}
+            {/* Right Column */}
             <div className="space-y-6">
               <div className="border-b border-gray-100 pb-4 mb-6">
-                <h3
-                  className="text-lg font-semibold"
-                  style={{ color: ACCENT_COLOR }}
-                >
+                <h3 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
                   Role & Assignment
                 </h3>
               </div>
 
               {/* Role Dropdown */}
               <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
+                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
                   Role :
                 </label>
                 <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown("role")}
-                    className="w-full rounded-lg px-4 py-3 border bg-white text-left flex items-center justify-between h-12"
+                  <input
+                    type="text"
+                    readOnly
+                    value={roles.find(r => r.value === formData.role)?.label || ""}
+                    onClick={() => toggleDropdown('role')}
+                    placeholder="Select Role"
+                    className="w-full rounded-lg px-4 py-3 border h-12 cursor-pointer"
                     style={{
                       borderColor: BORDER_COLOR,
-                      color: formData.role ? ACCENT_COLOR : "#A0AEC0",
+                      backgroundColor: INPUT_BG,
+                      color: ACCENT_COLOR,
                     }}
-                  >
-                    <span>{formData.role || "Select Role"}</span>
-                    <ChevronDown
-                      size={20}
-                      className={`transition-transform ${
-                        dropdowns.role ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
+                  />
+                  <ChevronDown size={20} className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${dropdowns.role ? 'rotate-180' : ''}`} />
                   {dropdowns.role && (
-                    <div
-                      className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
-                      style={{ borderColor: BORDER_COLOR }}
-                    >
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-green-400 rounded-lg shadow-2xl z-50">
                       {roles.map((role) => (
                         <button
-                          key={role}
+                          key={role.value}
                           type="button"
-                          onClick={() => selectOption("role", role)}
-                          className="w-full px-4 py-3 text-left hover:bg-[#e1f4ef] first:rounded-t-lg last:rounded-b-lg transition-colors"
-                          style={{ color: ACCENT_COLOR }}
+                          onClick={() => selectOption('role', role.value)}
+                          className="w-full px-4 py-3 text-left hover:bg-green-50 focus:bg-green-100 transition-colors"
                         >
-                          {role}
+                          {role.label}
                         </button>
                       ))}
                     </div>
@@ -333,43 +327,32 @@ export default function AddManagersInterface() {
 
               {/* Factory Dropdown */}
               <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
+                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
                   Factory :
                 </label>
                 <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown("factory")}
-                    className="w-full rounded-lg px-4 py-3 border bg-white text-left flex items-center justify-between h-12"
+                  <input
+                    type="text"
+                    readOnly
+                    value={formData.factory}
+                    onClick={() => toggleDropdown('factory')}
+                    placeholder="Select Factory"
+                    className="w-full rounded-lg px-4 py-3 border h-12 cursor-pointer"
                     style={{
                       borderColor: BORDER_COLOR,
-                      color: formData.factory ? ACCENT_COLOR : "#A0AEC0",
+                      backgroundColor: INPUT_BG,
+                      color: ACCENT_COLOR,
                     }}
-                  >
-                    <span>{formData.factory || "Select Factory"}</span>
-                    <ChevronDown
-                      size={20}
-                      className={`transition-transform ${
-                        dropdowns.factory ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
+                  />
+                  <ChevronDown size={20} className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${dropdowns.factory ? 'rotate-180' : ''}`} />
                   {dropdowns.factory && (
-                    <div
-                      className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
-                      style={{ borderColor: BORDER_COLOR }}
-                    >
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-green-400 rounded-lg shadow-2xl z-50">
                       {factories.map((factory) => (
                         <button
                           key={factory}
                           type="button"
-                          onClick={() => selectOption("factory", factory)}
-                          className="w-full px-4 py-3 text-left hover:bg-[#e1f4ef] first:rounded-t-lg last:rounded-b-lg transition-colors"
-                          style={{ color: ACCENT_COLOR }}
+                          onClick={() => selectOption('factory', factory)}
+                          className="w-full px-4 py-3 text-left hover:bg-green-50 focus:bg-green-100 transition-colors"
                         >
                           {factory}
                         </button>
@@ -378,10 +361,10 @@ export default function AddManagersInterface() {
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            </div> {/* ✅ CLOSED Right Column */}
+          </div> {/* ✅ CLOSE Grid */}
+        </div> {/* ✅ CLOSE Form Section */}
+      </div> {/* ✅ CLOSE Form Container */}
     </div>
   );
 }
