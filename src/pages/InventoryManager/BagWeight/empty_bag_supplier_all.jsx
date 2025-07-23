@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 
 export default function Supplier() {
-  const [selectedBags, setSelectedBags] = useState(['TN-B5', 'TN-B6']);
-  const [selectedBagsWeight, setSelectedBagsWeight] = useState('');
-  const [leafType, setLeafType] = useState('wet');
-
   const [teaBags] = useState([
-    { bagNo: 'TN-B5', driverWeight: '24 Kg' },
-    { bagNo: 'TN-B6', driverWeight: '25 Kg' },
-    { bagNo: 'TN-B7', driverWeight: '25 Kg' },
+    { bagNo: 'TN-B5' },
+    { bagNo: 'TN-B6' },
+    { bagNo: 'TN-B7' },
   ]);
 
+  const [selectedBags, setSelectedBags] = useState(teaBags.map(bag => bag.bagNo));
+  const [selectedBagsWeight, setSelectedBagsWeight] = useState('');
+
   const handleBagSelection = (bagNo) => {
-    setSelectedBags(prev => 
-      prev.includes(bagNo) 
+    setSelectedBags(prev =>
+      prev.includes(bagNo)
         ? prev.filter(bag => bag !== bagNo)
         : [...prev, bagNo]
     );
@@ -22,23 +21,17 @@ export default function Supplier() {
   const handleEnter = () => {
     console.log('Processing bags:', {
       selectedBags,
-      selectedBagsWeight,
-      leafType
+      selectedBagsWeight
     });
   };
 
-  // Calculate total weight of selected bags
-  const selectedBagsTotal = teaBags
-    .filter(bag => selectedBags.includes(bag.bagNo))
-    .reduce((sum, bag) => sum + parseFloat(bag.driverWeight.replace(' Kg', '')), 0);
-
   return (
-    <div className="h-full bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 pt-5 pb-5 px-4">
       <div className="max-w-8xl mx-auto space-y-4">
-        
+
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
-          <h1 className="text-2xl font-bold text-gray-900">Bag Weight Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Empty Bag Weight Management</h1>
         </div>
 
         {/* Top Statistics Cards */}
@@ -55,7 +48,7 @@ export default function Supplier() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
             <div className="flex items-center justify-between">
               <div>
@@ -68,12 +61,12 @@ export default function Supplier() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-emerald-700">Selected Weight</p>
-                <p className="text-2xl font-bold text-emerald-800">{selectedBagsTotal} Kg</p>
+                <p className="text-2xl font-bold text-emerald-800">0 Kg</p>
                 <p className="text-xs text-emerald-600">Total Selected</p>
               </div>
               <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -82,7 +75,7 @@ export default function Supplier() {
             </div>
           </div>
         </div>
-        
+
         {/* Supplier Info Card */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
           <div className="grid grid-cols-2 gap-6">
@@ -109,55 +102,34 @@ export default function Supplier() {
           </div>
         </div>
 
-        {/* Bags Containing Tea Leaves Table */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden border-emerald-200 duration-200 max-w-2xl">
-          {/* Table Header */}
+        {/* Bags Table */}
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden border-emerald-200 duration-200 max-w-md">
           <div className="bg-emerald-800 text-white">
-            <div className="grid grid-cols-2 gap-4 p-3 font-medium text-center">
-              <div className="flex items-center justify-center">
-                <input
-                  type="checkbox"
-                  className="mr-2 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
-                  checked={selectedBags.length === teaBags.length}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedBags(teaBags.map(bag => bag.bagNo));
-                    } else {
-                      setSelectedBags([]);
-                    }
-                  }}
-                />
-                Bag No
-              </div>
-              <div>Driver Weight</div>
-            </div>
+            <div className="p-3 font-medium text-center">Bag No</div>
           </div>
-          
-          {/* Table Rows */}
           <div className="divide-y divide-gray-200">
             {teaBags.map((bag, index) => (
-              <div key={index} className="grid grid-cols-2 gap-4 p-4 items-center hover:bg-gray-50">
-                <div className="flex items-center justify-center">
-                  <input
-                    type="checkbox"
-                    className="mr-2 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
-                    checked={selectedBags.includes(bag.bagNo)}
-                    onChange={() => handleBagSelection(bag.bagNo)}
-                  />
-                  <span className="font-medium text-gray-900">{bag.bagNo}</span>
-                </div>
-                <div className="text-emerald-700 font-medium text-center">{bag.driverWeight}</div>
+              <div
+                key={index}
+                className="p-4 text-center hover:bg-gray-50 cursor-pointer"
+                onClick={() => handleBagSelection(bag.bagNo)}
+              >
+                <span className={`font-medium ${selectedBags.includes(bag.bagNo)
+                  ? 'text-emerald-700 bg-emerald-50 px-2 py-1 rounded'
+                  : 'text-gray-900'
+                  }`}>
+                  {bag.bagNo}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
         {/* In Factory Section */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200 pb-10">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">In Factory</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            {/* Selected Bags */}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Selected Bags</label>
               <div className="text-sm text-gray-600 bg-emerald-50 p-3 rounded-lg border border-emerald-200 min-h-10 flex items-center">
@@ -165,7 +137,6 @@ export default function Supplier() {
               </div>
             </div>
 
-            {/* Selected Bags Weight */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Selected Bags Weight</label>
               <input
@@ -177,36 +148,6 @@ export default function Supplier() {
               />
             </div>
 
-            {/* Leaf Type Radio Buttons */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Leaf Type</label>
-              <div className="flex space-x-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="leafType"
-                    value="wet"
-                    checked={leafType === 'wet'}
-                    onChange={(e) => setLeafType(e.target.value)}
-                    className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Wet</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="leafType"
-                    value="dry"
-                    checked={leafType === 'dry'}
-                    onChange={(e) => setLeafType(e.target.value)}
-                    className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Dry</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Enter Button */}
             <div>
               <button
                 onClick={handleEnter}
@@ -219,35 +160,6 @@ export default function Supplier() {
           </div>
         </div>
 
-        {/* Action Bar for Measured Section */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
-          <div className="flex justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold text-gray-900">Measured Tea Leaf Bags</h2>
-              <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                No Data
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Measured Tea Leaf Bags Section */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden border-emerald-200 duration-200">
-          <div className="bg-emerald-800 text-white">
-            <div className="grid grid-cols-4 gap-4 p-3 font-medium text-center">
-              <div>Bag No</div>
-              <div>Weight</div>
-              <div>Type</div>
-              <div>Status</div>
-            </div>
-          </div>
-          
-          <div className="p-8 text-center text-gray-500">
-            <div className="text-4xl mb-2">📊</div>
-            <p className="text-sm">No measured tea leaf bags data available</p>
-            <p className="text-xs text-gray-400 mt-1">Data will appear here once bags are processed</p>
-          </div>
-        </div>
       </div>
     </div>
   );

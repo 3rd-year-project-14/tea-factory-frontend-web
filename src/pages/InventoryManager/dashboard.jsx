@@ -1,235 +1,491 @@
-import React, { useState } from 'react';
-import { Search, Plus, Package, TrendingUp, TrendingDown, AlertTriangle, Eye, Edit, Trash2, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Calendar, MapPin, User, Scale, CheckCircle, Clock, 
+  TrendingUp, AlertTriangle, Truck, Weight, 
+  BarChart3, RefreshCw, Plus, Eye, Edit, Download, 
+  ChevronRight, ChevronDown, Home
+} from 'lucide-react';
 
-const Dashboard = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all');
-  const [showAddModal, setShowAddModal] = useState(false);
+export default function InventoryManagerDashboard() {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [expandedRoute, setExpandedRoute] = useState(null);
+  const [refreshTime, setRefreshTime] = useState(new Date());
 
-  // Sample tea inventory data for a tea factory
-  const [inventory] = useState([
-    { id: 1, name: 'Black Tea', sku: 'BT-001', category: 'Tea', quantity: 120, price: 350.00, status: 'In Stock' },
-    { id: 2, name: 'Green Tea', sku: 'GT-002', category: 'Tea', quantity: 40, price: 420.00, status: 'Low Stock' },
-    { id: 3, name: 'White Tea', sku: 'WT-003', category: 'Tea', quantity: 0, price: 600.00, status: 'Out of Stock' },
-    { id: 4, name: 'Tea Bags', sku: 'TB-004', category: 'Packaging', quantity: 500, price: 2.50, status: 'In Stock' },
-    { id: 5, name: 'Carton Boxes', sku: 'CB-005', category: 'Packaging', quantity: 80, price: 30.00, status: 'In Stock' },
-    { id: 6, name: 'Fertilizer', sku: 'FZ-006', category: 'Supplies', quantity: 15, price: 1200.00, status: 'Low Stock' },
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRefreshTime(new Date());
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.toLocaleString("default", { month: "long" });
+  const date = today.getDate();
+
+  const [operationalData] = useState({
+    totalRoutes: 45,
+    activeRoutes: 12,
+    completedToday: 8,
+    pendingRoutes: 3,
+    totalSuppliers: 156,
+    activeSuppliers: 34,
+    totalBagsCollected: 245,
+    totalWeightToday: '4,850 Kg',
+    averageBagWeight: '19.8 Kg',
+    alertsCount: 3,
+    efficiency: 94.2
+  });
+
+  const [activeRoutesData] = useState([
+    {
+      id: 'TN-1',
+      routeName: 'Route - 1',
+      driverName: 'Driver - 1',
+      vehicleNo: 'DAD-2435',
+      status: 'active',
+      progress: 75,
+      suppliersTotal: 10,
+      suppliersCompleted: 7,
+      bagsCollected: 18,
+      currentWeight: '320 Kg',
+      estimatedCompletion: '15:30',
+      lastUpdate: '14:25',
+      alerts: []
+    },
+    {
+      id: 'TK-1',
+      routeName: 'Route - 2',
+      driverName: 'Driver - 2',
+      vehicleNo: 'DAD-2436',
+      status: 'active',
+      progress: 45,
+      suppliersTotal: 12,
+      suppliersCompleted: 5,
+      bagsCollected: 12,
+      currentWeight: '235 Kg',
+      estimatedCompletion: '16:45',
+      lastUpdate: '14:20',
+      alerts: ['Delay at Supplier S-108']
+    },
+    {
+      id: 'TK-2',
+      routeName: 'Route - 4',
+      driverName: 'Driver - 4',
+      vehicleNo: 'DAD-2438',
+      status: 'delayed',
+      progress: 30,
+      suppliersTotal: 8,
+      suppliersCompleted: 2,
+      bagsCollected: 5,
+      currentWeight: '95 Kg',
+      estimatedCompletion: '17:15',
+      lastUpdate: '13:45',
+      alerts: ['Vehicle maintenance required', 'Behind schedule']
+    }
   ]);
 
-  const stats = [
-    { label: 'Total Tea Types', value: '3', icon: Package, color: 'bg-green-500' },
-    { label: 'Low Stock Items', value: '2', icon: AlertTriangle, color: 'bg-yellow-500' },
-    { label: 'Out of Stock', value: '1', icon: TrendingDown, color: 'bg-red-500' },
-    { label: 'Total Inventory Value', value: 'Rs. 120,000', icon: TrendingUp, color: 'bg-green-600' },
-  ];
+  const [recentActivities] = useState([
+    {
+      id: 'ACT-001',
+      type: 'route_complete',
+      message: 'Route TN-3 completed successfully',
+      details: '15 bags, 285 Kg collected from 8 suppliers',
+      timestamp: '14:15',
+      status: 'success'
+    },
+    {
+      id: 'ACT-002',
+      type: 'weight_recorded',
+      message: 'Bag weight recorded for Supplier S-104',
+      details: 'TN-B7: 22 Kg recorded and verified',
+      timestamp: '14:10',
+      status: 'info'
+    },
+    {
+      id: 'ACT-003',
+      type: 'alert',
+      message: 'Route TK-2 experiencing delays',
+      details: 'Vehicle maintenance required, estimated delay: 45 mins',
+      timestamp: '13:45',
+      status: 'warning'
+    },
+    {
+      id: 'ACT-004',
+      type: 'supplier_update',
+      message: 'Supplier S-110 ready for collection',
+      details: '3 bags ready, estimated weight: 58 Kg',
+      timestamp: '13:30',
+      status: 'info'
+    }
+  ]);
 
-  const categories = ['all', 'Tea', 'Packaging', 'Supplies'];
-
-  const filteredInventory = inventory.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || item.category === filterCategory;
-    return matchesSearch && matchesCategory;
+  const [performanceData] = useState({
+    dailyTargets: {
+      routes: { target: 15, completed: 8, percentage: 53 },
+      weight: { target: 6000, completed: 4850, percentage: 81 },
+      suppliers: { target: 45, completed: 34, percentage: 76 }
+    },
+    weeklyTrends: [
+      { day: 'Mon', routes: 12, weight: 4200 },
+      { day: 'Tue', routes: 14, weight: 4800 },
+      { day: 'Wed', routes: 11, weight: 4850 },
+      { day: 'Thu', routes: 13, weight: 5200 },
+      { day: 'Fri', routes: 15, weight: 5500 },
+      { day: 'Sat', routes: 10, weight: 3800 },
+      { day: 'Sun', routes: 8, weight: 3200 }
+    ]
   });
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'In Stock': return 'bg-green-100 text-green-800';
-      case 'Low Stock': return 'bg-yellow-100 text-yellow-800';
-      case 'Out of Stock': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
+      case 'delayed': return 'bg-red-100 text-red-800 border-red-200';
+      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const AddItemModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Inventory Item</h3>
-        <div className="space-y-4">
-          <input type="text" placeholder="Item Name" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
-          <input type="text" placeholder="SKU" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
-          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-            <option>Tea</option>
-            <option>Packaging</option>
-            <option>Supplies</option>
-          </select>
-          <input type="number" placeholder="Quantity" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
-          <input type="number" placeholder="Price" step="0.01" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
-        </div>
-        <div className="flex justify-end space-x-3 mt-6">
-          <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
-          <button onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Add Item</button>
-        </div>
-      </div>
-    </div>
-  );
+  const getProgressColor = (progress) => {
+    if (progress >= 80) return 'bg-green-500';
+    if (progress >= 50) return 'bg-emerald-500';
+    if (progress >= 25) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  const TabButton = ({ id, label, icon, active, onClick }) => (
+  <button
+    onClick={() => onClick(id)}
+    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+      active 
+        ? 'bg-emerald-600 text-white shadow-md' 
+        : 'bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200'
+    }`}
+  >
+    {React.createElement(icon, { className: "h-4 w-4" })}
+    {label}
+  </button>
+);
+
+
+const MetricCard = ({ title, value, subtitle, trend, icon, color = 'emerald' }) => {
+  const borderClass = `border border-${color}-200`;
+  const textColor = `text-${color}-700`;
+  const valueColor = `text-${color}-800`;
+  const subtitleColor = `text-${color}-600`;
+  const bgColor = `bg-${color}-100`;
+  const iconColor = `text-${color}-600`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Package className="h-8 w-8 text-green-600 mr-3" />
-              <h1 className="text-2xl font-bold text-gray-900">Tea Factory Inventory Manager</h1>
-            </div>
-            <button onClick={() => setShowAddModal(true)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center space-x-2 transition-colors">
-              <Plus className="h-5 w-5" />
-              <span>Add Item</span>
-            </button>
-          </div>
+    <div className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ${borderClass}`}>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className={`text-sm font-medium ${textColor}`}>{title}</p>
+          <p className={`text-2xl font-bold ${valueColor}`}>{value}</p>
+          {subtitle && <p className={`text-xs ${subtitleColor}`}>{subtitle}</p>}
         </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-              <div className="flex items-center">
-                <div className={`${stat.color} p-3 rounded-lg`}>
-                  <stat.icon className="h-6 w-6 text-white" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Filters and Search */}
-        <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <div className="flex-1 md:mr-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search items..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Filter className="h-5 w-5 text-gray-400" />
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  {categories.map(category => (
-                    <option key={category} value={category}>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Inventory Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Inventory Items</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price (Rs.)</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredInventory.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{item.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.sku}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.category}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.quantity}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.price}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex space-x-2">
-                        <button className="text-green-600 hover:text-green-800">
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button className="text-blue-600 hover:text-blue-800">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button className="text-red-600 hover:text-red-800">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-          </div>
-          <div className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="bg-green-100 p-2 rounded-full">
-                  <Plus className="h-4 w-4 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Added 50kg Black Tea to inventory</p>
-                  <p className="text-xs text-gray-500">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="bg-yellow-100 p-2 rounded-full">
-                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Low stock alert for Green Tea</p>
-                  <p className="text-xs text-gray-500">4 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="bg-blue-100 p-2 rounded-full">
-                  <Edit className="h-4 w-4 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Updated price for Fertilizer</p>
-                  <p className="text-xs text-gray-500">1 day ago</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className={`h-12 w-12 rounded-full flex items-center justify-center ${bgColor}`}>
+          {React.createElement(icon, { className: `h-6 w-6 ${iconColor}` })}
         </div>
       </div>
-
-      {/* Add Item Modal */}
-      {showAddModal && <AddItemModal />}
+      {trend && (
+        <div className="mt-2 flex items-center">
+          <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+          <span className="text-xs text-green-600 font-medium">{trend}</span>
+        </div>
+      )}
     </div>
   );
 };
 
-export default Dashboard;
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-emerald-200 sticky top-0 z-40">
+        <div className="max-w-8xl mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Home className="h-6 w-6 text-emerald-600" />
+                <h1 className="text-2xl font-bold text-gray-900">Inventory Manager Dashboard</h1>
+              </div>
+              <div className="flex items-center gap-2 text-emerald-700">
+                <RefreshCw className="h-4 w-4" />
+                <span className="text-sm">Last updated: {refreshTime.toLocaleTimeString()}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 text-emerald-800">
+                <Calendar className="h-5 w-5" />
+                <span className="text-lg font-semibold">{year}</span>
+                <span className="text-md font-medium">{month} {date}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="bg-gray-100 border-b border-gray-200">
+        <div className="max-w-8xl mx-auto px-4 py-3">
+          <div className="flex gap-2 overflow-x-auto">
+            <TabButton id="overview" label="Overview" icon={BarChart3} active={activeTab === 'overview'} onClick={setActiveTab} />
+            <TabButton id="routes" label="Active Routes" icon={MapPin} active={activeTab === 'routes'} onClick={setActiveTab} />
+            <TabButton id="suppliers" label="Suppliers" icon={User} active={activeTab === 'suppliers'} onClick={setActiveTab} />
+            <TabButton id="weights" label="Weight Management" icon={Scale} active={activeTab === 'weights'} onClick={setActiveTab} />
+            <TabButton id="history" label="History" icon={Clock} active={activeTab === 'history'} onClick={setActiveTab} />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-8xl mx-auto p-4">
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {/* Key Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <MetricCard
+                title="Active Routes"
+                value={operationalData.activeRoutes}
+                subtitle={`${operationalData.completedToday} completed today`}
+                icon={MapPin}
+                trend="+8.3% from yesterday"
+              />
+              <MetricCard
+                title="Total Weight Collected"
+                value={operationalData.totalWeightToday}
+                subtitle={`${operationalData.totalBagsCollected} bags processed`}
+                icon={Weight}
+                trend="+12.4% from yesterday"
+              />
+              <MetricCard
+                title="Active Suppliers"
+                value={operationalData.activeSuppliers}
+                subtitle={`of ${operationalData.totalSuppliers} total`}
+                icon={User}
+                trend="+5.2% efficiency"
+              />
+              <MetricCard
+                title="System Efficiency"
+                value={`${operationalData.efficiency}%`}
+                subtitle="Operational performance"
+                icon={TrendingUp}
+                trend="Above target"
+                color="green"
+              />
+            </div>
+
+            {/* Daily Progress */}
+            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Progress</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {Object.entries(performanceData.dailyTargets).map(([key, data]) => (
+                  <div key={key} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-700 capitalize">{key}</span>
+                      <span className="text-sm text-gray-500">{data.completed}/{data.target}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div
+                        className={`h-3 rounded-full transition-all duration-500 ${
+                          data.percentage >= 80 ? 'bg-green-500' : 
+                          data.percentage >= 60 ? 'bg-emerald-500' : 
+                          data.percentage >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                        }`}
+                        style={{ width: `${Math.min(data.percentage, 100)}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-xs text-gray-600">{data.percentage}% of daily target</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Activities */}
+            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Recent Activities</h3>
+                <button className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
+                  View All
+                </button>
+              </div>
+              <div className="space-y-3">
+                {recentActivities.map((activity) => (
+                  <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50">
+                    <div className={`w-2 h-2 rounded-full mt-2 ${
+                      activity.status === 'success' ? 'bg-green-500' :
+                      activity.status === 'warning' ? 'bg-yellow-500' :
+                      activity.status === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                    }`}></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+                      <p className="text-xs text-gray-600">{activity.details}</p>
+                    </div>
+                    <span className="text-xs text-gray-500">{activity.timestamp}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Active Routes Tab */}
+        {activeTab === 'routes' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Active Routes Monitoring</h3>
+                <div className="flex gap-2">
+                  <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Route
+                  </button>
+                  <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
+                    <RefreshCw className="h-4 w-4" />
+                    Refresh
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {activeRoutesData.map((route) => (
+                  <div key={route.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setExpandedRoute(expandedRoute === route.id ? null : route.id)}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          {expandedRoute === route.id ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+                        </button>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{route.routeName} ({route.id})</h4>
+                          <p className="text-sm text-gray-600">{route.driverName} • {route.vehicleNo}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {route.alerts.length > 0 && (
+                          <div className="flex items-center gap-1 text-red-600">
+                            <AlertTriangle className="h-4 w-4" />
+                            <span className="text-xs">{route.alerts.length}</span>
+                          </div>
+                        )}
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(route.status)}`}>
+                          {route.status.charAt(0).toUpperCase() + route.status.slice(1)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-emerald-600">{route.progress}%</p>
+                        <p className="text-xs text-gray-600">Progress</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-semibold text-gray-900">{route.suppliersCompleted}/{route.suppliersTotal}</p>
+                        <p className="text-xs text-gray-600">Suppliers</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-semibold text-gray-900">{route.bagsCollected}</p>
+                        <p className="text-xs text-gray-600">Bags Collected</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-semibold text-emerald-700">{route.currentWeight}</p>
+                        <p className="text-xs text-gray-600">Total Weight</p>
+                      </div>
+                    </div>
+
+                    <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(route.progress)}`}
+                        style={{ width: `${route.progress}%` }}
+                      ></div>
+                    </div>
+
+                    <div className="flex justify-between items-center text-sm text-gray-600">
+                      <span>ETA: {route.estimatedCompletion}</span>
+                      <span>Last Update: {route.lastUpdate}</span>
+                    </div>
+
+                    {route.alerts.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        {route.alerts.map((alert, index) => (
+                          <div key={index} className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-2 rounded">
+                            <AlertTriangle className="h-4 w-4" />
+                            {alert}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {expandedRoute === route.id && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <div className="flex gap-2">
+                          <button className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm hover:bg-blue-200">
+                            <Eye className="h-4 w-4" />
+                            View Details
+                          </button>
+                          <button className="flex items-center gap-2 bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-200">
+                            <Edit className="h-4 w-4" />
+                            Edit Route
+                          </button>
+                          <button className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded text-sm hover:bg-green-200">
+                            <Download className="h-4 w-4" />
+                            Export Data
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Suppliers Tab */}
+        {activeTab === 'suppliers' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Supplier Management</h3>
+              <div className="text-center py-8 text-gray-500">
+                <User className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Supplier management interface coming soon...</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Weight Management Tab */}
+        {activeTab === 'weights' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Weight Management System</h3>
+              <div className="text-center py-8 text-gray-500">
+                <Scale className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Weight management interface coming soon...</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* History Tab */}
+        {activeTab === 'history' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Inventory History</h3>
+              <div className="text-center py-8 text-gray-500">
+                <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>History management system will be integrated here...</p>
+                <p className="text-sm mt-2">This will include the full history component from your provided code.</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

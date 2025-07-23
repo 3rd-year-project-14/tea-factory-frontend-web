@@ -2,17 +2,25 @@ import React, { useState } from "react";
 import { Search, Truck, PackageCheck, Scale } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+
 const ACCENT_COLOR = "#01251F";
+
+
+
+
+
 
 export default function Route() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentView, setCurrentView] = useState("today");
   const navigate = useNavigate();
 
+
   const today = new Date();
   const year = today.getFullYear();
   const month = today.toLocaleString("default", { month: "long" });
   const date = today.getDate();
+
 
   const [routes] = useState([
     { id: "TN-1", routeName: "Route - 1", driverName: "Driver - 1", vehicleNo: "DAD-2435", suppliers: 10, status: "active" },
@@ -21,6 +29,7 @@ export default function Route() {
     { id: "TR-1", routeName: "Route - 4", driverName: "Driver - 4", vehicleNo: "DAD-2438", suppliers: 29, status: "active" },
     { id: "TB-2", routeName: "Route - 5", driverName: "Driver - 5", vehicleNo: "DAD-2439", suppliers: 16, status: "active" },
   ]);
+
 
   const [completedRoutes] = useState([
     {
@@ -45,7 +54,9 @@ export default function Route() {
     },
   ]);
 
+
   const currentRoutes = currentView === "completed" ? completedRoutes : routes;
+
 
   const filteredRoutes = currentRoutes.filter(
     (route) =>
@@ -53,6 +64,7 @@ export default function Route() {
       route.driverName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       route.vehicleNo.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   return (
     <div className="h-full bg-gray-50 p-4">
@@ -68,6 +80,7 @@ export default function Route() {
             </div>
           </div>
         </div>
+
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -91,6 +104,7 @@ export default function Route() {
             </div>
           </div>
 
+
           {/* Total Bags */}
           <div className="p-6 rounded-lg shadow-md border border-black bg-white">
             <div className="flex items-center justify-between">
@@ -103,6 +117,7 @@ export default function Route() {
               </div>
             </div>
           </div>
+
 
           {/* Completed Routes */}
           <div
@@ -127,6 +142,7 @@ export default function Route() {
           </div>
         </div>
 
+
         {/* Action Bar */}
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-700">
@@ -143,6 +159,7 @@ export default function Route() {
             <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
         </div>
+
 
         {/* Routes Table */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200">
@@ -164,6 +181,7 @@ export default function Route() {
               )}
             </div>
           </div>
+
 
           <div className="divide-y divide-gray-100">
             {filteredRoutes.map((route) => (
