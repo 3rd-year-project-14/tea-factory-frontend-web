@@ -70,16 +70,19 @@ export default function Route() {
     <div className="h-full bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
-        <div className="bg-white shadow-sm p-4 rounded-lg border border-emerald-200">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Leaf Weight</h1>
-            <div className="flex items-center gap-3 text-emerald-800 font-semibold">
-              <span className="text-lg">{year}</span>
-              <span className="text-md font-medium">{month}</span>
-              <span className="text-lg">{date}</span>
-            </div>
-          </div>
-        </div>
+        <div className="bg-white shadow-sm p-4">
+  <div className="flex justify-between items-center">
+    <h1 className="text-2xl font-bold" style={{ color: '#165E52' }}>
+      Leaf Weight
+    </h1>
+{/*     <div className="flex items-center gap-3 text-emerald-800 font-semibold">
+      <span className="text-lg">{year}</span>
+      <span className="text-md font-medium">{month}</span>
+      <span className="text-lg">{date}</span>
+    </div> */}
+  </div>
+</div>
+
 
 
         {/* Summary Cards */}

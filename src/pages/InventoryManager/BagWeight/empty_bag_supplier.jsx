@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { Search, Users, Package, Scale } from 'lucide-react';
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,48 +39,48 @@ export default function DriverRoute() {
 
         {/* Top Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+          <div className="bg-white px-4 py-3 rounded-lg shadow-md border border-black-200 ">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">No of Suppliers</p>
-                <p className="text-2xl font-bold text-emerald-800">{totalSuppliers}</p>
-                <p className="text-xs text-emerald-600">Unique Suppliers</p>
+                <p className="text-sm font-medium text-black-700">No of Suppliers</p>
+                <p className="text-2xl font-bold text-black-800">{totalSuppliers}</p>
+                <p className="text-xs text-black-600">Unique Suppliers</p>
               </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">👥</div>
+              <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+               <Users className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
           
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+          <div className="bg-white px-4 py-3 rounded-lg shadow-md border border-black-200 ">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">No of Bags</p>
-                <p className="text-2xl font-bold text-emerald-800">{totalBags}</p>
-                <p className="text-xs text-emerald-600">Total Bags</p>
+                <p className="text-sm font-medium text-black-700">No of Bags</p>
+                <p className="text-2xl font-bold text-black-800">{totalBags}</p>
+                <p className="text-xs text-black-600">Total Bags</p>
               </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">📦</div>
+              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
+                <Package className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
           
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+           <div className="bg-white px-4 py-3 rounded-lg shadow-md border border-black-200 ">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">Total Weight</p>
-                <p className="text-2xl font-bold text-emerald-800">{totalWeight} Kg</p>
-                <p className="text-xs text-emerald-600">Combined Weight</p>
+                <p className="text-sm font-medium text-black-700">Total Weight</p>
+                <p className="text-2xl font-bold text-black-800">{totalWeight} Kg</p>
+                <p className="text-xs text-black-600">Combined Weight</p>
               </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">⚖️</div>
+              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
+                 <Scale className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Route Information Form */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -117,7 +117,7 @@ export default function DriverRoute() {
         </div>
 
         {/* Action Bar */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
           <div className="flex justify-between items-center gap-4">
             <div className="flex items-center gap-4">
               <h2 className="text-lg font-semibold text-gray-900">Supplier Bags</h2>
@@ -130,7 +130,7 @@ export default function DriverRoute() {
 
         {/* Suppliers Table */}
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden border-emerald-200 duration-200">
-          <div className="bg-emerald-800 text-white">
+          <div className="bg-[#01251F] text-white">
             <div className="grid grid-cols-4 gap-4 p-3 font-medium text-center">
               <div>Bag No</div>
               <div>Supplier No</div>

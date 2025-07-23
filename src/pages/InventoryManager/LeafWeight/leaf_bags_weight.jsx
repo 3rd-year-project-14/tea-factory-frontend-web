@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { Package, CheckCircle, Scale, BarChart2 } from 'lucide-react';
+
 
 export default function Supplier() {
   const [selectedBags, setSelectedBags] = useState(['TN-B5', 'TN-B6']);
   const [selectedBagsWeight, setSelectedBagsWeight] = useState('');
   const [leafType, setLeafType] = useState('wet');
+
 
   const [teaBags] = useState([
     { bagNo: 'TN-B5', driverWeight: '24 Kg' },
@@ -11,13 +14,13 @@ export default function Supplier() {
     { bagNo: 'TN-B7', driverWeight: '25 Kg' },
   ]);
 
+
   const handleBagSelection = (bagNo) => {
-    setSelectedBags(prev => 
-      prev.includes(bagNo) 
-        ? prev.filter(bag => bag !== bagNo)
-        : [...prev, bagNo]
+    setSelectedBags((prev) =>
+      prev.includes(bagNo) ? prev.filter((bag) => bag !== bagNo) : [...prev, bagNo]
     );
   };
+
 
   const handleEnter = () => {
     console.log('Processing bags:', {
@@ -27,191 +30,183 @@ export default function Supplier() {
     });
   };
 
-  // Calculate total weight of selected bags
+
   const selectedBagsTotal = teaBags
-    .filter(bag => selectedBags.includes(bag.bagNo))
+    .filter((bag) => selectedBags.includes(bag.bagNo))
     .reduce((sum, bag) => sum + parseFloat(bag.driverWeight.replace(' Kg', '')), 0);
+
 
   return (
     <div className="h-full bg-gray-50 p-4">
-      <div className="max-w-8xl mx-auto space-y-4">
-        
+      <div className="max-w-7xl mx-auto space-y-5">
+
+
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
-          <h1 className="text-2xl font-bold text-gray-900">Bag Weight Management</h1>
+        <div className="bg-white rounded-lg shadow-sm p-4 " >
+          <h1 className="text-2xl font-bold" style={{ color: '#165E52' }}>Bag Weight Management</h1>
         </div>
 
-        {/* Top Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-emerald-700">Total Bags</p>
-                <p className="text-2xl font-bold text-emerald-800">{teaBags.length}</p>
-                <p className="text-xs text-emerald-600">Available Bags</p>
-              </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">📦</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-emerald-700">Selected Bags</p>
-                <p className="text-2xl font-bold text-emerald-800">{selectedBags.length}</p>
-                <p className="text-xs text-emerald-600">Currently Selected</p>
-              </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">✅</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-emerald-700">Selected Weight</p>
-                <p className="text-2xl font-bold text-emerald-800">{selectedBagsTotal} Kg</p>
-                <p className="text-xs text-emerald-600">Total Selected</p>
-              </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">⚖️</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Supplier Info Card */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  {[
+    {
+      label: 'Total Bags',
+      value: teaBags.length,
+      subtitle: 'Available Bags',
+      icon: <Package className="text-[#000000] w-5 h-5" />,
+    },
+    {
+      label: 'Selected Bags',
+      value: selectedBags.length,
+      subtitle: 'Currently Selected',
+      icon: <CheckCircle className="text-[#000000] w-5 h-5" />,
+    },
+    {
+      label: 'Selected Weight',
+      value: `${selectedBagsTotal} Kg`,
+      subtitle: 'Total Selected',
+      icon: <Scale className="text-[#000000] w-5 h-5" />,
+    },
+  ].map((card, i) => (
+    <div
+      key={i}
+      className="bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg"
+      style={{ borderColor: '#000000' }}
+    >
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-sm font-medium" style={{ color: '#000000' }}>{card.label}</p>
+          <p className="text-2xl font-bold" style={{ color: '#000000' }}>{card.value}</p>
+          <p className="text-xs" style={{ color: '#000000' }}>{card.subtitle}</p>
+        </div>
+        <div className="h-10 w-10 bg-[#f3f4f6] rounded-full flex items-center justify-center">
+          {card.icon}
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+
+        {/* Supplier Info */}
+        <div className="bg-white rounded-lg shadow-sm p-4 border" style={{ borderColor: '#cfece6' }}>
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Supplier No</label>
-              <div className="text-lg font-semibold text-emerald-800">TN-S104</div>
+              <label className="text-sm font-semibold mb-1 block" style={{ color: '#165E52' }}>Supplier No</label>
+              <div className="text-lg font-semibold text-[#01251F]">TN-S104</div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Supplier Name</label>
+              <label className="text-sm font-semibold mb-1 block" style={{ color: '#165E52' }}>Supplier Name</label>
               <div className="text-lg font-semibold text-gray-900">Supplier - 4</div>
             </div>
           </div>
         </div>
 
-        {/* Action Bar */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+
+        {/* Bags Section Header */}
+        <div className="bg-white rounded-lg border p-4" style={{ borderColor: '#cfece6' }}>
           <div className="flex justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold text-gray-900">Bags Containing Tea Leaves</h2>
-              <span className="bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                {teaBags.length} Bags Available
-              </span>
-            </div>
+            <h2 className="text-lg font-semibold" style={{ color: '#165E52' }}>Bags Containing Tea Leaves</h2>
+            <span className="bg-[#eafaf6] text-[#165E52] text-xs font-medium px-3 py-1 rounded-full">
+              {teaBags.length} Bags Available
+            </span>
           </div>
         </div>
 
-        {/* Bags Containing Tea Leaves Table */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden border-emerald-200 duration-200 max-w-2xl">
-          {/* Table Header */}
-          <div className="bg-emerald-800 text-white">
+
+        {/* Bags Table */}
+        <div className="bg-white rounded-lg border overflow-hidden max-w-2xl" style={{ borderColor: '#cfece6' }}>
+          <div className="bg-[#01251F] text-white">
             <div className="grid grid-cols-2 gap-4 p-3 font-medium text-center">
-              <div className="flex items-center justify-center">
+              <div className="flex justify-center items-center">
                 <input
                   type="checkbox"
-                  className="mr-2 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+                  className="mr-2 h-4 w-4 text-[#165E52] border-gray-300 focus:ring-[#165E52]"
                   checked={selectedBags.length === teaBags.length}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedBags(teaBags.map(bag => bag.bagNo));
-                    } else {
-                      setSelectedBags([]);
-                    }
-                  }}
+                  onChange={(e) =>
+                    setSelectedBags(e.target.checked ? teaBags.map(b => b.bagNo) : [])
+                  }
                 />
                 Bag No
               </div>
               <div>Driver Weight</div>
             </div>
           </div>
-          
-          {/* Table Rows */}
-          <div className="divide-y divide-gray-200">
-            {teaBags.map((bag, index) => (
-              <div key={index} className="grid grid-cols-2 gap-4 p-4 items-center hover:bg-gray-50">
-                <div className="flex items-center justify-center">
+
+
+          <div className="divide-y divide-gray-100">
+            {teaBags.map((bag, i) => (
+              <div key={i} className="grid grid-cols-2 gap-4 p-4 items-center hover:bg-gray-50">
+                <div className="flex justify-center items-center">
                   <input
                     type="checkbox"
-                    className="mr-2 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+                    className="mr-2 h-4 w-4 text-[#165E52] border-gray-300 focus:ring-[#165E52]"
                     checked={selectedBags.includes(bag.bagNo)}
                     onChange={() => handleBagSelection(bag.bagNo)}
                   />
                   <span className="font-medium text-gray-900">{bag.bagNo}</span>
                 </div>
-                <div className="text-emerald-700 font-medium text-center">{bag.driverWeight}</div>
+                <div className="text-center font-medium text-[#165E52]">{bag.driverWeight}</div>
               </div>
             ))}
           </div>
         </div>
 
+
         {/* In Factory Section */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">In Factory</h2>
-          
+        <div className="bg-white rounded-lg border p-4" style={{ borderColor: '#cfece6' }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: '#165E52' }}>In Factory</h2>
+         
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            {/* Selected Bags */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Selected Bags</label>
-              <div className="text-sm text-gray-600 bg-emerald-50 p-3 rounded-lg border border-emerald-200 min-h-10 flex items-center">
-                {selectedBags.length > 0 ? selectedBags.join(' ') : 'No bags selected'}
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#165E52' }}>Selected Bags</label>
+              <div className="bg-[#f6fdfb] p-3 rounded-lg border" style={{ borderColor: '#cfece6', color: '#01251F' }}>
+                {selectedBags.length > 0 ? selectedBags.join(', ') : 'No bags selected'}
               </div>
             </div>
 
-            {/* Selected Bags Weight */}
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Selected Bags Weight</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#165E52' }}>Selected Weight</label>
               <input
-                type="text"
                 value={selectedBagsWeight}
                 onChange={(e) => setSelectedBagsWeight(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="Enter weight"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#165E52] border-gray-300"
               />
             </div>
 
-            {/* Leaf Type Radio Buttons */}
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Leaf Type</label>
-              <div className="flex space-x-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="leafType"
-                    value="wet"
-                    checked={leafType === 'wet'}
-                    onChange={(e) => setLeafType(e.target.value)}
-                    className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Wet</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="leafType"
-                    value="dry"
-                    checked={leafType === 'dry'}
-                    onChange={(e) => setLeafType(e.target.value)}
-                    className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Dry</span>
-                </label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#165E52' }}>Leaf Type</label>
+              <div className="flex gap-4">
+                {['wet', 'dry'].map((type) => (
+                  <label key={type} className="flex items-center text-sm text-gray-800">
+                    <input
+                      type="radio"
+                      name="leafType"
+                      value={type}
+                      checked={leafType === type}
+                      onChange={(e) => setLeafType(e.target.value)}
+                      className="h-4 w-4 text-[#165E52] border-gray-300 focus:ring-[#165E52]"
+                    />
+                    <span className="ml-2 capitalize">{type}</span>
+                  </label>
+                ))}
               </div>
             </div>
 
-            {/* Enter Button */}
+
             <div>
               <button
                 onClick={handleEnter}
                 disabled={selectedBags.length === 0}
-                className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 w-full transform hover:scale-105"
+                className={`w-full text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform ${
+                    selectedBags.length === 0
+                      ? 'bg-gray-300 cursor-not-allowed'
+                      : 'bg-[#01251F] hover:bg-[#0f3b33] hover:scale-105'
+                }`}
               >
                 Enter
               </button>
@@ -219,36 +214,32 @@ export default function Supplier() {
           </div>
         </div>
 
-        {/* Action Bar for Measured Section */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+
+        {/* Measured Bags */}
+        <div className="bg-white rounded-lg border p-4" style={{ borderColor: '#cfece6' }}>
           <div className="flex justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold text-gray-900">Measured Tea Leaf Bags</h2>
-              <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                No Data
-              </span>
-            </div>
+            <h2 className="text-lg font-semibold" style={{ color: '#165E52' }}>Measured Tea Leaf Bags</h2>
+            <span className="bg-gray-100 text-gray-600 px-3 py-1 text-xs rounded-full">No Data</span>
           </div>
         </div>
 
-        {/* Measured Tea Leaf Bags Section */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden border-emerald-200 duration-200">
-          <div className="bg-emerald-800 text-white">
-            <div className="grid grid-cols-4 gap-4 p-3 font-medium text-center">
+
+        <div className="bg-white rounded-lg border overflow-hidden" style={{ borderColor: '#cfece6' }}>
+          <div className="bg-[#01251F] text-white">
+            <div className="grid grid-cols-4 gap-4 p-3 text-center font-medium">
               <div>Bag No</div>
               <div>Weight</div>
               <div>Type</div>
               <div>Status</div>
             </div>
           </div>
-          
           <div className="p-8 text-center text-gray-500">
             <div className="text-4xl mb-2">📊</div>
             <p className="text-sm">No measured tea leaf bags data available</p>
-            <p className="text-xs text-gray-400 mt-1">Data will appear here once bags are processed</p>
+            <p className="text-xs text-gray-400">Data will appear once bags are processed</p>
           </div>
         </div>
       </div>
     </div>
   );
-}
+} 

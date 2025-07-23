@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Truck, Package, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Route() {
@@ -138,14 +138,12 @@ export default function Route() {
     <div className="h-full bg-gray-50 p-4">
       <div className="max-w-8xl mx-auto space-y-4">
  
-        <div className="bg-white shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white shadow-sm p-4 mb-6  transition-all duration-200">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Bag Weight</h1>
-            <div className="flex items-center gap-3 text-emerald-800">
-              <span className="text-lg font-semibold">{year}</span>
-              <span className="text-md font-medium">{month}</span>
-              <span className="text-lg font-semibold">{date}</span>
-            </div>
+           <h1 className="text-2xl font-bold" style={{ color: '#165E52' }}>
+  Bag Weight
+</h1>
+            
           </div>
         </div>
 
@@ -154,52 +152,50 @@ export default function Route() {
           {/* Today Routes Card - Clickable */}
           <div 
             onClick={handleTodayRoutesClick}
-            className={`bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg cursor-pointer transform hover:scale-105 ${
+            className={`bg-white px-4 py-3 rounded-lg shadow-md border   ${
               currentView === "today" 
-                ? 'border-emerald-500 bg-emerald-50' 
-                : 'border-emerald-200 hover:border-emerald-300'
+                ? 'border-black-500 bg-gray-200' 
+                : 'border-black-200 '
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
                 <p className={`text-sm font-medium ${
-                  currentView === "today" ? 'text-emerald-800' : 'text-emerald-700'
+                  currentView === "today" ? 'text-black-800' : 'text-black-700'
                 }`}>
                   Today Routes
                 </p>
                 <p className={`text-2xl font-bold ${
-                  currentView === "today" ? 'text-emerald-900' : 'text-emerald-800'
+                  currentView === "today" ? 'text-black-900' : 'text-black-800'
                 }`}>
                   {routes.length}
                 </p>
                 <p className={`text-xs ${
-                  currentView === "today" ? 'text-emerald-700' : 'text-emerald-600'
+                  currentView === "today" ? 'text-balck-700' : 'text-black-600'
                 }`}>
                   {currentView === "today" ? 'Currently viewing' : 'Click to view'}
                 </p>
               </div>
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                currentView === "today" ? 'bg-emerald-200' : 'bg-emerald-100'
+                currentView === "today" ? 'bg-gray-200' : 'bg-gray-200'
               }`}>
-                <div className={`text-xl ${
-                  currentView === "today" ? 'text-emerald-800' : 'text-emerald-600'
-                }`}>🚛</div>
+               <Truck className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
 
           {/* Total Bags Card */}
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+          <div className="bg-white px-4 py-3 rounded-lg shadow-md  border border-black-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">
+                <p className="text-sm font-medium text-black-700">
                   Total Bags
                 </p>
-                <p className="text-2xl font-bold text-emerald-800">12</p>
-                <p className="text-xs text-emerald-600">All Bags</p>
+                <p className="text-2xl font-bold text-black-800">12</p>
+                <p className="text-xs text-black-600">All Bags</p>
               </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">📦</div>
+              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
+                 <Package className="text-gray-600 w-5 h-5" />
               </div>
             </div>
           </div>
@@ -207,43 +203,41 @@ export default function Route() {
           {/* Complete Route Card - Clickable */}
           <div 
             onClick={handleCompleteRouteClick}
-            className={`bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg cursor-pointer transform hover:scale-105 ${
+            className={`bg-white px-4 py-3 rounded-lg shadow-md border  ${
               currentView === "completed" 
-                ? 'border-emerald-500 bg-emerald-50' 
-                : 'border-emerald-200 hover:border-emerald-300'
+                ? 'border-black-500 ' 
+                : 'border-black-200 '
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
                 <p className={`text-sm font-medium ${
-                  currentView === "completed" ? 'text-emerald-800' : 'text-emerald-700'
+                  currentView === "completed" ? 'text-black-800' : 'text-black-700'
                 }`}>
                   Complete Routes
                 </p>
                 <p className={`text-2xl font-bold ${
-                  currentView === "completed" ? 'text-emerald-900' : 'text-emerald-800'
+                  currentView === "completed" ? 'text-black-900' : 'text-black-800'
                 }`}>
                   {completedRoutes.length}
                 </p>
                 <p className={`text-xs ${
-                  currentView === "completed" ? 'text-emerald-700' : 'text-emerald-600'
+                  currentView === "completed" ? 'text-black-700' : 'text-black-600'
                 }`}>
                   {currentView === "completed" ? 'Currently viewing' : 'Click to view'}
                 </p>
               </div>
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                currentView === "completed" ? 'bg-emerald-200' : 'bg-emerald-100'
+                currentView === "completed" ? 'bg-gray-200' : 'bg-gray-200'
               }`}>
-                <div className={`text-xl ${
-                  currentView === "completed" ? 'text-emerald-800' : 'text-emerald-600'
-                }`}>✅</div>
+                  <CheckCircle className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Action Bar */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
           <div className="flex justify-between items-center gap-4">
             <div className="flex items-center gap-4">
               <h2 className="text-lg font-semibold text-gray-900">
@@ -254,7 +248,7 @@ export default function Route() {
                   Completed
                 </span>
               ) : (
-                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                <span className="bg-emerald-50 text-black-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                   Today
                 </span>
               )}
@@ -275,7 +269,7 @@ export default function Route() {
 
         {/* Routes Table */}
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden border-emerald-200 duration-200">
-          <div className="bg-emerald-900 text-white">
+          <div className="bg-[#01251F] text-white">
             <div className={`grid gap-4 p-3 font-medium text-center ${
               currentView === "completed" ? 'grid-cols-6' : 'grid-cols-4'
             }`}>
