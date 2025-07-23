@@ -11,10 +11,8 @@ export default function SupplierBillView({
 
   // Generate all days (1-31) for the selected month
   const generateMonthlyData = () => {
-    const daysInMonth = 31; // Showing 31 days for consistency across all months
+    const daysInMonth = 31; // Showing 31 days for consistency
     const monthlyData = [];
-
-    // Calculate proportional deductions based on supplier's actual data
     const totalActualWeight = selectedSupplier.totalWeight;
     const bagWeightRatio = selectedSupplier.bagWeight / totalActualWeight;
     const waterWeightRatio = selectedSupplier.waterWeight / totalActualWeight;
@@ -26,13 +24,11 @@ export default function SupplierBillView({
         .toString()
         .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
 
-      // Find if there's an entry for this date
       const existingEntry = selectedSupplier.teaLeafEntries.find(
         (entry) => entry.date === dateStr
       );
 
       if (existingEntry) {
-        // Use existing data with proportional deductions
         const dayBagWeight = existingEntry.weight * bagWeightRatio;
         const dayWaterWeight = existingEntry.weight * waterWeightRatio;
         const dayCoarseLeaf = existingEntry.weight * coarseLeafRatio;
@@ -53,7 +49,6 @@ export default function SupplierBillView({
           amount: dayNetWeight * selectedSupplier.ratePerKg,
         });
       } else {
-        // No delivery for this day
         monthlyData.push({
           day,
           date: dateStr,
@@ -76,8 +71,37 @@ export default function SupplierBillView({
     (sum, day) => sum + day.netWeight,
     0
   );
-  // Calculate total amount based on net weight and rate
   const totalAmount = totalNetWeight * selectedSupplier.ratePerKg;
+
+  // Updated summary cards UI (black border, Lucide icon, modern layout)
+  const summaryCards = [
+    {
+      label: "Total Weight",
+      value: `${totalNetWeight.toFixed(1)} kg`,
+      icon: <DollarSign size={28} color="black" />,
+    },
+    {
+      label: "Total Amount",
+      value: `Rs. ${totalAmount.toLocaleString()}`,
+      icon: <DollarSign size={28} color="black" />,
+    },
+    {
+      label: "Paid",
+      value:
+        selectedSupplier.status === "Paid"
+          ? `Rs. ${selectedSupplier.finalAmount.toLocaleString()}`
+          : "-",
+      icon: <CreditCard size={28} color="black" />,
+    },
+    {
+      label: "Pending",
+      value:
+        selectedSupplier.status !== "Paid"
+          ? `Rs. ${selectedSupplier.finalAmount.toLocaleString()}`
+          : "-",
+      icon: <Banknote size={28} color="black" />,
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -133,8 +157,6 @@ export default function SupplierBillView({
               <div className="text-sm font-medium text-gray-600 border-b border-gray-200 pb-1 mb-2">
                 Next Month Due:
               </div>
-
-              {/* Loan installment due */}
               {selectedSupplier.upcomingPayments?.loanInstallment && (
                 <div className="flex justify-between items-center text-sm text-gray-600">
                   <span>Loan Installment:</span>
@@ -144,8 +166,6 @@ export default function SupplierBillView({
                   </span>
                 </div>
               )}
-
-              {/* Fertilizer payment due */}
               {selectedSupplier.upcomingPayments?.fertilizerDue && (
                 <div className="flex justify-between items-center text-sm text-gray-600">
                   <span>Fertilizer Due:</span>
@@ -155,8 +175,6 @@ export default function SupplierBillView({
                   </span>
                 </div>
               )}
-
-              {/* Show total if there are any upcoming payments */}
               {selectedSupplier.upcomingPayments &&
                 (selectedSupplier.upcomingPayments.loanInstallment ||
                   selectedSupplier.upcomingPayments.fertilizerDue) && (
@@ -172,8 +190,6 @@ export default function SupplierBillView({
                     </span>
                   </div>
                 )}
-
-              {/* Show message if no upcoming payments */}
               {(!selectedSupplier.upcomingPayments ||
                 (!selectedSupplier.upcomingPayments.loanInstallment &&
                   !selectedSupplier.upcomingPayments.fertilizerDue)) && (
@@ -184,9 +200,29 @@ export default function SupplierBillView({
             </div>
           </div>
         </div>
+        {/* Modern Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+          {summaryCards.map((card, idx) => (
+            <div
+              key={idx}
+              className="bg-white p-5 rounded-lg shadow-md flex flex-col justify-between border transition-transform"
+              style={{ border: "1.5px solid black" }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-black pb-1">{card.label}</p>
+                  <p className="text-xl font-bold text-black">{card.value}</p>
+                </div>
+                <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
+                  {card.icon}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Tea Leaf Entries */}
+      {/* Tea Leaf Entries Table */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="p-4 bg-[#f8f9fa] border-b border-[#e0e0e0]">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -194,32 +230,17 @@ export default function SupplierBillView({
             Tea Leaf Deliveries
           </h3>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#e0e0e0] bg-[#f8f9fa]">
-                <th className="text-center py-3 px-2 font-medium text-gray-700">
-                  Date
-                </th>
-                <th className="text-center py-3 px-2 font-medium text-gray-700">
-                  Bag Count
-                </th>
-                <th className="text-right py-3 px-2 font-medium text-gray-700">
-                  Total Weight (kg)
-                </th>
-                <th className="text-right py-3 px-2 font-medium text-gray-700">
-                  Bag Weight (kg)
-                </th>
-                <th className="text-right py-3 px-2 font-medium text-gray-700">
-                  Water (kg)
-                </th>
-                <th className="text-right py-3 px-2 font-medium text-gray-700">
-                  Coarse Leaf (kg)
-                </th>
-                <th className="text-right py-3 px-2 font-medium text-gray-700">
-                  Net Weight (kg)
-                </th>
+                <th className="text-center py-3 px-2 font-medium text-gray-700">Date</th>
+                <th className="text-center py-3 px-2 font-medium text-gray-700">Bag Count</th>
+                <th className="text-right py-3 px-2 font-medium text-gray-700">Total Weight (kg)</th>
+                <th className="text-right py-3 px-2 font-medium text-gray-700">Bag Weight (kg)</th>
+                <th className="text-right py-3 px-2 font-medium text-gray-700">Water (kg)</th>
+                <th className="text-right py-3 px-2 font-medium text-gray-700">Coarse Leaf (kg)</th>
+                <th className="text-right py-3 px-2 font-medium text-gray-700">Net Weight (kg)</th>
               </tr>
             </thead>
             <tbody>
@@ -299,9 +320,7 @@ export default function SupplierBillView({
           <div className="flex justify-between items-center">
             <div className="text-lg font-semibold text-gray-900">
               Total Net Weight:{" "}
-              <span className="text-[#4CAF50]">
-                {totalNetWeight.toFixed(1)} kg
-              </span>
+              <span className="text-[#4CAF50]">{totalNetWeight.toFixed(1)} kg</span>
             </div>
             <div className="text-lg font-semibold text-gray-900">
               Total Amount:{" "}
@@ -319,7 +338,6 @@ export default function SupplierBillView({
           <DollarSign className="h-5 w-5" />
           Payment Summary
         </h3>
-
         <div className="space-y-3">
           <div className="flex justify-between">
             <span className="text-gray-600">Gross Amount:</span>
@@ -327,7 +345,6 @@ export default function SupplierBillView({
               Rs. {selectedSupplier.grossAmount.toLocaleString()}
             </span>
           </div>
-
           <div className="border-t border-[#e0e0e0] pt-3">
             <div className="text-sm font-medium text-gray-600 mb-2">
               Deductions:
@@ -365,21 +382,19 @@ export default function SupplierBillView({
               </div>
             </div>
           </div>
-
           <div className="border-t border-[#e0e0e0] pt-3 flex justify-between text-lg font-bold">
             <span className="text-gray-900">Final Amount:</span>
             <span className="font-mono text-[#4CAF50]">
               Rs. {selectedSupplier.finalAmount.toLocaleString()}
             </span>
           </div>
-
           <div className="border-t border-[#e0e0e0] pt-3 flex justify-between text-sm">
             <span className="text-gray-600">Payment Method:</span>
             <span
               className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
                 selectedSupplier.paymentMethod === "Bank"
-                  ? "bg-[#e3f2fd] text-[#1976d2]"
-                  : "bg-[#e8f5e8] text-[#4CAF50]"
+                  ? "bg-[#ffffff] text-[#000000]"
+                  : "bg-[#ffffff] text-[#000000]"
               }`}
             >
               {selectedSupplier.paymentMethod === "Bank" ? (
@@ -390,7 +405,6 @@ export default function SupplierBillView({
               {selectedSupplier.paymentMethod}
             </span>
           </div>
-
           {selectedSupplier.paidDate && (
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Payment Date:</span>

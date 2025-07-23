@@ -6,8 +6,9 @@ export default function SuppliersView({
   onViewSupplierBill,
 }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-      <div className="bg-green-600 text-white">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+      {/* Table Header */}
+      <div className="bg-[#01251F] text-white">
         <div className="grid grid-cols-6 gap-4 p-4 font-medium text-sm">
           <div className="text-left">Supplier ID</div>
           <div className="text-left">Supplier Name</div>
@@ -18,64 +19,90 @@ export default function SuppliersView({
         </div>
       </div>
 
-      <div className="divide-y divide-gray-200">
-        {filteredData.map((supplier) => (
-          <div
-            key={supplier.id}
-            className="grid grid-cols-6 gap-4 p-3 items-center hover:bg-gray-50 transition-colors"
-          >
-            <div className="font-semibold text-green-600 text-sm bg-green-50 px-3 py-1 rounded-full inline-block w-fit">
-              {supplier.id}
-            </div>
-            <div className="font-medium text-gray-900 text-sm">
-              {supplier.supplierName}
-            </div>
-            <div className="text-sm font-bold text-gray-900 text-right">
-              Rs. {supplier.finalAmount.toLocaleString()}
-            </div>
-            <div className="flex justify-center">
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
-                  supplier.paymentMethod === "Bank"
-                    ? "bg-[#e3f2fd] text-[#1976d2]"
-                    : "bg-[#e8f5e8] text-[#4CAF50]"
-                }`}
-              >
-                {supplier.paymentMethod === "Bank" ? (
-                  <CreditCard className="h-3 w-3" />
-                ) : (
-                  <Banknote className="h-3 w-3" />
-                )}
-                {supplier.paymentMethod}
-              </span>
-            </div>
-            <div className="flex justify-center">
-              <span
-                className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                  supplier.status === "Paid"
-                    ? "bg-[#e8f5e8] text-[#4CAF50]"
-                    : "bg-[#fff3cd] text-[#856404]"
-                }`}
-              >
-                {supplier.status}
-              </span>
-            </div>
-            <div className="flex justify-center">
-              <button
-                onClick={() => onViewSupplierBill(supplier)}
-                className="text-green-600 hover:text-green-800 hover:bg-green-50 p-2 rounded-full transition-colors"
-                title="View Details"
-              >
-                <Eye className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        ))}
+      {/* Table Rows */}
+      <div className="divide-y divide-gray-100">
+        {filteredData.map((supplier) => {
+          const isBank = supplier.paymentMethod === "Bank";
+          const isPaid = supplier.status === "Paid";
 
+          const paymentBg = isBank ? "#ffffff" : "#ffffff";
+          const paymentBorder = isBank ? "#000000" : "#000000";
+          const paymentText = isBank ? "#000000" : "#000000";
+
+          const statusBg = isPaid ? "#d6f5e3" : "#fff3cd";
+          const statusBorder = isPaid ? "#388e3c" : "#ffc107";
+          const statusText = isPaid ? "#388e3c" : "#856404";
+
+          return (
+            <div
+              key={supplier.id}
+              className="grid grid-cols-6 gap-4 p-3 items-center hover:bg-gray-50 transition-colors"
+            >
+              {/* Supplier ID Badge */}
+              <div className="font-semibold text-black text-sm bg-gray-100 px-3 py-1 rounded-full inline-block border border-black w-fit text-center">
+                {supplier.id}
+              </div>
+
+              {/* Supplier Name */}
+              <div className="font-medium text-gray-900 text-sm">{supplier.supplierName}</div>
+
+              {/* Final Amount */}
+              <div className="text-sm font-bold text-black text-right">
+                Rs. {supplier.finalAmount.toLocaleString()}
+              </div>
+
+              {/* Payment Method Pill */}
+              <div className="flex justify-center">
+                <span
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
+                  style={{
+                    backgroundColor: paymentBg,
+                    border: `1px solid ${paymentBorder}`,
+                    color: paymentText,
+                  }}
+                >
+                  {isBank ? (
+                    <CreditCard className="h-3 w-3" />
+                  ) : (
+                    <Banknote className="h-3 w-3" />
+                  )}
+                  {supplier.paymentMethod}
+                </span>
+              </div>
+
+              {/* Status Pill */}
+              <div className="flex justify-center">
+                <span
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                  style={{
+                    backgroundColor: statusBg,
+                    border: `1px solid ${statusBorder}`,
+                    color: statusText,
+                  }}
+                >
+                  {supplier.status}
+                </span>
+              </div>
+
+              {/* View Button */}
+              <div className="flex justify-center">
+                <button
+                  onClick={() => onViewSupplierBill(supplier)}
+                  className="text-[#165e52] border border-[#165e52] hover:bg-[#e1f4ef] p-2 rounded-full transition-colors"
+                  title="View Details"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Empty state */}
         {filteredData.length === 0 && (
-          <div className="p-8 text-center text-gray-500">
-            <div className="h-12 w-12 text-gray-400 mx-auto mb-4 text-4xl">
-              👥
+          <div className="p-12 text-center text-gray-500">
+            <div className="bg-gray-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+              <User className="h-10 w-10 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               No suppliers found
@@ -87,8 +114,8 @@ export default function SuppliersView({
         )}
       </div>
 
-      {/* Results count at bottom */}
-      <div className="mt-6 flex items-center justify-between text-sm text-gray-600 p-4 border-t border-gray-200">
+      {/* Table Footer */}
+      <div className="bg-gray-50 flex items-center justify-between text-sm text-gray-600 p-4 border-t border-gray-200">
         <div>
           Showing {filteredData.length} of {getCurrentData().length} results
         </div>

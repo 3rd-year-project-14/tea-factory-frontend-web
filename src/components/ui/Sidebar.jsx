@@ -299,19 +299,23 @@ export default function Sidebar() {
           if (role === "FACTORY_MANAGER" && link.name === "Payments") {
             return (
               <div key={link.name}>
-                <button
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 font-medium transition-all duration-200 text-white/70 hover:bg-[#104137] hover:text-white ${
-                    paymentsOpen ? "bg-[#104137] text-white" : ""
-                  }`}
-                  onClick={() => setPaymentsOpen((open) => !open)}
-                  style={{
-                    backgroundColor: paymentsOpen ? "#104137" : "transparent",
-                  }}
-                >
-                  <link.icon className="w-5 h-5" />
-                  <span>{link.name}</span>
-                  <span className="ml-auto">{paymentsOpen ? "▲" : "▼"}</span>
-                </button>
+               <button
+  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 font-medium transition-all duration-200 ${
+    paymentsOpen
+      ? "shadow-lg text-white bg-[#104137]"
+      : "text-white/70 hover:bg-[#104137] hover:text-white"
+  }`}
+  onClick={() => setPaymentsOpen((open) => !open)}
+  style={{
+    backgroundColor: paymentsOpen ? "#104137" : "transparent",
+    // additional style if needed
+  }}
+>
+  <link.icon className="w-5 h-5" />
+  <span>{link.name}</span>
+  <span className="ml-auto">{paymentsOpen ? "▲" : "▼"}</span>
+</button>
+
                 {paymentsOpen && (
                   <div className="ml-6">
                     {link.children.map((child) => {

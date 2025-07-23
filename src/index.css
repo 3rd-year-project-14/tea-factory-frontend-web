@@ -75,16 +75,16 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-
+/* 
 button:hover {
   border-color: #2aef18;
-}
+} */
 
-button:focus,
+/* button:focus,
 button:focus-visible {
   outline: 1px solid #22c55e;
   outline-offset: 0px;
-}
+} */
 
 @media (prefers-color-scheme: light) {
   :root {

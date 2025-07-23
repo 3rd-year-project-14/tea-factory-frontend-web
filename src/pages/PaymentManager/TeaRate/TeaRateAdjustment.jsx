@@ -4,9 +4,16 @@ import {
   TrendingUp,
   History,
   Send,
-  Save,
   Filter,
+  ChevronDown,
+  Search,
 } from "lucide-react";
+
+const ACCENT_COLOR = "#165E52";
+const BUTTON_COLOR = "#01251F";
+const BORDER_COLOR = "#cfece6";
+const BORDER = "#000000";
+const BG_LIGHT_GREEN = "#e1f4ef";
 
 export default function TeaRateAdjustment() {
   const [nsaValue, setNsaValue] = useState("");
@@ -15,15 +22,15 @@ export default function TeaRateAdjustment() {
   const [currentMonth] = useState(new Date().getMonth() + 1);
   const [calculatedRate, setCalculatedRate] = useState(0);
   const [totalPayout, setTotalPayout] = useState(0);
-  const [totalWeight, setTotalWeight] = useState(15420); // Example total weight for the month
+  const [totalWeight, setTotalWeight] = useState(15420);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Filter states for history
+  // Filters
   const [filterMonth, setFilterMonth] = useState("");
   const [filterYear, setFilterYear] = useState("");
-  const [filterRateType, setFilterRateType] = useState(""); // "high", "low", or ""
+  const [filterRateType, setFilterRateType] = useState("");
 
-  // History data for previous months
   const [rateHistory] = useState([
     {
       month: "May 2025",
@@ -63,29 +70,33 @@ export default function TeaRateAdjustment() {
     },
   ]);
 
-  // Get default rate based on month
-  const getDefaultRate = (month) => {
-    // January(1), February(2), March(3), July(7), August(8) = 21.5%
-    // Other months = 21%
-    const highRateMonths = [1, 2, 3, 7, 8];
-    return highRateMonths.includes(month) ? 21.5 : 21.0;
-  };
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const getMonthName = (monthNum) => months[monthNum - 1];
+  const getDefaultRate = (month) =>
+    [1, 2, 3, 7, 8].includes(month) ? 21.5 : 21;
 
   useEffect(() => {
-    const defaultRate = getDefaultRate(currentMonth);
-    setMonthlyRate(defaultRate);
+    setMonthlyRate(getDefaultRate(currentMonth));
   }, [currentMonth]);
 
   useEffect(() => {
     if (gsaValue) {
       const gsa = parseFloat(gsaValue) || 0;
-
-      // Calculate 68% of GSA only
-      const gsaAdjusted = gsa * 0.68;
-
-      // Apply monthly rate percentage
-      const rate = gsaAdjusted * (monthlyRate / 100);
-
+      const gsa68 = gsa * 0.68;
+      const rate = gsa68 * (monthlyRate / 100);
       setCalculatedRate(rate);
       setTotalPayout(rate * totalWeight);
     } else {
@@ -99,58 +110,8 @@ export default function TeaRateAdjustment() {
       alert("Please enter valid GSA value");
       return;
     }
-
-    // Here you would typically send to backend
     setIsSubmitted(true);
-    alert("Tea rate adjustment submitted to owner for approval!");
-  };
-
-  const getMonthName = (monthNum) => {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    return months[monthNum - 1];
-  };
-
-  // Filter function for rate history
-  const getFilteredHistory = () => {
-    let filtered = [...rateHistory];
-
-    // Filter by month
-    if (filterMonth) {
-      filtered = filtered.filter((record) => {
-        const recordMonth = record.month.split(" ")[0];
-        return recordMonth.toLowerCase() === filterMonth.toLowerCase();
-      });
-    }
-
-    // Filter by year
-    if (filterYear) {
-      filtered = filtered.filter((record) => {
-        const recordYear = record.month.split(" ")[1];
-        return recordYear === filterYear;
-      });
-    }
-
-    // Sort by rate type
-    if (filterRateType === "high") {
-      filtered = filtered.sort((a, b) => b.finalRate - a.finalRate); // High to Low
-    } else if (filterRateType === "low") {
-      filtered = filtered.sort((a, b) => a.finalRate - b.finalRate); // Low to High
-    }
-
-    return filtered;
+    alert("Tea rate submitted for approval!");
   };
 
   const clearFilters = () => {
@@ -159,353 +120,332 @@ export default function TeaRateAdjustment() {
     setFilterRateType("");
   };
 
+  const getFilteredHistory = () => {
+    let filtered = [...rateHistory];
+    if (filterMonth) {
+      filtered = filtered.filter((rec) =>
+        rec.month.startsWith(filterMonth)
+      );
+    }
+    if (filterYear) {
+      filtered = filtered.filter((rec) => rec.month.endsWith(filterYear));
+    }
+    if (filterRateType === "high") {
+      filtered.sort((a, b) => b.finalRate - a.finalRate);
+    } else if (filterRateType === "low") {
+      filtered.sort((a, b) => a.finalRate - b.finalRate);
+    }
+    return filtered;
+  };
+
   return (
-    <div className="main-content flex-1 bg-[#f8f9fa] overflow-y-auto text-black">
-      <div className="header bg-white p-6 border-b border-[#e0e0e0] shadow-sm">
-        <p className="text-3xl font-bold text-[#2c2c2c] mb-1">
-          Tea Rate Adjustment Panel
-        </p>
+    <div className="min-h-screen bg-gray-50 p-6 text-black">
+      {/* Header */}
+<div className="bg-white shadow-md border-b mb-10" style={{ borderColor: "#cfece6" }}>
+  <div className="max-w-7xl mx-auto px-6 py-6">
+    <h1 className="text-3xl font-bold mb-1" style={{ color: "#165e52" }}>
+      Tea Rate Adjustment Panel
+    </h1>
+  </div>
+</div>
+
+
+
+      {/* Input & Results */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Rate Inputs */}
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+          <div className="flex items-center mb-4">
+            <Calculator className="h-5 w-5 text-black mr-2" />
+            <h2 className="text-lg font-semibold">Rate Inputs</h2>
+          </div>
+
+          <div className="bg-gray-50 p-3 mb-4 rounded">
+            <label className="text-sm font-medium text-gray-600">
+              Current Month
+            </label>
+            <p className="text-base font-semibold text-black">
+              {getMonthName(currentMonth)} 2025
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="text-sm font-medium text-gray-600">NSA</label>
+              <input
+                type="number"
+                step="0.01"
+                className="w-full p-2 border rounded "
+                value={nsaValue}
+                onChange={(e) => setNsaValue(e.target.value)}
+                placeholder="Net Sale Average"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-600">GSA *</label>
+              <input
+                type="number"
+                step="0.01"
+                className="w-full p-2 border rounded"
+                value={gsaValue}
+                onChange={(e) => setGsaValue(e.target.value)}
+                placeholder="Gross Sale Average"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-600">
+                Monthly Rate %
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                className="w-full p-2 border rounded "
+                value={monthlyRate}
+                onChange={(e) =>
+                  setMonthlyRate(parseFloat(e.target.value) || 0)
+                }
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Default: {getDefaultRate(currentMonth)}%
+              </p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-600">
+                Total Weight (kg)
+              </label>
+              <input
+                type="number"
+                className="w-full p-2 border rounded "
+                value={totalWeight}
+                onChange={(e) =>
+                  setTotalWeight(parseInt(e.target.value) || 0)
+                }
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+          <div className="flex items-center mb-4">
+            <TrendingUp className="h-5 w-5 text-black mr-2" />
+            <h2 className="text-lg font-semibold">Calculation Results</h2>
+          </div>
+
+          <div className="bg-gray-50 p-3 rounded text-sm space-y-1">
+            <div>
+              <strong>GSA:</strong> Rs. {(parseFloat(gsaValue) || 0).toFixed(2)}
+            </div>
+            <div>
+              <strong>68% of GSA:</strong> Rs.{" "}
+              {((parseFloat(gsaValue) || 0) * 0.68).toFixed(2)}
+            </div>
+            <div>
+              <strong>{monthlyRate}%:</strong> Rs. {calculatedRate.toFixed(2)}
+            </div>
+          </div>
+
+          <div className="mt-4 bg-white-50 border-l-4 border-black-600 p-3 rounded">
+            <p className="text-xs text-gray-600 mb-1">Final Rate per Kg</p>
+            <p className="text-lg font-bold text-black-600">
+              Rs. {calculatedRate.toFixed(2)}
+            </p>
+          </div>
+
+          <div className="mt-4 bg-white-50 border-l-4 border-black-500 p-3 rounded">
+            <p className="text-xs text-gray-600 mb-1">Total Payout</p>
+            <p className="text-lg font-bold text-black-800">
+              Rs. {totalPayout.toLocaleString()}
+            </p>
+            <p className="text-xs text-gray-500">
+              Based on {totalWeight.toLocaleString()} kg
+            </p>
+          </div>
+
+          <div className="mt-4">
+            <button
+              onClick={handleSubmit}
+              disabled={!gsaValue || calculatedRate === 0 || isSubmitted}
+              className={`w-full px-5 py-2 rounded-md flex items-center justify-center text-sm font-medium transition-colors ${
+                isSubmitted
+                  ? "bg-green-600 text-white cursor-not-allowed"
+                  : "bg-[#01251F] text-white hover:bg-[#104239]"
+              }`}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              {isSubmitted ? "Submitted" : "Submit for Approval"}
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="dashboard-content p-6">
-        {/* Input and Results Container - Fixed height to fit in viewport */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 h-fit">
-          {/* Input Section */}
-          <div className="bg-white p-5 rounded-xl shadow-md border-l-4 border-[#4CAF50]">
-            <div className="flex items-center mb-4">
-              <Calculator className="h-5 w-5 text-[#4CAF50] mr-2" />
-              <h3 className="text-lg font-semibold text-[#2c2c2c]">
-                Rate Calculation Input
-              </h3>
-            </div>
+      {/* Filters */}
+     {/* Rate History Filters - Styled like SupplierFilters */}
+<div
+  className="bg-white rounded-lg shadow-md border mb-6"
+  style={{ borderColor: BORDER_COLOR }}
+>
+  <div className="p-4">
+    {/* 🔍 Search + Toggle */}
+    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
+      {/* You can remove this block if search not needed */}
+      <div className="flex-1 max-w-md">
+        
+      </div>
 
-            <div className="space-y-4">
-              {/* Current Month Display */}
-              <div className="bg-[#f8f9fa] p-3 rounded-lg">
-                <label className="block text-sm font-medium text-[#666] mb-1">
-                  Current Month
-                </label>
-                <div className="text-base font-semibold text-[#2c2c2c]">
-                  {getMonthName(currentMonth)} 2025
-                </div>
-              </div>
+      {/* Toggle Button */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm"
+          style={{
+            backgroundColor: BG_LIGHT_GREEN,
+            color: ACCENT_COLOR,
+            border: `2px solid ${BORDER_COLOR}`,
+          }}
+        >
+          <Filter className="h-4 w-4 mr-2" />
+          Filters
+          <ChevronDown
+            className={`h-4 w-4 ml-2 transition-transform ${
+              showFilters ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+      </div>
+    </div>
 
-              {/* NSA and GSA in same row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* NSA Input */}
-                <div>
-                  <label className="block text-sm font-medium text-[#666] mb-1">
-                    N.S.A. (Net Sale Average)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={nsaValue}
-                    onChange={(e) => setNsaValue(e.target.value)}
-                    className="w-full p-2 border border-[#ddd] rounded-lg focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-sm"
-                    placeholder="Enter NSA value"
-                  />
-                </div>
-
-                {/* GSA Input */}
-                <div>
-                  <label className="block text-sm font-medium text-[#666] mb-1">
-                    G.S.A. (Gross Sale Average) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={gsaValue}
-                    onChange={(e) => setGsaValue(e.target.value)}
-                    className="w-full p-2 border border-[#ddd] rounded-lg focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-sm"
-                    placeholder="Enter GSA value"
-                  />
-                </div>
-              </div>
-
-              {/* Monthly Rate and Total Weight in same row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Monthly Rate */}
-                <div>
-                  <label className="block text-sm font-medium text-[#666] mb-1">
-                    Monthly Rate (%)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={monthlyRate}
-                    onChange={(e) =>
-                      setMonthlyRate(parseFloat(e.target.value) || 0)
-                    }
-                    className="w-full p-2 border border-[#ddd] rounded-lg focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-sm"
-                    placeholder="Enter rate percentage"
-                  />
-                  <p className="text-xs text-[#666] mt-1">
-                    Default: {getDefaultRate(currentMonth)}% for{" "}
-                    {getMonthName(currentMonth)}
-                  </p>
-                </div>
-
-                {/* Total Weight */}
-                <div>
-                  <label className="block text-sm font-medium text-[#666] mb-1">
-                    Total Weight for Month (kg)
-                  </label>
-                  <input
-                    type="number"
-                    value={totalWeight}
-                    onChange={(e) =>
-                      setTotalWeight(parseInt(e.target.value) || 0)
-                    }
-                    className="w-full p-2 border border-[#ddd] rounded-lg focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent text-sm"
-                    placeholder="Enter total weight"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Calculation Results */}
-          <div className="bg-white p-5 rounded-xl shadow-md border-l-4 border-[#2196F3]">
-            <div className="flex items-center mb-4">
-              <TrendingUp className="h-5 w-5 text-[#2196F3] mr-2" />
-              <h3 className="text-lg font-semibold text-[#2c2c2c]">
-                Calculation Results
-              </h3>
-            </div>
-
-            <div className="space-y-4">
-              {/* Calculation Steps */}
-              <div className="bg-[#f8f9fa] p-3 rounded-lg">
-                <h4 className="font-medium text-[#2c2c2c] mb-2 text-sm">
-                  Calculation Steps:
-                </h4>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span>GSA Value:</span>
-                    <span>Rs. {(parseFloat(gsaValue) || 0).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>68% of GSA:</span>
-                    <span>
-                      Rs. {((parseFloat(gsaValue) || 0) * 0.68).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Apply {monthlyRate}% rate:</span>
-                    <span>Rs. {calculatedRate.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Results Display */}
-              <div className="space-y-3">
-                {/* Final Rate */}
-                <div className="bg-[#e8f5e8] p-3 rounded-lg border-l-4 border-[#4CAF50]">
-                  <div className="text-xs text-[#666] mb-1">
-                    Final Rate per Kg
-                  </div>
-                  <div className="text-xl font-bold text-[#4CAF50]">
-                    Rs. {calculatedRate.toFixed(2)}
-                  </div>
-                </div>
-
-                {/* Total Payout */}
-                <div className="bg-[#fff3cd] p-3 rounded-lg border-l-4 border-[#ffc107]">
-                  <div className="text-xs text-[#666] mb-1">
-                    Total Payout at New Rate
-                  </div>
-                  <div className="text-lg font-bold text-[#856404]">
-                    Rs. {totalPayout.toLocaleString()}
-                  </div>
-                  <div className="text-xs text-[#666] mt-1">
-                    For {totalWeight.toLocaleString()} kg total weight
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-                <button
-                  onClick={handleSubmit}
-                  disabled={!gsaValue || calculatedRate === 0 || isSubmitted}
-                  className={`flex items-center justify-center px-3 py-2 rounded-lg font-medium transition-all text-sm ${
-                    isSubmitted
-                      ? "bg-[#28a745] text-white cursor-not-allowed"
-                      : !gsaValue || calculatedRate === 0
-                      ? "bg-[#e9ecef] text-[#6c757d] cursor-not-allowed"
-                      : "bg-[#4CAF50] text-white hover:bg-[#45a049] hover:shadow-lg"
-                  }`}
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  {isSubmitted ? "Submitted" : "Submit to Owner"}
-                </button>
-              </div>
-            </div>
-          </div>
+    {/* Advanced Filters */}
+    {showFilters && (
+      <div
+        className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg border"
+        style={{ borderColor: BORDER_COLOR }}
+      >
+        {/* Month Filter */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Month
+          </label>
+          <select
+            value={filterMonth}
+            onChange={(e) => setFilterMonth(e.target.value)}
+            className="w-full p-2 rounded-md text-sm focus:ring-2 focus:ring-[#165E52] focus:outline-none text-gray-900"
+            style={{ borderColor: BORDER_COLOR }}
+          >
+            <option value="">All Months</option>
+            {months.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Rate History Section */}
-        <div className="bg-white p-6 rounded-xl shadow-md">
-          <div className="flex items-center mb-6">
-            <History className="h-6 w-6 text-[#4CAF50] mr-3" />
-            <h3 className="text-lg font-semibold text-[#2c2c2c]">
-              Rate History
-            </h3>
-          </div>
+        {/* Year Filter */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Year
+          </label>
+          <select
+            value={filterYear}
+            onChange={(e) => setFilterYear(e.target.value)}
+            className="w-full p-2 rounded-md text-sm focus:ring-2 focus:ring-[#165E52] focus:outline-none text-gray-900"
+            style={{ borderColor: BORDER_COLOR }}
+          >
+            <option value="">All Years</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+          </select>
+        </div>
 
-          {/* Filter Section */}
-          <div className="bg-[#f8f9fa] p-4 rounded-lg mb-6">
-            <div className="flex items-center mb-4">
-              <Filter className="h-4 w-4 text-[#666] mr-2" />
-              <h4 className="text-sm font-semibold text-[#2c2c2c]">Filters</h4>
-            </div>
+        {/* Rate Type Filter */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Sort by Final Rate
+          </label>
+          <select
+            value={filterRateType}
+            onChange={(e) => setFilterRateType(e.target.value)}
+            className="w-full p-2 rounded-md text-sm focus:ring-2 focus:ring-[#165E52] focus:outline-none text-gray-900"
+            style={{ borderColor: BORDER_COLOR }}
+          >
+            <option value="">Default</option>
+            <option value="high">High to Low</option>
+            <option value="low">Low to High</option>
+          </select>
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Month Filter */}
-              <div>
-                <label className="block text-xs font-medium text-[#666] mb-1">
-                  Filter by Month
-                </label>
-                <select
-                  value={filterMonth}
-                  onChange={(e) => setFilterMonth(e.target.value)}
-                  className="w-full p-2 border border-[#ddd] rounded-lg text-sm focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent"
-                >
-                  <option value="">All Months</option>
-                  <option value="January">January</option>
-                  <option value="February">February</option>
-                  <option value="March">March</option>
-                  <option value="April">April</option>
-                  <option value="May">May</option>
-                  <option value="June">June</option>
-                  <option value="July">July</option>
-                  <option value="August">August</option>
-                  <option value="September">September</option>
-                  <option value="October">October</option>
-                  <option value="November">November</option>
-                  <option value="December">December</option>
-                </select>
-              </div>
+        {/* Clear Filters */}
+        <div className="flex items-end">
+          <button
+            onClick={clearFilters}
+            className="w-full px-4 py-2 text-sm font-medium rounded-md shadow-sm transition-colors"
+            style={{
+              backgroundColor: BG_LIGHT_GREEN,
+              color: ACCENT_COLOR,
+              border: `2px solid ${BORDER_COLOR}`,
+            }}
+          >
+            Clear Filters
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
 
-              {/* Year Filter */}
-              <div>
-                <label className="block text-xs font-medium text-[#666] mb-1">
-                  Filter by Year
-                </label>
-                <select
-                  value={filterYear}
-                  onChange={(e) => setFilterYear(e.target.value)}
-                  className="w-full p-2 border border-[#ddd] rounded-lg text-sm focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent"
-                >
-                  <option value="">All Years</option>
-                  <option value="2025">2025</option>
-                  <option value="2024">2024</option>
-                  <option value="2023">2023</option>
-                </select>
-              </div>
+      {/* Table */}
+      <div className="bg-white rounded-lg shadow-md border overflow-x-auto">
+        <table className="min-w-full text-sm table-auto">
+          <thead style={{ backgroundColor: BUTTON_COLOR, color: "white" }}>
+            <tr>
+              <th className="px-4 py-3 text-left">Month</th>
+              <th className="px-4 py-3 text-left">NSA</th>
+              <th className="px-4 py-3 text-left">GSA</th>
+              <th className="px-4 py-3 text-left">Rate %</th>
+              <th className="px-4 py-3 text-left">Final Rate</th>
+              <th className="px-4 py-3 text-left">Total Payout</th>
+              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {getFilteredHistory().map((record, i) => (
+              <tr key={i} className="border-t border-gray-200 hover:bg-gray-50">
 
-              {/* Rate Type Filter */}
-              <div>
-                <label className="block text-xs font-medium text-[#666] mb-1">
-                  Sort by Rate
-                </label>
-                <select
-                  value={filterRateType}
-                  onChange={(e) => setFilterRateType(e.target.value)}
-                  className="w-full p-2 border border-[#ddd] rounded-lg text-sm focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent"
-                >
-                  <option value="">Default Order</option>
-                  <option value="high">High to Low Rates</option>
-                  <option value="low">Low to High Rates</option>
-                </select>
-              </div>
-
-              {/* Clear Filters Button */}
-              <div className="flex items-end">
-                <button
-                  onClick={clearFilters}
-                  className="w-full px-3 py-2 bg-[#6c757d] text-white rounded-lg hover:bg-[#5a6268] transition-all text-sm"
-                >
-                  Clear Filters
-                </button>
-              </div>
-            </div>
-
-            {/* Filter Summary */}
-            <div className="mt-3 text-xs text-[#666]">
-              Showing {getFilteredHistory().length} of {rateHistory.length}{" "}
-              records
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[#e0e0e0]">
-                  <th className="text-left py-3 px-4 font-medium text-[#666]">
-                    Month
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-[#666]">
-                    NSA
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-[#666]">
-                    GSA
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-[#666]">
-                    Rate %
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-[#666]">
-                    Final Rate/kg
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-[#666]">
-                    Total Payout
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-[#666]">
-                    Status
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-[#666]">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {getFilteredHistory().map((record, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-[#f0f0f0] hover:bg-[#f8f9fa]"
+                <td className="px-4 py-3">{record.month}</td>
+                <td className="px-4 py-3">Rs. {record.nsa.toFixed(2)}</td>
+                <td className="px-4 py-3">Rs. {record.gsa.toFixed(2)}</td>
+                <td className="px-4 py-3">{record.rate}%</td>
+                <td className="px-4 py-3 text-green-700 font-semibold">Rs. {record.finalRate.toFixed(2)}</td>
+                <td className="px-4 py-3 font-semibold">Rs. {record.totalPayout.toLocaleString()}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className="px-2 py-1 border rounded-full text-xs font-medium"
+                    style={{
+                      backgroundColor: "#e1f4ef",
+                      color: ACCENT_COLOR,
+                      borderColor: ACCENT_COLOR,
+                    }}
                   >
-                    <td className="py-3 px-4 font-medium text-[#2c2c2c]">
-                      {record.month}
-                    </td>
-                    <td className="py-3 px-4">Rs. {record.nsa.toFixed(2)}</td>
-                    <td className="py-3 px-4">Rs. {record.gsa.toFixed(2)}</td>
-                    <td className="py-3 px-4">{record.rate}%</td>
-                    <td className="py-3 px-4 font-semibold text-[#4CAF50]">
-                      Rs. {record.finalRate.toFixed(2)}
-                    </td>
-                    <td className="py-3 px-4 font-semibold">
-                      Rs. {record.totalPayout.toLocaleString()}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-1 rounded text-xs font-medium bg-[#e8f5e8] text-[#4CAF50]">
-                        {record.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-[#666]">{record.date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* No Results Message */}
+                    {record.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-gray-600">{record.date}</td>
+              </tr>
+            ))}
             {getFilteredHistory().length === 0 && (
-              <div className="text-center py-8 text-[#666]">
-                <p>No records found matching the selected filters.</p>
-              </div>
+              <tr>
+                <td colSpan="8" className="py-8 text-center text-gray-400">
+                  No matching records found.
+                </td>
+              </tr>
             )}
-          </div>
-        </div>
+          </tbody>
+        </table>
       </div>
     </div>
   );
