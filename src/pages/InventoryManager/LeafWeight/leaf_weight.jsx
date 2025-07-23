@@ -137,7 +137,7 @@ export default function Route() {
   return (
     <div className="h-full bg-gray-50 p-4">
       <div className="max-w-8xl mx-auto space-y-4">
- 
+
         <div className="bg-white  shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">Leaf Weight</h1>
