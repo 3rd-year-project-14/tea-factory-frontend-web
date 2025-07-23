@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { UserCircle, AlertTriangle, CheckCircle2, Search } from "lucide-react";
+import {
+  UserCircle,
+  AlertTriangle,
+  CheckCircle2,
+  Search,
+  Plus,
+} from "lucide-react";
+
+const ACCENT_COLOR = "#165E52"; // Title & highlights
+const BUTTON_COLOR = "#172526"; // Buttons
 
 const allVehicles = [
   {
@@ -88,23 +97,32 @@ export default function Emergency() {
     Object.keys(assignments).length === breakdownVehicles.length;
 
   return (
-    <div className="bg-[#f9fbfc] min-h-screen p-6">
-      {/* Title */}
-      <h1 className="text-3xl font-bold mb-4 text-red-700 flex items-center gap-3">
-        <AlertTriangle size={32} />
-        Emergency Vehicle Replacement
-      </h1>
+    <div className="min-h-screen bg-[#f8fdfc] p-6">
+      {/* Header */}
+      <div className="bg-white shadow-md border-b border-gray-200 mb-8">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <AlertTriangle size={32} style={{ color: ACCENT_COLOR }} />
+            <h1 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
+              Emergency Vehicle Replacement
+            </h1>
+          </div>
+        </div>
+      </div>
 
-      {/* Search Input */}
-      <div className="mb-6 max-w-xl bg-white shadow rounded-lg flex items-center gap-2 px-4 py-2 border">
-        <Search size={20} className="text-gray-500" />
-        <input
-          type="text"
-          placeholder="Search available vehicles or drivers..."
-          className="flex-grow bg-transparent outline-none text-sm text-gray-800"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* Search and Filter */}
+      <div className="bg-white rounded-lg shadow-sm border border-[#cfece6] p-4 flex flex-col md:flex-row justify-between gap-4 mb-6">
+        <div className="relative w-full md:w-72">
+          <input
+            type="text"
+            placeholder="Search available vehicles or drivers..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-4 pr-10 py-2 text-sm border border-[#cfece6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent bg-[#f8fdfc] text-[#165E52]"
+            autoComplete="off"
+          />
+          <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+        </div>
       </div>
 
       {/* Assign Cards */}
@@ -112,41 +130,44 @@ export default function Emergency() {
         {breakdownVehicles.map((broken) => (
           <div
             key={broken.id}
-            className="bg-white rounded-2xl shadow-md p-5 flex flex-col gap-4 border border-gray-100"
+            className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-5 border border-[#cfece6] transition hover:shadow-lg hover:border-[#a9d5c6]"
           >
             {/* Header */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="text-2xl">🚛</div>
+              <div className="flex items-center gap-4">
+                <div className="text-3xl select-none">🚛</div>
                 <div>
-                  <h2 className="font-bold text-lg text-gray-800">
+                  <h2 className="font-bold text-lg text-[#165E52]">
                     {broken.id} - {broken.model}
                   </h2>
-                  <p className="text-sm text-gray-500">{broken.type}</p>
+                  <p className="text-sm text-[#165E52] opacity-70">
+                    {broken.type}
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Info */}
-            <div className="text-sm text-gray-700 space-y-1">
+            <div className="text-[#165E52] space-y-1 text-sm font-medium">
               <p>
-                <strong>Driver:</strong> {broken.driver}
+                <span className="font-semibold">Driver:</span> {broken.driver}
               </p>
               <p>
-                <strong>Route:</strong> {broken.route}
+                <span className="font-semibold">Route:</span> {broken.route}
               </p>
               <p>
-                <strong>Breakdown:</strong> {broken.breakdownTime}
+                <span className="font-semibold">Breakdown:</span>{" "}
+                {broken.breakdownTime}
               </p>
             </div>
 
             {/* Selector */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-[#165E52] mb-1">
                 Assign Replacement Vehicle
               </label>
               <select
-                className="w-full border rounded-md px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-300"
+                className="w-full border rounded-lg px-3 py-2 bg-[#f8fdfc] border-[#cfece6] focus:outline-none focus:ring-2 focus:ring-[#165E52]"
                 value={assignments[broken.id] || ""}
                 onChange={(e) => handleAssign(broken.id, e.target.value)}
               >
@@ -165,15 +186,15 @@ export default function Emergency() {
               </select>
             </div>
 
-            {/* Confirm Button (per card, optional) */}
-            <div className="pt-2 text-center">
+            {/* Confirm Button */}
+            <div>
               <button
                 onClick={handleConfirm}
                 disabled={!allAssigned}
-                className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md text-white font-medium text-sm transition ${
+                className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white text-sm transition-colors duration-200 ${
                   allAssigned
                     ? "bg-red-600 hover:bg-red-700"
-                    : "bg-emerald-600 cursor-not-allowed"
+                    : "bg-[#165E52] cursor-not-allowed"
                 }`}
               >
                 <CheckCircle2 size={18} />

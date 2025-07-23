@@ -10,6 +10,29 @@ import {
   CheckCircle,
 } from "lucide-react";
 
+// Design Tokens from previous form
+const ACCENT_COLOR = "#165E52"; // used for labels/text
+const BORDER_COLOR = "#cfece6"; // border color
+const BTN_COLOR = "#01251F"; // button bg color
+const HEADER_BG = "#e1f4ef"; // header/footer bg
+const INPUT_BG = "#ffffff";
+
+// Dummy data for vehicle types and drivers (replace with real data)
+const vehicleTypes = [
+  { value: "truck", label: "Truck" },
+  { value: "van", label: "Van" },
+  { value: "lorry", label: "Lorry" },
+];
+const statusOptions = [
+  { value: "Available", label: "Available" },
+  { value: "Unavailable", label: "Unavailable" },
+];
+const drivers = [
+  { value: "", label: "Select Driver" },
+  { value: "1", label: "Nimal Perera" },
+  { value: "2", label: "Kamal Silva" },
+];
+
 export default function AddVehicle() {
   const [form, setForm] = useState({
     vehicleNumber: "",
@@ -48,212 +71,255 @@ export default function AddVehicle() {
   };
 
   return (
-    <div className="bg-gray-100 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 w-full max-w-4xl">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+    <div
+      className="max-w-4xl mx-auto my-10 rounded-2xl border shadow-2xl overflow-hidden bg-white"
+      style={{ borderColor: BORDER_COLOR }}
+    >
+      {/* Header */}
+      <div
+        className="px-8 py-6 border-b"
+        style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}
+      >
+        <h2 className="text-2xl font-semibold" style={{ color: ACCENT_COLOR }}>
           Register New Vehicle
         </h2>
-
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          {/* Left Side */}
-          <div className="space-y-5">
-            {/* Vehicle Number */}
-            <div>
-              <label
-                htmlFor="vehicleNumber"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Vehicle Number
-              </label>
-              <div className="flex items-center gap-4 border border-emerald-100 rounded-lg p-3">
-                <FileText className="text-blue-500" size={24} />
-                <input
-                  id="vehicleNumber"
-                  type="text"
-                  name="vehicleNumber"
-                  placeholder="Vehicle Number (e.g., TRK-001)"
-                  value={form.vehicleNumber}
-                  onChange={handleChange}
-                  required
-                  className="w-full border-0 focus:ring-0 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Vehicle Type */}
-            <div>
-              <label
-                htmlFor="vehicleType"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Vehicle Type
-              </label>
-              <div className="flex items-center gap-4 border border-emerald-100 rounded-lg p-3">
-                <Truck className="text-orange-500" size={24} />
-                <select
-                  id="vehicleType"
-                  name="vehicleType"
-                  value={form.vehicleType}
-                  onChange={handleChange}
-                  required
-                  className="w-full border-0 focus:ring-0 focus:outline-none"
-                >
-                  <option value="">Choose vehicle type</option>
-                  {vehicleTypes.map((type) => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Capacity */}
-            <div>
-              <label
-                htmlFor="capacity"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Capacity
-              </label>
-              <div className="flex items-center gap-4 border border-emerald-100 rounded-lg p-3">
-                <Package className="text-purple-500" size={24} />
-                <input
-                  id="capacity"
-                  type="text"
-                  name="capacity"
-                  placeholder="Capacity (e.g., 1000kg)"
-                  value={form.capacity}
-                  onChange={handleChange}
-                  required
-                  className="w-full border-0 focus:ring-0 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Status */}
-            <div>
-              <label
-                htmlFor="status"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Status
-              </label>
-              <div className="flex items-center gap-4 border border-emerald-100 rounded-lg p-3">
-                <Settings className="text-red-500" size={24} />
-                <select
-                  id="status"
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                  className="w-full border-0 focus:ring-0 focus:outline-none"
-                >
-                  {statusOptions.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Side */}
-          <div className="space-y-5">
-            {/* Assigned Driver */}
-            <div>
-              <label
-                htmlFor="assignedDriver"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Assigned Driver
-              </label>
-              <div className="flex items-center gap-4 border border-emerald-100 rounded-lg p-3">
-                <UserCircle className="text-emerald-600" size={24} />
-                <select
-                  id="assignedDriver"
-                  name="assignedDriver"
-                  value={form.assignedDriver}
-                  onChange={handleChange}
-                  className="w-full border-0 focus:ring-0 focus:outline-none"
-                >
-                  {drivers.map((driver) => (
-                    <option key={driver.value} value={driver.value}>
-                      {driver.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Last Service Date */}
-            <div>
-              <label
-                htmlFor="lastServiceDate"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Last Service Date
-              </label>
-              <div className="flex items-center gap-4 border border-emerald-100 rounded-lg p-3">
-                <Calendar className="text-gray-500" size={24} />
-                <input
-                  id="lastServiceDate"
-                  type="date"
-                  name="lastServiceDate"
-                  value={form.lastServiceDate}
-                  onChange={handleChange}
-                  required
-                  className="w-full border-0 focus:ring-0 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Vehicle Image */}
-            <div>
-              <label
-                htmlFor="vehicleImage"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Vehicle Image
-              </label>
-              <div className="border border-emerald-100 rounded-lg p-3">
-                <label className="flex items-center gap-3 text-sm font-medium text-gray-700 mb-2">
-                  <Camera className="text-pink-500" size={20} />
-                  Upload Vehicle Image
-                </label>
-                <input
-                  id="vehicleImage"
-                  type="file"
-                  name="vehicleImage"
-                  accept="image/*"
-                  onChange={handleChange}
-                  className="w-full text-sm text-gray-600"
-                />
-                {form.vehicleImage && (
-                  <p className="mt-1 text-sm text-green-600 flex items-center gap-1">
-                    <CheckCircle size={14} />
-                    {form.vehicleImage.name}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Submit Button (Full Width Below) */}
-          <div className="col-span-1 md:col-span-2">
-            <button
-              type="submit"
-              className="w-full bg-emerald-700 hover:bg-emerald-800 text-white py-3 rounded-lg font-bold text-lg shadow-md transition-colors duration-200 flex items-center justify-center gap-2"
-            >
-              <Truck size={20} />
-              Register Vehicle
-            </button>
-          </div>
-        </form>
       </div>
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8"
+      >
+        {/* Vehicle Number */}
+        <div>
+          <label
+            htmlFor="vehicleNumber"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
+            Vehicle Number
+          </label>
+          <div
+            className="flex items-center gap-3 rounded-lg p-3 border"
+            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
+          >
+            <FileText className="text-[rgba(22,94,82,0.8)]" size={24} />
+            <input
+              id="vehicleNumber"
+              type="text"
+              name="vehicleNumber"
+              value={form.vehicleNumber}
+              onChange={handleChange}
+              placeholder="Vehicle Number (e.g., TRK-001)"
+              required
+              className="w-full bg-transparent focus:outline-none text-sm"
+              style={{ color: ACCENT_COLOR }}
+            />
+          </div>
+        </div>
+
+        {/* Vehicle Type */}
+        <div>
+          <label
+            htmlFor="vehicleType"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
+            Vehicle Type
+          </label>
+          <div
+            className="flex items-center gap-3 rounded-lg p-3 border"
+            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
+          >
+            <Truck className="text-[rgba(22,94,82,0.8)]" size={24} />
+            <select
+              id="vehicleType"
+              name="vehicleType"
+              value={form.vehicleType}
+              onChange={handleChange}
+              required
+              className="w-full bg-transparent focus:outline-none text-sm"
+              style={{ color: ACCENT_COLOR }}
+            >
+              <option value="" disabled>
+                Choose vehicle type
+              </option>
+              {vehicleTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Capacity */}
+        <div>
+          <label
+            htmlFor="capacity"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
+            Capacity
+          </label>
+          <div
+            className="flex items-center gap-3 rounded-lg p-3 border"
+            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
+          >
+            <Package className="text-[rgba(22,94,82,0.8)]" size={24} />
+            <input
+              id="capacity"
+              type="text"
+              name="capacity"
+              value={form.capacity}
+              onChange={handleChange}
+              placeholder="Capacity (e.g., 1000kg)"
+              required
+              className="w-full bg-transparent focus:outline-none text-sm"
+              style={{ color: ACCENT_COLOR }}
+            />
+          </div>
+        </div>
+
+        {/* Status */}
+        <div>
+          <label
+            htmlFor="status"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
+            Status
+          </label>
+          <div
+            className="flex items-center gap-3 rounded-lg p-3 border"
+            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
+          >
+            <Settings className="text-[rgba(22,94,82,0.8)]" size={24} />
+            <select
+              id="status"
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="w-full bg-transparent focus:outline-none text-sm"
+              style={{ color: ACCENT_COLOR }}
+            >
+              {statusOptions.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Assigned Driver */}
+        <div>
+          <label
+            htmlFor="assignedDriver"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
+            Assigned Driver
+          </label>
+          <div
+            className="flex items-center gap-3 rounded-lg p-3 border"
+            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
+          >
+            <UserCircle className="text-[rgba(22,94,82,0.8)]" size={24} />
+            <select
+              id="assignedDriver"
+              name="assignedDriver"
+              value={form.assignedDriver}
+              onChange={handleChange}
+              className="w-full bg-transparent focus:outline-none text-sm"
+              style={{ color: ACCENT_COLOR }}
+            >
+              {drivers.map((driver) => (
+                <option key={driver.value} value={driver.value}>
+                  {driver.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Last Service Date */}
+        <div>
+          <label
+            htmlFor="lastServiceDate"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
+            Last Service Date
+          </label>
+          <div
+            className="flex items-center gap-3 rounded-lg p-3 border"
+            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
+          >
+            <Calendar className="text-[rgba(22,94,82,0.8)]" size={24} />
+            <input
+              id="lastServiceDate"
+              type="date"
+              name="lastServiceDate"
+              value={form.lastServiceDate}
+              onChange={handleChange}
+              required
+              className="w-full bg-transparent focus:outline-none text-sm"
+              style={{ color: ACCENT_COLOR }}
+            />
+          </div>
+        </div>
+
+        {/* Vehicle Image */}
+        <div>
+          <label
+            htmlFor="vehicleImage"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
+            Vehicle Image
+          </label>
+          <div
+            className="rounded-lg p-3 border"
+            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
+          >
+            <label
+              className="flex items-center gap-2 text-sm font-medium cursor-pointer"
+              style={{ color: ACCENT_COLOR }}
+            >
+              <Camera className="text-[rgba(22,94,82,0.8)]" size={20} />
+              Upload Vehicle Image
+              <input
+                id="vehicleImage"
+                type="file"
+                name="vehicleImage"
+                accept="image/*"
+                onChange={handleChange}
+                className="hidden"
+              />
+            </label>
+            {form.vehicleImage && (
+              <p
+                className="mt-1 text-sm text-green-600 flex items-center gap-1"
+                style={{ color: "#165E52" }}
+              >
+                <CheckCircle size={14} />
+                {form.vehicleImage.name}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Submit Button full width */}
+        <div className="md:col-span-2">
+          <button
+            type="submit"
+            className="w-full rounded-lg bg-[#01251F] hover:bg-[#164d44] text-white font-semibold text-lg py-3 flex items-center justify-center gap-2 shadow-lg transition-colors"
+          >
+            <Truck size={20} />
+            Register Vehicle
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
