@@ -7,7 +7,7 @@ import TeaSupplyChart from "../../components/charts/TeaSupplyChart";
 
 
 const ACCENT_COLOR = "#165e52";
-const BUTTON_COLOR = "#193e40ff";
+const BUTTON_COLOR = "#172526";
 
 
 export default function FactoryManagerDashboard() {
