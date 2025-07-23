@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Truck, Package, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Route() {
@@ -179,9 +179,7 @@ export default function Route() {
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
                 currentView === "today" ? 'bg-gray-200' : 'bg-gray-200'
               }`}>
-                <div className={`text-xl ${
-                  currentView === "today" ? 'text-black-800' : 'text-black-600'
-                }`}>🚛</div>
+               <Truck className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
@@ -197,7 +195,7 @@ export default function Route() {
                 <p className="text-xs text-black-600">All Bags</p>
               </div>
               <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <div className="text-gray-600 text-xl">📦</div>
+                 <Package className="text-gray-600 w-5 h-5" />
               </div>
             </div>
           </div>
@@ -232,9 +230,7 @@ export default function Route() {
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
                 currentView === "completed" ? 'bg-gray-200' : 'bg-gray-200'
               }`}>
-                <div className={`text-xl ${
-                  currentView === "completed" ? 'text-emerald-800' : 'text-emerald-600'
-                }`}>✅</div>
+                  <CheckCircle className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Package, CheckCircle, Scale, BarChart2 } from 'lucide-react';
 
 
 export default function Supplier() {
@@ -48,42 +49,44 @@ export default function Supplier() {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            {
-              label: 'Total Bags',
-              value: teaBags.length,
-              subtitle: 'Available Bags',
-              emoji: '📦',
-            },
-            {
-              label: 'Selected Bags',
-              value: selectedBags.length,
-              subtitle: 'Currently Selected',
-              emoji: '✅',
-            },
-            {
-              label: 'Selected Weight',
-              value: `${selectedBagsTotal} Kg`,
-              subtitle: 'Total Selected',
-              emoji: '⚖️',
-            },
-          ].map((card, i) => (
-            <div key={i} className="bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg"
-              style={{ borderColor: '#000000' }}
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium" style={{ color: '#000000' }}>{card.label}</p>
-                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>{card.value}</p>
-                  <p className="text-xs" style={{ color: '#000000' }}>{card.subtitle}</p>
-                </div>
-                <div className="h-10 w-10 bg-[#f3f4f6] rounded-full flex items-center justify-center text-lg">
-                  <span className="text-[#000000]">{card.emoji}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+  {[
+    {
+      label: 'Total Bags',
+      value: teaBags.length,
+      subtitle: 'Available Bags',
+      icon: <Package className="text-[#000000] w-5 h-5" />,
+    },
+    {
+      label: 'Selected Bags',
+      value: selectedBags.length,
+      subtitle: 'Currently Selected',
+      icon: <CheckCircle className="text-[#000000] w-5 h-5" />,
+    },
+    {
+      label: 'Selected Weight',
+      value: `${selectedBagsTotal} Kg`,
+      subtitle: 'Total Selected',
+      icon: <Scale className="text-[#000000] w-5 h-5" />,
+    },
+  ].map((card, i) => (
+    <div
+      key={i}
+      className="bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg"
+      style={{ borderColor: '#000000' }}
+    >
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-sm font-medium" style={{ color: '#000000' }}>{card.label}</p>
+          <p className="text-2xl font-bold" style={{ color: '#000000' }}>{card.value}</p>
+          <p className="text-xs" style={{ color: '#000000' }}>{card.subtitle}</p>
+        </div>
+        <div className="h-10 w-10 bg-[#f3f4f6] rounded-full flex items-center justify-center">
+          {card.icon}
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
 
 
         {/* Supplier Info */}

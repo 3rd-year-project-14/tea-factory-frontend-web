@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Package, CheckCircle, Scale } from 'lucide-react';
+
 
 export default function Supplier() {
   const [teaBags] = useState([
@@ -44,7 +46,9 @@ export default function Supplier() {
                 <p className="text-xs text-black-600">Available Bags</p>
               </div>
               <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">📦</div>
+                <Package className="text-black-600 w-5 h-5" />
+
+
               </div>
             </div>
           </div>
@@ -57,7 +61,7 @@ export default function Supplier() {
                 <p className="text-xs text-black-600">Currently Selected</p>
               </div>
               <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">✅</div>
+                 <CheckCircle className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
@@ -70,7 +74,7 @@ export default function Supplier() {
                 <p className="text-xs text-black-600">Total Selected</p>
               </div>
               <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">⚖️</div>
+               <Scale className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>

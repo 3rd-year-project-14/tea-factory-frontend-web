@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { Search, Users, Package, Scale } from 'lucide-react';
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,7 +47,7 @@ export default function DriverRoute() {
                 <p className="text-xs text-black-600">Unique Suppliers</p>
               </div>
               <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">👥</div>
+               <Users className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
@@ -60,7 +60,7 @@ export default function DriverRoute() {
                 <p className="text-xs text-black-600">Total Bags</p>
               </div>
               <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">📦</div>
+                <Package className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
@@ -73,7 +73,7 @@ export default function DriverRoute() {
                 <p className="text-xs text-black-600">Combined Weight</p>
               </div>
               <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <div className="text-emerald-600 text-xl">⚖️</div>
+                 <Scale className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>

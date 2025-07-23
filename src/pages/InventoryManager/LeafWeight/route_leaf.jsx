@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search} from 'lucide-react';
+import { Search, Users, Package, Scale } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
 export default function DriverRoute() {
@@ -36,26 +36,45 @@ export default function DriverRoute() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { label: 'No of Suppliers', value: totalSuppliers, subtitle: 'Unique Suppliers', icon: '👥' },
-            { label: 'No of Bags', value: totalBags, subtitle: 'Total Bags', icon: '📦' },
-            { label: 'Total Weight', value: `${totalWeight} Kg`, subtitle: 'Combined Weight', icon: '⚖️' },
-          ].map((card, idx) => (
-            <div key={idx} className="bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg"
-              style={{ borderColor: '#000000' }}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium" style={{ color: '#000000' }}>{card.label}</p>
-                  <p className="text-2xl font-bold text-[#000000]">{card.value}</p>
-                  <p className="text-xs" style={{ color: '#000000' }}>{card.subtitle}</p>
-                </div>
-                <div className="h-10 w-10 bg-[#f3f4f6] rounded-full flex items-center justify-center text-lg">
-                  <span className="text-[#165E52]">{card.icon}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+  {[
+    {
+      label: 'No of Suppliers',
+      value: totalSuppliers,
+      subtitle: 'Unique Suppliers',
+      icon: <Users className="text-[#000000] w-5 h-5" />
+    },
+    {
+      label: 'No of Bags',
+      value: totalBags,
+      subtitle: 'Total Bags',
+      icon: <Package className="text-[#000000] w-5 h-5" />
+    },
+    {
+      label: 'Total Weight',
+      value: `${totalWeight} Kg`,
+      subtitle: 'Combined Weight',
+      icon: <Scale className="text-[#000000]w-5 h-5" />
+    }
+  ].map((card, idx) => (
+    <div
+      key={idx}
+      className="bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg"
+      style={{ borderColor: '#000000' }}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium" style={{ color: '#000000' }}>{card.label}</p>
+          <p className="text-2xl font-bold text-[#000000]">{card.value}</p>
+          <p className="text-xs" style={{ color: '#000000' }}>{card.subtitle}</p>
+        </div>
+        <div className="h-10 w-10 bg-[#f3f4f6] rounded-full flex items-center justify-center text-lg">
+          {card.icon}
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
 
         {/* Route Info + Search */}
         <div className="bg-white rounded-lg shadow-sm p-4 border" style={{ borderColor: "#cfece6" }}>
