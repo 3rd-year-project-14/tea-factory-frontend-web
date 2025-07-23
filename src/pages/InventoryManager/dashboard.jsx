@@ -1,17 +1,120 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Calendar, MapPin, User, Scale, CheckCircle, Clock, 
-  TrendingUp, AlertTriangle, Truck, Weight, 
-  BarChart3, RefreshCw, Plus, Eye, Edit, Download, 
-  ChevronRight, ChevronDown, Home
+import {
+  Calendar, MapPin, User, Scale, CheckCircle, Clock,
+  TrendingUp, AlertTriangle, Truck, Weight,
+  BarChart3, RefreshCw, Plus, Eye, Edit, Download,
+  ChevronRight, ChevronDown, Home, Users, X
 } from 'lucide-react';
 
+// SupplierHeader with custom colors
+function SupplierHeader() {
+  return (
+    <div className="bg-white shadow-md border-b" style={{ borderColor: "#cfece6" }}>
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        <h1 className="text-3xl font-bold mb-1" style={{ color: "#165e52" }}>
+          Supplier Management
+        </h1>
+      </div>
+    </div>
+  );
+}
+
+// SupplierSummaryCards with instructions for card and border color
+function SupplierSummaryCards({ metrics, currentView, setCurrentView }) {
+  const getBorderColor = (type) => {
+    switch (type) {
+      case "approved":
+        return "#000000";
+      case "pending":
+        return "#f59e0b";
+      case "rejected":
+        return "#ef4444";
+      default:
+        return "#d1d5db";
+    }
+  };
+
+  const getRingClass = (type) => {
+    if (type === "approved") return "";
+    if (currentView === type) {
+      switch (type) {
+        case "pending":
+          return "ring-2 ring-[#f59e0b]/30";
+        case "rejected":
+          return "ring-2 ring-[#ef4444]/30";
+        default:
+          return "";
+      }
+    }
+    return "";
+  };
+
+  const cards = [
+    {
+      type: "approved",
+      label: "Total Suppliers",
+      value: metrics.approved,
+      icon: <Users size={30} color="black" />,
+    },
+    {
+      type: "pending",
+      label: "Pending Requests",
+      value: metrics.pending,
+      icon: <Clock size={30} color="black" />,
+    },
+    {
+      type: "rejected",
+      label: "Rejected",
+      value: metrics.rejected,
+      icon: <X size={30} color="#ef4444" />,
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      {cards.map((card) => {
+        const isApproved = card.type === "approved";
+        return (
+          <div
+            key={card.type}
+            onClick={() => setCurrentView(card.type)}
+            className={`bg-white p-6 rounded-lg shadow-md cursor-pointer transition-transform ${
+              !isApproved ? "hover:scale-[1.02]" : "hover:shadow-none"
+            } ${getRingClass(card.type)}`}
+            style={{
+              border: `1px solid ${getBorderColor(card.type)}`,
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-black">{card.label}</p>
+                <p className="text-2xl font-bold text-black">{card.value}</p>
+              </div>
+              <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
+                {card.icon}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// Primary button style override
+const emeraldButtonStyle = {
+  backgroundColor: "#01251F",
+  color: "#fff",
+  border: "none",
+  transition: "background 0.2s",
+};
+
+// Main Inventory Manager Dashboard
 export default function InventoryManagerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [expandedRoute, setExpandedRoute] = useState(null);
   const [refreshTime, setRefreshTime] = useState(new Date());
 
-  // Auto-refresh every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setRefreshTime(new Date());
@@ -24,6 +127,7 @@ export default function InventoryManagerDashboard() {
   const month = today.toLocaleString("default", { month: "long" });
   const date = today.getDate();
 
+  // Dummy data for demonstration
   const [operationalData] = useState({
     totalRoutes: 45,
     activeRoutes: 12,
@@ -138,6 +242,7 @@ export default function InventoryManagerDashboard() {
     ]
   });
 
+  // Helper functions for colors
   const getStatusColor = (status) => {
     switch (status) {
       case 'active': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
@@ -155,77 +260,76 @@ export default function InventoryManagerDashboard() {
     return 'bg-red-500';
   };
 
+  // Tab button that uses the deep green style
   const TabButton = ({ id, label, icon, active, onClick }) => (
-  <button
-    onClick={() => onClick(id)}
-    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-      active 
-        ? 'bg-emerald-600 text-white shadow-md' 
-        : 'bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200'
-    }`}
-  >
-    {React.createElement(icon, { className: "h-4 w-4" })}
-    {label}
-  </button>
-);
-
-
-const MetricCard = ({ title, value, subtitle, trend, icon, color = 'emerald' }) => {
-  const borderClass = `border border-${color}-200`;
-  const textColor = `text-${color}-700`;
-  const valueColor = `text-${color}-800`;
-  const subtitleColor = `text-${color}-600`;
-  const bgColor = `bg-${color}-100`;
-  const iconColor = `text-${color}-600`;
-
-  return (
-    <div className={`bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ${borderClass}`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className={`text-sm font-medium ${textColor}`}>{title}</p>
-          <p className={`text-2xl font-bold ${valueColor}`}>{value}</p>
-          {subtitle && <p className={`text-xs ${subtitleColor}`}>{subtitle}</p>}
-        </div>
-        <div className={`h-12 w-12 rounded-full flex items-center justify-center ${bgColor}`}>
-          {React.createElement(icon, { className: `h-6 w-6 ${iconColor}` })}
-        </div>
-      </div>
-      {trend && (
-        <div className="mt-2 flex items-center">
-          <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-          <span className="text-xs text-green-600 font-medium">{trend}</span>
-        </div>
-      )}
-    </div>
+    <button
+      onClick={() => onClick(id)}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium
+        transition-all duration-200
+        border border-gray-200
+        ${active
+          ? 'shadow-md'
+          : 'hover:bg-[#d0e9e2] hover:text-[#01251F]'}
+      `}
+      style={active
+        ? { backgroundColor: "#01251F", color: "#fff" }
+        : { backgroundColor: "#fff", color: "#222" }
+      }
+    >
+      {React.createElement(icon, { className: "h-4 w-4" })}
+      {label}
+    </button>
   );
-};
+
+  // MetricCard with border and colors
+  const MetricCard = ({ title, value, subtitle, trend, icon, color = 'emerald' }) => {
+    let borderColor = "#000000";
+    let textColor = "#000000";
+    let valueColor = "#000000";
+    let subtitleColor = "#515151ff";
+    let bgColor = "#f3f4f6";
+    let iconColor = "#000000";
+
+    if (color === 'green') {
+      textColor = "#000000";
+      valueColor = "#000000";
+      bgColor = "#f3f4f6";
+      iconColor = "#000000";
+    }
+
+    return (
+      <div
+        className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+        style={{ border: `1px solid ${borderColor}` }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium" style={{ color: textColor }}>{title}</p>
+            <p className="text-2xl font-bold" style={{ color: valueColor }}>{value}</p>
+            {subtitle && <p className="text-xs" style={{ color: subtitleColor }}>{subtitle}</p>}
+          </div>
+          <div className="h-12 w-12 rounded-full flex items-center justify-center" style={{ backgroundColor: bgColor }}>
+            {React.createElement(icon, { className: "h-6 w-6", color: iconColor })}
+          </div>
+        </div>
+        {trend && (
+          <div className="mt-2 flex items-center">
+            <TrendingUp className="h-4 w-4" color="#23a05f" style={{ marginRight: "0.25rem" }} />
+            <span className="text-xs font-medium" style={{ color: "#23a05f" }}>{trend}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // For Supplier Summary example
+  const [supplierView, setSupplierView] = useState('approved');
+  const supplierMetrics = { approved: 102, pending: 8, rejected: 3 };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-emerald-200 sticky top-0 z-40">
-        <div className="max-w-8xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Home className="h-6 w-6 text-emerald-600" />
-                <h1 className="text-2xl font-bold text-gray-900">Inventory Manager Dashboard</h1>
-              </div>
-              <div className="flex items-center gap-2 text-emerald-700">
-                <RefreshCw className="h-4 w-4" />
-                <span className="text-sm">Last updated: {refreshTime.toLocaleTimeString()}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 text-emerald-800">
-                <Calendar className="h-5 w-5" />
-                <span className="text-lg font-semibold">{year}</span>
-                <span className="text-md font-medium">{month} {date}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Supplier Header */}
+      <SupplierHeader />
 
       {/* Navigation Tabs */}
       <div className="bg-gray-100 border-b border-gray-200">
@@ -279,23 +383,22 @@ const MetricCard = ({ title, value, subtitle, trend, icon, color = 'emerald' }) 
             </div>
 
             {/* Daily Progress */}
-            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Progress</h3>
+            <div className="bg-white rounded-lg shadow-md p-6" style={{ border: "1px solid #cfece6" }}>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: "#000000" }}>Daily Progress</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {Object.entries(performanceData.dailyTargets).map(([key, data]) => (
                   <div key={key} className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-700 capitalize">{key}</span>
+                      <span className="text-sm font-medium" style={{ color: "#222" }}>{key}</span>
                       <span className="text-sm text-gray-500">{data.completed}/{data.target}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3">
                       <div
-                        className={`h-3 rounded-full transition-all duration-500 ${
-                          data.percentage >= 80 ? 'bg-green-500' : 
-                          data.percentage >= 60 ? 'bg-emerald-500' : 
-                          data.percentage >= 40 ? 'bg-yellow-500' : 'bg-red-500'
-                        }`}
-                        style={{ width: `${Math.min(data.percentage, 100)}%` }}
+                        className="h-3 rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.min(data.percentage, 100)}%`,
+                          background: data.percentage >= 80 ? '#278756ff' : data.percentage >= 60 ? '#32bda3' : data.percentage >= 40 ? '#57ce7fff' : '#ef4444'
+                        }}
                       ></div>
                     </div>
                     <span className="text-xs text-gray-600">{data.percentage}% of daily target</span>
@@ -305,21 +408,27 @@ const MetricCard = ({ title, value, subtitle, trend, icon, color = 'emerald' }) 
             </div>
 
             {/* Recent Activities */}
-            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
+            <div className="bg-white rounded-lg shadow-md p-6" style={{ border: "1px solid #cfece6" }}>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Activities</h3>
-                <button className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
+                <h3 className="text-lg font-semibold" style={{ color: "#000000" }}>Recent Activities</h3>
+                <button className="text-sm font-medium" style={{ color: "#01251F" }}>
                   View All
                 </button>
               </div>
               <div className="space-y-3">
                 {recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50">
-                    <div className={`w-2 h-2 rounded-full mt-2 ${
-                      activity.status === 'success' ? 'bg-green-500' :
-                      activity.status === 'warning' ? 'bg-yellow-500' :
-                      activity.status === 'error' ? 'bg-red-500' : 'bg-blue-500'
-                    }`}></div>
+                    <div
+  className="w-2 h-2 rounded-full mt-2"
+  style={{
+    backgroundColor:
+      activity.status === 'success' || activity.status === 'warning'
+        ? '#165e52'
+        : activity.status === 'error'
+        ? '#ef4444' // Tailwind's red-500
+        : '#165e52'
+  }}
+></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">{activity.message}</p>
                       <p className="text-xs text-gray-600">{activity.details}</p>
@@ -335,11 +444,14 @@ const MetricCard = ({ title, value, subtitle, trend, icon, color = 'emerald' }) 
         {/* Active Routes Tab */}
         {activeTab === 'routes' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
+            <div className="bg-white rounded-lg shadow-md p-6" style={{ border: "1px solid #cfece6" }}>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Active Routes Monitoring</h3>
+                <h3 className="text-lg font-semibold" style={{ color: "#165e52" }}>Active Routes Monitoring</h3>
                 <div className="flex gap-2">
-                  <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2">
+                  <button
+                    className="px-4 py-2 rounded-lg flex items-center gap-2"
+                    style={emeraldButtonStyle}
+                  >
                     <Plus className="h-4 w-4" />
                     Add Route
                   </button>
@@ -448,9 +560,14 @@ const MetricCard = ({ title, value, subtitle, trend, icon, color = 'emerald' }) 
 
         {/* Suppliers Tab */}
         {activeTab === 'suppliers' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Supplier Management</h3>
+          <div className="space-y-6 py-2">
+            <SupplierSummaryCards
+              metrics={supplierMetrics}
+              currentView={supplierView}
+              setCurrentView={setSupplierView}
+            />
+            <div className="bg-white rounded-lg shadow-md p-6" style={{ border: "1px solid #cfece6" }}>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: "#165e52" }}>Supplier Management</h3>
               <div className="text-center py-8 text-gray-500">
                 <User className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>Supplier management interface coming soon...</p>
@@ -462,8 +579,8 @@ const MetricCard = ({ title, value, subtitle, trend, icon, color = 'emerald' }) 
         {/* Weight Management Tab */}
         {activeTab === 'weights' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Weight Management System</h3>
+            <div className="bg-white rounded-lg shadow-md p-6" style={{ border: "1px solid #cfece6" }}>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: "#165e52" }}>Weight Management System</h3>
               <div className="text-center py-8 text-gray-500">
                 <Scale className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>Weight management interface coming soon...</p>
@@ -475,8 +592,8 @@ const MetricCard = ({ title, value, subtitle, trend, icon, color = 'emerald' }) 
         {/* History Tab */}
         {activeTab === 'history' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-md p-6 border border-emerald-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Inventory History</h3>
+            <div className="bg-white rounded-lg shadow-md p-6" style={{ border: "1px solid #cfece6" }}>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: "#165e52" }}>Inventory History</h3>
               <div className="text-center py-8 text-gray-500">
                 <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>History management system will be integrated here...</p>

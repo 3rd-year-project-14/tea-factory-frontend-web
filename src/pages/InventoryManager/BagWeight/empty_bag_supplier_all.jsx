@@ -30,46 +30,46 @@ export default function Supplier() {
       <div className="max-w-8xl mx-auto space-y-4">
 
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
-          <h1 className="text-2xl font-bold text-gray-900">Empty Bag Weight Management</h1>
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
+          <h1 className="text-2xl font-bold" style={{ color: '#165E52' }}>Empty Bag Weight Management</h1>
         </div>
 
         {/* Top Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-black-200 border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">Total Bags</p>
-                <p className="text-2xl font-bold text-emerald-800">{teaBags.length}</p>
-                <p className="text-xs text-emerald-600">Available Bags</p>
+                <p className="text-sm font-medium text-black-700">Total Bags</p>
+                <p className="text-2xl font-bold text-black-800">{teaBags.length}</p>
+                <p className="text-xs text-black-600">Available Bags</p>
               </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
+              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
                 <div className="text-emerald-600 text-xl">📦</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+         <div className="bg-white px-4 py-3 rounded-lg shadow-md border-black-200 border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">Selected Bags</p>
-                <p className="text-2xl font-bold text-emerald-800">{selectedBags.length}</p>
-                <p className="text-xs text-emerald-600">Currently Selected</p>
+                <p className="text-sm font-medium text-black-700">Selected Bags</p>
+                <p className="text-2xl font-bold text-black-800">{selectedBags.length}</p>
+                <p className="text-xs text-black-600">Currently Selected</p>
               </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
+              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
                 <div className="text-emerald-600 text-xl">✅</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-emerald-200 border transition-all duration-200 hover:shadow-lg hover:border-emerald-300">
+          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-black-200 border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">Selected Weight</p>
-                <p className="text-2xl font-bold text-emerald-800">0 Kg</p>
-                <p className="text-xs text-emerald-600">Total Selected</p>
+                <p className="text-sm font-medium text-black-700">Selected Weight</p>
+                <p className="text-2xl font-bold text-black-800">0 Kg</p>
+                <p className="text-xs text-black-600">Total Selected</p>
               </div>
-              <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
+              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
                 <div className="text-emerald-600 text-xl">⚖️</div>
               </div>
             </div>
@@ -77,7 +77,7 @@ export default function Supplier() {
         </div>
 
         {/* Supplier Info Card */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Supplier No</label>
@@ -91,7 +91,7 @@ export default function Supplier() {
         </div>
 
         {/* Action Bar */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
           <div className="flex justify-between items-center gap-4">
             <div className="flex items-center gap-4">
               <h2 className="text-lg font-semibold text-gray-900">Bags Containing Tea Leaves</h2>
@@ -103,8 +103,8 @@ export default function Supplier() {
         </div>
 
         {/* Bags Table */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden border-emerald-200 duration-200 max-w-md">
-          <div className="bg-emerald-800 text-white">
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden ">
+          <div className="bg-[#01251F] text-white">
             <div className="p-3 font-medium text-center">Bag No</div>
           </div>
           <div className="divide-y divide-gray-200">
@@ -152,7 +152,7 @@ export default function Supplier() {
               <button
                 onClick={handleEnter}
                 disabled={selectedBags.length === 0}
-                className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 w-full transform hover:scale-105"
+                className="bg-[#01251F] hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 w-full transform hover:scale-105"
               >
                 Enter
               </button>

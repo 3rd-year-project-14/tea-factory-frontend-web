@@ -102,26 +102,26 @@ const barChartData = {
   ],
 };
 
-const barChartOptions = {
-  responsive: true,
-  plugins: {
-    legend: { display: false },
-    title: {
-      display: true,
-      text: "Summary by Report Type",
-      color: "#165E52",
-      font: { size: 24 },
-    },
-  },
-  scales: {
-    x: { ticks: { color: "#165E52", font: { weight: "bold" } } },
-    y: {
-      beginAtZero: true,
-      ticks: { color: "#6B7280" },
-      grid: { color: BG_LIGHT },
-    },
-  },
-};
+// const barChartOptions = {
+//   responsive: true,
+//   plugins: {
+//     legend: { display: false },
+//     title: {
+//       display: true,
+//       text: "Summary by Report Type",
+//       color: "#165E52",
+//       font: { size: 24 },
+//     },
+//   },
+//   scales: {
+//     x: { ticks: { color: "#165E52", font: { weight: "bold" } } },
+//     y: {
+//       beginAtZero: true,
+//       ticks: { color: "#6B7280" },
+//       grid: { color: BG_LIGHT },
+//     },
+//   },
+// };
 
 const ReportPage = () => {
   const [search, setSearch] = useState("");
@@ -135,7 +135,7 @@ const ReportPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
+    <div className="min-h-screen bg-gray-50 py-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -152,9 +152,9 @@ const ReportPage = () => {
         </div>
 
         {/* Summary Bar Chart */}
-        <div className="mb-12 w-full max-w-3xl mx-auto">
+{/*         <div className="mb-12 w-full max-w-3xl mx-auto">
           <Bar data={barChartData} options={barChartOptions} height={120} />
-        </div>
+        </div> */}
 
         {/* Filters */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
