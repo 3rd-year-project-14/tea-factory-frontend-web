@@ -108,8 +108,8 @@ export default function ManagerDashboard() {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-[#165E52]">Managers</h1>
-            <p className="text-[#165E52] opacity-80 mt-1 text-sm">
+            <h1 className="text-3xl font-bold text-[#165E52] text-gray-900">Managers</h1>
+            <p className="text-[#165E52] opacity-80 mt-1 text-sm text-gray-900">
               Owner Dashboard - Manager Overview & Control
             </p>
           </div>

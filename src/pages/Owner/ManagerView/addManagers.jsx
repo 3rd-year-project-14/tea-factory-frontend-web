@@ -123,7 +123,9 @@ export default function AddManagersInterface() {
           style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}
         >
           <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
+            <h2 className="text-3xl font-bold text-gray-900" 
+            // style={{ color: ACCENT_COLOR }}
+            >
               Add Manager
             </h2>
             <div className="flex items-center gap-4">

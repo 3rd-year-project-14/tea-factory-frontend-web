@@ -857,7 +857,7 @@ ${data.data.processed
   return (
     <div className="min-h-screen bg-[#f8fdfc]">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#cfece6]">
+      <div className="bg-white shadow-sm border-b ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
