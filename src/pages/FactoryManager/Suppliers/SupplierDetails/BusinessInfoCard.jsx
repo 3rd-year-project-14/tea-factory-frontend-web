@@ -39,17 +39,6 @@ export default function BusinessInfoCard({ supplier }) {
           </div>
 
 
-          {/* Land Location */}
-          <div>
-            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Land Location
-            </label>
-            <p className="mt-1 text-sm font-medium text-gray-900">
-              {supplier.landLocation || "Not specified"}
-            </p>
-          </div>
-
-
           {/* Monthly Supply */}
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">

@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   // 🟩 Load user from localStorage when app starts
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
+    
     if (storedUser) {
       setUserState(JSON.parse(storedUser));
     }

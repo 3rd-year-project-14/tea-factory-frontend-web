@@ -25,24 +25,6 @@ const ProfileDropdown = ({ user, onClose }) => {
         onClose();
       },
     },
-    {
-      icon: Settings,
-      label: "Settings",
-      action: () => {
-        // Navigate to settings page
-        console.log("Navigate to settings");
-        onClose();
-      },
-    },
-    {
-      icon: Shield,
-      label: "Privacy",
-      action: () => {
-        // Navigate to privacy page
-        console.log("Navigate to privacy");
-        onClose();
-      },
-    },
   ];
 
   return (
@@ -61,9 +43,6 @@ const ProfileDropdown = ({ user, onClose }) => {
             </p>
             <p className="text-gray-600 text-sm capitalize">
               {user?.role?.toLowerCase() || "Supervisor"}
-            </p>
-            <p className="text-gray-500 text-xs">
-              {user?.email || "john.manager@teafactory.com"}
             </p>
           </div>
         </div>
