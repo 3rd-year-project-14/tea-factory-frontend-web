@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 const ACCENT_COLOR = "#01251F";
 
 
+
+
+
+
 export default function Route() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentView, setCurrentView] = useState("today");
