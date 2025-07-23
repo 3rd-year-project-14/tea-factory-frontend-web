@@ -1,5 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { CalendarDays, Map, UserCircle, Truck } from "lucide-react";
+
+const ACCENT_COLOR = "#165E52"; // Title & highlights
+const BORDER_COLOR = "#cfece6";
+const BTN_COLOR = "#01251F";
+const BG_INPUT = "#f8fdfc";
 
 const routes = [
   { value: "A", label: "Route A - Galle Neluwa" },
@@ -29,7 +34,6 @@ export default function AssignRouteForm() {
   function handleChange(e) {
     const { name, value } = e.target;
 
-    // If vehicle changes, update capacity automatically
     if (name === "vehicle") {
       const selectedVehicle = vehicles.find((v) => v.value === value);
       setForm({
@@ -48,29 +52,30 @@ export default function AssignRouteForm() {
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-800">
-        <Map className="text-green-700" size={28} />
+    <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-[#165E52]">
+        <Map size={28} />
         Assign Route & Vehicle
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-5">
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Route */}
         <div>
           <label
-            className="block mb-1 font-semibold text-gray-700"
             htmlFor="route"
+            className="block mb-1 font-semibold text-[#165E52]"
           >
             Select Route
           </label>
           <div className="relative">
-            <Map className="absolute left-3 top-3 text-green-500" size={18} />
+            <Map className="absolute left-3 top-3 text-[#165E52]" size={18} />
             <select
               id="route"
               name="route"
               value={form.route}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
               required
+              className="w-full pl-10 pr-3 py-2 rounded-lg border border-[#cfece6] bg-[#f8fdfc] text-[#165E52] text-sm focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent transition"
             >
               <option value="">Choose a route</option>
               {routes.map((r) => (
@@ -85,14 +90,14 @@ export default function AssignRouteForm() {
         {/* Driver */}
         <div>
           <label
-            className="block mb-1 font-semibold text-gray-700"
             htmlFor="driver"
+            className="block mb-1 font-semibold text-[#165E52]"
           >
             Driver
           </label>
           <div className="relative">
             <UserCircle
-              className="absolute left-3 top-3 text-blue-500"
+              className="absolute left-3 top-3 text-[#165E52]"
               size={18}
             />
             <select
@@ -100,8 +105,8 @@ export default function AssignRouteForm() {
               name="driver"
               value={form.driver}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
               required
+              className="w-full pl-10 pr-3 py-2 rounded-lg border border-[#cfece6] bg-[#f8fdfc] text-[#165E52] text-sm focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent transition"
             >
               <option value="">Choose driver</option>
               {drivers.map((d) => (
@@ -113,67 +118,70 @@ export default function AssignRouteForm() {
           </div>
         </div>
 
-        {/* Vehicle */}
-        <div>
-          <label
-            className="block mb-1 font-semibold text-gray-700"
-            htmlFor="vehicle"
-          >
-            Vehicle
-          </label>
-          <div className="relative">
-            <Truck
-              className="absolute left-3 top-3 text-orange-500"
-              size={18}
-            />
-            <select
-              id="vehicle"
-              name="vehicle"
-              value={form.vehicle}
-              onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
-              required
+        {/* Vehicle and Vehicle Capacity side by side */}
+        <div className="grid grid-cols-2 gap-6">
+          {/* Vehicle */}
+          <div>
+            <label
+              htmlFor="vehicle"
+              className="block mb-1 font-semibold text-[#165E52]"
             >
-              <option value="">Choose vehicle</option>
-              {vehicles.map((v) => (
-                <option key={v.value} value={v.value}>
-                  {v.label}
-                </option>
-              ))}
-            </select>
+              Vehicle
+            </label>
+            <div className="relative">
+              <Truck
+                className="absolute left-3 top-3 text-[#165E52]"
+                size={18}
+              />
+              <select
+                id="vehicle"
+                name="vehicle"
+                value={form.vehicle}
+                onChange={handleChange}
+                required
+                className="w-full pl-10 pr-3 py-2 rounded-lg border border-[#cfece6] bg-[#f8fdfc] text-[#165E52] text-sm focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent transition"
+              >
+                <option value="">Choose vehicle</option>
+                {vehicles.map((v) => (
+                  <option key={v.value} value={v.value}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Vehicle Capacity */}
+          <div>
+            <label
+              htmlFor="vehicleCapacity"
+              className="block mb-1 font-semibold text-[#165E52]"
+            >
+              Vehicle Capacity
+            </label>
+            <input
+              type="text"
+              id="vehicleCapacity"
+              name="vehicleCapacity"
+              readOnly
+              value={form.vehicleCapacity}
+              placeholder="Auto-filled from vehicle"
+              className="w-full px-4 py-2 rounded-lg border border-[#cfece6] bg-[#f0faf7] text-[#165E52] cursor-not-allowed text-sm"
+            />
           </div>
         </div>
 
-        {/* Vehicle Capacity (readonly) */}
+        {/* Date */}
         <div>
           <label
-            className="block mb-1 font-semibold text-gray-700"
-            htmlFor="vehicleCapacity"
-          >
-            Vehicle Capacity
-          </label>
-          <input
-            type="text"
-            id="vehicleCapacity"
-            name="vehicleCapacity"
-            value={form.vehicleCapacity}
-            readOnly
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-100 cursor-not-allowed"
-            placeholder="Select a vehicle to see capacity"
-          />
-        </div>
-
-        {/* Date of Issue */}
-        <div>
-          <label
-            className="block mb-1 font-semibold text-gray-700"
             htmlFor="date"
+            className="block mb-1 font-semibold text-[#165E52]"
           >
             Date of Issue
           </label>
           <div className="relative">
             <CalendarDays
-              className="absolute left-3 top-3 text-gray-500"
+              className="absolute left-3 top-3 text-[#165E52]"
               size={18}
             />
             <input
@@ -182,19 +190,21 @@ export default function AssignRouteForm() {
               name="date"
               value={form.date}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
               required
+              className="w-full pl-10 pr-3 py-2 rounded-lg border border-[#cfece6] bg-[#f8fdfc] text-[#165E52] text-sm focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent transition"
             />
           </div>
         </div>
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full py-3 rounded-lg text-green-700 font-bold text-lg shadow hover:bg-green-800 transition"
-        >
-          Assign Route
-        </button>
+        <div>
+          <button
+            type="submit"
+            className="w-full py-3 rounded-lg bg-[#165E52] hover:bg-[#134632] text-white font-bold text-lg shadow transition"
+          >
+            Assign Route
+          </button>
+        </div>
       </form>
     </div>
   );

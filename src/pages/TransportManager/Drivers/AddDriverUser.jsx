@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Design Tokens
+const ACCENT_COLOR = "#165E52";
+const BTN_COLOR = "#01251F";
+const BORDER_COLOR = "#cfece6";
+const HEADER_BG = "#e1f4ef";
+const INPUT_BG = "#ffffff";
+
 export default function AddDriverUser() {
   const [form, setForm] = useState({
     name: "",
@@ -41,13 +48,32 @@ export default function AddDriverUser() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-8 bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Add Driver - Step 1 (User Account)
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <div
+      className="max-w-md mx-auto rounded-2xl border shadow-2xl overflow-hidden bg-white"
+      style={{ borderColor: BORDER_COLOR }}
+    >
+      {/* Header */}
+      <div
+        className="px-6 py-5 border-b"
+        style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}
+      >
+        <h2
+          className="text-2xl font-semibold text-center"
+          style={{ color: ACCENT_COLOR }}
+        >
+          Add Driver - Step 1 (User Account)
+        </h2>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="p-6 space-y-5" noValidate>
+        {/* Name */}
         <div>
-          <label htmlFor="name" className="block mb-1 font-semibold">
+          <label
+            htmlFor="name"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
             Full Name <span className="text-red-500">*</span>
           </label>
           <input
@@ -58,12 +84,22 @@ export default function AddDriverUser() {
             value={form.name}
             onChange={handleChange}
             placeholder="e.g. Kasun Perera"
-            className="w-full p-2 border rounded"
+            className="w-full rounded-lg px-4 py-2 text-sm border"
+            style={{
+              borderColor: BORDER_COLOR,
+              backgroundColor: INPUT_BG,
+              color: ACCENT_COLOR,
+            }}
           />
         </div>
 
+        {/* Email */}
         <div>
-          <label htmlFor="email" className="block mb-1 font-semibold">
+          <label
+            htmlFor="email"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
             Email Address <span className="text-red-500">*</span>
           </label>
           <input
@@ -74,12 +110,22 @@ export default function AddDriverUser() {
             value={form.email}
             onChange={handleChange}
             placeholder="e.g. example@email.com"
-            className="w-full p-2 border rounded"
+            className="w-full rounded-lg px-4 py-2 text-sm border"
+            style={{
+              borderColor: BORDER_COLOR,
+              backgroundColor: INPUT_BG,
+              color: ACCENT_COLOR,
+            }}
           />
         </div>
 
+        {/* NIC */}
         <div>
-          <label htmlFor="nic" className="block mb-1 font-semibold">
+          <label
+            htmlFor="nic"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
             NIC <span className="text-red-500">*</span>
           </label>
           <input
@@ -87,16 +133,26 @@ export default function AddDriverUser() {
             name="nic"
             type="text"
             required
+            maxLength={12}
             value={form.nic}
             onChange={handleChange}
             placeholder="e.g. 881234567V"
-            maxLength={12}
-            className="w-full p-2 border rounded"
+            className="w-full rounded-lg px-4 py-2 text-sm border"
+            style={{
+              borderColor: BORDER_COLOR,
+              backgroundColor: INPUT_BG,
+              color: ACCENT_COLOR,
+            }}
           />
         </div>
 
+        {/* Contact Number */}
         <div>
-          <label htmlFor="contactNo" className="block mb-1 font-semibold">
+          <label
+            htmlFor="contactNo"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
             Contact Number <span className="text-red-500">*</span>
           </label>
           <input
@@ -104,17 +160,27 @@ export default function AddDriverUser() {
             name="contactNo"
             type="tel"
             required
+            pattern="^[0-9]{10}$"
+            title="Enter a valid 10 digit phone number"
             value={form.contactNo}
             onChange={handleChange}
             placeholder="e.g. 0771234567"
-            pattern="^[0-9]{10}$"
-            title="Enter a valid 10 digit phone number"
-            className="w-full p-2 border rounded"
+            className="w-full rounded-lg px-4 py-2 text-sm border"
+            style={{
+              borderColor: BORDER_COLOR,
+              backgroundColor: INPUT_BG,
+              color: ACCENT_COLOR,
+            }}
           />
         </div>
 
+        {/* Password */}
         <div>
-          <label htmlFor="password" className="block mb-1 font-semibold">
+          <label
+            htmlFor="password"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
             Password <span className="text-red-500">*</span>
           </label>
           <input
@@ -126,13 +192,20 @@ export default function AddDriverUser() {
             value={form.password}
             onChange={handleChange}
             placeholder="At least 8 characters"
-            className="w-full p-2 border rounded"
+            className="w-full rounded-lg px-4 py-2 text-sm border"
+            style={{
+              borderColor: BORDER_COLOR,
+              backgroundColor: INPUT_BG,
+              color: ACCENT_COLOR,
+            }}
           />
         </div>
 
+        {/* Submit button */}
         <button
           type="submit"
-          className="w-full bg-green-700 text-green-900 p-3 rounded hover:bg-green-800 transition"
+          className="w-full rounded-lg py-3 text-white font-semibold text-lg shadow-md transition-colors"
+          style={{ backgroundColor: BTN_COLOR }}
         >
           Create Driver Account
         </button>

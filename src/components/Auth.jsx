@@ -7,9 +7,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 // COLORS FROM YOUR LANDING PAGE
-const BUTTON_COLOR = "#172526";       // dark green for buttons
-const ACCENT_COLOR = "#165e52";       // rest of greens (backgrounds/accents)
-const BG_COLOR = "#f5faf8";           // subtle background, optional
+const BUTTON_COLOR = "#172526"; // dark green for buttons
+const ACCENT_COLOR = "#165e52"; // rest of greens (backgrounds/accents)
+const BG_COLOR = "#f5faf8"; // subtle background, optional
 
 export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,6 +35,12 @@ export default function Auth() {
         token,
       });
       setUser(res.data);
+      console.log("User data:", res.data);
+      // Store user ID in localStorage
+      
+        localStorage.setItem("userId", res.data.userId);
+        console.log("User ID stored:", res.data.userId);
+      
       setSuccess("Login Successful redirecting ...");
       const role = res.data.role;
       setTimeout(() => {
@@ -67,7 +73,7 @@ export default function Auth() {
             navigate("/");
         }
       }, 1200);
-    } catch (error) {
+    } catch {
       setError("Invalid credentials. Please try again.");
     }
   };
@@ -109,7 +115,9 @@ export default function Auth() {
             >
               Welcome Back
             </h2>
-            <p className="mb-6 text-gray-500 text-center">Sign in to your dashboard</p>
+            <p className="mb-6 text-gray-500 text-center">
+              Sign in to your dashboard
+            </p>
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email */}
               <div>
@@ -117,7 +125,11 @@ export default function Auth() {
                   Email
                 </label>
                 <div className="relative">
-                  <User className="absolute top-3 left-3" size={20} style={{ color: ACCENT_COLOR }} />
+                  <User
+                    className="absolute top-3 left-3"
+                    size={20}
+                    style={{ color: ACCENT_COLOR }}
+                  />
                   <input
                     type="email"
                     value={email}
@@ -135,7 +147,11 @@ export default function Auth() {
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute top-3 left-3" size={20} style={{ color: ACCENT_COLOR }} />
+                  <Lock
+                    className="absolute top-3 left-3"
+                    size={20}
+                    style={{ color: ACCENT_COLOR }}
+                  />
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
@@ -145,23 +161,21 @@ export default function Auth() {
                     required
                     style={{ color: "#222" }}
                   />
-                 <button
-  type="button"
-  onClick={() => setShowPassword(!showPassword)}
-  className="absolute right-3 top-1/2 -translate-y-1/2 focus:outline-none"
-  style={{
-    color: ACCENT_COLOR,
-    boxShadow: showPassword 
-      ? "0 0 0 4px #165e52" 
-      : "none"
-  }}
-  onFocus={e => e.currentTarget.style.boxShadow = "0 0 0 4px #165e52"}
-  onBlur={e => e.currentTarget.style.boxShadow = "none"}
->
-  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-</button>
-
-
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 focus:outline-none"
+                    style={{
+                      color: ACCENT_COLOR,
+                      boxShadow: showPassword ? "0 0 0 4px #165e52" : "none",
+                    }}
+                    onFocus={(e) =>
+                      (e.currentTarget.style.boxShadow = "0 0 0 4px #165e52")
+                    }
+                    onBlur={(e) => (e.currentTarget.style.boxShadow = "none")}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
               {error && (
@@ -170,7 +184,10 @@ export default function Auth() {
                 </div>
               )}
               {success && (
-                <div className="text-center text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                <div
+                  className="text-center text-sm font-medium"
+                  style={{ color: ACCENT_COLOR }}
+                >
                   {success}
                 </div>
               )}
@@ -179,7 +196,7 @@ export default function Auth() {
                 className="w-full text-white py-3 rounded-xl font-bold shadow-lg transition focus:outline-none focus:ring-0"
                 style={{
                   background: BUTTON_COLOR,
-                  boxShadow: "0 4px 24px 0 rgba(22,94,82, 0.08)"
+                  boxShadow: "0 4px 24px 0 rgba(22,94,82, 0.08)",
                 }}
               >
                 Sign In
