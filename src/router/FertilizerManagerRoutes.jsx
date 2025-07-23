@@ -9,7 +9,7 @@ import EditStock from "../pages/FertilizerManager/Stock/EditStock";
 import Request from "../pages/FertilizerManager/Request/supplierRequest";
 import StockRequest from "../pages/FertilizerManager/Stock/stockRequest";
 import ReportPage from "../pages/FertilizerManager/Report/report";
-// import History from "../pages/InventoryManager/History/history";
+// import History from "../pages/FertilizerManager/History/history";
 
 export default [
   <Route
