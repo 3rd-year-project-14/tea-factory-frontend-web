@@ -192,7 +192,7 @@ import {
 
 
 // Custom Accent Green
-const ACCENT_COLOR = "#065F46";
+const ACCENT_COLOR = "#165e52";
 
 
 // For your project logo, adjust the src path to match your assets location.
