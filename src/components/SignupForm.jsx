@@ -12,6 +12,7 @@ export default function SignupForm() {
     name: "",
     nic: "",
     contactNo: "",
+    address: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -20,60 +21,135 @@ export default function SignupForm() {
   const [success, setSuccess] = useState("");
 
   const navigate = useNavigate();
-
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError("");
-    setSuccess("");
-  };
+  setFormData({ ...formData, [e.target.name]: e.target.value });
+  setError("");
+  setSuccess("");
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { name, nic, contactNo, email, password, confirmPassword } = formData;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const { name, nic, contactNo, address, email, password, confirmPassword } = formData;
 
-    if (
-      !name ||
-      !nic ||
-      !contactNo ||
-      !email ||
-      !password ||
-      !confirmPassword
-    ) {
-      setError("All fields are required.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match ❌");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    try {
-      // 1. Firebase Signup
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const token = await userCredential.user.getIdToken();
+  // Check for empty fields
+  if (!name || !nic || !contactNo || !address || !email || !password || !confirmPassword) {
+    setError("All fields are required.");
+    return;
+  }
 
-      // 2. Send token + additional data to backend
-      await axios.post("http://localhost:8080/api/auth/signup", {
-        token, // <-- token sent
-        name, // <-- extra data sent
-        nic,
-        contactNo,
-      });
+  // Passwords match
+  if (password !== confirmPassword) {
+    setError("Passwords do not match ❌");
+    return;
+  }
 
-      setSuccess("Signup Success! You can now login.");
-      setTimeout(() => navigate("/login"), 1500);
-    } catch (error) {
-      console.error(error);
-      setError("Signup failed. Please try again.");
-    }
-  };
+  // Password length
+  if (password.length < 6) {
+    setError("Password must be at least 6 characters.");
+    return;
+  }
+
+  // NIC validation (12 digits or 9 digits + V/v)
+  const nicPattern = /^(\d{9}[vV]|\d{12})$/;
+  if (!nicPattern.test(nic)) {
+    setError("NIC must be 12 digits or 9 digits followed by 'V' or 'v'.");
+    return;
+  }
+
+  // Contact number validation (10 digits)
+  const contactPattern = /^\d{10}$/;
+  if (!contactPattern.test(contactNo)) {
+    setError("Contact number must be exactly 10 digits.");
+    return;
+  }
+
+  // Email validation
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    setError("Invalid email format.");
+    return;
+  }
+
+  try {
+    // ✅ 1. Firebase Signup
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const token = await userCredential.user.getIdToken();
+
+    // ✅ 2. Send token + data to backend
+    await axios.post("http://localhost:8080/api/auth/signup", {
+      token,
+      name,
+      nic,
+      contactNo,
+      address,
+      email,
+    });
+
+    setSuccess("Signup Success! You can now login.");
+    setTimeout(() => navigate("/login"), 1500);
+  } catch (error) {
+    console.error(error);
+    setError("Signup failed. Please try again.");
+  }
+};
+
+
+  // const handleChange = (e) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  //   setError("");
+  //   setSuccess("");
+  // };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const { name, nic, contactNo, address, email, password, confirmPassword } =
+  //     formData;
+
+  //   if (
+  //     !name ||
+  //     !nic ||
+  //     !contactNo ||
+  //     !address ||
+  //     !email ||
+  //     !password ||
+  //     !confirmPassword
+  //   ) {
+  //     setError("All fields are required.");
+  //     return;
+  //   }
+  //   if (password !== confirmPassword) {
+  //     setError("Passwords do not match ❌");
+  //     return;
+  //   }
+  //   if (password.length < 6) {
+  //     setError("Password must be at least 6 characters.");
+  //     return;
+  //   }
+  //   try {
+  //     // 1. Firebase Signup
+  //     const userCredential = await createUserWithEmailAndPassword(
+  //       auth,
+  //       email,
+  //       password
+  //     );
+  //     const token = await userCredential.user.getIdToken();
+
+  //     // 2. Send token + additional data to backend
+  //     await axios.post("http://localhost:8080/api/auth/signup", {
+  //       token, // <-- token sent
+  //       name, // <-- extra data sent
+  //       nic,
+  //       contactNo,
+  //       address,
+  //     });
+
+  //     setSuccess("Signup Success! You can now login.");
+  //     setTimeout(() => navigate("/login"), 1500);
+  //   } catch (error) {
+  //     console.error(error);
+  //     setError("Signup failed. Please try again.");
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 flex items-center justify-center p-4 pt-20">
@@ -146,6 +222,23 @@ export default function SignupForm() {
                 onChange={handleChange}
                 className="w-full pl-10 pr-3 py-2 border border-emerald-100 rounded-xl focus:ring-2 focus:ring-emerald-300 focus:outline-none transition"
                 placeholder="Enter your contact number"
+                required
+              />
+            </div>
+          </div>
+          {/* Address */}
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-1 block">
+              Address
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full pl-3 pr-3 py-2 border border-emerald-100 rounded-xl focus:ring-2 focus:ring-emerald-300 focus:outline-none transition"
+                placeholder="Enter your address"
                 required
               />
             </div>

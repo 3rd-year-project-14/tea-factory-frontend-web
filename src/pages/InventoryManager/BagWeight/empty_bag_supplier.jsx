@@ -34,7 +34,7 @@ export default function DriverRoute() {
         
         {/* Header */}
         <div className="bg-white shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200">
-          <h1 className="text-2xl font-bold text-gray-900">Route Details</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Suppler Bags</h1>
         </div>
 
         {/* Top Statistics Cards */}
@@ -143,7 +143,7 @@ export default function DriverRoute() {
             {filteredSuppliers.map((supplier, index) => (
               <div 
                 key={index}
-                onClick={() => navigate(`/inventoryManager/weight_bags_weight`)}
+                onClick={() => navigate(`/inventoryManager/empty_bags_weight_supplier_all`)}
                 className="grid grid-cols-4 gap-4 p-4 items-center hover:bg-gray-50 cursor-pointer"
               >
                 <div className="font-medium text-gray-900 text-center">{supplier.bagNo}</div>
