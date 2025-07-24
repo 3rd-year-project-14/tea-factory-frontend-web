@@ -30,20 +30,20 @@ function Payment() {
       {/* Header */}
       <header
         className="shadow-sm border-b"
-        style={{ borderColor: BORDER_COLOR }}
+        // style={{ borderColor: BORDER_COLOR }}
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
               <h1
-                className="text-3xl font-bold"
-                style={{ color: ACCENT_COLOR }}
+                className="text-3xl font-bold text-gray-900"
+                // style={{ color: ACCENT_COLOR }}
               >
                 Payments Overview
               </h1>
               <p
                 className="text-gray-700 opacity-90 mt-1"
-                style={{ color: ACCENT_COLOR }}
+                // style={{ color: ACCENT_COLOR }}
               >
                 Owner Dashboard - Payment Summary
               </p>
