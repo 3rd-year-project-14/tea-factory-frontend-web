@@ -164,7 +164,7 @@ const FertilizerRequestsPage = () => {
       <div className="max-w-7xl mx-auto">
 
         {/* Modern Header Design */}
-        <div className="bg-white p-8 shadow-md  mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between">
+        <div className="bg-white p-5 shadow-md  mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1
               className="text-4xl font-bold mb-2 tracking-tight"
