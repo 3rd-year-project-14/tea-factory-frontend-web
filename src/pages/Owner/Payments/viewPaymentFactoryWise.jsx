@@ -31,8 +31,8 @@ export default function ViewPaymentFactoryWise() {
     <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-auto p-8">
       <div className="flex items-center justify-between mb-6 border-b pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-green-700 flex items-center gap-2">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-2 border-green-500 bg-green-50 text-green-700 font-semibold text-base shadow-sm">
+          <h2 className="text-2xl font-bold text-[#165E52] flex items-center gap-2">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-2 border-[#165E52] bg-green-50 text-[#165E52] font-semibold text-base shadow-sm">
               Tea Leaves Payment
             </span>
           </h2>
@@ -52,7 +52,7 @@ export default function ViewPaymentFactoryWise() {
           <span className="text-lg font-semibold text-gray-700">
             Total Payment:
           </span>
-          <span className="text-2xl font-bold text-green-700">
+          <span className="text-2xl font-bold text-[#165E52]">
             LKR {total.toLocaleString()}
           </span>
         </div>
@@ -64,13 +64,13 @@ export default function ViewPaymentFactoryWise() {
             margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="factory" tick={{ fontSize: 14, fill: "#16a34a" }} />
+            <XAxis dataKey="factory" tick={{ fontSize: 14, fill: "#4C8D7E" }} />
             <YAxis tick={{ fontSize: 14 }} />
             <Tooltip formatter={(v) => `LKR ${v.toLocaleString()}`} />
             <Legend />
             <Bar
               dataKey="amount"
-              fill="#16a34a"
+              fill="#4C8D7E"
               name="Tea Payment (LKR)"
               radius={[8, 8, 0, 0]}
             />
@@ -95,7 +95,7 @@ export default function ViewPaymentFactoryWise() {
                 <td className="px-6 py-4 whitespace-nowrap text-gray-700 font-medium">
                   {fp.factory}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-green-700 font-bold">
+                <td className="px-6 py-4 whitespace-nowrap text-[#4C8D7E] font-bold">
                   LKR {fp.amount.toLocaleString()}
                 </td>
               </tr>
