@@ -20,7 +20,7 @@ const factoryLoans = [
 export default function ViewLoanFactoryWise() {
   const location = useLocation();
   const navigate = useNavigate();
-  const title = location.state?.title || "Factory-wise Loan Amount";
+  // const title = location.state?.title || "Factory-wise Loan Amount";
   const label = location.state?.label || "Loan Amount (LKR)";
   const data = location.state?.data || factoryLoans;
 

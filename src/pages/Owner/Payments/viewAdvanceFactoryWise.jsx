@@ -25,7 +25,7 @@ const factoryAdvances = [
 export default function ViewAdvanceFactoryWise() {
   const location = useLocation();
   const navigate = useNavigate();
-  const title = location.state?.title || "Factory-wise Advances Given";
+  // const title = location.state?.title || "Factory-wise Advances Given";
   const label = location.state?.label || "Advances (LKR)";
   const data = location.state?.data || factoryAdvances;
 
