@@ -1,6 +1,6 @@
-
 import { useState } from 'react';
-import { useLocation , useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 
 export default function GiveAccess() {
   const location = useLocation();
@@ -9,9 +9,28 @@ export default function GiveAccess() {
   const [emailSent, setEmailSent] = useState(false);
 
   const handleSendEmail = () => {
-    // Simulate sending email
-    setEmailSent(true);
-    // In a real app, trigger email sending here
+    const templateParams = {
+      to_name: formData?.name,
+      to_email: formData?.email,
+      role: formData?.role,
+      factory: formData?.factory,
+      password: formData?.password, // ensure password is included in formData
+    };
+
+    emailjs.send(
+      'service_pureleaf',      // replace with your EmailJS SERVICE_ID
+      'template_unor4tz',     // replace with your EmailJS TEMPLATE_ID
+      templateParams,
+      'CErGd8kS6Lk5ik7fg'       // replace with your EmailJS PUBLIC_KEY
+    )
+    .then((response) => {
+      console.log('Email sent successfully!', response.status, response.text);
+      setEmailSent(true);
+    })
+    .catch((error) => {
+      console.error('Email sending failed:', error);
+      alert('Failed to send email. Please try again.');
+    });
   };
 
   const handleAddNew = () => {
@@ -29,32 +48,32 @@ export default function GiveAccess() {
             The manager account has been created successfully.<br />
             Please review the details below and assign system access and permissions.<br />
             {emailSent ? (
-              <span className="text-green-600 font-medium">An email has been sent to the manager.</span>
+              <span className="text-green-600 font-medium">A welcome email has been sent to the manager.</span>
             ) : (
               <span className="text-gray-500">You can also send a welcome email with login instructions.</span>
             )}
           </div>
-          <div className="bg-gray-50 rounded p-4 border border-gray-200">
+          <div className="bg-gray-50 rounded p-4 border border-gray-200 space-y-1">
             <div className="font-semibold text-gray-800 mb-2">Manager Details</div>
             <div className="text-sm text-gray-700"><b>Name:</b> {formData?.name}</div>
             <div className="text-sm text-gray-700"><b>NIC:</b> {formData?.nic}</div>
             <div className="text-sm text-gray-700"><b>Mobile:</b> {formData?.mobile}</div>
-            <div className="text-sm text-gray-700"><b>Manager ID:</b> {formData?.managerId}</div>
             <div className="text-sm text-gray-700"><b>Email:</b> {formData?.email}</div>
+            <div className="text-sm text-gray-700"><b>Password:</b> {formData?.password}</div>
             <div className="text-sm text-gray-700"><b>Role:</b> {formData?.role}</div>
             <div className="text-sm text-gray-700"><b>Factory:</b> {formData?.factory}</div>
           </div>
           <div className="space-y-4">
             <button
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
+              className="w-full bg-emerald-800 hover:bg-emerald-900 text-white py-2 rounded-lg font-medium transition-colors"
               onClick={handleSendEmail}
               disabled={emailSent}
             >
               {emailSent ? 'Email Sent' : 'Send Welcome Email'}
             </button>
             <button 
-            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg font-medium transition-colors"
-            onClick={handleAddNew}
+              className="w-full bg-green-200 hover:bg-green-300 text-gray-800 py-2 rounded-lg font-medium transition-colors"
+              onClick={handleAddNew}
             >
               Go Back
             </button>

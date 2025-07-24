@@ -109,7 +109,7 @@ const sidebarLinks = {
     { name: "Payments", path: "/owner/payments", icon: DollarSign },
     { name: "manager works", path: "/owner/managers", icon: UserCheck },
     { name: "Tea Rate", path: "/owner/teaRate", icon: Package },
-    { name: "Reports", path: "/owner/reports", icon: FileBarChart },
+    // { name: "Reports", path: "/owner/reports", icon: FileBarChart },
   ],
 };
 
