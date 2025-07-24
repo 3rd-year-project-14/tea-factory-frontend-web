@@ -14,7 +14,7 @@ export default function Login() {
     setUser({ username, role });
 
     // Redirect to role-based dashboard
-    navigate(/${role.toLowerCase()}/dashboard);
+    navigate(`/${role.toLowerCase()}/dashboard`);
   };
 
   return (
@@ -37,7 +37,10 @@ export default function Login() {
         <option value="DRIVER">Driver</option>
       </select>
 
-      <button type="submit" className="bg-green-700 text-white px-4 py-2 w-full">
+      <button
+        type="submit"
+        className="bg-green-700 text-white px-4 py-2 w-full"
+      >
         Login
       </button>
     </form>

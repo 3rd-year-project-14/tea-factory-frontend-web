@@ -13,7 +13,7 @@ import BankingInfoCard from "./SupplierDetails/BankingInfoCard";
 import DocumentsCard from "./SupplierDetails/DocumentsCard";
 import ActivityTimelineCard from "./SupplierDetails/ActivityTimelineCard";
 import PerformanceChart from "./SupplierDetails/PerformanceChart";
-import SupplierFilters from "./SupplierFilters"; // <-- Fix import path
+// ...existing code...
 
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
@@ -42,36 +42,16 @@ export default function SupplierDetailsPage() {
     message: "",
   });
 
-  // Add filter state and handlers
-  const [filters, setFilters] = useState({
-    search: "",
-    region: "",
-    status: "all",
-  });
-  const [showFilters, setShowFilters] = useState(false);
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      search: "",
-      region: "",
-      status: "all",
-    });
-  };
+  // ...existing code...
 
   useEffect(() => {
     setLoading(true);
 
     const fetchSupplier = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/suppliers/${id}`);
+        const res = await axios.get(
+          `http://localhost:8080/api/suppliers/${id}`
+        );
         if (res.data && Object.keys(res.data).length > 0) {
           setSupplier(res.data);
         } else {
@@ -256,14 +236,13 @@ export default function SupplierDetailsPage() {
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
             <div>
-              <p
-                className="text-3xl font-bold"
-                style={{ color: ACCENT_COLOR }}
-              >
+              <p className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
                 {supplier.user?.name || supplier.name}
               </p>
               <div className="flex flex-wrap items-center text-sm text-gray-600 gap-x-2 mt-2">
-                <span>ID: {supplier.supplierId || `2025-00${supplier.id}`}</span>
+                <span>
+                  ID: {supplier.supplierId || `2025-00${supplier.id}`}
+                </span>
                 <span>•</span>
                 {normalizedStatus === "approved" && supplier.approvedDate && (
                   <span>Approved: {supplier.approvedDate}</span>
@@ -325,30 +304,32 @@ export default function SupplierDetailsPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Add SupplierFilters here */}
-        <SupplierFilters
-          filters={filters}
-          handleFilterChange={handleFilterChange}
-          clearFilters={clearFilters}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-        />
+        {/* ...existing code... */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <PersonalInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
-            <BusinessInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
-            <PerformanceChart supplier={{ ...supplier, status: normalizedStatus }} />
+            <PersonalInfoCard
+              supplier={{ ...supplier, status: normalizedStatus }}
+            />
+            <BusinessInfoCard
+              supplier={{ ...supplier, status: normalizedStatus }}
+            />
+            <PerformanceChart
+              supplier={{ ...supplier, status: normalizedStatus }}
+            />
           </div>
           <div className="space-y-6">
-            <DocumentsCard supplier={{ ...supplier, status: normalizedStatus }} />
-            <BankingInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
-            <ActivityTimelineCard supplier={{ ...supplier, status: normalizedStatus }} />
+            <DocumentsCard
+              supplier={{ ...supplier, status: normalizedStatus }}
+            />
+            <BankingInfoCard
+              supplier={{ ...supplier, status: normalizedStatus }}
+            />
+            <ActivityTimelineCard
+              supplier={{ ...supplier, status: normalizedStatus }}
+            />
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-
-
