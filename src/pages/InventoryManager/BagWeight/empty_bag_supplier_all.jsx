@@ -107,7 +107,11 @@ export default function Supplier() {
         </div>
 
         {/* Bags Table */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden ">
+        {/* <div className="bg-white rounded-lg shadow-sm border overflow-hidden "> */}
+          {/* <div className="bg-white rounded-lg shadow-sm border overflow-hidden max-w-md mx-auto"> */}
+            <div className="bg-white rounded-lg shadow-sm border overflow-hidden max-w-md">
+
+
           <div className="bg-[#01251F] text-white">
             <div className="p-3 font-medium text-center">Bag No</div>
           </div>

@@ -41,7 +41,7 @@ export default function Auth() {
         localStorage.setItem("userId", res.data.userId);
         console.log("User ID stored:", res.data.userId);
       
-      setSuccess("Login Successful redirecting ...");
+      setSuccess("Login Successfully  ...");
       const role = res.data.role;
       setTimeout(() => {
         switch (role) {

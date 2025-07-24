@@ -246,13 +246,13 @@ export default function Vehicle() {
                 } hover:bg-[#e1f4ef] transition-colors`}
               >
                 <div className="flex items-center gap-2 justify-center text-[#165E52] font-semibold text-lg">
-                  <span
+                  {/* <span
                     role="img"
                     aria-label="Truck"
                     className="rounded-full bg-[#e1f4ef] p-1 text-2xl"
                   >
                     🚛
-                  </span>
+                  </span> */}
                   <div>
                     <div>{v.id}</div>
                     <div className="text-xs text-[#165E52] opacity-70">
@@ -262,7 +262,7 @@ export default function Vehicle() {
                 </div>
 
                 <div
-                  className={`font-semibold text-center text-[#165E52] ${
+                  className={`font-semibold text-center text-[#165E52] rounded-2xl ${
                     statusColors[v.status] ||
                     "text-gray-500 bg-transparent rounded-full px-2 py-1 text-xs"
                   }`}
