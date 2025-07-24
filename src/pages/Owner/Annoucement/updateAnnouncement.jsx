@@ -276,7 +276,7 @@ export default function UpdateAnnouncement() {
                       />
                       <label
                         htmlFor="fileUpload"
-                        className="flex items-center space-x-2 bg-[#165e52] hover:bg-[#01251f] text-white px-4 py-2 rounded-lg cursor-pointer select-none transition-colors"
+                        className="flex items-center space-x-2 bg-[#01251f] hover:bg-[#165e52] text-white px-4 py-2 rounded-lg cursor-pointer select-none transition-colors"
                       >
                         <Paperclip className="w-4 h-4" />
                         <span>Choose Files</span>
