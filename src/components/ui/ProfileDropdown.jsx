@@ -34,12 +34,12 @@ const ProfileDropdown = ({ user, onClose }) => {
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center">
             <span className="text-white font-semibold text-lg">
-              {user?.username?.charAt(0).toUpperCase() || "J"}
+              {user?.username?.charAt(0).toUpperCase()}
             </span>
           </div>
           <div>
             <p className="font-semibold text-gray-900">
-              {user?.username || "John Manager"}
+              {user?.name || ""}
             </p>
             <p className="text-gray-600 text-sm capitalize">
               {user?.role?.toLowerCase() || "Supervisor"}
