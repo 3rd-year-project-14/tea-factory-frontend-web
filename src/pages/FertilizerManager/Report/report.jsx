@@ -40,7 +40,7 @@ const sampleReports = [
   },
   {
     id: 2,
-    title: "Supplier Performance Q2",
+    title: "Supplier Performance",
     date: "2025-06-28",
     type: "Supplier",
     summary: "Performance metrics for all suppliers in Q2.",
@@ -144,7 +144,7 @@ const ReportPage = () => {
            
             <div>
               <h1 className="text-4xl font-bold tracking-tight" style={{ color: ACCENT_COLOR }}>
-                Reports
+              Reports
               </h1>
              
             </div>

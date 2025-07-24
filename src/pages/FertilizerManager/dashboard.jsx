@@ -213,7 +213,7 @@ export default function FertilizerManagerDashboard() {
               className="text-lg font-bold ml-2"
               style={{ color: ACCENT_COLOR }}
             >
-              Incoming Fertilizer Requests
+              Incoming Fertilizer Orders
             </span>
           </div>
 
