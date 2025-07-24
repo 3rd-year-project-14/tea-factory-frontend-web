@@ -894,11 +894,11 @@ ${data.data.processed
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]">
             <div className="flex items-center justify-between">
               <div>
                 {/* Remove colored text, use neutral black */}
-                <p className="text-sm text-black opacity-80">
+                <p className="text-sm font-medium text-black">
                   Pending Approvals
                 </p>
                 <p className="text-3xl font-bold text-black">3</p>
@@ -908,10 +908,10 @@ ${data.data.processed
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border ">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]  ">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-black opacity-80">
+                <p className="text-sm font-medium text-black">
                   Approved This Month
                 </p>
                 <p className="text-3xl font-bold text-black">12</p>
@@ -920,20 +920,24 @@ ${data.data.processed
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] ">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-black opacity-80">Total Factories</p>
+                <p className="text-sm font-medium text-black">
+                  Total Factories
+                </p>
                 <p className="text-3xl font-bold text-black">8</p>
               </div>
               <Factory className="w-8 h-8 text-black" />
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] ">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-black opacity-80">Avg Rate Change</p>
+                <p className="text-sm font-medium text-black">
+                  Avg Rate Change
+                </p>
                 {/* Remove purple, make value text black */}
                 <p className="text-3xl font-bold text-black">+5.2%</p>
               </div>
