@@ -51,8 +51,8 @@ export default function CenteredAssignRoutePage() {
   }
 
   return (
-    <div className="flex items-center justify-center bg-gray-50 p-3 mt-6">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-8">
+    <div className="flex items-center justify-center bg-gray-50 overflow-hidden m-6">
+      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl p-6 overflow-hidden">
         <h2
           className="text-2xl font-bold mb-6 flex items-center gap-2 text-[#165E52]"
           tabIndex={-1}
@@ -63,7 +63,7 @@ export default function CenteredAssignRoutePage() {
 
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-6"
+          className="flex flex-col gap-8"
           noValidate
         >
           {/* Route */}
