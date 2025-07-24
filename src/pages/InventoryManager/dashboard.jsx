@@ -10,9 +10,9 @@ import {
 function SupplierHeader() {
   return (
     <div className="bg-white shadow-md border-b" style={{ borderColor: "#cfece6" }}>
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-4">
         <h1 className="text-3xl font-bold mb-1" style={{ color: "#165e52" }}>
-          Supplier Management
+          Dashboard
         </h1>
       </div>
     </div>
@@ -351,36 +351,29 @@ export default function InventoryManagerDashboard() {
           <div className="space-y-6">
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <MetricCard
-                title="Active Routes"
-                value={operationalData.activeRoutes}
-                subtitle={`${operationalData.completedToday} completed today`}
-                icon={MapPin}
-                trend="+8.3% from yesterday"
-              />
-              <MetricCard
-                title="Total Weight Collected"
-                value={operationalData.totalWeightToday}
-                subtitle={`${operationalData.totalBagsCollected} bags processed`}
-                icon={Weight}
-                trend="+12.4% from yesterday"
-              />
-              <MetricCard
-                title="Active Suppliers"
-                value={operationalData.activeSuppliers}
-                subtitle={`of ${operationalData.totalSuppliers} total`}
-                icon={User}
-                trend="+5.2% efficiency"
-              />
-              <MetricCard
-                title="System Efficiency"
-                value={`${operationalData.efficiency}%`}
-                subtitle="Operational performance"
-                icon={TrendingUp}
-                trend="Above target"
-                color="green"
-              />
-            </div>
+  <MetricCard
+    title="Active Routes"
+    value={operationalData.activeRoutes}
+    subtitle={`${operationalData.completedToday} completed today`}
+    icon={MapPin}
+    trend="+8.3% from yesterday"
+  />
+  <MetricCard
+    title="Total Weight Collected"
+    value={operationalData.totalWeightToday}
+    subtitle={`${operationalData.totalBagsCollected} bags processed`}
+    icon={Weight}
+    trend="+12.4% from yesterday"
+  />
+  <MetricCard
+    title="Active Suppliers"
+    value={operationalData.activeSuppliers}
+    subtitle={`of ${operationalData.totalSuppliers} total`}
+    icon={User}
+    trend="+5.2% efficiency"
+  />
+</div>
+
 
             {/* Daily Progress */}
             <div className="bg-white rounded-lg shadow-md p-6" style={{ border: "1px solid #cfece6" }}>

@@ -280,7 +280,7 @@ export default function Route() {
               {currentView === "completed" && (
                 <>
                   <div>Completed Date</div>
-                  <div>Total Weight</div>
+                  <div>Net Weight</div>
                 </>
               )}
             </div>
