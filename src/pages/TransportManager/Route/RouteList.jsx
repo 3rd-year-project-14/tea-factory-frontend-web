@@ -496,7 +496,7 @@ export default function RouteDashboard() {
                   )}
                 </span>
                 {route.status === "Ongoing" && (
-                  <button className="ml-4 px-3 py-1 bg-[#165E52] text-white rounded text-xs font-semibold hover:bg-[#134632] transition">
+                  <button className="ml-4 px-3 py-1 bg-[#172526] text-white rounded text-xs font-semibold hover:bg-[#134632] transition">
                     Track
                   </button>
                 )}

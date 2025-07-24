@@ -128,7 +128,7 @@ export default function PureLeafDashboard() {
   return (
     <div className="min-h-screen bg-[#f8fdfc]">
       <NotificationComponent />
-      <div className="bg-white shadow-md border-b">
+      <div className="bg-white shadow-md ">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <div>
             <h1
@@ -137,7 +137,7 @@ export default function PureLeafDashboard() {
             >
               Announcements
             </h1>
-            <p className="text-[#165e52] opacity-80 max-w-2xl text-gray-900">
+            <p className="text-[#000000] opacity-80 max-w-2xl">
               Owner Dashboard - Announcement Center
             </p>
           </div>
@@ -240,7 +240,7 @@ export default function PureLeafDashboard() {
                 <button
                   onClick={() => handleUpdate(announcement.id)}
                   className="px-6 py-2 rounded font-medium transition-colors text-white"
-                  style={{ backgroundColor: ACCENT_COLOR }}
+                  style={{ backgroundColor: BUTTON_COLOR }}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.backgroundColor = ACCENT_COLOR)
                   }
