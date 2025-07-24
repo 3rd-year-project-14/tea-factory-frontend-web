@@ -34,6 +34,7 @@ ChartJS.register(
 );
 
 const ACCENT_COLOR = "#165e52";
+const BLACK = "#000000";
 const BUTTON_COLOR = "#172526";
 const BORDER_COLOR = "#cfece6";
 const CARD_BG = "#fff";
@@ -224,10 +225,10 @@ export default function Dashboard() {
         </section>
 
         {/* Quick Links Section */}
-        <section className="bg-white rounded-lg shadow-md p-6 border border-black">
+        <section className="bg-white rounded-lg shadow-md p-6 ">
           <h3
             className="text-lg font-semibold text-black mb-5"
-            style={{ color: ACCENT_COLOR }}
+            style={{ color: BLACK}}
           >
             Quick Links
           </h3>
@@ -237,37 +238,37 @@ export default function Dashboard() {
                 title: "Fertilizer Requests",
                 description: "Manage fertilizer distribution requests",
                 icon: Leaf,
-                iconBg: "bg-green-100",
+                
               },
               {
                 title: "Vehicle Management",
                 description: "Track and manage transport vehicles",
                 icon: Truck,
-                iconBg: "bg-blue-100",
+                
               },
               {
                 title: "Price Calculator",
                 description: "Calculate tea prices and payments",
                 icon: Calculator,
-                iconBg: "bg-purple-100",
+              
               },
               {
                 title: "Route Planning",
                 description: "Optimize collection routes",
                 icon: MapPin,
-                iconBg: "bg-orange-100",
+                
               },
               {
                 title: "Schedule Manager",
                 description: "Manage collection schedules",
                 icon: Calendar,
-                iconBg: "bg-red-100",
+                
               },
               {
                 title: "Payment System",
                 description: "Process supplier payments",
                 icon: DollarSign,
-                iconBg: "bg-yellow-100",
+                
               },
             ].map(({ title, description, icon: Icon, iconBg }, i) => (
               <div
@@ -281,12 +282,12 @@ export default function Dashboard() {
                 <div
                   className={`w-12 h-12 rounded-lg flex items-center justify-center ${iconBg}`}
                 >
-                  <Icon className="w-6 h-6" style={{ color: ACCENT_COLOR }} />
+                  <Icon className="w-6 h-6" style={{ color:BLACK }} />
                 </div>
                 <div>
                   <h4
                     className="font-semibold text-gray-800"
-                    style={{ color: ACCENT_COLOR }}
+                    style={{ color: BLACK }}
                   >
                     {title}
                   </h4>

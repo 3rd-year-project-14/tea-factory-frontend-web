@@ -76,9 +76,9 @@ export default function TransportManagerDashboard() {
 
   return (
     <div className=" bg-gray-50">
-      <div className="bg-white shadow-md border-b border-black">
+      <div className="bg-white shadow-md ">
         <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-black mb-0">Dashboard Home</h1>
+          <h1 className="text-3xl font-bold mb-0"  style={{ color: ACCENT_COLOR }}>Dashboard Home</h1>
 
           {/* Replace period filter with Assign Driver button */}
           <div className="flex justify-end">
@@ -171,7 +171,7 @@ export default function TransportManagerDashboard() {
                     <div className="flex gap-2">
                       <button
                         className="px-3 py-1 rounded text-xs font-medium text-white"
-                        style={{ backgroundColor: ACCENT_COLOR }}
+                        style={{ backgroundColor: BUTTON_COLOR }}
                       >
                         Approve
                       </button>
