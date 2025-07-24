@@ -43,7 +43,7 @@ function Payment() {
               </h1>
               <p
                 className="text-gray-700 opacity-90 mt-1"
-                style={{ color: ACCENT_COLOR }}
+                // style={{ color: ACCENT_COLOR }}
               >
                 Owner Dashboard - Payment Summary
               </p>

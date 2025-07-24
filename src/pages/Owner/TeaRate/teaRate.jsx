@@ -821,10 +821,10 @@ ${data.data.processed
             <XCircle className="w-4 h-4" />
             Reject
           </button>
-          <button className="bg-[#165E52] hover:bg-[#165E52] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+          {/* <button className="bg-[#165E52] hover:bg-[#165E52] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
             <Eye className="w-4 h-4" />
             View Details
-          </button>
+          </button> */}
         </div>
       )}
 
@@ -861,10 +861,10 @@ ${data.data.processed
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-[#165E52]">
+              <h1 className="text-3xl font-bold text-[#165E52] text-gray-900">
                 Tea Rate Management
               </h1>
-              <p className="text-[#165E52] opacity-80 mt-1">
+              <p className="text-[#165E52] opacity-80 mt-1 text-gray-900">
                 Owner Dashboard - Rate Approval & Management
               </p>
             </div>
