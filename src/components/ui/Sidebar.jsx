@@ -60,7 +60,7 @@ const sidebarLinks = {
     { name: "Bag Weight", path: "/inventoryManager/empty_bags_weight", icon: Package,},
     { name: "History", path: "/inventoryManager/history", icon: Award },
     // { name: "Report", path: "/inventoryManager/report", icon: Users },
-    // { name: "CRUD", path: "/inventoryManager/crud", icon: Users },
+    { name: "CRUD", path: "/inventoryManager/crud", icon: Users },
   ],
   FERTILIZER_MANAGER: [
     { name: "Dashboard", path: "/fertilizerManager/Dashboard", icon: Home },
