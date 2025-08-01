@@ -2,7 +2,7 @@ import { User, Settings, LogOut, Shield } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const ProfileDropdown = ({ user, onClose }) => {
+const ProfileDropdown = ({ onClose }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -28,26 +28,8 @@ const ProfileDropdown = ({ user, onClose }) => {
   ];
 
   return (
-    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
-      {/* User Info Header */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center">
-            <span className="text-white font-semibold text-lg">
-              {user?.username?.charAt(0).toUpperCase() || "J"}
-            </span>
-          </div>
-          <div>
-            <p className="font-semibold text-gray-900">
-              {user?.username || "John Manager"}
-            </p>
-            <p className="text-gray-600 text-sm capitalize">
-              {user?.role?.toLowerCase() || "Supervisor"}
-            </p>
-          </div>
-        </div>
-      </div>
-
+    <div className="absolute right-0 mt-2 w-50 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+  
       {/* Menu Items */}
       <div className="py-2">
         {menuItems.map((item, index) => (
