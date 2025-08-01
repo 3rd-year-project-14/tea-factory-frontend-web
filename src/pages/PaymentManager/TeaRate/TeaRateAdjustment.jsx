@@ -68,7 +68,7 @@ export default function TeaRateAdjustment() {
     try {
       setLoading(true);
       const response = await axios.get(`${API_URL}?userId=${userIdParam}`);
-      
+
       if (response.status === 200) {
         setTeaRateRecords(response.data);
       }
