@@ -1,23 +1,34 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Package, CheckCircle, Scale, BarChart2 } from "lucide-react";
 
 export default function Supplier() {
-  const [selectedBags, setSelectedBags] = useState(["TN-B5", "TN-B6"]);
+  const [selectedBags, setSelectedBags] = useState([]);
   const [selectedBagsWeight, setSelectedBagsWeight] = useState("");
-  const [leafType, setLeafType] = useState("wet");
+  const [leafType, setLeafType] = useState({ wet: false, coarse: false });
+  const location = useLocation();
+  const { supplierBags = [], supplierId, supplierName } = location.state || {};
+  console.log("supplierBags:", supplierBags);
+  console.log("supplierId:", supplierId);
+  console.log("supplierName:", supplierName);
 
-  const [teaBags] = useState([
-    { bagNo: "TN-B5", driverWeight: "24 Kg" },
-    { bagNo: "TN-B6", driverWeight: "25 Kg" },
-    { bagNo: "TN-B7", driverWeight: "25 Kg" },
-  ]);
+  // Use supplierBags from navigation state as the source of teaBags
+  const teaBags = supplierBags;
 
-  const handleBagSelection = (bagNo) => {
-    setSelectedBags((prev) =>
-      prev.includes(bagNo)
-        ? prev.filter((bag) => bag !== bagNo)
-        : [...prev, bagNo]
-    );
+  const handleBagSelection = (bagNumber) => {
+    setSelectedBags((prev) => {
+      if (prev.includes(bagNumber)) {
+        return prev.filter((bag) => bag !== bagNumber);
+      } else if (prev.length < 3) {
+        return [...prev, bagNumber];
+      } else {
+        return prev; // Do not add more than 3
+      }
+    });
+  };
+
+  const handleLeafTypeChange = (type) => {
+    setLeafType((prev) => ({ ...prev, [type]: !prev[type] }));
   };
 
   const handleEnter = () => {
@@ -29,11 +40,12 @@ export default function Supplier() {
   };
 
   const selectedBagsTotal = teaBags
-    .filter((bag) => selectedBags.includes(bag.bagNo))
-    .reduce(
-      (sum, bag) => sum + parseFloat(bag.driverWeight.replace(" Kg", "")),
-      0
-    );
+    .filter((bag) => selectedBags.includes(bag.bagNumber))
+    .reduce((sum, bag) => {
+      const weightStr = bag.driverWeight ? String(bag.driverWeight) : "0";
+      const num = parseFloat(weightStr.replace(" Kg", ""));
+      return sum + (isNaN(num) ? 0 : num);
+    }, 0);
 
   return (
     <div className="h-full bg-gray-50 p-4">
@@ -50,20 +62,17 @@ export default function Supplier() {
           {[
             {
               label: "Total Bags",
-              value: teaBags.length,
-              subtitle: "Available Bags",
+              value: supplierBags.length,
               icon: <Package className="text-[#000000] w-5 h-5" />,
             },
             {
               label: "Selected Bags",
               value: selectedBags.length,
-              subtitle: "Currently Selected",
               icon: <CheckCircle className="text-[#000000] w-5 h-5" />,
             },
             {
               label: "Selected Weight",
               value: `${selectedBagsTotal} Kg`,
-              subtitle: "Total Selected",
               icon: <Scale className="text-[#000000] w-5 h-5" />,
             },
           ].map((card, i) => (
@@ -112,7 +121,7 @@ export default function Supplier() {
                 Supplier No
               </label>
               <div className="text-lg font-semibold text-[#01251F]">
-                TN-S104
+                {supplierId}
               </div>
             </div>
             <div>
@@ -123,24 +132,9 @@ export default function Supplier() {
                 Supplier Name
               </label>
               <div className="text-lg font-semibold text-gray-900">
-                Supplier - 4
+                {supplierName || "Supplier Name Not Available"}
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Bags Section Header */}
-        <div
-          className="bg-white rounded-lg border p-4"
-          style={{ borderColor: "#cfece6" }}
-        >
-          <div className="flex justify-between items-center gap-4">
-            <h2 className="text-lg font-semibold" style={{ color: "#165E52" }}>
-              Bags Containing Tea Leaves
-            </h2>
-            <span className="bg-[#eafaf6] text-[#165E52] text-xs font-medium px-3 py-1 rounded-full">
-              {teaBags.length} Bags Available
-            </span>
           </div>
         </div>
 
@@ -150,7 +144,7 @@ export default function Supplier() {
           style={{ borderColor: "#cfece6" }}
         >
           <div className="bg-[#01251F] text-white">
-            <div className="grid grid-cols-2 gap-4 p-3 font-medium text-center">
+            <div className="grid grid-cols-3 gap-4 p-3 font-medium text-center">
               <div className="flex justify-center items-center">
                 <input
                   type="checkbox"
@@ -158,36 +152,64 @@ export default function Supplier() {
                   checked={selectedBags.length === teaBags.length}
                   onChange={(e) =>
                     setSelectedBags(
-                      e.target.checked ? teaBags.map((b) => b.bagNo) : []
+                      e.target.checked ? teaBags.map((b) => b.bagNumber) : []
                     )
                   }
                 />
                 Bag No
               </div>
               <div>Driver Weight</div>
+              <div>Quality</div>
             </div>
           </div>
 
           <div className="divide-y divide-gray-100">
-            {teaBags.map((bag, i) => (
-              <div
-                key={i}
-                className="grid grid-cols-2 gap-4 p-4 items-center hover:bg-gray-50"
-              >
-                <div className="flex justify-center items-center">
-                  <input
-                    type="checkbox"
-                    className="mr-2 h-4 w-4 text-[#165E52] border-gray-300 focus:ring-[#165E52]"
-                    checked={selectedBags.includes(bag.bagNo)}
-                    onChange={() => handleBagSelection(bag.bagNo)}
-                  />
-                  <span className="font-medium text-gray-900">{bag.bagNo}</span>
+            {teaBags.map((bag, i) => {
+              let quality = "Good";
+              let color = "text-green-700 bg-green-100";
+              if (bag.wet && bag.coarse) {
+                quality = "Wet, Coarse";
+                color = "text-orange-800 bg-orange-100";
+              } else if (bag.wet) {
+                quality = "Wet";
+                color = "text-orange-800 bg-orange-100";
+              } else if (bag.coarse) {
+                quality = "Coarse";
+                color = "text-orange-800 bg-orange-100";
+              }
+              return (
+                <div
+                  key={bag.bagNumber || i}
+                  className="grid grid-cols-3 gap-4 p-4 items-center hover:bg-gray-50"
+                >
+                  <div className="flex justify-center items-center">
+                    <input
+                      type="checkbox"
+                      className="mr-2 h-4 w-4 text-[#165E52] border-gray-300 focus:ring-[#165E52]"
+                      checked={selectedBags.includes(bag.bagNumber)}
+                      onChange={() => handleBagSelection(bag.bagNumber)}
+                      disabled={
+                        !selectedBags.includes(bag.bagNumber) &&
+                        selectedBags.length >= 3
+                      }
+                    />
+                    <span className="font-medium text-gray-900">
+                      {bag.bagNumber}
+                    </span>
+                  </div>
+                  <div className="text-center font-medium text-[#165E52]">
+                    {bag.driverWeight}
+                  </div>
+                  <div className="flex justify-center">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${color}`}
+                    >
+                      {quality}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-center font-medium text-[#165E52]">
-                  {bag.driverWeight}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -212,7 +234,7 @@ export default function Supplier() {
                 Selected Bags
               </label>
               <div
-                className="bg-[#f6fdfb] p-3 rounded-lg border"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#165E52] border-gray-300"
                 style={{ borderColor: "#cfece6", color: "#01251F" }}
               >
                 {selectedBags.length > 0
@@ -241,21 +263,21 @@ export default function Supplier() {
                 className="block text-sm font-semibold mb-2"
                 style={{ color: "#165E52" }}
               >
-                Leaf Type
+                Quality
               </label>
               <div className="flex gap-4">
-                {["wet", "dry"].map((type) => (
+                {["wet", "coarse"].map((type) => (
                   <label
                     key={type}
                     className="flex items-center text-sm text-gray-800"
                   >
                     <input
-                      type="radio"
+                      type="checkbox"
                       name="leafType"
                       value={type}
-                      checked={leafType === type}
-                      onChange={(e) => setLeafType(e.target.value)}
-                      className="h-4 w-4 text-[#165E52] border-gray-300 focus:ring-[#165E52]"
+                      checked={leafType[type]}
+                      onChange={() => handleLeafTypeChange(type)}
+                      className="h-4 w-8 text-[#165E52] border-gray-300 focus:ring-[#165E52]"
                     />
                     <span className="ml-2 capitalize">{type}</span>
                   </label>

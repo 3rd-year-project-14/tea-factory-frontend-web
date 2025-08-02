@@ -33,7 +33,7 @@ export default [
       </Layout>
     }
   >
-    <Route path="route/:routeId" element={<RouteLeaf />}>
+    <Route path="route/:tripId" element={<RouteLeaf />}>
       <Route path="supplier/:supplierId" element={<LeafBagsWeight />} />
     </Route>
   </Route>,
