@@ -6,7 +6,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 
 export default function Route() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentView, setCurrentView] = useState("arrived"); // "arrived" or "completed"
+  const [currentView, setCurrentView] = useState("arrived");
   const navigate = useNavigate();
   const { user } = useAuth();
   const factoryId = user?.factoryId;
@@ -25,13 +25,19 @@ export default function Route() {
       });
   }, [factoryId]);
 
-  // Arrived routes (status = 'arrived')
   const arrivedTrips = trips.filter((trip) => trip.tripStatus === "arrived");
-  // Pending routes (status = 'completed' or 'pending')
-  const pendingTrips = trips.filter((trip) => trip.tripStatus !== "arrived");
+  const completedTrips = trips.filter(
+    (trip) => trip.tripStatus === "completed"
+  );
+  const pendingTrips = trips.filter(
+    (trip) => trip.tripStatus === "pending" || trip.tripStatus === "collected"
+  );
 
-  // Filtered for table: show arrived for 'today', pending for 'pending'
-  const filteredTrips = currentView === "pending" ? pendingTrips : arrivedTrips;
+  // Filtered for table: show arrived, completed, or pending
+  let filteredTrips = [];
+  if (currentView === "arrived") filteredTrips = arrivedTrips;
+  else if (currentView === "completed") filteredTrips = completedTrips;
+  else filteredTrips = pendingTrips;
 
   // Optionally, add search filter
   const searchedTrips = filteredTrips.filter(
@@ -40,19 +46,19 @@ export default function Route() {
       (trip.driverName || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalBags = filteredTrips.reduce(
-    (sum, trip) => sum + (trip.bagCount || 0),
-    0
-  );
-
   const handleArrivedRoutesClick = () => {
     setCurrentView("arrived");
-    setSearchTerm(""); // Reset search when switching views
+    setSearchTerm("");
+  };
+
+  const handleCompletedRoutesClick = () => {
+    setCurrentView("completed");
+    setSearchTerm("");
   };
 
   const handlePendingRoutesClick = () => {
     setCurrentView("pending");
-    setSearchTerm(""); // Reset search when switching views
+    setSearchTerm("");
   };
 
   const isBase = useMatch("/inventoryManager/leaf_weight");
@@ -70,7 +76,7 @@ export default function Route() {
               </div>
             </div>
 
-            {/* Top Statistics Cards - Updated with Today Routes and Complete Route cards */}
+            {/* Top Statistics Cards - Arrived, Pending, Completed */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {/* Arrived Routes Card - Clickable */}
               <div
@@ -104,7 +110,7 @@ export default function Route() {
                     <p
                       className={`text-xs ${
                         currentView === "arrived"
-                          ? "text-balck-700"
+                          ? "text-black-700"
                           : "text-black-600"
                       }`}
                     >
@@ -123,30 +129,12 @@ export default function Route() {
                 </div>
               </div>
 
-              {/* Total Bags Card */}
-              <div className="bg-white px-4 py-3 rounded-lg shadow-md  border border-black-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-black-700">
-                      Total Bags
-                    </p>
-                    <p className="text-2xl font-bold text-black-800">
-                      {totalBags}
-                    </p>
-                    <p className="text-xs text-black-600">All Bags</p>
-                  </div>
-                  <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                    <Package className="text-gray-600 w-5 h-5" />
-                  </div>
-                </div>
-              </div>
-
               {/* Pending Routes Card - Clickable */}
               <div
                 onClick={handlePendingRoutesClick}
                 className={`bg-white px-4 py-3 rounded-lg shadow-md border  ${
                   currentView === "pending"
-                    ? "border-black-500 "
+                    ? "border-black-500 bg-gray-200"
                     : "border-black-200 "
                 }`}
               >
@@ -191,6 +179,59 @@ export default function Route() {
                   </div>
                 </div>
               </div>
+
+              {/* Completed Routes Card - Clickable */}
+              <div
+                onClick={handleCompletedRoutesClick}
+                className={`bg-white px-4 py-3 rounded-lg shadow-md border   ${
+                  currentView === "completed"
+                    ? "border-black-500 bg-gray-200"
+                    : "border-black-200 "
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p
+                      className={`text-sm font-medium ${
+                        currentView === "completed"
+                          ? "text-black-800"
+                          : "text-black-700"
+                      }`}
+                    >
+                      Completed Routes
+                    </p>
+                    <p
+                      className={`text-2xl font-bold ${
+                        currentView === "completed"
+                          ? "text-black-900"
+                          : "text-black-800"
+                      }`}
+                    >
+                      {completedTrips.length}
+                    </p>
+                    <p
+                      className={`text-xs ${
+                        currentView === "completed"
+                          ? "text-black-700"
+                          : "text-black-600"
+                      }`}
+                    >
+                      {currentView === "completed"
+                        ? "Currently viewing"
+                        : "Click to view"}
+                    </p>
+                  </div>
+                  <div
+                    className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                      currentView === "completed"
+                        ? "bg-gray-200"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    <CheckCircle className="text-black-600 w-5 h-5" />
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Action Bar */}
@@ -200,17 +241,10 @@ export default function Route() {
                   <h2 className="text-lg font-semibold text-gray-900">
                     {currentView === "pending"
                       ? "Pending Routes"
+                      : currentView === "completed"
+                      ? "Completed Routes"
                       : "Arrived Routes"}
                   </h2>
-                  {currentView === "pending" ? (
-                    <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                      Pending
-                    </span>
-                  ) : (
-                    <span className="bg-emerald-50 text-black-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                      Arrived
-                    </span>
-                  )}
                 </div>
 
                 <div className="relative">
@@ -231,50 +265,106 @@ export default function Route() {
               <div className="bg-[#01251F] text-white">
                 <div
                   className={`grid gap-4 p-3 font-medium text-center ${
-                    currentView === "completed" ? "grid-cols-6" : "grid-cols-4"
+                    currentView === "completed" ? "grid-cols-5" : "grid-cols-4"
                   }`}
                 >
                   <div>Route No</div>
                   <div>Route Name</div>
                   <div>Driver Name</div>
                   <div>No of Bags</div>
-                  {currentView === "completed" && (
-                    <>
-                      <div>Completed Date</div>
-                      <div>Net Weight</div>
-                    </>
-                  )}
+                  {currentView === "completed" && <div>Gross Weight</div>}
                 </div>
               </div>
 
               <div className="divide-y divide-gray-200">
                 {searchedTrips.length > 0 ? (
-                  searchedTrips.map((trip, index) => (
-                    <div
-                      key={trip.tripId || index}
-                      className="grid gap-4 p-4 items-center grid-cols-4 hover:bg-gray-50 cursor-pointer"
-                      onClick={() => navigate(`route/${trip.tripId}`,{
-                        state: {
-                          routeId: trip.routeId,
-                          routeName: trip.routeName,
-                          driverName: trip.driverName,
-                        },
-                      })}
-                    >
-                      <div className="font-medium text-gray-900 text-center">
-                        {trip.routeId}
-                      </div>
-                      <div className="text-gray-600 text-center">
-                        {trip.routeName}
-                      </div>
-                      <div className="text-gray-600 text-center">
-                        {trip.driverName}
-                      </div>
-                      <div className="text-gray-900 font-medium text-center">
-                        {trip.bagCount}
-                      </div>
-                    </div>
-                  ))
+                  searchedTrips.map((trip, index) => {
+                    let rowContent;
+                    if (currentView === "completed") {
+                      rowContent = (
+                        <>
+                          <div className="font-medium text-gray-900 text-center">
+                            {trip.routeId}
+                          </div>
+                          <div className="text-gray-600 text-center">
+                            {trip.routeName}
+                          </div>
+                          <div className="text-gray-600 text-center">
+                            {trip.driverName}
+                          </div>
+                          <div className="text-gray-900 font-medium text-center">
+                            {trip.bagCount}
+                          </div>
+                          <div className="text-gray-900 text-center">
+                            {trip.grossWeight || "-"}
+                          </div>
+                        </>
+                      );
+                    } else {
+                      rowContent = (
+                        <>
+                          <div className="font-medium text-gray-900 text-center">
+                            {trip.routeId}
+                          </div>
+                          <div className="text-gray-600 text-center">
+                            {trip.routeName}
+                          </div>
+                          <div className="text-gray-600 text-center">
+                            {trip.driverName}
+                          </div>
+                          <div className="text-gray-900 font-medium text-center">
+                            {trip.bagCount}
+                          </div>
+                        </>
+                      );
+                    }
+                    if (currentView === "pending") {
+                      return (
+                        <div
+                          key={trip.tripId || index}
+                          className="grid gap-4 p-4 items-center grid-cols-4 bg-white"
+                        >
+                          {rowContent}
+                        </div>
+                      );
+                    } else if (currentView === "completed") {
+                      return (
+                        <div
+                          key={trip.tripId || index}
+                          className="grid gap-4 p-4 items-center grid-cols-5 hover:bg-gray-50 cursor-pointer"
+                          onClick={() =>
+                            navigate(`route/${trip.tripId}`, {
+                              state: {
+                                routeId: trip.routeId,
+                                routeName: trip.routeName,
+                                driverName: trip.driverName,
+                              },
+                            })
+                          }
+                        >
+                          {rowContent}
+                        </div>
+                      );
+                    } else if (currentView === "arrived") {
+                      return (
+                        <div
+                          key={trip.tripId || index}
+                          className="grid gap-4 p-4 items-center grid-cols-4 hover:bg-gray-50 cursor-pointer"
+                          onClick={() =>
+                            navigate(`route/${trip.tripId}`, {
+                              state: {
+                                routeId: trip.routeId,
+                                routeName: trip.routeName,
+                                driverName: trip.driverName,
+                              },
+                            })
+                          }
+                        >
+                          {rowContent}
+                        </div>
+                      );
+                    }
+                  })
                 ) : (
                   <div className="p-8 text-center text-gray-500">
                     No trips found.
