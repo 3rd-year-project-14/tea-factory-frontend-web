@@ -26,9 +26,7 @@ export default function Route() {
   }, [factoryId]);
 
   const arrivedTrips = trips.filter((trip) => trip.tripStatus === "arrived");
-  const completedTrips = trips.filter(
-    (trip) => trip.tripStatus === "completed"
-  );
+  const completedTrips = trips.filter((trip) => trip.tripStatus === "weighed");
   const pendingTrips = trips.filter(
     (trip) => trip.tripStatus === "pending" || trip.tripStatus === "collected"
   );
@@ -338,6 +336,7 @@ export default function Route() {
                                 routeId: trip.routeId,
                                 routeName: trip.routeName,
                                 driverName: trip.driverName,
+                                status: currentView,
                               },
                             })
                           }

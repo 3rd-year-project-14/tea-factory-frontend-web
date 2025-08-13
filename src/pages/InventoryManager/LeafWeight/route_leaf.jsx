@@ -12,6 +12,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState("");
   const [bags, setBags] = useState([]);
+  const [tripDetails, setTripDetails] = useState(null);
   const [session, setSession] = useState(null);
   const [confirmPopup, setConfirmPopup] = useState({
     open: false,
@@ -21,14 +22,17 @@ export default function DriverRoute() {
   });
   const navigate = useNavigate();
   const location = useLocation();
-  const { routeId, routeName, driverName } = location.state || {};
+  const { routeId, routeName, driverName, status } = location.state || {};
+  console.log("Route details:", { routeId, routeName, driverName, status });
   const { tripId } = useParams();
   const { user } = useAuth();
-  // Always fetch latest data when this page is shown
+  // Always fetch latest data when this page is shown or navigated to
   useEffect(() => {
     if (!tripId) return;
     // Fetch bags
-    fetch(`http://localhost:8080/api/inventory-process/trip/${tripId}/bags`)
+    fetch(
+      `http://localhost:8080/api/inventory-process/trip/${tripId}/bags/pending`
+    )
       .then((res) => res.json())
       .then((data) => {
         setBags(Array.isArray(data) ? data : []);
@@ -55,7 +59,17 @@ export default function DriverRoute() {
           err
         );
       });
-  }, [location.pathname, tripId]);
+    // Fetch trip details
+    fetch(`http://localhost:8080/api/trips/${tripId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTripDetails(data);
+      })
+      .catch((err) => {
+        setTripDetails(null);
+        console.error("Error fetching trip details for tripId", tripId, err);
+      });
+  }, [location.key, tripId]);
 
   const totalSuppliers = [...new Set(bags.map((b) => b.supplierId))].length;
   const totalBags = bags.length;
@@ -207,78 +221,95 @@ export default function DriverRoute() {
               </div>
 
               <div className="divide-y divide-gray-100">
-                {filteredBags.map((bag, index) => {
-                  let quality = "Good";
-                  let qualityColor = "#165E52";
-                  if (bag.wet && bag.coarse) {
-                    quality = "Wet, Coarse";
-                    qualityColor = "#ff8400ff";
-                  } else if (bag.wet) {
-                    quality = "Wet";
-                    qualityColor = "#f59e42";
-                  } else if (bag.coarse) {
-                    quality = "Coarse";
-                    qualityColor = "#f59e42";
-                  }
-                  const handleBagClick = () => {
-                    const supplierBags = bags.filter(
-                      (b) => b.supplierId === bag.supplierId
-                    );
-                    if (!session) {
-                      setConfirmPopup({
-                        open: true,
-                        supplierBags,
-                        supplierId: bag.supplierId,
-                        supplierName: bag.supplierName,
-                      });
-                    } else if (
-                      session.userId === user?.userId &&
-                      session.status === "pending"
-                    ) {
-                      navigate(`supplier/${bag.supplierId}`, {
-                        state: {
-                          supplierBags,
-                          supplierId: bag.supplierId,
-                          supplierName: bag.supplierName,
-                        },
-                      });
-                    } else {
-                      setConfirmPopup({
-                        open: "session",
-                        supplierBags,
-                        supplierId: bag.supplierId,
-                        supplierName: bag.supplierName,
-                      });
-                    }
-                  };
-                  return (
-                    <div
-                      key={index}
-                      onClick={handleBagClick}
-                      className="grid grid-cols-3 gap-4 p-4 text-center hover:bg-gray-200 cursor-pointer transition"
-                    >
-                      <div className="font-medium text-[#01251F]">
-                        {bag.bagNumber}
-                      </div>
-                      <div className="font-medium text-[#165E52]">
-                        {bag.driverWeight}
-                      </div>
-                      <div
-                        className="font-medium"
-                        style={{
-                          color: quality === "Good" ? "#165E52" : qualityColor,
-                        }}
-                      >
-                        {quality}
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {filteredBags.length === 0 && (
-                  <div className="p-8 text-center text-gray-500">
-                    No bags found
+                {/* Show 'All bags weighed' message in arrived view if trip status is weighed, otherwise show bags or 'No bags found' */}
+                {tripDetails?.status === "weighed" ? (
+                  <div className="p-8 text-center text-green-600 font-semibold">
+                    All bags weighed
                   </div>
+                ) : (
+                  <>
+                    {filteredBags.map((bag, index) => {
+                      let quality = "Good";
+                      let qualityColor = "#165E52";
+                      if (bag.wet && bag.coarse) {
+                        quality = "Wet, Coarse";
+                        qualityColor = "#ff8400ff";
+                      } else if (bag.wet) {
+                        quality = "Wet";
+                        qualityColor = "#f59e42";
+                      } else if (bag.coarse) {
+                        quality = "Coarse";
+                        qualityColor = "#f59e42";
+                      }
+                      const handleBagClick = () => {
+                        const supplierBags = bags.filter(
+                          (b) => b.supplierId === bag.supplierId
+                        );
+                        const supplyRequestId = bag.supplyRequestId;
+                        const sessionId = session?.sessionId;
+                        if (!session) {
+                          setConfirmPopup({
+                            open: true,
+                            supplierBags,
+                            supplierId: bag.supplierId,
+                            supplierName: bag.supplierName,
+                            supplyRequestId,
+                            sessionId,
+                          });
+                        } else if (
+                          session.userId === user?.userId &&
+                          session.status === "pending"
+                        ) {
+                          navigate(`supplier/${bag.supplierId}`, {
+                            state: {
+                              supplierBags,
+                              supplierId: bag.supplierId,
+                              supplierName: bag.supplierName,
+                              supplyRequestId,
+                              sessionId,
+                            },
+                          });
+                        } else {
+                          setConfirmPopup({
+                            open: "session",
+                            supplierBags,
+                            supplierId: bag.supplierId,
+                            supplierName: bag.supplierName,
+                            supplyRequestId,
+                            sessionId,
+                          });
+                        }
+                      };
+                      return (
+                        <div
+                          key={index}
+                          onClick={handleBagClick}
+                          className="grid grid-cols-3 gap-4 p-4 text-center hover:bg-gray-200 cursor-pointer transition"
+                        >
+                          <div className="font-medium text-[#01251F]">
+                            {bag.bagNumber}
+                          </div>
+                          <div className="font-medium text-[#165E52]">
+                            {bag.driverWeight}
+                          </div>
+                          <div
+                            className="font-medium"
+                            style={{
+                              color:
+                                quality === "Good" ? "#165E52" : qualityColor,
+                            }}
+                          >
+                            {quality}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {filteredBags.length === 0 && (
+                      <div className="p-8 text-center text-gray-500">
+                        No bags found
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -313,6 +344,7 @@ export default function DriverRoute() {
                     <button
                       onClick={async () => {
                         setConfirmPopup({ open: false });
+                        let newSessionId = null;
                         try {
                           const response = await fetch(
                             "http://localhost:8080/api/weighing-sessions",
@@ -330,6 +362,8 @@ export default function DriverRoute() {
                           if (!response.ok) {
                             throw new Error("Failed to create session");
                           }
+                          const data = await response.json();
+                          newSessionId = data.sessionId;
                         } catch (error) {
                           console.error(
                             "Error creating weighing session:",
@@ -342,6 +376,7 @@ export default function DriverRoute() {
                             supplierBags: confirmPopup.supplierBags,
                             supplierId: confirmPopup.supplierId,
                             supplierName: confirmPopup.supplierName,
+                            sessionId: newSessionId,
                           },
                         });
                       }}
