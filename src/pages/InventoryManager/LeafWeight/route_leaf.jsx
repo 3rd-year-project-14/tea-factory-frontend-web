@@ -7,27 +7,69 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState("");
   const [bags, setBags] = useState([]);
+  const [tripDetails, setTripDetails] = useState(null);
+  const [session, setSession] = useState(null);
+  const [confirmPopup, setConfirmPopup] = useState({
+    open: false,
+    supplierBags: null,
+    supplierId: null,
+    supplierName: null,
+  });
   const navigate = useNavigate();
   const location = useLocation();
-  const { routeId, routeName, driverName } = location.state || {};
+  const { routeId, routeName, driverName, status } = location.state || {};
+  console.log("Route details:", { routeId, routeName, driverName, status });
   const { tripId } = useParams();
-
+  const { user } = useAuth();
+  // Always fetch latest data when this page is shown or navigated to
   useEffect(() => {
     if (!tripId) return;
-    fetch(`http://localhost:8080/api/inventory-process/trip/${tripId}/bags`)
+    // Fetch bags
+    fetch(
+      `http://localhost:8080/api/inventory-process/trip/${tripId}/bags/pending`
+    )
       .then((res) => res.json())
       .then((data) => {
-        console.log("Fetched bags for tripId", tripId, data);
         setBags(Array.isArray(data) ? data : []);
       })
       .catch((err) => {
+        setBags([]);
         console.error("Error fetching bags for tripId", tripId, err);
       });
-  }, [tripId]);
+    // Fetch session
+    fetch(`http://localhost:8080/api/weighing-sessions/trip/${tripId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.sessionId) {
+          setSession(data);
+        } else {
+          setSession(null);
+        }
+      })
+      .catch((err) => {
+        setSession(null);
+        console.error(
+          "Error fetching weighing session for tripId",
+          tripId,
+          err
+        );
+      });
+    // Fetch trip details
+    fetch(`http://localhost:8080/api/trips/${tripId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTripDetails(data);
+      })
+      .catch((err) => {
+        setTripDetails(null);
+        console.error("Error fetching trip details for tripId", tripId, err);
+      });
+  }, [location.key, tripId]);
 
   const totalSuppliers = [...new Set(bags.map((b) => b.supplierId))].length;
   const totalBags = bags.length;
@@ -179,58 +221,95 @@ export default function DriverRoute() {
               </div>
 
               <div className="divide-y divide-gray-100">
-                {filteredBags.map((bag, index) => {
-                  let quality = "Good";
-                  let qualityColor = "#165E52";
-                  if (bag.wet && bag.coarse) {
-                    quality = "Wet, Coarse";
-                    qualityColor = "#ff8400ff";
-                  } else if (bag.wet) {
-                    quality = "Wet";
-                    qualityColor = "#f59e42";
-                  } else if (bag.coarse) {
-                    quality = "Coarse";
-                    qualityColor = "#f59e42";
-                  }
-                  return (
-                    <div
-                      key={index}
-                      onClick={() => {
+                {/* Show 'All bags weighed' message in arrived view if trip status is weighed, otherwise show bags or 'No bags found' */}
+                {tripDetails?.status === "weighed" ? (
+                  <div className="p-8 text-center text-green-600 font-semibold">
+                    All bags weighed
+                  </div>
+                ) : (
+                  <>
+                    {filteredBags.map((bag, index) => {
+                      let quality = "Good";
+                      let qualityColor = "#165E52";
+                      if (bag.wet && bag.coarse) {
+                        quality = "Wet, Coarse";
+                        qualityColor = "#ff8400ff";
+                      } else if (bag.wet) {
+                        quality = "Wet";
+                        qualityColor = "#f59e42";
+                      } else if (bag.coarse) {
+                        quality = "Coarse";
+                        qualityColor = "#f59e42";
+                      }
+                      const handleBagClick = () => {
                         const supplierBags = bags.filter(
                           (b) => b.supplierId === bag.supplierId
                         );
-                        navigate(`supplier/${bag.supplierId}`, {
-                          state: {
+                        const supplyRequestId = bag.supplyRequestId;
+                        const sessionId = session?.sessionId;
+                        if (!session) {
+                          setConfirmPopup({
+                            open: true,
                             supplierBags,
                             supplierId: bag.supplierId,
                             supplierName: bag.supplierName,
-                          },
-                        });
-                      }}
-                      className="grid grid-cols-3 gap-4 p-4 text-center hover:bg-gray-200 cursor-pointer transition"
-                    >
-                      <div className="font-medium text-[#01251F]">
-                        {bag.bagNumber}
+                            supplyRequestId,
+                            sessionId,
+                          });
+                        } else if (
+                          session.userId === user?.userId &&
+                          session.status === "pending"
+                        ) {
+                          navigate(`supplier/${bag.supplierId}`, {
+                            state: {
+                              supplierBags,
+                              supplierId: bag.supplierId,
+                              supplierName: bag.supplierName,
+                              supplyRequestId,
+                              sessionId,
+                            },
+                          });
+                        } else {
+                          setConfirmPopup({
+                            open: "session",
+                            supplierBags,
+                            supplierId: bag.supplierId,
+                            supplierName: bag.supplierName,
+                            supplyRequestId,
+                            sessionId,
+                          });
+                        }
+                      };
+                      return (
+                        <div
+                          key={index}
+                          onClick={handleBagClick}
+                          className="grid grid-cols-3 gap-4 p-4 text-center hover:bg-gray-200 cursor-pointer transition"
+                        >
+                          <div className="font-medium text-[#01251F]">
+                            {bag.bagNumber}
+                          </div>
+                          <div className="font-medium text-[#165E52]">
+                            {bag.driverWeight}
+                          </div>
+                          <div
+                            className="font-medium"
+                            style={{
+                              color:
+                                quality === "Good" ? "#165E52" : qualityColor,
+                            }}
+                          >
+                            {quality}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {filteredBags.length === 0 && (
+                      <div className="p-8 text-center text-gray-500">
+                        No bags found
                       </div>
-                      <div className="font-medium text-[#165E52]">
-                        {bag.driverWeight}
-                      </div>
-                      <div
-                        className="font-medium"
-                        style={{
-                          color: quality === "Good" ? "#165E52" : qualityColor,
-                        }}
-                      >
-                        {quality}
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {filteredBags.length === 0 && (
-                  <div className="p-8 text-center text-gray-500">
-                    No bags found
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -238,6 +317,114 @@ export default function DriverRoute() {
         )}
         <Outlet />
       </div>
+
+      {confirmPopup.open && (
+        <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/30">
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 border relative"
+            style={{ borderColor: "#cfece6" }}
+          >
+            <div className="p-6 text-center">
+              {confirmPopup.open === true && (
+                <>
+                  <h3
+                    className="text-xl font-semibold mb-4"
+                    style={{ color: "#165E52" }}
+                  >
+                    Start Weighing?
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Do you want to start weighing for{" "}
+                    <span className="font-semibold text-[#165E52]">
+                      {routeName}
+                    </span>
+                    ?
+                  </p>
+                  <div className="flex justify-center gap-4">
+                    <button
+                      onClick={async () => {
+                        setConfirmPopup({ open: false });
+                        let newSessionId = null;
+                        try {
+                          const response = await fetch(
+                            "http://localhost:8080/api/weighing-sessions",
+                            {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                              },
+                              body: JSON.stringify({
+                                userId: user?.userId,
+                                tripId: tripId,
+                              }),
+                            }
+                          );
+                          if (!response.ok) {
+                            throw new Error("Failed to create session");
+                          }
+                          const data = await response.json();
+                          newSessionId = data.sessionId;
+                        } catch (error) {
+                          console.error(
+                            "Error creating weighing session:",
+                            error
+                          );
+                          // Optionally show error to user
+                        }
+                        navigate(`supplier/${confirmPopup.supplierId}`, {
+                          state: {
+                            supplierBags: confirmPopup.supplierBags,
+                            supplierId: confirmPopup.supplierId,
+                            supplierName: confirmPopup.supplierName,
+                            sessionId: newSessionId,
+                          },
+                        });
+                      }}
+                      className="px-6 py-2 rounded-lg text-white font-medium transition"
+                      style={{ backgroundColor: "#165E52" }}
+                    >
+                      Yes, Start
+                    </button>
+                    <button
+                      onClick={() => setConfirmPopup({ open: false })}
+                      className="px-6 py-2 rounded-lg font-medium"
+                      style={{
+                        border: "2px solid #cfece6",
+                        backgroundColor: "transparent",
+                        color: "#165E52",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              )}
+              {confirmPopup.open === "session" && (
+                <>
+                  <h3
+                    className="text-xl font-semibold mb-4"
+                    style={{ color: "#165E52" }}
+                  >
+                    Session In Progress
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Weighing session is in progress by another user.
+                  </p>
+                  <div className="flex justify-center gap-4">
+                    <button
+                      onClick={() => setConfirmPopup({ open: false })}
+                      className="px-6 py-2 rounded-lg font-medium transition-colors bg-transparent text-[#165E52] hover:bg-[#165E52] hover:text-white border-2"
+                      style={{ borderColor: "#3ec5aaff" }}
+                    >
+                      OK
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
