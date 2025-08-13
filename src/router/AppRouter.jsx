@@ -44,22 +44,7 @@ export default function AppRouter() {
         {user?.role === "OWNER" && OwnerRoutes}
         {user?.role === "FACTORY_MANAGER" && FactoryManagerRoutes}
         {user?.role === "TRANSPORT_MANAGER" && TransportManagerRoutes}
-        // ...existing code...
-        {/* {user?.role === "OWNER" && (
-          <>
-
-          <Route path="/owner/dashboard" element={<Layout>{" "}<OwnerDashboard />{" "}</Layout>}/>
-          <Route path="/owner/teaRate" element={<Layout>{" "}<OwnerTeaRate />{" "}</Layout>}/>
-          <Route path="/owner/managers" element={<Layout>{" "}<OwnerManagers />{" "}</Layout>}/>
-          <Route path="/owner/annoucement" element={<Layout>{" "}<OwnerAnnoucement />{" "}</Layout>}/>
-          <Route path="/owner/reports" element={<Layout>{" "}<OwnerReports />{" "}</Layout>}/>
-          <Route path="/owner/payments" element={<Layout>{" "}<OwnerPaymnets />{" "}</Layout>}/>
-          <Route path="/Owner/ManagerView/addManagers" element={<Layout>{" "}<AddManagers />{"  "}</Layout>}/>
-          <Route path="/Owner/ManagerView/giveaccess" element={<Layout>{" "}<GiveAccess />{" "}</Layout>}/>
-
-            
-          </>
-        )} */}
+        
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
