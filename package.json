@@ -12,6 +12,7 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@heroicons/react": "^2.2.0",
+    "@nextui-org/react": "^2.6.11",
     "@react-google-maps/api": "^2.20.7",
     "@tailwindcss/postcss": "^4.1.10",
     "@tailwindcss/vite": "^4.1.10",
@@ -20,6 +21,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "chartjs-plugin-zoom": "^2.2.0",
     "firebase": "^11.10.0",
+    "framer-motion": "^12.23.12",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.515.0",
     "postcss": "^8.5.5",

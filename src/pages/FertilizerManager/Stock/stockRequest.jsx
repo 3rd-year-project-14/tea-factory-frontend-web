@@ -1,730 +1,309 @@
 import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
-  Send,
-  Building2,
-  Package,
-  Calendar,
-  MapPin,
-  Phone,
-  Mail,
-  Plus,
-  Trash2,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-} from "lucide-react";
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Button,
+  Input,
+  Textarea,
+  Select,
+  SelectItem,
+} from "@nextui-org/react";
+import { ArrowLeft } from "lucide-react";
+// Commented out Firebase imports for now
+// import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+// import { db } from "../../../firebase";
+import { useAuth } from "../../../contexts/AuthContext";
 
-const ManagerFertilizerRequestForm = () => {
-  const [formData, setFormData] = useState({
-    requestId: `REQ-${Date.now().toString().slice(-6)}`,
-    managerName: "",
-    department: "",
-    contactEmail: "",
-    contactPhone: "",
-    companyName: "",
-    companyContact: "",
-    companyEmail: "",
-    requestDate: new Date().toISOString().split("T")[0],
-    requiredBy: "",
-    priority: "medium",
-    budget: "",
-    deliveryLocation: "",
-    paymentTerms: "net30",
-    specialInstructions: "",
-  });
-
-  const [fertilizerItems, setFertilizerItems] = useState([
-    {
-      id: 1,
-      type: "",
-      quantity: "",
-      unit: "kg",
-      specification: "",
-      purpose: "",
-    },
-  ]);
-
+const StockRequest = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
-  const fertilizerCompanies = [
-    "AgroTech Industries",
-    "GreenGrow Supplies",
-    "FarmCorp Solutions",
-    "BioNutrients Ltd",
-    "ChemAgri Corp",
-    "NutriField Solutions",
-    "ProGrow Fertilizers",
-    "EcoFert Systems",
-    "AgriBoost Inc",
-    "FertilizerPro Ltd",
-  ];
+  // Initialize form with pre-filled data if available
+  const initialFormData = location.state || {
+    categoryName: "",
+    companyName: "",
+    currentQuantity: 0,
+    requestedQuantity: "",
+    urgency: "normal",
+    notes: "",
+  };
 
-  const fertilizerTypes = [
-    "Nitrogen (Urea 46%)",
-    "NPK 20-20-20 (Balanced)",
-    "NPK 15-15-15 (Standard)",
-    "NPK 10-26-26 (High P&K)",
-    "Diammonium Phosphate (DAP)",
-    "Monoammonium Phosphate (MAP)",
-    "Muriate of Potash (MOP)",
-    "Sulfate of Potash (SOP)",
-    "Calcium Nitrate",
-    "Magnesium Sulfate",
-    "Organic Compost",
-    "Liquid Fertilizer",
-    "Slow Release Fertilizer",
-    "Micronutrient Mix",
-    "Custom Blend",
-  ];
+  const [formData, setFormData] = useState(initialFormData);
 
-  const units = ["kg", "tons", "bags (50kg)", "liters", "gallons"];
-  const departments = [
-    "Agriculture",
-    "Horticulture",
-    "Research",
-    "Production",
-    "Quality Control",
-  ];
-
+  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [name]: value,
-    }));
+    });
   };
 
-  const handleFertilizerChange = (id, field, value) => {
-    setFertilizerItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
-    );
-  };
-
-  const addFertilizerItem = () => {
-    const newId = Math.max(...fertilizerItems.map((item) => item.id)) + 1;
-    setFertilizerItems((prev) => [
-      ...prev,
-      {
-        id: newId,
-        type: "",
-        quantity: "",
-        unit: "kg",
-        specification: "",
-        purpose: "",
-      },
-    ]);
-  };
-
-  const removeFertilizerItem = (id) => {
-    if (fertilizerItems.length > 1) {
-      setFertilizerItems((prev) => prev.filter((item) => item.id !== id));
-    }
-  };
-
-  const handleSubmit = async () => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2500));
-
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-
-    // Reset form after success message
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        requestId: `REQ-${Date.now().toString().slice(-6)}`,
-        managerName: "",
-        department: "",
-        contactEmail: "",
-        contactPhone: "",
-        companyName: "",
-        companyContact: "",
-        companyEmail: "",
-        requestDate: new Date().toISOString().split("T")[0],
-        requiredBy: "",
-        priority: "medium",
-        budget: "",
-        deliveryLocation: "",
-        paymentTerms: "net30",
-        specialInstructions: "",
-      });
-      setFertilizerItems([
-        {
-          id: 1,
-          type: "",
-          quantity: "",
-          unit: "kg",
-          specification: "",
-          purpose: "",
+    try {
+      // Create request object
+      const requestData = {
+        categoryName: formData.categoryName,
+        companyName: formData.companyName,
+        currentQuantity: formData.currentQuantity,
+        requestedQuantity: Number(formData.requestedQuantity),
+        urgency: formData.urgency,
+        notes: formData.notes,
+        status: "pending",
+        requestedBy: {
+          uid: currentUser?.uid || "dummy-user-id",
+          email: currentUser?.email || "dummy@example.com",
+          displayName: currentUser?.displayName || "Fertilizer Manager",
         },
-      ]);
-    }, 3000);
-  };
+        createdAt: new Date().toISOString(),
+      };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "low":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "high":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "urgent":
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+      // In a real app, we would save to Firestore:
+      // await addDoc(collection(db, "fertilizerRequests"), requestData);
+
+      // For demo, just log the data
+      console.log("Request submitted:", requestData);
+
+      // Show success message
+      setFormSubmitted(true);
+
+      // Reset form after 3 seconds and navigate back
+      setTimeout(() => {
+        navigate("/fertilizerManager/stock");
+      }, 3000);
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      alert("Failed to submit request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const getPriorityIcon = (priority) => {
-    switch (priority) {
-      case "low":
-        return <Clock className="w-4 h-4" />;
-      case "medium":
-        return <Calendar className="w-4 h-4" />;
-      case "high":
-        return <AlertCircle className="w-4 h-4" />;
-      case "urgent":
-        return <AlertCircle className="w-4 h-4" />;
-      default:
-        return <Clock className="w-4 h-4" />;
-    }
+  const handleBack = () => {
+    navigate("/fertilizerManager/stock");
   };
 
-  if (isSubmitted) {
+  if (formSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full text-center">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-600" />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-3">
-            Request Sent Successfully!
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Your fertilizer request has been sent to {formData.companyName} and
-            is awaiting their response.
-          </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-            <p className="text-sm font-medium text-blue-900">
-              Request ID: {formData.requestId}
-            </p>
-            <p className="text-sm text-blue-700">
-              Track your request using this ID
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="font-medium text-gray-900">Company</p>
-              <p className="text-gray-600">{formData.companyName}</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="font-medium text-gray-900">Priority</p>
-              <div
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(
-                  formData.priority
-                )}`}
-              >
-                {getPriorityIcon(formData.priority)}
-                {formData.priority.charAt(0).toUpperCase() +
-                  formData.priority.slice(1)}
+      <div className="container mx-auto py-10">
+        <Card className="shadow-md border-none">
+          <CardBody className="text-center py-12">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-12 w-12 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
               </div>
             </div>
-          </div>
-        </div>
+            <h2 className="text-2xl font-bold text-green-600 mb-4">
+              Request Submitted Successfully!
+            </h2>
+            <p className="mb-6 text-gray-600 max-w-md mx-auto">
+              Your fertilizer stock request has been submitted and is pending
+              approval. You will be notified when your request is processed.
+            </p>
+            <div className="flex justify-center gap-4">
+              <Button
+                color="primary"
+                onClick={handleBack}
+                size="lg"
+                className="px-8"
+              >
+                Return to Stock List
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen  p-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Send className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Send Fertilizer Request
-          </h1>
-          <p className="text-gray-600">
-            Submit purchase requests to fertilizer companies
-          </p>
-        </div>
-
-        <div className="space-y-8">
-          {/* Request Information */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-green-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Package className="w-5 h-5 text-green-600" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Request Information
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-green-50 rounded-xl p-4">
-                <label className="block text-sm font-medium text-green-900 mb-2">
-                  Request ID
-                </label>
-                <p className="text-lg font-mono text-green-800">
-                  {formData.requestId}
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Request Date
-                </label>
-                <input
-                  type="date"
-                  name="requestDate"
-                  value={formData.requestDate}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Required By *
-                </label>
-                <input
-                  type="date"
-                  name="requiredBy"
-                  value={formData.requiredBy}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Manager Information */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-green-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-green-200 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-green-600" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Manager Information
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Manager Name *
-                </label>
-                <input
-                  type="text"
-                  name="managerName"
-                  value={formData.managerName}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                  placeholder="Enter your full name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Department *
-                </label>
-                <select
-                  name="department"
-                  value={formData.department}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                >
-                  <option value="">Select department</option>
-                  {departments.map((dept) => (
-                    <option key={dept} value={dept}>
-                      {dept}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Contact Email *
-                </label>
-                <input
-                  type="email"
-                  name="contactEmail"
-                  value={formData.contactEmail}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                  placeholder="manager@company.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Contact Phone *
-                </label>
-                <input
-                  type="tel"
-                  name="contactPhone"
-                  value={formData.contactPhone}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                  placeholder="+1 (555) 123-4567"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Company Information */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-green-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-green-300 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-green-700" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Fertilizer Company Details
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Name *
-                </label>
-                <select
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                >
-                  <option value="">Select fertilizer company</option>
-                  {fertilizerCompanies.map((company) => (
-                    <option key={company} value={company}>
-                      {company}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Contact Person
-                </label>
-                <input
-                  type="text"
-                  name="companyContact"
-                  value={formData.companyContact}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                  placeholder="Contact person name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Email
-                </label>
-                <input
-                  type="email"
-                  name="companyEmail"
-                  value={formData.companyEmail}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                  placeholder="company@fertilizer.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Priority Level *
-                </label>
-                <select
-                  name="priority"
-                  value={formData.priority}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                >
-                  <option value="low">Low - Standard Processing</option>
-                  <option value="medium">Medium - Priority Processing</option>
-                  <option value="high">High - Urgent Processing</option>
-                  <option value="urgent">Urgent - Immediate Attention</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Fertilizer Requirements */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-green-100">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Package className="w-5 h-5 text-green-600" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Fertilizer Requirements
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={addFertilizerItem}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md hover:shadow-lg"
-              >
-                <Plus className="w-4 h-4" />
-                Add Item
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {fertilizerItems.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900 text-lg">
-                      Item {index + 1}
-                    </h3>
-                    {fertilizerItems.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeFertilizerItem(item.id)}
-                        className="text-red-600 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-lg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Fertilizer Type *
-                      </label>
-                      <select
-                        value={item.type}
-                        onChange={(e) =>
-                          handleFertilizerChange(
-                            item.id,
-                            "type",
-                            e.target.value
-                          )
-                        }
-                        required
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                      >
-                        <option value="">Select fertilizer type</option>
-                        {fertilizerTypes.map((type) => (
-                          <option key={type} value={type}>
-                            {type}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Quantity *
-                        </label>
-                        <input
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) =>
-                            handleFertilizerChange(
-                              item.id,
-                              "quantity",
-                              e.target.value
-                            )
-                          }
-                          required
-                          min="1"
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                          placeholder="0"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Unit
-                        </label>
-                        <select
-                          value={item.unit}
-                          onChange={(e) =>
-                            handleFertilizerChange(
-                              item.id,
-                              "unit",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                        >
-                          {units.map((unit) => (
-                            <option key={unit} value={unit}>
-                              {unit}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Specifications
-                      </label>
-                      <textarea
-                        value={item.specification}
-                        onChange={(e) =>
-                          handleFertilizerChange(
-                            item.id,
-                            "specification",
-                            e.target.value
-                          )
-                        }
-                        rows={3}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white resize-none"
-                        placeholder="Quality specs, purity, grade requirements..."
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Purpose/Application
-                      </label>
-                      <textarea
-                        value={item.purpose}
-                        onChange={(e) =>
-                          handleFertilizerChange(
-                            item.id,
-                            "purpose",
-                            e.target.value
-                          )
-                        }
-                        rows={3}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white resize-none"
-                        placeholder="Crop type, application method, expected usage..."
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Commercial Terms */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-green-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-green-600" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Commercial Terms & Delivery
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Budget Estimate
-                </label>
-                <input
-                  type="number"
-                  name="budget"
-                  value={formData.budget}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                  placeholder="Enter budget amount"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Terms
-                </label>
-                <select
-                  name="paymentTerms"
-                  value={formData.paymentTerms}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white"
-                >
-                  <option value="immediate">Immediate Payment</option>
-                  <option value="advance">Advance Payment</option>
-                  <option value="net15">Net 15 Days</option>
-                  <option value="net30">Net 30 Days</option>
-                  <option value="net45">Net 45 Days</option>
-                  <option value="net60">Net 60 Days</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Delivery Location *
-              </label>
-              <textarea
-                name="deliveryLocation"
-                value={formData.deliveryLocation}
-                onChange={handleInputChange}
-                required
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white resize-none"
-                placeholder="Complete delivery address with contact details..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Special Instructions
-              </label>
-              <textarea
-                name="specialInstructions"
-                value={formData.specialInstructions}
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-green-50 focus:bg-white resize-none"
-                placeholder="Special handling requirements, certifications needed, delivery preferences..."
-              />
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-green-600 to-green-400 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Sending Request...
-                </>
-              ) : (
-                <>
-                  <Send className="w-5 h-5" />
-                  Send Request to Company
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+    <div className="container mx-auto py-6">
+      <div className="mb-6 flex items-center">
+        <Button
+          color="default"
+          variant="light"
+          startContent={<ArrowLeft size={16} />}
+          onClick={handleBack}
+          className="font-medium"
+        >
+          Back to Stock List
+        </Button>
+        <h2 className="text-xl font-bold ml-auto">New Stock Request</h2>
       </div>
+
+      <Card className="shadow-none border-none">
+        <CardHeader className="flex gap-3 bg-primary-100 rounded-t-lg">
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold">Fertilizer Stock Request</h1>
+            <p className="text-small text-default-500">
+              Request additional fertilizer stock
+            </p>
+          </div>
+        </CardHeader>
+        <Divider className="opacity-0" />
+        <CardBody className="px-6 py-8">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Stock Information */}
+            <div className="bg-white rounded-md p-4">
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 items-center pb-2">
+                  <div className="font-medium text-gray-700">Category Name</div>
+                  <div className="text-gray-900">
+                    {formData.categoryName || "Nitrogen Fertilizer"}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 items-center pb-2">
+                  <div className="font-medium text-gray-700">Company Name</div>
+                  <div className="text-gray-900">
+                    {formData.companyName || "GreenGrow Inc."}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 items-center pb-2">
+                  <div className="font-medium text-gray-700">
+                    Warehouse Number
+                  </div>
+                  <div className="text-gray-900">WH-001</div>
+                </div>
+
+                <div className="grid grid-cols-2 items-center pb-2">
+                  <div className="font-medium text-gray-700">
+                    Warehouse Name
+                  </div>
+                  <div className="text-gray-900">Main Storage</div>
+                </div>
+
+                <div className="grid grid-cols-2 items-center pb-2">
+                  <div className="font-medium text-gray-700">
+                    Current Stock Quantity
+                  </div>
+                  <div className="text-gray-900">
+                    {formData.currentQuantity} units
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 items-center">
+                  <div className="font-medium text-gray-700">
+                    Requested Quantity
+                  </div>
+                  <Input
+                    aria-label="Requested Quantity"
+                    name="requestedQuantity"
+                    type="number"
+                    placeholder="Enter amount"
+                    value={formData.requestedQuantity}
+                    onChange={handleInputChange}
+                    isRequired
+                    variant="flat"
+                    endContent={
+                      <div className="text-sm text-gray-500">units</div>
+                    }
+                    size="sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Request Details */}
+            <div className="space-y-2">
+              <h3 className="text-md font-medium text-gray-700">
+                Request Details
+              </h3>
+              <div className="rounded-lg p-4 bg-gray-50">
+                <Select
+                  label="Urgency Level"
+                  name="urgency"
+                  selectedKeys={[formData.urgency]}
+                  onChange={(e) =>
+                    setFormData({ ...formData, urgency: e.target.value })
+                  }
+                  className="mb-4 w-full"
+                  variant="flat"
+                  labelPlacement="outside"
+                >
+                  <SelectItem key="low" value="low" className="text-success">
+                    Low - Not Urgent
+                  </SelectItem>
+                  <SelectItem
+                    key="normal"
+                    value="normal"
+                    className="text-primary"
+                  >
+                    Normal - Standard Resupply
+                  </SelectItem>
+                  <SelectItem key="high" value="high" className="text-warning">
+                    High - Limited Stock
+                  </SelectItem>
+                  <SelectItem
+                    key="critical"
+                    value="critical"
+                    className="text-danger"
+                  >
+                    Critical - Immediate Attention Required
+                  </SelectItem>
+                </Select>
+
+                <Textarea
+                  label="Additional Notes"
+                  name="notes"
+                  placeholder="Provide any additional information about this request, including specific usage details, delivery preferences, or other requirements."
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  minRows={4}
+                  variant="flat"
+                  labelPlacement="outside"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                color="default"
+                variant="flat"
+                onClick={handleBack}
+                size="lg"
+              >
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                type="submit"
+                isLoading={isSubmitting}
+                size="lg"
+                startContent={isSubmitting ? null : <span>📝</span>}
+              >
+                Submit Request
+              </Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
     </div>
   );
 };
 
-export default ManagerFertilizerRequestForm;
+export default StockRequest;
