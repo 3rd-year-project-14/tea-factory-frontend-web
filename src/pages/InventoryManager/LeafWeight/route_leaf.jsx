@@ -14,6 +14,7 @@ export default function DriverRoute() {
   const [bags, setBags] = useState([]);
   const [tripDetails, setTripDetails] = useState(null);
   const [session, setSession] = useState(null);
+  const [supplierSummary, setSupplierSummary] = useState([]); // For completed view
   const [confirmPopup, setConfirmPopup] = useState({
     open: false,
     supplierBags: null,
@@ -22,26 +23,29 @@ export default function DriverRoute() {
   });
   const navigate = useNavigate();
   const location = useLocation();
-  const { routeId, routeName, driverName, status } = location.state || {};
-  console.log("Route details:", { routeId, routeName, driverName, status });
+  const { routeId, routeName, driverName, currentView } = location.state || {};
+  const view = currentView;
+  console.log("Route details:", {
+    routeId,
+    routeName,
+    driverName,
+    currentView: view,
+  });
   const { tripId } = useParams();
   const { user } = useAuth();
   // Always fetch latest data when this page is shown or navigated to
   useEffect(() => {
     if (!tripId) return;
-    // Fetch bags
-    fetch(
-      `http://localhost:8080/api/inventory-process/trip/${tripId}/bags/pending`
-    )
+    // Always fetch trip details and session first
+    fetch(`http://localhost:8080/api/trips/${tripId}`)
       .then((res) => res.json())
       .then((data) => {
-        setBags(Array.isArray(data) ? data : []);
+        setTripDetails(data);
       })
       .catch((err) => {
-        setBags([]);
-        console.error("Error fetching bags for tripId", tripId, err);
+        setTripDetails(null);
+        console.error("Error fetching trip details for tripId", tripId, err);
       });
-    // Fetch session
     fetch(`http://localhost:8080/api/weighing-sessions/trip/${tripId}`)
       .then((res) => res.json())
       .then((data) => {
@@ -59,24 +63,67 @@ export default function DriverRoute() {
           err
         );
       });
-    // Fetch trip details
-    fetch(`http://localhost:8080/api/trips/${tripId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTripDetails(data);
-      })
-      .catch((err) => {
-        setTripDetails(null);
-        console.error("Error fetching trip details for tripId", tripId, err);
-      });
   }, [location.key, tripId]);
 
-  const totalSuppliers = [...new Set(bags.map((b) => b.supplierId))].length;
-  const totalBags = bags.length;
-  const totalWeight = bags.reduce((sum, b) => sum + b.driverWeight, 0);
+  // Fetch bags or supplier summary depending on status
+  useEffect(() => {
+    if (!tripDetails || !tripId) return;
+    if (view === "arrived") {
+      // Arrived view: fetch bags
+      fetch(
+        `http://localhost:8080/api/inventory-process/trip/${tripId}/bags/pending`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setBags(Array.isArray(data) ? data : []);
+        })
+        .catch((err) => {
+          setBags([]);
+          console.error("Error fetching bags for tripId", tripId, err);
+        });
+      setSupplierSummary([]);
+    } else {
+      // Completed view: fetch supplier summary using sessionId
+      const sessionId = session?.sessionId;
+      if (!sessionId) return;
+      fetch(`http://localhost:8080/api/bagweights/session/${sessionId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setSupplierSummary(Array.isArray(data) ? data : []);
+        })
+        .catch((err) => {
+          setSupplierSummary([]);
+          console.error(
+            "Error fetching supplier summary for sessionId",
+            sessionId,
+            err
+          );
+        });
+      setBags([]);
+    }
+  }, [tripDetails, session, tripId, view]);
+
+  // Summary cards: use bags for arrived, supplierSummary for completed
+  const totalSuppliers =
+    view === "arrived"
+      ? [...new Set(bags.map((b) => b.supplierId))].length
+      : supplierSummary.length;
+  const totalBags =
+    view === "arrived"
+      ? bags.length
+      : supplierSummary.reduce((sum, s) => sum + (s.bagTotal || 0), 0);
+  const totalWeight =
+    view === "arrived"
+      ? bags.reduce((sum, b) => sum + b.driverWeight, 0)
+      : supplierSummary.reduce((sum, s) => sum + (s.grossWeight || 0), 0);
 
   const filteredBags = bags.filter((b) =>
     String(b.bagNumber).toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const filteredSuppliers = supplierSummary.filter(
+    (s) =>
+      (s.supplierName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      String(s.supplierId).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const isBase = useMatch("/inventoryManager/leaf_weight/route/:routeId");
@@ -207,27 +254,21 @@ export default function DriverRoute() {
               </div>
             </div>
 
-            {/* Table */}
+            {/* Table: Arrived = bag list, Completed = supplier summary */}
             <div
               className="bg-white rounded-lg border overflow-hidden"
               style={{ borderColor: "#cfece6" }}
             >
-              <div className="bg-[#01251F] text-white">
-                <div className="grid grid-cols-3 gap-4 p-3 text-sm font-semibold text-center">
-                  <div>Bag No</div>
-                  <div>Weight</div>
-                  <div>Quality</div>
-                </div>
-              </div>
-
-              <div className="divide-y divide-gray-100">
-                {/* Show 'All bags weighed' message in arrived view if trip status is weighed, otherwise show bags or 'No bags found' */}
-                {tripDetails?.status === "weighed" ? (
-                  <div className="p-8 text-center text-green-600 font-semibold">
-                    All bags weighed
+              {view === "arrived" ? (
+                <>
+                  <div className="bg-[#01251F] text-white">
+                    <div className="grid grid-cols-3 gap-4 p-3 text-sm font-semibold text-center">
+                      <div>Bag No</div>
+                      <div>Weight</div>
+                      <div>Quality</div>
+                    </div>
                   </div>
-                ) : (
-                  <>
+                  <div className="divide-y divide-gray-100">
                     {filteredBags.map((bag, index) => {
                       let quality = "Good";
                       let qualityColor = "#165E52";
@@ -304,14 +345,69 @@ export default function DriverRoute() {
                         </div>
                       );
                     })}
-                    {filteredBags.length === 0 && (
+                    {filteredBags.length === 0 &&
+                      tripDetails?.status !== "weighed" && (
+                        <div className="p-8 text-center text-gray-500">
+                          No bags found
+                        </div>
+                      )}
+                  </div>
+                  {/* Show 'All bags weighed' only in arrived view and if status is weighed */}
+                  {tripDetails?.status === "weighed" && (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="text-green-600 font-semibold text-lg mb-4">
+                        All bags weighed
+                      </div>
+                      <button
+                        onClick={() => navigate(-1)}
+                        className="px-6 py-2 rounded-lg font-medium bg-[#165E52] text-white hover:bg-[#11453f] transition"
+                      >
+                        Go Back
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                // Completed view: supplier summary table
+                <>
+                  <div className="bg-[#01251F] text-white">
+                    <div className="grid grid-cols-5 gap-4 p-3 text-sm font-semibold text-center">
+                      <div>Supplier ID</div>
+                      <div>Supplier Name</div>
+                      <div>Total Bags</div>
+                      <div>Gross Weight</div>
+                      <div>Deductions</div>
+                    </div>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {filteredSuppliers.map((s, idx) => (
+                      <div
+                        key={idx}
+                        className="grid grid-cols-5 gap-4 p-4 text-center"
+                      >
+                        <div className="font-medium text-[#01251F]">
+                          {s.supplierId}
+                        </div>
+                        <div className="font-medium text-[#165E52]">
+                          {s.supplierName}
+                        </div>
+                        <div className="font-medium">{s.bagTotal}</div>
+                        <div className="font-medium">{s.grossWeight} Kg</div>
+                        <div className="font-medium">
+                          {(s.water || 0) +
+                            (s.coarse || 0) +
+                            (s.otherWeight || 0)}
+                        </div>
+                      </div>
+                    ))}
+                    {filteredSuppliers.length === 0 && (
                       <div className="p-8 text-center text-gray-500">
-                        No bags found
+                        No suppliers found
                       </div>
                     )}
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
             </div>
           </>
         )}

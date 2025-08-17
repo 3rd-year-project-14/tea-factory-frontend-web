@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Search, Truck, Package, CheckCircle } from "lucide-react";
-import { useNavigate, Outlet, useMatch } from "react-router-dom";
+import { useNavigate, Outlet, useMatch, useLocation } from "react-router-dom";
 
 import { useAuth } from "../../../contexts/AuthContext";
 
@@ -11,6 +11,7 @@ export default function Route() {
   const { user } = useAuth();
   const factoryId = user?.factoryId;
   const [trips, setTrips] = useState([]);
+  const location = useLocation();
 
   useEffect(() => {
     if (!factoryId) return;
@@ -23,7 +24,7 @@ export default function Route() {
       .catch((err) => {
         console.error("Error fetching trip details:", err);
       });
-  }, [factoryId]);
+  }, [factoryId, location.key]);
 
   const arrivedTrips = trips.filter((trip) => trip.tripStatus === "arrived");
   const completedTrips = trips.filter((trip) => trip.tripStatus === "weighed");
@@ -294,7 +295,7 @@ export default function Route() {
                             {trip.bagCount}
                           </div>
                           <div className="text-gray-900 text-center">
-                            {trip.grossWeight || "-"}
+                            {trip.totalGrossWeight || "-"}
                           </div>
                         </>
                       );
@@ -336,7 +337,8 @@ export default function Route() {
                                 routeId: trip.routeId,
                                 routeName: trip.routeName,
                                 driverName: trip.driverName,
-                                status: currentView,
+                                currentView,
+                                sessionId: trip.sessionId,
                               },
                             })
                           }
@@ -355,6 +357,7 @@ export default function Route() {
                                 routeId: trip.routeId,
                                 routeName: trip.routeName,
                                 driverName: trip.driverName,
+                                currentView,
                               },
                             })
                           }

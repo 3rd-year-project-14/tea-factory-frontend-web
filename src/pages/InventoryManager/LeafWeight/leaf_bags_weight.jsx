@@ -135,9 +135,12 @@ export default function Supplier() {
               : bag
           )
         );
-        setSelectedBags([]); // Optionally clear selection after weighing
-        setSelectedBagsWeight(""); // Clear selected bag weight after weighing
-        // Re-fetch bagWeightId and related data
+        setSelectedBags([]); 
+        setSelectedBagsWeight("");
+        setWaterWeight("");
+        setCoarseWeight("");
+        setOtherWeight("");
+        setOtherWeightReason("");
         fetchBagWeightId();
       })
       .catch((error) => {
