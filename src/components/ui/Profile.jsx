@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 import { User, Mail, Building, Shield, Lock, Eye, EyeOff } from "lucide-react";
 
 const ACCENT_COLOR = "#165E52";
 const BUTTON_COLOR = "#01251F";
 const BORDER_COLOR = "#cfece6";
-const BLACK = "#b31616ff";
+const BLACK = "#000000ff";
 
 function ProfileHeader() {
   return (
@@ -25,6 +26,10 @@ function ProfileHeader() {
 }
 
 export default function Profile() {
+  const [showNoAccess, setShowNoAccess] = useState({
+    factoryName: false,
+    role: false,
+  });
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -38,39 +43,25 @@ export default function Profile() {
     confirmPassword: "",
   });
 
-  // Fetch logged-in user data on mount
-  React.useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (userId) {
-      import("axios").then(({ default: axios }) => {
-        axios
-          .get(`http://localhost:8080/api/users/${userId}`)
-          .then((response) => {
-            console.log("Fetched user data:", response.data);
-            // Map backend fields to formData fields as needed
-            setFormData((prev) => ({
-              ...prev,
-              name: response.data.name || response.data.fullName || "",
-              email: response.data.email || "",
-              factoryName:
-                response.data.factory.name || response.data.factory || "",
-              role: response.data.role || "",
-              address: response.data.address || "",
-              nic: response.data.nic || "",
-              contactNo:
-                response.data.contactNo || response.data.contact_no || "",
-              // keep password fields empty
-              currentPassword: "",
-              newPassword: "",
-              confirmPassword: "",
-            }));
-          })
-          .catch((error) => {
-            console.error("Failed to fetch user data:", error);
-          });
-      });
+  // Use user data from AuthContext
+  const { user } = useAuth();
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || "",
+        factoryName: user.factoryName || "",
+        role: user.role || "",
+        address: user.address || "",
+        nic: user.nic || "",
+        contactNo: user.contactNo || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
     }
-  }, []);
+  }, [user]);
 
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -114,7 +105,7 @@ export default function Profile() {
           className="text-2xl font-semibold pb-2 border-b-2 mb-8"
           style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}
         >
-          Personal Information
+          {isEditing ? "Edit Personal Information" : "Personal Information"}
         </h2>
         <div className="grid md:grid-cols-2 gap-8">
           {/* Personal Information Section (Left) */}
@@ -126,7 +117,7 @@ export default function Profile() {
                 style={{ color: ACCENT_COLOR }}
               >
                 <User className="w-4 h-4 mr-2" color={ACCENT_COLOR} />
-                Full Name
+                Name
               </label>
               <input
                 type="text"
@@ -134,21 +125,7 @@ export default function Profile() {
                 value={formData.name}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="w-full px-4 py-3 rounded-lg transition-colors"
-                style={{
-                  border: `2px solid ${BORDER_COLOR}`,
-                  ...(isEditing
-                    ? {
-                        outline: `2px solid ${ACCENT_COLOR}`,
-                        background: "#fff",
-                        color: ACCENT_COLOR,
-                      }
-                    : {
-                        background: "#e1f4ef",
-                        color: ACCENT_COLOR,
-                        borderColor: BORDER_COLOR,
-                      }),
-                }}
+                className="w-full px-4 py-3 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
               />
             </div>
             {/* Email */}
@@ -166,21 +143,7 @@ export default function Profile() {
                 value={formData.email}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="w-full px-4 py-3 rounded-lg transition-colors"
-                style={{
-                  border: `2px solid ${BORDER_COLOR}`,
-                  ...(isEditing
-                    ? {
-                        outline: `2px solid ${ACCENT_COLOR}`,
-                        background: "#fff",
-                        color: ACCENT_COLOR,
-                      }
-                    : {
-                        background: "#e1f4ef",
-                        color: ACCENT_COLOR,
-                        borderColor: BORDER_COLOR,
-                      }),
-                }}
+                className="w-full px-4 py-3 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
               />
             </div>
             {/* Factory Name */}
@@ -197,13 +160,19 @@ export default function Profile() {
                 name="factoryName"
                 value={formData.factoryName}
                 readOnly
-                className="w-full px-4 py-3 rounded-lg transition-colors bg-[#e1f4ef]"
-                style={{
-                  border: `2px solid ${BORDER_COLOR}`,
-                  color: ACCENT_COLOR,
-                  borderColor: BORDER_COLOR,
-                }}
+                className="w-full px-4 py-3 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
+                onFocus={() =>
+                  setShowNoAccess((prev) => ({ ...prev, factoryName: true }))
+                }
+                onBlur={() =>
+                  setShowNoAccess((prev) => ({ ...prev, factoryName: false }))
+                }
               />
+              {showNoAccess.factoryName && (
+                <div className="text-xs text-red-600 mt-1">
+                  You do not have access to edit.
+                </div>
+              )}
             </div>
             {/* Role */}
             <div className="space-y-2">
@@ -219,19 +188,25 @@ export default function Profile() {
                 name="role"
                 value={formData.role}
                 readOnly
-                className="w-full px-4 py-3 rounded-lg transition-colors bg-[#e1f4ef]"
+                className="w-full px-4 py-3 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
                 style={{
-                  border: `2px solid ${BORDER_COLOR}`,
                   color: ACCENT_COLOR,
-                  borderColor: BORDER_COLOR,
                 }}
+                onFocus={() =>
+                  setShowNoAccess((prev) => ({ ...prev, role: true }))
+                }
+                onBlur={() =>
+                  setShowNoAccess((prev) => ({ ...prev, role: false }))
+                }
               />
+              {showNoAccess.role && (
+                <div className="text-xs text-red-600 mt-1">
+                  You do not have access to edit.
+                </div>
+              )}
             </div>
           </div>
-          {/* Address, NIC, Contact No (Right) */}
           <div className="space-y-6">
-            {/* Removed 'Additional Information' heading, use 'Personal Information' for both sections */}
-            {/* Address */}
             <div className="space-y-2">
               <label
                 className="flex items-center font-medium"
@@ -245,21 +220,7 @@ export default function Profile() {
                 value={formData.address}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="w-full px-4 py-3 rounded-lg transition-colors"
-                style={{
-                  border: `2px solid ${BORDER_COLOR}`,
-                  ...(isEditing
-                    ? {
-                        outline: `2px solid ${ACCENT_COLOR}`,
-                        background: "#fff",
-                        color: ACCENT_COLOR,
-                      }
-                    : {
-                        background: "#e1f4ef",
-                        color: ACCENT_COLOR,
-                        borderColor: BORDER_COLOR,
-                      }),
-                }}
+                className="w-full px-4 py-3 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
               />
             </div>
             {/* NIC */}
@@ -276,21 +237,7 @@ export default function Profile() {
                 value={formData.nic}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="w-full px-4 py-3 rounded-lg transition-colors"
-                style={{
-                  border: `2px solid ${BORDER_COLOR}`,
-                  ...(isEditing
-                    ? {
-                        outline: `2px solid ${ACCENT_COLOR}`,
-                        background: "#fff",
-                        color: ACCENT_COLOR,
-                      }
-                    : {
-                        background: "#e1f4ef",
-                        color: ACCENT_COLOR,
-                        borderColor: BORDER_COLOR,
-                      }),
-                }}
+                className="w-full px-4 py-3 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
               />
             </div>
             {/* Contact Number */}
@@ -307,21 +254,7 @@ export default function Profile() {
                 value={formData.contactNo}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className="w-full px-4 py-3 rounded-lg transition-colors"
-                style={{
-                  border: `2px solid ${BORDER_COLOR}`,
-                  ...(isEditing
-                    ? {
-                        outline: `2px solid ${ACCENT_COLOR}`,
-                        background: "#fff",
-                        color: ACCENT_COLOR,
-                      }
-                    : {
-                        background: "#e1f4ef",
-                        color: ACCENT_COLOR,
-                        borderColor: BORDER_COLOR,
-                      }),
-                }}
+                className="w-full px-4 py-3 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
               />
             </div>
           </div>
@@ -351,14 +284,8 @@ export default function Profile() {
                   value={formData.currentPassword}
                   onChange={handleInputChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 pr-12 rounded-lg transition-colors"
+                  className="w-full px-4 py-3 pr-12 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
                   placeholder="Enter current password"
-                  style={{
-                    border: `2px solid ${BORDER_COLOR}`,
-                    outline: `2px solid ${ACCENT_COLOR}`,
-                    background: "#fff",
-                    color: ACCENT_COLOR,
-                  }}
                 />
                 <button
                   type="button"
@@ -391,14 +318,8 @@ export default function Profile() {
                   value={formData.newPassword}
                   onChange={handleInputChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 pr-12 rounded-lg transition-colors"
+                  className="w-full px-4 py-3 pr-12 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
                   placeholder="Enter new password"
-                  style={{
-                    border: `2px solid ${BORDER_COLOR}`,
-                    outline: `2px solid ${ACCENT_COLOR}`,
-                    background: "#fff",
-                    color: ACCENT_COLOR,
-                  }}
                 />
                 <button
                   type="button"
@@ -431,14 +352,8 @@ export default function Profile() {
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   disabled={!isEditing}
-                  className="w-full px-4 py-3 pr-12 rounded-lg transition-colors"
+                  className="w-full px-4 py-3 pr-12 rounded-lg transition-colors bg-[#e1f4ef] focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
                   placeholder="Confirm new password"
-                  style={{
-                    border: `2px solid ${BORDER_COLOR}`,
-                    outline: `2px solid ${ACCENT_COLOR}`,
-                    background: "#fff",
-                    color: ACCENT_COLOR,
-                  }}
                 />
                 <button
                   type="button"
@@ -454,24 +369,6 @@ export default function Profile() {
                   )}
                 </button>
               </div>
-            </div>
-            {/* Password Requirements */}
-            <div
-              className="p-4 rounded-lg"
-              style={{
-                background: "#e1f4ef",
-                border: `1px solid ${BORDER_COLOR}`,
-              }}
-            >
-              <h4 className="font-medium mb-2" style={{ color: ACCENT_COLOR }}>
-                Password Requirements:
-              </h4>
-              <ul className="text-sm" style={{ color: ACCENT_COLOR }}>
-                <li>• At least 8 characters long</li>
-                <li>• Contains uppercase and lowercase letters</li>
-                <li>• Contains at least one number</li>
-                <li>• Contains at least one special character</li>
-              </ul>
             </div>
           </div>
         )}

@@ -21,7 +21,6 @@ import {
 // Custom Accent Green
 const ACCENT_COLOR = "#104137";
 
-
 // For your project logo, adjust the src path to match your assets location.
 // Example: "/assets/logo.png"
 const LOGO_SRC = "/assets/logo2.png";
@@ -57,10 +56,14 @@ const sidebarLinks = {
   INVENTORY_MANAGER: [
     { name: "Dashboard", path: "/inventoryManager/Dashboard", icon: Home },
     { name: "Leaf Weight", path: "/inventoryManager/leaf_weight", icon: Truck },
-    { name: "Bag Weight", path: "/inventoryManager/empty_bags_weight", icon: Package,},
+    {
+      name: "Bag Weight",
+      path: "/inventoryManager/empty_bags_weight",
+      icon: Package,
+    },
     { name: "History", path: "/inventoryManager/history", icon: Award },
     // { name: "Report", path: "/inventoryManager/report", icon: Users },
-    // { name: "CRUD", path: "/inventoryManager/crud", icon: Users },
+    { name: "CRUD", path: "/inventoryManager/crud", icon: Users },
   ],
   FERTILIZER_MANAGER: [
     { name: "Dashboard", path: "/fertilizerManager/Dashboard", icon: Home },
@@ -98,8 +101,6 @@ const sidebarLinks = {
           path: "/factoryManager/payment/loans",
           icon: BarChart3,
         },
-        
-        
       ],
     },
   ],
@@ -109,6 +110,12 @@ const sidebarLinks = {
     { name: "Payments", path: "/owner/payments", icon: DollarSign },
     { name: "manager works", path: "/owner/managers", icon: UserCheck },
     { name: "Tea Rate", path: "/owner/teaRate", icon: Package },
+    {
+      name: "Fertilizer Company",
+      path: "/owner/fertilizer-company",
+      icon: Package,
+    },
+
     // { name: "Reports", path: "/owner/reports", icon: FileBarChart },
   ],
 };
@@ -153,22 +160,22 @@ export default function Sidebar() {
           if (role === "FACTORY_MANAGER" && link.name === "Payments") {
             return (
               <div key={link.name}>
-               <button
-  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 font-medium transition-all duration-200 ${
-    paymentsOpen
-      ? "shadow-lg text-white bg-[#104137]"
-      : "text-white/70 hover:bg-[#104137] hover:text-white"
-  }`}
-  onClick={() => setPaymentsOpen((open) => !open)}
-  style={{
-    backgroundColor: paymentsOpen ? "#104137" : "transparent",
-    // additional style if needed
-  }}
->
-  <link.icon className="w-5 h-5" />
-  <span>{link.name}</span>
-  <span className="ml-auto">{paymentsOpen ? "▲" : "▼"}</span>
-</button>
+                <button
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 font-medium transition-all duration-200 ${
+                    paymentsOpen
+                      ? "shadow-lg text-white bg-[#104137]"
+                      : "text-white/70 hover:bg-[#104137] hover:text-white"
+                  }`}
+                  onClick={() => setPaymentsOpen((open) => !open)}
+                  style={{
+                    backgroundColor: paymentsOpen ? "#104137" : "transparent",
+                    // additional style if needed
+                  }}
+                >
+                  <link.icon className="w-5 h-5" />
+                  <span>{link.name}</span>
+                  <span className="ml-auto">{paymentsOpen ? "▲" : "▼"}</span>
+                </button>
 
                 {paymentsOpen && (
                   <div className="ml-6">

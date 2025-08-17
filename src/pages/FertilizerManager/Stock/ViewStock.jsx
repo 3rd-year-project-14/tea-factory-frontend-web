@@ -1,267 +1,325 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowLeft,
-  Package,
-  Edit3,
-  Trash2,
-  AlertTriangle,
-  Calendar,
-  MapPin,
-  Building2,
-  DollarSign,
-  TrendingUp,
-  Eye,
-} from "lucide-react";
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Button,
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@nextui-org/react";
+// Commented out Firebase imports for now
+// import { doc, getDoc } from "firebase/firestore";
+// import { db } from "../../../firebase";
+import { ArrowLeft } from "lucide-react";
 
-const ACCENT_COLOR = "#165E52";
-const BTN_COLOR = "#01251F";
-const BORDER_COLOR = "#cfece6";
-const HEADER_BG = "#e1f4ef";
+const ViewStock = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [fertilizer, setFertilizer] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-const ViewStockPage = () => {
-  const [fertilizer] = useState({
-    id: 1,
-    name: "NPK 20-20-20",
-    category: "Complete Fertilizer",
-    currentStock: 450,
-    minStock: 200,
-    maxStock: 1000,
-    unit: "kg",
-    pricePerUnit: 2.5,
-    supplier: "GreenGrow Supplies",
-    lastRestocked: "2024-06-15",
-    expiryDate: "2025-12-31",
-    location: "Warehouse A-1",
-    description:
-      "High-quality balanced fertilizer suitable for all crops. Contains equal parts nitrogen, phosphorus, and potassium for optimal plant growth.",
-    batchNumber: "NPK-2024-001",
-    dateAdded: "2024-01-15",
-    lastUpdated: "2024-06-20",
-  });
-
-  const getStockStatus = (current, min, max) => {
-    if (current <= min) return "low";
-    if (current >= max * 0.8) return "high";
-    return "normal";
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "low":
-        return "text-red-600 bg-red-50 border-red-200";
-      case "high":
-        return "text-[#165E52] bg-[#e1f4ef] border-[#bde3d6]";
-      default:
-        return "text-[#165E52] bg-[#e1f4ef] border-[#cfece6]";
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "low":
-        return <AlertTriangle className="w-5 h-5" />;
-      case "high":
-        return <TrendingUp className="w-5 h-5" />;
-      default:
-        return <Package className="w-5 h-5" />;
-    }
-  };
-
-  const status = getStockStatus(
-    fertilizer.currentStock,
-    fertilizer.minStock,
-    fertilizer.maxStock
+  // Dummy fertilizer data
+  const dummyFertilizers = useMemo(
+    () => ({
+      f1: {
+        id: "f1",
+        categoryName: "Nitrogen Fertilizer",
+        companyName: "GreenGrow Inc.",
+        quantity: 120,
+        warehouseNumber: "WH-001",
+        warehouseName: "Main Storage",
+        unit: "kg",
+        description: "High nitrogen content fertilizer for leafy growth",
+        manufactureDate: { seconds: 1682035200 }, // April 21, 2023
+        expiryDate: { seconds: 1713571200 }, // April 20, 2024
+        npkRatio: "30-10-10",
+        recommendedCrops: ["Tea", "Vegetables", "Rice"],
+        applicationMethod: "Spread evenly around plants",
+        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
+      },
+      f2: {
+        id: "f2",
+        categoryName: "Phosphate Fertilizer",
+        companyName: "AgriBoost Ltd.",
+        quantity: 15,
+        warehouseNumber: "WH-002",
+        warehouseName: "Secondary Storage",
+        unit: "kg",
+        description: "Promotes root development and flowering",
+        manufactureDate: { seconds: 1688169600 }, // July 1, 2023
+        expiryDate: { seconds: 1719792000 }, // July 1, 2024
+        npkRatio: "10-30-10",
+        recommendedCrops: ["Tea", "Fruits", "Flowers"],
+        applicationMethod: "Mix with soil before planting",
+        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
+      },
+      f3: {
+        id: "f3",
+        categoryName: "Potassium Fertilizer",
+        companyName: "HarvestMax",
+        quantity: 85,
+        warehouseNumber: "WH-001",
+        warehouseName: "Main Storage",
+        unit: "kg",
+        description: "Enhances overall plant health and disease resistance",
+        manufactureDate: { seconds: 1693526400 }, // September 1, 2023
+        expiryDate: { seconds: 1725148800 }, // September 1, 2024
+        npkRatio: "10-10-30",
+        recommendedCrops: ["Tea", "Fruits", "Root vegetables"],
+        applicationMethod: "Apply during growing season",
+        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
+      },
+      f4: {
+        id: "f4",
+        categoryName: "Complete NPK",
+        companyName: "GreenGrow Inc.",
+        quantity: 200,
+        warehouseNumber: "WH-003",
+        warehouseName: "Bulk Storage",
+        unit: "kg",
+        description: "Balanced nutrients for all-round plant growth",
+        manufactureDate: { seconds: 1696204800 }, // October 2, 2023
+        expiryDate: { seconds: 1727827200 }, // October 2, 2024
+        npkRatio: "20-20-20",
+        recommendedCrops: ["Tea", "All crops"],
+        applicationMethod: "Apply as needed throughout growing season",
+        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
+      },
+      f5: {
+        id: "f5",
+        categoryName: "Organic Compost",
+        companyName: "NatureFarm Organics",
+        quantity: 350,
+        warehouseNumber: "WH-004",
+        warehouseName: "Organic Storage",
+        unit: "kg",
+        description: "Natural organic matter for soil improvement",
+        manufactureDate: { seconds: 1698883200 }, // November 2, 2023
+        expiryDate: { seconds: 1761955200 }, // November 2, 2025
+        npkRatio: "5-5-5",
+        recommendedCrops: ["Tea", "All crops"],
+        applicationMethod: "Mix with soil or use as top dressing",
+        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
+      },
+    }),
+    []
   );
-  const stockPercentage = (fertilizer.currentStock / fertilizer.maxStock) * 100;
-  const totalValue = fertilizer.currentStock * fertilizer.pricePerUnit;
 
-  const handleEdit = () => {
-    console.log("Edit fertilizer:", fertilizer.id);
-  };
+  useEffect(() => {
+    // Use dummy data instead of fetching from Firestore
+    const fetchFertilizerDetails = () => {
+      try {
+        // Get the fertilizer from our dummy data using the ID
+        if (dummyFertilizers[id]) {
+          setFertilizer(dummyFertilizers[id]);
+        } else {
+          console.error("Fertilizer not found");
+        }
+      } catch (error) {
+        console.error("Error fetching fertilizer details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this fertilizer stock?")) {
-      console.log("Delete fertilizer:", fertilizer.id);
+    if (id) {
+      fetchFertilizerDetails();
     }
+  }, [id, dummyFertilizers]);
+
+  const handleRequestUpdate = () => {
+    navigate("/fertilizerManager/stock/request", {
+      state: {
+        categoryName: fertilizer.categoryName,
+        companyName: fertilizer.companyName,
+        currentQuantity: fertilizer.quantity,
+      },
+    });
   };
+
+  const handleBack = () => {
+    navigate("/fertilizerManager/stock");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!fertilizer) {
+    return (
+      <div className="container mx-auto py-6">
+        <Card>
+          <CardBody>
+            <p>Fertilizer not found</p>
+            <Button color="primary" onClick={handleBack} className="mt-4">
+              Back to Stock List
+            </Button>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button className="p-2 rounded-md border" style={{ borderColor: BORDER_COLOR }}>
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </button>
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 bg-[#e1f4ef] rounded-full flex items-center justify-center">
-                  <Eye className="text-[#165E52]" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold" style={{ color: ACCENT_COLOR }}>
-                    {fertilizer.name}
-                  </h1>
-                  <p className="text-sm text-gray-500">{fertilizer.category}</p>
-                </div>
-              </div>
+    <div className="container mx-auto py-6">
+      <Button
+        color="default"
+        variant="light"
+        startContent={<ArrowLeft size={16} />}
+        onClick={handleBack}
+        className="mb-4"
+      >
+        Back to Stock List
+      </Button>
+
+      <Card className="mb-6">
+        <CardHeader className="flex gap-3">
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold">{fertilizer.categoryName}</h1>
+            <p className="text-small text-default-500">
+              {fertilizer.companyName}
+            </p>
+          </div>
+        </CardHeader>
+        <Divider />
+        <CardBody>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Fertilizer Details</h2>
+              <Table aria-label="Fertilizer details" hideHeader>
+                <TableHeader>
+                  <TableColumn>Property</TableColumn>
+                  <TableColumn>Value</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">Category Name</TableCell>
+                    <TableCell>{fertilizer.categoryName}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Company Name</TableCell>
+                    <TableCell>{fertilizer.companyName}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">
+                      Warehouse Number
+                    </TableCell>
+                    <TableCell>{fertilizer.warehouseNumber || "N/A"}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">
+                      Warehouse Name
+                    </TableCell>
+                    <TableCell>{fertilizer.warehouseName || "N/A"}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Quantity</TableCell>
+                    <TableCell>
+                      {fertilizer.quantity} {fertilizer.unit || "units"}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Last Updated</TableCell>
+                    <TableCell>
+                      {fertilizer.lastUpdated
+                        ? new Date(
+                            fertilizer.lastUpdated.seconds * 1000
+                          ).toLocaleString()
+                        : "N/A"}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Description</TableCell>
+                    <TableCell>
+                      {fertilizer.description || "No description available"}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleEdit}
-                className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-100 flex items-center gap-2"
-              >
-                <Edit3 className="w-4 h-4" />
-                Edit
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 rounded-lg text-sm font-medium border border-red-300 text-red-600 hover:bg-red-50 flex items-center gap-2"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-              <button
-                onClick={() =>
-                  (window.location.href = "/fertilizerManager/stockRequest")
-                }
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white"
-                style={{ backgroundColor: BTN_COLOR }}
-              >
-                Request Fertilizer
-              </button>
+
+            <div>
+              <h2 className="text-lg font-semibold mb-4">
+                Additional Information
+              </h2>
+              <Table aria-label="Additional fertilizer information" hideHeader>
+                <TableHeader>
+                  <TableColumn>Property</TableColumn>
+                  <TableColumn>Value</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">
+                      Manufacturer Date
+                    </TableCell>
+                    <TableCell>
+                      {fertilizer.manufactureDate
+                        ? new Date(
+                            fertilizer.manufactureDate.seconds * 1000
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Expiry Date</TableCell>
+                    <TableCell>
+                      {fertilizer.expiryDate
+                        ? new Date(
+                            fertilizer.expiryDate.seconds * 1000
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">NPK Ratio</TableCell>
+                    <TableCell>{fertilizer.npkRatio || "N/A"}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">
+                      Recommended Crops
+                    </TableCell>
+                    <TableCell>
+                      {fertilizer.recommendedCrops
+                        ? fertilizer.recommendedCrops.join(", ")
+                        : "N/A"}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">
+                      Application Method
+                    </TableCell>
+                    <TableCell>
+                      {fertilizer.applicationMethod || "N/A"}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
           </div>
-        </div>
 
-        {/* Stock Status */}
-        <div className={`rounded-lg shadow border p-6 mb-6 ${getStatusColor(status)}`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {getStatusIcon(status)}
-              <div>
-                <h3 className="font-semibold text-lg capitalize">
-                  {status} Stock Level
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {status === "low" && "Stock is below minimum threshold"}
-                  {status === "high" && "Stock level is optimal"}
-                  {status === "normal" && "Stock level is adequate"}
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-xl font-bold">
-                {fertilizer.currentStock} {fertilizer.unit}
-              </div>
-              <div className="text-sm text-gray-500">Current Stock</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stock Progress */}
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6">
-          <h3 className="text-lg font-semibold mb-4" style={{ color: ACCENT_COLOR }}>
-            Stock Level Progress
-          </h3>
-          <div className="space-y-4">
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>
-                Current: {fertilizer.currentStock} {fertilizer.unit}
-              </span>
-              <span>{stockPercentage.toFixed(1)}% of maximum</span>
-            </div>
-            <div className="w-full h-3 bg-gray-200 rounded-full">
-              <div
-                className={`h-3 rounded-full ${
-                  status === "low"
-                    ? "bg-red-500"
-                    : "bg-[#165E52]"
-                }`}
-                style={{ width: `${Math.min(stockPercentage, 100)}%` }}
-              ></div>
-            </div>
-            <div className="flex justify-between text-sm text-gray-400">
-              <span>Min: {fertilizer.minStock} {fertilizer.unit}</span>
-              <span>Max: {fertilizer.maxStock} {fertilizer.unit}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Detail Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {[
-            {
-              title: "Basic Information",
-              icon: <Package className="w-5 h-5 text-[#165E52]" />,
-              content: [
-                ["Fertilizer Name", fertilizer.name],
-                ["Category", fertilizer.category],
-                ["Batch Number", fertilizer.batchNumber],
-                ["Unit", fertilizer.unit],
-              ],
-            },
-            {
-              title: "Financial Information",
-              icon: <DollarSign className="w-5 h-5 text-[#165E52]" />,
-              content: [
-                ["Price per Unit", `$${fertilizer.pricePerUnit}`],
-                ["Total Value", `$${totalValue.toLocaleString()}`],
-                ["Supplier", fertilizer.supplier],
-              ],
-            },
-            {
-              title: "Location Information",
-              icon: <MapPin className="w-5 h-5 text-[#165E52]" />,
-              content: [["Storage Location", fertilizer.location]],
-            },
-            {
-              title: "Date Information",
-              icon: <Calendar className="w-5 h-5 text-[#165E52]" />,
-              content: [
-                ["Date Added", new Date(fertilizer.dateAdded).toLocaleDateString()],
-                ["Last Restocked", new Date(fertilizer.lastRestocked).toLocaleDateString()],
-                ["Expiry Date", new Date(fertilizer.expiryDate).toLocaleDateString()],
-                ["Last Updated", new Date(fertilizer.lastUpdated).toLocaleDateString()],
-              ],
-            },
-          ].map((section, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-lg shadow-md border border-gray-200 p-6"
+          <div className="mt-6 flex justify-end">
+            <Button
+              color="primary"
+              onClick={handleRequestUpdate}
+              className="mr-2"
             >
-              <h3
-                className="text-lg font-semibold mb-4 flex items-center gap-2"
-                style={{ color: ACCENT_COLOR }}
-              >
-                {section.icon}
-                {section.title}
-              </h3>
-              <div className="space-y-3">
-                {section.content.map(([label, value], i) => (
-                  <div key={i}>
-                    <label className="block text-sm text-gray-500">{label}</label>
-                    <p className="text-sm font-medium text-gray-900">{value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Description */}
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold mb-4" style={{ color: ACCENT_COLOR }}>
-            Description
-          </h3>
-          <p className="text-gray-700 text-sm leading-relaxed">
-            {fertilizer.description}
-          </p>
-        </div>
-      </div>
+              Update Request
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 };
 
-export default ViewStockPage;
+export default ViewStock;

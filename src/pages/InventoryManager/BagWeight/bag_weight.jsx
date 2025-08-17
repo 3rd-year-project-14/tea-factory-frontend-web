@@ -7,11 +7,6 @@ export default function Route() {
   const [currentView, setCurrentView] = useState("today"); // "today" or "completed"
   const navigate = useNavigate();
 
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.toLocaleString("default", { month: "long" });
-  const date = today.getDate();
-
   const [routes] = useState([
     {
       id: "TN-1",
@@ -19,7 +14,7 @@ export default function Route() {
       driverName: "Driver - 1",
       vehicleNo: "DAD-2435",
       suppliers: 10,
-      status: "active"
+      status: "active",
     },
     {
       id: "TK-1",
@@ -27,7 +22,7 @@ export default function Route() {
       driverName: "Driver - 2",
       vehicleNo: "DAD-2436",
       suppliers: 12,
-      status: "active"
+      status: "active",
     },
     {
       id: "TB-1",
@@ -35,7 +30,7 @@ export default function Route() {
       driverName: "Driver - 3",
       vehicleNo: "DAD-2437",
       suppliers: 8,
-      status: "active"
+      status: "active",
     },
     {
       id: "TR-1",
@@ -43,7 +38,7 @@ export default function Route() {
       driverName: "Driver - 4",
       vehicleNo: "DAD-2438",
       suppliers: 29,
-      status: "active"
+      status: "active",
     },
     {
       id: "TB-2",
@@ -51,7 +46,7 @@ export default function Route() {
       driverName: "Driver - 5",
       vehicleNo: "DAD-2439",
       suppliers: 16,
-      status: "active"
+      status: "active",
     },
     {
       id: "TB-2",
@@ -59,7 +54,7 @@ export default function Route() {
       driverName: "Driver - 5",
       vehicleNo: "DAD-2439",
       suppliers: 16,
-      status: "active"
+      status: "active",
     },
     {
       id: "TB-2",
@@ -67,8 +62,8 @@ export default function Route() {
       driverName: "Driver - 5",
       vehicleNo: "DAD-2439",
       suppliers: 16,
-      status: "active"
-    }
+      status: "active",
+    },
   ]);
 
   // Sample completed routes
@@ -81,7 +76,7 @@ export default function Route() {
       suppliers: 15,
       status: "completed",
       completedDate: "2025-07-20",
-      totalWeight: "250 kg"
+      totalWeight: "250 kg",
     },
     {
       id: "TC-2",
@@ -91,7 +86,7 @@ export default function Route() {
       suppliers: 18,
       status: "completed",
       completedDate: "2025-07-19",
-      totalWeight: "320 kg"
+      totalWeight: "320 kg",
     },
     {
       id: "TC-3",
@@ -101,7 +96,7 @@ export default function Route() {
       suppliers: 22,
       status: "completed",
       completedDate: "2025-07-18",
-      totalWeight: "450 kg"
+      totalWeight: "450 kg",
     },
     {
       id: "TC-4",
@@ -111,12 +106,12 @@ export default function Route() {
       suppliers: 14,
       status: "completed",
       completedDate: "2025-07-17",
-      totalWeight: "280 kg"
-    }
+      totalWeight: "280 kg",
+    },
   ]);
 
   const currentRoutes = currentView === "completed" ? completedRoutes : routes;
-  
+
   const filteredRoutes = currentRoutes.filter(
     (route) =>
       route.routeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -137,37 +132,43 @@ export default function Route() {
   return (
     <div className="h-full bg-gray-50 p-4">
       <div className="max-w-8xl mx-auto space-y-4">
- 
         <div className="bg-white shadow-sm p-4 mb-6  transition-all duration-200">
           <div className="flex justify-between items-center">
-           <h1 className="text-2xl font-bold" style={{ color: '#165E52' }}>
-  Bag Weight
-</h1>
-            
+            <h1 className="text-2xl font-bold" style={{ color: "#165E52" }}>
+              Bag Weight
+            </h1>
           </div>
         </div>
 
         {/* Top Statistics Cards - Updated with Today Routes and Complete Route cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Today Routes Card - Clickable */}
-          <div 
+          <div
             onClick={handleTodayRoutesClick}
             className={`bg-white px-4 py-3 rounded-lg shadow-md border   ${
-              currentView === "today" 
-                ? 'border-black-500 bg-gray-200' 
-                : 'border-black-200 '
+              currentView === "today"
+                ? "border-black-500 bg-gray-200"
+                : "border-black-200 "
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm font-medium ${
-                  currentView === "today" ? 'text-black-800' : 'text-black-700'
-                }`}>
+                <p
+                  className={`text-sm font-medium ${
+                    currentView === "today"
+                      ? "text-black-800"
+                      : "text-black-700"
+                  }`}
+                >
                   Today Routes
                 </p>
-                <p className={`text-2xl font-bold ${
-                  currentView === "today" ? 'text-black-900' : 'text-black-800'
-                }`}>
+                <p
+                  className={`text-2xl font-bold ${
+                    currentView === "today"
+                      ? "text-black-900"
+                      : "text-black-800"
+                  }`}
+                >
                   {routes.length}
                 </p>
                 <p className={`text-xs ${
@@ -176,10 +177,12 @@ export default function Route() {
                   {currentView === "today" ? 'Currently viewing' : 'Click to view'}
                 </p>
               </div>
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                currentView === "today" ? 'bg-gray-200' : 'bg-gray-200'
-              }`}>
-               <Truck className="text-black-600 w-5 h-5" />
+              <div
+                className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                  currentView === "today" ? "bg-gray-200" : "bg-gray-200"
+                }`}
+              >
+                <Truck className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
@@ -188,49 +191,63 @@ export default function Route() {
           <div className="bg-white px-4 py-3 rounded-lg shadow-md  border border-black-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-black-700">
-                  Total Bags
-                </p>
+                <p className="text-sm font-medium text-black-700">Total Bags</p>
                 <p className="text-2xl font-bold text-black-800">12</p>
                 <p className="text-xs text-black-600">All Bags</p>
               </div>
               <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                 <Package className="text-gray-600 w-5 h-5" />
+                <Package className="text-gray-600 w-5 h-5" />
               </div>
             </div>
           </div>
 
           {/* Complete Route Card - Clickable */}
-          <div 
+          <div
             onClick={handleCompleteRouteClick}
             className={`bg-white px-4 py-3 rounded-lg shadow-md border  ${
-              currentView === "completed" 
-                ? 'border-black-500 ' 
-                : 'border-black-200 '
+              currentView === "completed"
+                ? "border-black-500 "
+                : "border-black-200 "
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm font-medium ${
-                  currentView === "completed" ? 'text-black-800' : 'text-black-700'
-                }`}>
+                <p
+                  className={`text-sm font-medium ${
+                    currentView === "completed"
+                      ? "text-black-800"
+                      : "text-black-700"
+                  }`}
+                >
                   Complete Routes
                 </p>
-                <p className={`text-2xl font-bold ${
-                  currentView === "completed" ? 'text-black-900' : 'text-black-800'
-                }`}>
+                <p
+                  className={`text-2xl font-bold ${
+                    currentView === "completed"
+                      ? "text-black-900"
+                      : "text-black-800"
+                  }`}
+                >
                   {completedRoutes.length}
                 </p>
-                <p className={`text-xs ${
-                  currentView === "completed" ? 'text-black-700' : 'text-black-600'
-                }`}>
-                  {currentView === "completed" ? 'Currently viewing' : 'Click to view'}
+                <p
+                  className={`text-xs ${
+                    currentView === "completed"
+                      ? "text-black-700"
+                      : "text-black-600"
+                  }`}
+                >
+                  {currentView === "completed"
+                    ? "Currently viewing"
+                    : "Click to view"}
                 </p>
               </div>
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                currentView === "completed" ? 'bg-gray-200' : 'bg-gray-200'
-              }`}>
-                  <CheckCircle className="text-black-600 w-5 h-5" />
+              <div
+                className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                  currentView === "completed" ? "bg-gray-200" : "bg-gray-200"
+                }`}
+              >
+                <CheckCircle className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
@@ -241,7 +258,9 @@ export default function Route() {
           <div className="flex justify-between items-center gap-4">
             <div className="flex items-center gap-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                {currentView === "completed" ? 'Completed Routes' : 'Today Routes'}
+                {currentView === "completed"
+                  ? "Completed Routes"
+                  : "Today Routes"}
               </h2>
               {currentView === "completed" ? (
                 <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
@@ -270,9 +289,11 @@ export default function Route() {
         {/* Routes Table */}
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden border-emerald-200 duration-200">
           <div className="bg-[#01251F] text-white">
-            <div className={`grid gap-4 p-3 font-medium text-center ${
-              currentView === "completed" ? 'grid-cols-6' : 'grid-cols-4'
-            }`}>
+            <div
+              className={`grid gap-4 p-3 font-medium text-center ${
+                currentView === "completed" ? "grid-cols-6" : "grid-cols-4"
+              }`}
+            >
               <div>Route No</div>
               <div>Route Name</div>
               <div>Driver Name</div>
@@ -290,10 +311,17 @@ export default function Route() {
             {filteredRoutes.map((route, index) => (
               <div
                 key={index}
-                onClick={() => currentView === "today" && navigate(`/inventoryManager/empty_bags_weight_supplier`)}
+                onClick={() =>
+                  currentView === "today" &&
+                  navigate(`/inventoryManager/empty_bags_weight_supplier`)
+                }
                 className={`grid gap-4 p-4 items-center ${
-                  currentView === "completed" ? 'grid-cols-6' : 'grid-cols-4'
-                } ${currentView === "today" ? 'hover:bg-gray-50 cursor-pointer' : 'hover:bg-green-50'}`}
+                  currentView === "completed" ? "grid-cols-6" : "grid-cols-4"
+                } ${
+                  currentView === "today"
+                    ? "hover:bg-gray-50 cursor-pointer"
+                    : "hover:bg-green-50"
+                }`}
               >
                 <div className="font-medium text-gray-900 text-center">
                   {route.id}
@@ -322,7 +350,8 @@ export default function Route() {
 
             {filteredRoutes.length === 0 && (
               <div className="p-8 text-center text-gray-500">
-                No {currentView === "completed" ? 'completed' : 'today'} routes found matching your search.
+                No {currentView === "completed" ? "completed" : "today"} routes
+                found matching your search.
               </div>
             )}
           </div>

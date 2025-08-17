@@ -15,7 +15,7 @@ const FertilizerRequestsPage = () => {
   const [requests, setRequests] = useState([
     {
       id: 1,
-      supplier: "GreenGrow Supplies",
+      supplier: "Pasindu Madushan",
       fertilizerType: "Nitrogen (NPK 20-10-10)",
       quantity: 500,
       unit: "kg",
@@ -25,7 +25,7 @@ const FertilizerRequestsPage = () => {
     },
     {
       id: 2,
-      supplier: "AgroTech Industries",
+      supplier: "Tharushi Kavindi",
       fertilizerType: "Phosphorus (NPK 10-20-10)",
       quantity: 750,
       unit: "kg",
@@ -35,7 +35,7 @@ const FertilizerRequestsPage = () => {
     },
     {
       id: 3,
-      supplier: "FarmCorp Solutions",
+      supplier: "Dasun",
       fertilizerType: "Potassium (NPK 10-10-20)",
       quantity: 300,
       unit: "kg",
@@ -45,7 +45,7 @@ const FertilizerRequestsPage = () => {
     },
     {
       id: 4,
-      supplier: "BioNutrients Ltd",
+      supplier: "Mahesh",
       fertilizerType: "Organic Compost",
       quantity: 1000,
       unit: "kg",
@@ -55,7 +55,7 @@ const FertilizerRequestsPage = () => {
     },
     {
       id: 5,
-      supplier: "ChemAgri Corp",
+      supplier: "Uma",
       fertilizerType: "Urea (46% N)",
       quantity: 200,
       unit: "kg",

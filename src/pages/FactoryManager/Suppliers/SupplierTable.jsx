@@ -1,6 +1,4 @@
-import {
-  Eye, Users, ChevronLeft, ChevronRight,
-} from "lucide-react";
+import { Eye, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -39,19 +37,19 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
       return {
         backgroundColor: "#e1f4ef",
         color: "#165e52",
-        borderColor: "#165e52"
+        borderColor: "#165e52",
       };
     if (currentView === "pending")
       return {
         backgroundColor: "#fffbeb",
         color: "#b45309",
-        borderColor: "#f59e0b"
+        borderColor: "#f59e0b",
       };
     if (currentView === "rejected")
       return {
         backgroundColor: "#fee2e2",
         color: "#b91c1c",
-        borderColor: "#ef4444"
+        borderColor: "#ef4444",
       };
     return {};
   };
@@ -77,7 +75,11 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
         <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm text-center">
           <div>Supplier ID</div>
           <div>Supplier Name</div>
-          <div>Route</div>
+          <div>
+            {currentView === "pending" || currentView === "rejected"
+              ? "Monthly Supply"
+              : "Route"}
+          </div>
           <div>
             {currentView === "pending"
               ? "Request Date"
@@ -106,8 +108,18 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
             <div className="font-medium text-gray-900 text-sm text-center">
               {supplier.name}
             </div>
-            <div className="text-sm text-gray-900 font-medium text-center">
-              {supplier.requestedRoute}
+            <div className="font-medium text-gray-900 text-sm text-center">
+              {currentView === "pending" || currentView === "rejected" ? (
+                <span className="font-medium">
+                  {supplier.monthlySupply
+                    ? `${supplier.monthlySupply} kg`
+                    : "-"}
+                </span>
+              ) : (
+                <span className="font-medium">
+                  {supplier.route?.name || supplier.requestedRoute || "-"}
+                </span>
+              )}
             </div>
             <div className="text-sm text-gray-900 text-center">
               {currentView === "pending"

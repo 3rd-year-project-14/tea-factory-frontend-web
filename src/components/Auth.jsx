@@ -17,6 +17,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
@@ -24,6 +25,7 @@ export default function Auth() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -35,45 +37,40 @@ export default function Auth() {
         token,
       });
       setUser(res.data);
-      console.log("User data:", res.data);
-      // Store user ID in localStorage
-      
-        localStorage.setItem("userId", res.data.userId);
-        console.log("User ID stored:", res.data.userId);
-      
-      setSuccess("Login Successfully  ...");
+      console.log(res.data);
+      localStorage.setItem("userId", res.data.userId);
       const role = res.data.role;
-      setTimeout(() => {
-        switch (role) {
-          case "SUPPLIER":
-            navigate("/supplier/dashboard");
-            break;
-          case "DRIVER":
-            navigate("/driver/dashboard");
-            break;
-          case "FACTORY_MANAGER":
-            navigate("/factoryManager/dashboard");
-            break;
-          case "INVENTORY_MANAGER":
-            navigate("/inventoryManager/dashboard");
-            break;
-          case "FERTILIZER_MANAGER":
-            navigate("/fertilizerManager/dashboard");
-            break;
-          case "ESTATE_MANAGER":
-            navigate("/estateManager/dashboard");
-            break;
-          case "TRANSPORT_MANAGER":
-            navigate("/transportManager/dashboard");
-            break;
-          case "OWNER":
-            navigate("/owner/dashboard");
-            break;
-          default:
-            navigate("/");
-        }
-      }, 1200);
+      setLoading(false);
+      switch (role) {
+        case "SUPPLIER":
+          navigate("/supplier/dashboard");
+          break;
+        case "DRIVER":
+          navigate("/driver/dashboard");
+          break;
+        case "FACTORY_MANAGER":
+          navigate("/factoryManager/dashboard");
+          break;
+        case "INVENTORY_MANAGER":
+          navigate("/inventoryManager/dashboard");
+          break;
+        case "FERTILIZER_MANAGER":
+          navigate("/fertilizerManager/dashboard");
+          break;
+        case "ESTATE_MANAGER":
+          navigate("/estateManager/dashboard");
+          break;
+        case "TRANSPORT_MANAGER":
+          navigate("/transportManager/dashboard");
+          break;
+        case "OWNER":
+          navigate("/owner/dashboard");
+          break;
+        default:
+          navigate("/");
+      }
     } catch {
+      setLoading(false);
       setError("Invalid credentials. Please try again.");
     }
   };
@@ -183,7 +180,20 @@ export default function Auth() {
                   {error}
                 </div>
               )}
-              {success && (
+              {loading && (
+                <div className="flex flex-col items-center my-2">
+                  <span className="relative flex h-6 w-6 mb-1">
+                    <span className="animate-spin inline-block w-full h-full rounded-full border-4 border-solid border-emerald-400 border-t-transparent"></span>
+                  </span>
+                  <span
+                    className="text-center text-sm font-medium"
+                    style={{ color: ACCENT_COLOR }}
+                  >
+                    Logging in...
+                  </span>
+                </div>
+              )}
+              {success && !loading && (
                 <div
                   className="text-center text-sm font-medium"
                   style={{ color: ACCENT_COLOR }}
@@ -193,25 +203,18 @@ export default function Auth() {
               )}
               <button
                 type="submit"
-                className="w-full text-white py-3 rounded-xl font-bold shadow-lg transition focus:outline-none focus:ring-0"
+                className="w-full text-white py-3 rounded-xl font-bold shadow-lg transition focus:outline-none focus:ring-0 flex items-center justify-center"
                 style={{
                   background: BUTTON_COLOR,
                   boxShadow: "0 4px 24px 0 rgba(22,94,82, 0.08)",
+                  opacity: loading ? 0.7 : 1,
+                  cursor: loading ? "not-allowed" : "pointer",
                 }}
+                disabled={loading}
               >
-                Sign In
+                {"Sign In"}
               </button>
             </form>
-            {/* <div className="text-center mt-6">
-              <span className="text-gray-600">Don't have an account? </span>
-              <a
-                href="/signup"
-                className="font-semibold hover:underline"
-                style={{ color: ACCENT_COLOR }}
-              >
-                Sign Up
-              </a>
-            </div> */}
             <div className="text-center mt-2">
               <a
                 href="/forgot-password"

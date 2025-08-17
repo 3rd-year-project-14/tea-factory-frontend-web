@@ -18,7 +18,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const OwnerDashboard = () => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -27,6 +27,8 @@ const OwnerDashboard = () => {
   const [editingRate, setEditingRate] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showExportModal, setShowExportModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [exportConfig, setExportConfig] = useState({
     format: "pdf",
     reportType: "summary",
@@ -38,137 +40,155 @@ const OwnerDashboard = () => {
     factories: "all",
   });
 
-  // State for pending and processed rates
-  const [pendingRates, setPendingRates] = useState([
-    {
-      id: 1,
-      factoryName: "TeaFactory - Kandy",
-      manager: "Dasun Perera",
-      submittedDate: "2025-07-03",
-      month: "July 2025",
-      currentRate: 21.5,
-      proposedRate: 23.0,
-      nsa: 850.0,
-      gsa: 920.0,
-      totalWeight: 15420,
-      totalPayout: 354860,
-      status: "pending",
-      urgent: true,
-    },
-    {
-      id: 2,
-      factoryName: "Highland Tea Co.",
-      manager: "Priya Fernando",
-      submittedDate: "2025-07-02",
-      month: "July 2025",
-      currentRate: 20.0,
-      proposedRate: 22.5,
-      nsa: 780.0,
-      gsa: 890.0,
-      totalWeight: 12800,
-      totalPayout: 288000,
-      status: "pending",
-      urgent: false,
-    },
-    {
-      id: 3,
-      factoryName: "Valley Green Tea",
-      manager: "Rajesh Silva",
-      submittedDate: "2025-07-01",
-      month: "July 2025",
-      currentRate: 19.5,
-      proposedRate: 21.0,
-      nsa: 720.0,
-      gsa: 810.0,
-      totalWeight: 11200,
-      totalPayout: 235200,
-      status: "pending",
-      urgent: false,
-    },
-  ]);
+  // State for pending and processed rates - will be populated from API
+  const [pendingRates, setPendingRates] = useState([]);
+  const [processedRates, setProcessedRates] = useState([]);
+  const [approvedRates, setApprovedRates] = useState([]);
+  const [factories, setFactories] = useState([]);
 
-  const [processedRates, setProcessedRates] = useState([
-    {
-      id: 4,
-      factoryName: "TeaFactory - Kandy",
-      manager: "Dasun Perera",
-      submittedDate: "2025-06-28",
-      processedDate: "2025-06-29",
-      month: "June 2025",
-      originalRate: 20.5,
-      finalRate: 21.5,
-      adjustedBy: "Owner",
-      status: "approved",
-      totalPayout: 332400,
-    },
-    {
-      id: 5,
-      factoryName: "Highland Tea Co.",
-      manager: "Priya Fernando",
-      submittedDate: "2025-06-25",
-      processedDate: "2025-06-26",
-      month: "June 2025",
-      originalRate: 19.0,
-      finalRate: 19.0,
-      adjustedBy: null,
-      status: "approved",
-      totalPayout: 243200,
-    },
-    {
-      id: 6,
-      factoryName: "Mountain Peak Tea",
-      manager: "Sunil Kumar",
-      submittedDate: "2025-06-20",
-      processedDate: "2025-06-21",
-      month: "June 2025",
-      originalRate: 22.0,
-      finalRate: 20.5,
-      adjustedBy: "Owner",
-      status: "rejected",
-      reason: "Rate too high for current market conditions",
-      totalPayout: 0,
-    },
-  ]);
+  // API base URL - adjust this according to your backend configuration
+  const API_BASE_URL = "http://localhost:8080";
 
-  const factories = [
-    "TeaFactory - Kandy",
-    "Highland Tea Co.",
-    "Valley Green Tea",
-    "Mountain Peak Tea",
-  ];
+  // Function to fetch tea rates (pending) and approved rates from the backend
+  const fetchTeaRates = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Fetch pending/all rates
+      const response = await fetch(`${API_BASE_URL}/api/tea_rates`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
 
-  const handleApprove = (rateId, adjustedRate = null) => {
-    const rateIndex = pendingRates.findIndex((r) => r.id === rateId);
-    if (rateIndex === -1) return;
+      // Fetch approved rates
+      const approvedResponse = await fetch(
+        `${API_BASE_URL}/api/tea_rates/approved`
+      );
+      if (!approvedResponse.ok) {
+        throw new Error(`HTTP error! status: ${approvedResponse.status}`);
+      }
+      const approvedData = await approvedResponse.json();
 
-    const approvedRate = { ...pendingRates[rateIndex] };
-    if (adjustedRate !== null) {
-      approvedRate.finalRate = adjustedRate;
-      approvedRate.adjustedBy = "Owner";
-    } else {
-      approvedRate.finalRate = approvedRate.proposedRate;
-      approvedRate.adjustedBy = null;
+      // Transform the backend data to match frontend structure
+      const transformedPending = data
+        .filter(
+          (item) => !item.status || item.status.toLowerCase() === "pending"
+        )
+        .map((item) => ({
+          id: item.teaRateId,
+          factoryName: item.factoryName,
+          manager: item.userName,
+          submittedDate: item.createdAt,
+          month: item.month,
+          currentRate: parseFloat(item.finalRatePerKg),
+          proposedRate: parseFloat(item.monthlyRate),
+          finalRate: parseFloat(item.finalRatePerKg),
+          nsa: parseFloat(item.nsa),
+          gsa: parseFloat(item.gsa),
+          totalWeight: parseFloat(item.totalWeight),
+          totalPayout: parseFloat(item.totalPayout),
+          status: item.status ? item.status.toLowerCase() : "pending",
+          urgent: false,
+          adjustedRate: item.adjustedRate,
+          adjustmentReason: item.adjustmentReason,
+        }));
+
+      const transformedApproved = approvedData.map((item) => ({
+        id: item.teaRateId,
+        factoryName: item.factoryName,
+        manager: item.userName,
+        submittedDate: item.createdAt,
+        month: item.month,
+        currentRate: parseFloat(item.finalRatePerKg),
+        proposedRate: parseFloat(item.monthlyRate),
+        finalRate: parseFloat(item.finalRatePerKg),
+        nsa: parseFloat(item.nsa),
+        gsa: parseFloat(item.gsa),
+        totalWeight: parseFloat(item.totalWeight),
+        totalPayout: parseFloat(item.totalPayout),
+        status: item.status ? item.status.toLowerCase() : "approved",
+        urgent: false,
+        adjustedRate: item.adjustedRate,
+        adjustmentReason: item.adjustmentReason,
+      }));
+
+      setPendingRates(transformedPending);
+      setApprovedRates(transformedApproved);
+
+      // Extract unique factories for filter dropdown
+      const uniqueFactories = [
+        ...new Set([...data, ...approvedData].map((item) => item.factoryName)),
+      ];
+      setFactories(uniqueFactories);
+    } catch (err) {
+      setError(`Failed to fetch tea rates: ${err.message}`);
+      console.error("Error fetching tea rates:", err);
+    } finally {
+      setLoading(false);
     }
-    approvedRate.status = "approved";
-    approvedRate.processedDate = new Date().toISOString().split("T")[0];
+  }, [API_BASE_URL]);
 
-    setPendingRates((prev) => prev.filter((r) => r.id !== rateId));
-    setProcessedRates((prev) => [approvedRate, ...prev]);
-    setEditingRate(null);
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchTeaRates();
+  }, [fetchTeaRates]);
+
+  // Refresh data function
+  const refreshData = () => {
+    fetchTeaRates();
   };
 
-  const handleReject = (rateId, reason) => {
-    const rateIndex = pendingRates.findIndex((r) => r.id === rateId);
-    if (rateIndex === -1) return;
+  // Approve or adjust tea rate by calling backend
+  const handleApprove = async (rateId, adjustedRate = null, reason = "") => {
+    setLoading(true);
+    setError(null);
+    try {
+      let updatedRate;
+      if (adjustedRate !== null) {
+        // Adjustment: PATCH /api/tea_rates/{id}/adjust
+        const response = await fetch(
+          `${API_BASE_URL}/api/tea_rates/${rateId}/adjust`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              adjustedRate,
+              adjustmentReason: reason,
+            }),
+          }
+        );
+        if (!response.ok) throw new Error("Failed to adjust tea rate");
+        updatedRate = await response.json();
+      } else {
+        // Approve: PATCH /api/tea_rates/{id}/approve
+        const response = await fetch(
+          `${API_BASE_URL}/api/tea_rates/${rateId}/approve`,
+          {
+            method: "PATCH",
+          }
+        );
+        if (!response.ok) throw new Error("Failed to approve tea rate");
+        updatedRate = await response.json();
+        // Set adjustedRate to monthlyRate if not present
+        if (!updatedRate.adjustedRate) {
+          const orig = pendingRates.find((r) => r.id === rateId);
+          if (orig) {
+            updatedRate.adjustedRate = orig.proposedRate;
+          }
+        }
+      }
 
-    const rejectedRate = { ...pendingRates[rateIndex] };
-    rejectedRate.status = "rejected";
-    rejectedRate.reason = reason || "No reason provided";
-    rejectedRate.processedDate = new Date().toISOString().split("T")[0];
-
-    setPendingRates((prev) => prev.filter((r) => r.id !== rateId));
-    setProcessedRates((prev) => [rejectedRate, ...prev]);
-    setEditingRate(null);
+      // Remove from pending and add to approved/processed
+      setPendingRates((prev) => prev.filter((r) => r.id !== rateId));
+      setApprovedRates((prev) => [updatedRate, ...prev]);
+      setProcessedRates((prev) => [updatedRate, ...prev]);
+      setEditingRate(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const generateReport = () => {
@@ -177,6 +197,9 @@ const OwnerDashboard = () => {
       config: exportConfig,
       data: {
         pending: exportConfig.includePending ? filteredRates(pendingRates) : [],
+        approved: exportConfig.includeApproved
+          ? filteredRates(approvedRates)
+          : [],
         processed: [
           ...(exportConfig.includeApproved
             ? processedRates.filter((r) => r.status === "approved")
@@ -188,15 +211,13 @@ const OwnerDashboard = () => {
       },
       summary: {
         totalPendingRates: pendingRates.length,
-        totalApprovedRates: processedRates.filter(
-          (r) => r.status === "approved"
-        ).length,
+        totalApprovedRates: approvedRates.length,
         totalRejectedRates: processedRates.filter(
           (r) => r.status === "rejected"
         ).length,
         totalFactories: factories.length,
         avgRateIncrease: 5.2,
-        totalPayouts: processedRates.reduce(
+        totalPayouts: [...approvedRates, ...processedRates].reduce(
           (sum, rate) => sum + (rate.totalPayout || 0),
           0
         ),
@@ -527,12 +548,7 @@ ${data.data.processed
                     className="mr-3 accent-green-600"
                   />
                   <span className="text-black">
-                    Approved Rates (
-                    {
-                      processedRates.filter((r) => r.status === "approved")
-                        .length
-                    }
-                    )
+                    Approved Rates ({approvedRates.length})
                   </span>
                 </label>
                 <label className="flex items-center">
@@ -690,6 +706,8 @@ ${data.data.processed
       className={`bg-white rounded-lg shadow-sm border-l-4 ${
         rate.urgent && type === "pending"
           ? "border-red-500"
+          : type === "approved"
+          ? "border-green-500"
           : rate.status === "approved"
           ? "border-green-500"
           : rate.status === "rejected"
@@ -721,11 +739,11 @@ ${data.data.processed
         </div>
         <div className="text-right">
           <div className="text-sm text-[#165E52] opacity-80">
-            Submitted: {new Date(rate.submittedDate).toLocaleDateString()}
+            Submitted: {new Date(rate.submittedDate).toLocaleString()}
           </div>
           {rate.processedDate && (
             <div className="text-sm text-[#165E52] opacity-80">
-              Processed: {new Date(rate.processedDate).toLocaleDateString()}
+              Processed: {new Date(rate.processedDate).toLocaleString()}
             </div>
           )}
         </div>
@@ -733,17 +751,22 @@ ${data.data.processed
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <div className="bg-[#f8fdfc] p-3 rounded border border-[#cfece6]">
-          <div className="text-sm text-[#165E52] opacity-80">Current Rate</div>
+          <div className="text-sm text-[#165E52] opacity-80">
+            Final Rate Per Kg
+          </div>
           <div className="text-lg font-semibold text-black">
             Rs. {(rate.currentRate || rate.originalRate || 0).toFixed(2)}
           </div>
         </div>
-        <div className="bg-[#e1f4ef] p-3 rounded border border-[#cfece6]">
+        <div className="bg-[#f8fdfc] p-3 rounded border border-[#cfece6]">
           <div className="text-sm text-[#165E52] opacity-80">
-            {type === "pending" ? "Proposed Rate" : "Final Rate"}
+            {type === "approved" ? "Adjusted Rate (%)" : "Monthly Rate (%)"}
           </div>
-          <div className="text-lg font-semibold text-[#165E52]">
-            Rs. {(rate.proposedRate || rate.finalRate || 0).toFixed(2)}
+          <div className="text-lg font-semibold text-black">
+            {type === "approved"
+              ? (rate.adjustedRate || 0).toFixed(2)
+              : (rate.proposedRate || 0).toFixed(2)}
+            %
           </div>
         </div>
         <div className="bg-green-50 p-3 rounded border border-[#cfece6]">
@@ -781,6 +804,8 @@ ${data.data.processed
         </div>
       )}
 
+      {/* Removed status banner for approved RateCard */}
+
       {type === "processed" && rate.status === "rejected" && rate.reason && (
         <div className="bg-red-50 border border-red-200 p-3 rounded mb-4">
           <div className="text-sm text-red-800">
@@ -814,13 +839,6 @@ ${data.data.processed
             <Edit3 className="w-4 h-4" />
             Adjust & Approve
           </button>
-          <button
-            onClick={() => handleReject(rate.id, "Rate adjustment required")}
-            className="bg-[#ED254E] hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <XCircle className="w-4 h-4" />
-            Reject
-          </button>
           {/* <button className="bg-[#165E52] hover:bg-[#165E52] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
             <Eye className="w-4 h-4" />
             View Details
@@ -832,7 +850,7 @@ ${data.data.processed
         <AdjustRateForm
           rate={rate}
           onApprove={(adjustedRate, reason) => {
-            handleApprove(rate.id, adjustedRate);
+            handleApprove(rate.id, adjustedRate, reason);
             setEditingRate(null);
           }}
           onCancel={() => setEditingRate(null)}
@@ -861,14 +879,25 @@ ${data.data.processed
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-[#165E52] text-gray-900">
+              <h1 className="text-3xl font-bold text-[#165E52]">
                 Tea Rate Management
               </h1>
-              <p className="text-[#165E52] opacity-80 mt-1 text-gray-900">
+              <p className="text-[#165E52] opacity-80 mt-1">
                 Owner Dashboard - Rate Approval & Management
               </p>
             </div>
             <div className="flex items-center gap-4">
+              {/* Refresh Button */}
+              <button
+                onClick={refreshData}
+                disabled={loading}
+                className="bg-[#165E52] hover:bg-[#165E52] text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                />
+                {loading ? "Loading..." : "Refresh"}
+              </button>
               <button
                 onClick={() => setShowExportModal(true)}
                 className="bg-[#01251F] hover:bg-[#01251F] text-white px-4 py-2 rounded-lg flex items-center gap-2"
@@ -876,219 +905,291 @@ ${data.data.processed
                 <Download className="w-4 h-4" />
                 Export Report
               </button>
-              <button className="bg-[#165E52] hover:bg-[#165E52] text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                <RefreshCw className="w-4 h-4" />
-                Refresh
-              </button>
-              {/* <div className="relative">
-                <Bell className="w-6 h-6 text-[#165E52]" />
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  3
-                </span>
-              </div> */}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]">
-            <div className="flex items-center justify-between">
-              <div>
-                {/* Remove colored text, use neutral black */}
-                <p className="text-sm font-medium text-black">
-                  Pending Approvals
-                </p>
-                <p className="text-3xl font-bold text-black">3</p>
-              </div>
-              {/* Icon in neutral black or default color */}
-              <Clock className="w-8 h-8 text-black" />
+      {/* Error Message */}
+      {error && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+              <span className="text-red-800 font-medium">Error</span>
             </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]  ">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-black">
-                  Approved This Month
-                </p>
-                <p className="text-3xl font-bold text-black">12</p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-black" />
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] ">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-black">
-                  Total Factories
-                </p>
-                <p className="text-3xl font-bold text-black">8</p>
-              </div>
-              <Factory className="w-8 h-8 text-black" />
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] ">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-black">
-                  Avg Rate Change
-                </p>
-                {/* Remove purple, make value text black */}
-                <p className="text-3xl font-bold text-black">+5.2%</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-black" />
-            </div>
+            <p className="text-red-700 mt-1">{error}</p>
+            <button
+              onClick={refreshData}
+              className="mt-2 text-red-600 hover:text-red-800 underline"
+            >
+              Try again
+            </button>
           </div>
         </div>
+      )}
 
-        {/* Filters */}
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg shadow-sm border border-[#cfece6] mb-6">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex-1 min-w-64">
-              <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#165E52] opacity-80" />
-                <input
-                  type="text"
-                  placeholder="Search factories or managers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
-                />
-              </div>
-            </div>
-            <div className="min-w-64 w-64">
-              <select
-                value={selectedFactory}
-                onChange={(e) => setSelectedFactory(e.target.value)}
-                className="w-full px-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] appearance-none shadow-sm"
-              >
-                <option value="all">All Factories</option>
-                {factories.map((factory) => (
-                  <option
-                    key={factory}
-                    value={factory}
-                    className="bg-white text-black"
-                  >
-                    {factory}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="min-w-64 w-64">
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="w-full px-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] appearance-none shadow-sm"
-              >
-                <option value="all">All Months</option>
-                <option value="July">July 2025</option>
-                <option value="June">June 2025</option>
-                <option value="May">May 2025</option>
-              </select>
-            </div>
+      {/* Loading State */}
+      {loading && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+          <div className="text-center py-8">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto text-[#165E52]" />
+            <p className="text-[#165E52] mt-2">Loading tea rates...</p>
           </div>
         </div>
+      )}
 
-        {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-[#cfece6]">
-          <div className="border-b border-[#cfece6]">
-            <nav className="flex space-x-8 px-6">
-              <button
-                onClick={() => setActiveTab("pending")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "pending"
-                    ? "border-[#165E52] text-[#165E52]"
-                    : "border-transparent text-[#165E52] opacity-80 hover:opacity-100 hover:border-[#cfece6]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Pending Approvals
-                  <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
-                    {filteredRates(pendingRates).length}
-                  </span>
+      {!loading && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-black">
+                    Pending Approvals
+                  </p>
+                  <p className="text-3xl font-bold text-black">
+                    {pendingRates.length}
+                  </p>
                 </div>
-              </button>
-              <button
-                onClick={() => setActiveTab("history")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "history"
-                    ? "border-[#165E52] text-[#165E52]"
-                    : "border-transparent text-[#165E52] opacity-80 hover:opacity-100 hover:border-[#cfece6]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <History className="w-4 h-4" />
-                  Rate History
+                <Clock className="w-8 h-8 text-black" />
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]  ">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-black">
+                    Approved Rates
+                  </p>
+                  <p className="text-3xl font-bold text-black">
+                    {approvedRates.length}
+                  </p>
                 </div>
-              </button>
-            </nav>
+                <CheckCircle className="w-8 h-8 text-black" />
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] ">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-black">
+                    Total Factories
+                  </p>
+                  <p className="text-3xl font-bold text-black">
+                    {factories.length}
+                  </p>
+                </div>
+                <Factory className="w-8 h-8 text-black" />
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] ">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-black">
+                    Total Submissions
+                  </p>
+                  <p className="text-3xl font-bold text-black">
+                    {pendingRates.length + processedRates.length}
+                  </p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-black" />
+              </div>
+            </div>
           </div>
 
-          <div className="p-6">
-            {activeTab === "pending" && (
-              <div>
-                {filteredRates(pendingRates).length === 0 ? (
-                  <div className="text-center py-12">
-                    <Clock className="w-12 h-12 text-[#cfece6] mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-[#165E52] mb-2">
-                      No Pending Rates
-                    </h3>
-                    <p className="text-[#165E52] opacity-80">
-                      All rate submissions have been processed.
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="mb-4 flex justify-between items-center">
-                      <h3 className="text-lg font-semibold text-[#165E52]">
-                        Pending Rate Approvals (
-                        {filteredRates(pendingRates).length})
-                      </h3>
-                    </div>
-                    {filteredRates(pendingRates).map((rate) => (
-                      <RateCard key={rate.id} rate={rate} type="pending" />
-                    ))}
-                  </div>
-                )}
+          {/* Filters */}
+          <div className="bg-white/80 backdrop-blur p-6 rounded-lg shadow-sm border border-[#cfece6] mb-6">
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex-1 min-w-64">
+                <div className="relative">
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#165E52] opacity-80" />
+                  <input
+                    type="text"
+                    placeholder="Search factories or managers..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
+                  />
+                </div>
               </div>
-            )}
+              <div className="min-w-64 w-64">
+                <select
+                  value={selectedFactory}
+                  onChange={(e) => setSelectedFactory(e.target.value)}
+                  className="w-full px-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] appearance-none shadow-sm"
+                >
+                  <option value="all">All Factories</option>
+                  {factories.map((factory) => (
+                    <option
+                      key={factory}
+                      value={factory}
+                      className="bg-white text-black"
+                    >
+                      {factory}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="min-w-64 w-64">
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="w-full px-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] appearance-none shadow-sm"
+                >
+                  <option value="all">All Months</option>
+                  <option value="July">July 2025</option>
+                  <option value="June">June 2025</option>
+                  <option value="May">May 2025</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
-            {activeTab === "history" && (
-              <div>
-                {filteredRates(processedRates).length === 0 ? (
-                  <div className="text-center py-12">
-                    <History className="w-12 h-12 text-[#cfece6] mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-[#165E52] mb-2">
-                      No Rate History
-                    </h3>
-                    <p className="text-[#165E52] opacity-80">
-                      No processed rates found for the selected filters.
-                    </p>
+          {/* Tabs */}
+          <div className="bg-white rounded-lg shadow-sm border border-[#cfece6]">
+            <div className="border-b border-[#cfece6]">
+              <nav className="flex space-x-8 px-6">
+                <button
+                  onClick={() => setActiveTab("pending")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === "pending"
+                      ? "border-[#165E52] text-[#165E52]"
+                      : "border-transparent text-[#165E52] opacity-80 hover:opacity-100 hover:border-[#cfece6]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Pending Approvals
+                    <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
+                      {filteredRates(pendingRates).length}
+                    </span>
                   </div>
-                ) : (
-                  <div>
-                    <div className="mb-4 flex justify-between items-center">
-                      <h3 className="text-lg font-semibold text-[#165E52]">
-                        Rate Processing History (
-                        {filteredRates(processedRates).length})
+                </button>
+                <button
+                  onClick={() => setActiveTab("approved")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === "approved"
+                      ? "border-[#165E52] text-[#165E52]"
+                      : "border-transparent text-[#165E52] opacity-80 hover:opacity-100 hover:border-[#cfece6]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    Approved Rates
+                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                      {filteredRates(approvedRates).length}
+                    </span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab("history")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === "history"
+                      ? "border-[#165E52] text-[#165E52]"
+                      : "border-transparent text-[#165E52] opacity-80 hover:opacity-100 hover:border-[#cfece6]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <History className="w-4 h-4" />
+                    Rate History
+                  </div>
+                </button>
+              </nav>
+            </div>
+
+            <div className="p-6">
+              {activeTab === "pending" && (
+                <div>
+                  {filteredRates(pendingRates).length === 0 ? (
+                    <div className="text-center py-12">
+                      <Clock className="w-12 h-12 text-[#cfece6] mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-[#165E52] mb-2">
+                        No Pending Rates
                       </h3>
+                      <p className="text-[#165E52] opacity-80">
+                        All rate submissions have been processed.
+                      </p>
                     </div>
-                    {filteredRates(processedRates).map((rate) => (
-                      <RateCard key={rate.id} rate={rate} type="processed" />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                  ) : (
+                    <div>
+                      <div className="mb-4 flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-[#165E52]">
+                          Pending Rate Approvals (
+                          {filteredRates(pendingRates).length})
+                        </h3>
+                      </div>
+                      {filteredRates(pendingRates).map((rate) => (
+                        <RateCard key={rate.id} rate={rate} type="pending" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "approved" && (
+                <div>
+                  {filteredRates(approvedRates).length === 0 ? (
+                    <div className="text-center py-12">
+                      <CheckCircle className="w-12 h-12 text-[#cfece6] mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-[#165E52] mb-2">
+                        No Approved Rates
+                      </h3>
+                      <p className="text-[#165E52] opacity-80">
+                        No rates have been approved yet.
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="mb-4 flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-[#165E52]">
+                          Recently Approved Rates (
+                          {filteredRates(approvedRates).length})
+                        </h3>
+                      </div>
+                      {filteredRates(approvedRates).map((rate) => (
+                        <div key={rate.id} className="mb-4">
+                          <RateCard rate={rate} type="approved" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "history" && (
+                <div>
+                  {filteredRates(processedRates).length === 0 ? (
+                    <div className="text-center py-12">
+                      <History className="w-12 h-12 text-[#cfece6] mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-[#165E52] mb-2">
+                        No Rate History
+                      </h3>
+                      <p className="text-[#165E52] opacity-80">
+                        No processed rates found for the selected filters.
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="mb-4 flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-[#165E52]">
+                          Rate Processing History (
+                          {filteredRates(processedRates).length})
+                        </h3>
+                      </div>
+                      {filteredRates(processedRates).map((rate) => (
+                        <RateCard key={rate.id} rate={rate} type="processed" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Export Modal */}
       {showExportModal && <ExportModal />}
