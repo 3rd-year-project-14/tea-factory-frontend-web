@@ -17,19 +17,24 @@ export default function AddAnnouncement() {
     attachments: [],
   });
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const factoryOptions = ["Factory A", "Factory B", "Factory C", "Factory D"];
+  const factoryOptions = [
+    { id: "1", name: "Factory A" },
+    { id: "2", name: "Factory B" },
+    { id: "3", name: "Factory C" },
+    { id: "4", name: "Factory D" },
+  ];
   const navigate = useNavigate();
 
   const handleInputChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFactoryToggle = (factory) => {
+  const handleFactoryToggle = (factoryId) => {
     setForm((prev) => {
-      const isSelected = prev.factories.includes(factory);
+      const isSelected = prev.factories.includes(factoryId);
       const newFactories = isSelected
-        ? prev.factories.filter((f) => f !== factory)
-        : [...prev.factories, factory];
+        ? prev.factories.filter((f) => f !== factoryId)
+        : [...prev.factories, factoryId];
       return {
         ...prev,
         factories: newFactories,
@@ -60,25 +65,70 @@ export default function AddAnnouncement() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    navigate(-1);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  console.log("Passing values to backend:");
+  console.log("topic:", form.topic);
+  console.log("subject:", form.subject);
+  console.log("content:", form.content);
+  console.log("factories:", form.factories);
+  console.log("attachments:", form.attachments.map(att => att.name));
+
+  // ---- FormData create කරන්න ----
+  const formData = new FormData();
+
+  // factories string -> number array
+  const announcementObj = {
+    topic: form.topic,
+    subject: form.subject,
+    content: form.content,
+    factories: form.factories.map(f => Number(f))  // convert to Long[]
   };
+
+  // announcement JSON object append කරන්න
+  formData.append(
+    "announcement",
+    new Blob([JSON.stringify(announcementObj)], { type: "application/json" })
+  );
+
+  // Attachments append කරන්න
+  form.attachments.forEach((att) => {
+    formData.append("attachments", att.file);
+  });
+
+  try {
+    const apiUrl =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:8080/api/announcements"
+        : "/api/announcements";
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      body: formData, // ❌ Content-Type manually දාන්න එපා
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log("Backend response:", result);
+      navigate(-1);
+    } else {
+      console.error("Backend error:", response.status, await response.text());
+    }
+  } catch (error) {
+    console.error("Error sending announcement:", error);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <div
-        className="bg-white shadow-sm border-b"
-        // style={{ borderColor: BORDER_COLOR }}
-      >
+      <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1
-                className="text-3xl font-bold text-gray-900"
-                // style={{ color: ACCENT_COLOR }}
-              >
+              <h1 className="text-3xl font-bold text-gray-900">
                 Add Announcement
               </h1>
               <p className="text-gray-600 mt-1">
@@ -112,22 +162,20 @@ export default function AddAnnouncement() {
         </div>
       </div>
 
+      {/* Form */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm">
           <form onSubmit={handleSubmit} className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Left Column - Main Fields */}
+              {/* Left Column */}
               <div className="space-y-6">
                 <div className="border-b border-gray-100 pb-4 mb-6">
-                  <h3
-                    className="text-lg font-semibold"
-                    style={{ color: ACCENT_COLOR }}
-                  >
+                  <h3 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
                     Announcement Details
                   </h3>
                 </div>
 
-                {/* Topic Field */}
+                {/* Topic */}
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">
                     Topic :
@@ -136,13 +184,13 @@ export default function AddAnnouncement() {
                     type="text"
                     value={form.topic}
                     onChange={(e) => handleInputChange("topic", e.target.value)}
-                    className="w-full px-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#165e52] focus:border-[#165e52] transition-all bg-white"
+                    className="w-full px-4 py-3 border rounded-lg text-gray-900 focus:ring-2 focus:ring-[#165e52]"
                     placeholder="Enter announcement topic"
                     style={{ borderColor: BORDER_COLOR }}
                   />
                 </div>
 
-                {/* Subject Field */}
+                {/* Subject */}
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">
                     Subject :
@@ -153,13 +201,13 @@ export default function AddAnnouncement() {
                     onChange={(e) =>
                       handleInputChange("subject", e.target.value)
                     }
-                    className="w-full px-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#165e52] focus:border-[#165e52] transition-all bg-white"
+                    className="w-full px-4 py-3 border rounded-lg text-gray-900 focus:ring-2 focus:ring-[#165e52]"
                     placeholder="Enter announcement subject"
                     style={{ borderColor: BORDER_COLOR }}
                   />
                 </div>
 
-                {/* Content Field */}
+                {/* Content */}
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">
                     Content :
@@ -170,25 +218,22 @@ export default function AddAnnouncement() {
                       handleInputChange("content", e.target.value)
                     }
                     rows={5}
-                    className="w-full px-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#165e52] focus:border-[#165e52] transition-all resize-none bg-white"
+                    className="w-full px-4 py-3 border rounded-lg text-gray-900 focus:ring-2 focus:ring-[#165e52] resize-none"
                     placeholder="Enter announcement content"
                     style={{ borderColor: BORDER_COLOR }}
                   />
                 </div>
               </div>
 
-              {/* Right Column - Factories & Attachments */}
+              {/* Right Column */}
               <div className="space-y-6">
                 <div className="border-b border-gray-100 pb-4 mb-6">
-                  <h3
-                    className="text-lg font-semibold"
-                    style={{ color: ACCENT_COLOR }}
-                  >
+                  <h3 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
                     Assignment & Attachments
                   </h3>
                 </div>
 
-                {/* Factories Multi-Select Styled Dropdown */}
+                {/* Factories */}
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">
                     Factories :
@@ -197,40 +242,35 @@ export default function AddAnnouncement() {
                     <button
                       type="button"
                       onClick={() => setDropdownOpen(!dropdownOpen)}
-                      className="w-full px-4 py-3 border rounded-lg text-left text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#165e52] focus:border-[#165e52] transition-all cursor-pointer bg-white"
+                      className="w-full px-4 py-3 border rounded-lg text-left text-gray-900 bg-white"
                       style={{ borderColor: BORDER_COLOR }}
-                      aria-haspopup="listbox"
-                      aria-expanded={dropdownOpen}
                     >
                       {form.factories.length > 0
-                        ? form.factories.join(", ")
+                        ? factoryOptions
+                            .filter((f) => form.factories.includes(f.id))
+                            .map((f) => f.name)
+                            .join(", ")
                         : "Select factories"}
                     </button>
                     {dropdownOpen && (
-                      <ul
-                        className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-lg border border-[#165e52] bg-white shadow-lg z-50"
-                        role="listbox"
-                        tabIndex={-1}
-                      >
+                      <ul className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-lg border bg-white shadow-lg z-50">
                         {factoryOptions.map((factory) => (
                           <li
-                            key={factory}
-                            role="option"
-                            aria-selected={form.factories.includes(factory)}
+                            key={factory.id}
                             className={`flex items-center px-4 py-2 cursor-pointer hover:bg-[#e1f4ef] ${
-                              form.factories.includes(factory)
+                              form.factories.includes(factory.id)
                                 ? "bg-[#d4eadf] font-semibold"
                                 : ""
                             }`}
-                            onClick={() => handleFactoryToggle(factory)}
+                            onClick={() => handleFactoryToggle(factory.id)}
                           >
                             <input
                               type="checkbox"
-                              checked={form.factories.includes(factory)}
+                              checked={form.factories.includes(factory.id)}
                               readOnly
-                              className="w-4 h-4 mr-2 cursor-pointer text-[#165e52] bg-white border border-gray-300 rounded focus:ring-[#165e52] focus:ring-2"
+                              className="w-4 h-4 mr-2"
                             />
-                            {factory}
+                            {factory.name}
                           </li>
                         ))}
                       </ul>
@@ -241,7 +281,7 @@ export default function AddAnnouncement() {
                   </div>
                 </div>
 
-                {/* Attach Files */}
+                {/* File Upload */}
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">
                     Attach Files
@@ -258,7 +298,7 @@ export default function AddAnnouncement() {
                       />
                       <label
                         htmlFor="fileUpload"
-                        className="flex items-center space-x-2  hover:bg-[#165e52] bg-[#01251f] text-white px-4 py-2 rounded-lg cursor-pointer select-none transition-colors"
+                        className="flex items-center space-x-2 bg-[#01251f] text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-[#165e52]"
                       >
                         <Paperclip className="w-4 h-4" />
                         <span>Choose Files</span>
@@ -276,7 +316,7 @@ export default function AddAnnouncement() {
                         {form.attachments.map((attachment) => (
                           <div
                             key={attachment.id}
-                            className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50"
+                            className="flex items-center justify-between p-3 border rounded-lg bg-gray-50"
                           >
                             <div className="flex items-center space-x-3">
                               <Paperclip className="w-4 h-4 text-gray-500" />
@@ -292,8 +332,7 @@ export default function AddAnnouncement() {
                               onClick={() =>
                                 handleRemoveAttachment(attachment.id)
                               }
-                              className="p-1 text-red-500 hover:text-red-700 transition-colors"
-                              aria-label={`Remove ${attachment.name}`}
+                              className="p-1 text-red-500 hover:text-red-700"
                             >
                               <X className="w-4 h-4" />
                             </button>
