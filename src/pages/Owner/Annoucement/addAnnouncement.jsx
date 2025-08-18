@@ -79,20 +79,10 @@ export default function AddAnnouncement() {
   const formData = new FormData();
 
   // factories string -> number array
-  const announcementObj = {
-    topic: form.topic,
-    subject: form.subject,
-    content: form.content,
-    factories: form.factories.map(f => Number(f))  // convert to Long[]
-  };
-
-  // announcement JSON object append කරන්න
-  formData.append(
-    "announcement",
-    new Blob([JSON.stringify(announcementObj)], { type: "application/json" })
-  );
-
-  // Attachments append කරන්න
+  formData.append("topic", form.topic);
+  formData.append("subject", form.subject);
+  formData.append("content", form.content);
+  form.factories.forEach(f => formData.append("factories", Number(f)));
   form.attachments.forEach((att) => {
     formData.append("attachments", att.file);
   });
