@@ -16,6 +16,12 @@ const BUTTON_COLOR = "#172526";
 export default function PureLeafDashboard() {
   const navigate = useNavigate();
   const [announcements, setAnnouncements] = useState([]);
+  const factoryOptions = [
+    { id: 1, name: "Factory A" },
+    { id: 2, name: "Factory B" },
+    { id: 3, name: "Factory C" },
+    { id: 4, name: "Factory D" },
+  ];
 
   const [notification, setNotification] = useState(null);
 
@@ -223,7 +229,12 @@ export default function PureLeafDashboard() {
                     {announcement.topic}
                   </span>
                   <span className="text-xs text-gray-500 italic">
-                    # {announcement.factories.join(", ")}
+                    # {announcement.factories
+                        .map(fid => {
+                          const found = factoryOptions.find(f => f.id === fid || f.id === Number(fid));
+                          return found ? found.name : fid;
+                        })
+                        .join(", ")}
                   </span>
                 </div>
                 <div className="mb-2">
