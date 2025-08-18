@@ -55,14 +55,53 @@ export default function PureLeafDashboard() {
     setNotification({ message, type });
   };
 
-  const handleDelete = (id) => {
-    setAnnouncements(announcements.filter((ann) => ann.id !== id));
-    showNotification("Announcement deleted successfully", "success");
+  const handleDelete = async (id) => {
+    try {
+      const apiUrl =
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:8080/api/announcements/${id}`
+          : `/api/announcements/${id}`;
+      const response = await fetch(apiUrl, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setAnnouncements(announcements.filter((ann) => ann.id !== id));
+        showNotification("Announcement deleted successfully", "success");
+      } else {
+        showNotification("Failed to delete announcement", "error");
+      }
+    } catch (error) {
+      showNotification("Error deleting announcement", "error");
+      console.error("Error deleting announcement:", error);
+    }
   };
 
-  const handleUpdate = (id) => {
+  const handleUpdate = async (id) => {
     const announcement = announcements.find((ann) => ann.id === id);
     if (announcement) {
+      // Example: navigate to update page, or send update to backend
+      // Here, you can POST/PATCH to backend, or just navigate
+      // For demonstration, let's navigate and also show how to call backend
+      // Uncomment below to send update to backend
+      // try {
+      //   const apiUrl =
+      //     process.env.NODE_ENV === "development"
+      //       ? `http://localhost:8080/api/announcements/${id}`
+      //       : `/api/announcements/${id}`;
+      //   const response = await fetch(apiUrl, {
+      //     method: "PATCH", // or "PUT"
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify(announcement),
+      //   });
+      //   if (response.ok) {
+      //     showNotification("Announcement updated successfully", "success");
+      //   } else {
+      //     showNotification("Failed to update announcement", "error");
+      //   }
+      // } catch (error) {
+      //   showNotification("Error updating announcement", "error");
+      //   console.error("Error updating announcement:", error);
+      // }
       navigate("/owner/annoucement/update", { state: { announcement } });
     }
   };

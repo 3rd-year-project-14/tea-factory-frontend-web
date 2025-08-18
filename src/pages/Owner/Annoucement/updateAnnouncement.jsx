@@ -62,10 +62,38 @@ export default function UpdateAnnouncement() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Backend update logic here
-    navigate(-1);
+    // Prepare payload for backend
+    const payload = {
+      topic: form.topic,
+      subject: form.subject,
+      content: form.content,
+      factories: form.factories,
+      attachments: form.attachments.map(att => att.name),
+    };
+    try {
+      const apiUrl =
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:8080/api/announcements/${announcement.id}`
+          : `/api/announcements/${announcement.id}`;
+      const response = await fetch(apiUrl, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Update response:", result);
+        navigate(-1);
+      } else {
+        console.error("Failed to update announcement", response.status);
+      }
+    } catch (error) {
+      console.error("Error updating announcement:", error);
+    }
   };
 
   return (
