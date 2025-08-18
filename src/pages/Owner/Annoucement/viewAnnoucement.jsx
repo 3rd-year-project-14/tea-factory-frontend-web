@@ -15,30 +15,31 @@ const BUTTON_COLOR = "#172526";
 
 export default function PureLeafDashboard() {
   const navigate = useNavigate();
-  const [announcements, setAnnouncements] = useState([
-    {
-      id: 1,
-      topic: "General",
-      subject: "System Maintenance",
-      content:
-        "The system will be down for maintenance on Saturday from 2am to 4am.",
-      factories: ["Factory A"],
-      attachments: [
-        { id: 1, name: "report.pdf", size: "2.5 MB" },
-        { id: 2, name: "image.jpg", size: "1.2 MB" },
-      ],
-    },
-    {
-      id: 2,
-      topic: "Urgent",
-      subject: "Payment Delay",
-      content: "Supplier payments will be delayed due to a bank holiday.",
-      factories: ["Factory A", "Factory B"],
-      attachments: [],
-    },
-  ]);
+  const [announcements, setAnnouncements] = useState([]);
 
   const [notification, setNotification] = useState(null);
+
+  // Fetch announcements from backend on mount
+  useEffect(() => {
+    async function fetchAnnouncements() {
+      try {
+        const apiUrl =
+          process.env.NODE_ENV === "development"
+            ? "http://localhost:8080/api/announcements"
+            : "/api/announcements";
+        const response = await fetch(apiUrl);
+        if (response.ok) {
+          const data = await response.json();
+          setAnnouncements(data);
+        } else {
+          console.error("Failed to fetch announcements:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching announcements:", error);
+      }
+    }
+    fetchAnnouncements();
+  }, []);
 
   // Auto-hide notification after 3 seconds
   useEffect(() => {
