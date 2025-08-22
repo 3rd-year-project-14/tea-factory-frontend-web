@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Card,
@@ -13,6 +13,8 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/react";
+import axios from "axios";
+
 // Commented out Firebase imports for now
 // import { doc, getDoc } from "firebase/firestore";
 // import { db } from "../../../firebase";
@@ -25,102 +27,17 @@ const ViewStock = () => {
   const [loading, setLoading] = useState(true);
 
   // Dummy fertilizer data
-  const dummyFertilizers = useMemo(
-    () => ({
-      f1: {
-        id: "f1",
-        categoryName: "Nitrogen Fertilizer",
-        companyName: "GreenGrow Inc.",
-        quantity: 120,
-        warehouseNumber: "WH-001",
-        warehouseName: "Main Storage",
-        unit: "kg",
-        description: "High nitrogen content fertilizer for leafy growth",
-        manufactureDate: { seconds: 1682035200 }, // April 21, 2023
-        expiryDate: { seconds: 1713571200 }, // April 20, 2024
-        npkRatio: "30-10-10",
-        recommendedCrops: ["Tea", "Vegetables", "Rice"],
-        applicationMethod: "Spread evenly around plants",
-        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
-      },
-      f2: {
-        id: "f2",
-        categoryName: "Phosphate Fertilizer",
-        companyName: "AgriBoost Ltd.",
-        quantity: 15,
-        warehouseNumber: "WH-002",
-        warehouseName: "Secondary Storage",
-        unit: "kg",
-        description: "Promotes root development and flowering",
-        manufactureDate: { seconds: 1688169600 }, // July 1, 2023
-        expiryDate: { seconds: 1719792000 }, // July 1, 2024
-        npkRatio: "10-30-10",
-        recommendedCrops: ["Tea", "Fruits", "Flowers"],
-        applicationMethod: "Mix with soil before planting",
-        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
-      },
-      f3: {
-        id: "f3",
-        categoryName: "Potassium Fertilizer",
-        companyName: "HarvestMax",
-        quantity: 85,
-        warehouseNumber: "WH-001",
-        warehouseName: "Main Storage",
-        unit: "kg",
-        description: "Enhances overall plant health and disease resistance",
-        manufactureDate: { seconds: 1693526400 }, // September 1, 2023
-        expiryDate: { seconds: 1725148800 }, // September 1, 2024
-        npkRatio: "10-10-30",
-        recommendedCrops: ["Tea", "Fruits", "Root vegetables"],
-        applicationMethod: "Apply during growing season",
-        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
-      },
-      f4: {
-        id: "f4",
-        categoryName: "Complete NPK",
-        companyName: "GreenGrow Inc.",
-        quantity: 200,
-        warehouseNumber: "WH-003",
-        warehouseName: "Bulk Storage",
-        unit: "kg",
-        description: "Balanced nutrients for all-round plant growth",
-        manufactureDate: { seconds: 1696204800 }, // October 2, 2023
-        expiryDate: { seconds: 1727827200 }, // October 2, 2024
-        npkRatio: "20-20-20",
-        recommendedCrops: ["Tea", "All crops"],
-        applicationMethod: "Apply as needed throughout growing season",
-        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
-      },
-      f5: {
-        id: "f5",
-        categoryName: "Organic Compost",
-        companyName: "NatureFarm Organics",
-        quantity: 350,
-        warehouseNumber: "WH-004",
-        warehouseName: "Organic Storage",
-        unit: "kg",
-        description: "Natural organic matter for soil improvement",
-        manufactureDate: { seconds: 1698883200 }, // November 2, 2023
-        expiryDate: { seconds: 1761955200 }, // November 2, 2025
-        npkRatio: "5-5-5",
-        recommendedCrops: ["Tea", "All crops"],
-        applicationMethod: "Mix with soil or use as top dressing",
-        lastUpdated: { seconds: 1691596800 }, // August 9, 2023
-      },
-    }),
-    []
-  );
-
-  useEffect(() => {
-    // Use dummy data instead of fetching from Firestore
-    const fetchFertilizerDetails = () => {
+  // const dummyFertilizers = useMemo(
+  //   () => ({
+      
+  //   }),
+  //   []
+  // );
+   useEffect(() => {
+    const fetchFertilizerDetails = async () => {
       try {
-        // Get the fertilizer from our dummy data using the ID
-        if (dummyFertilizers[id]) {
-          setFertilizer(dummyFertilizers[id]);
-        } else {
-          console.error("Fertilizer not found");
-        }
+        const res = await axios.get(`http://localhost:8080/api/stocks/${id}`);
+        setFertilizer(res.data);
       } catch (error) {
         console.error("Error fetching fertilizer details:", error);
       } finally {
@@ -131,7 +48,8 @@ const ViewStock = () => {
     if (id) {
       fetchFertilizerDetails();
     }
-  }, [id, dummyFertilizers]);
+  }, [id]);
+
 
   const handleRequestUpdate = () => {
     navigate("/fertilizerManager/stock/request", {
@@ -212,15 +130,17 @@ const ViewStock = () => {
                   </TableRow>
                   <TableRow>
                     <TableCell className="font-medium">
-                      Warehouse Number
-                    </TableCell>
-                    <TableCell>{fertilizer.warehouseNumber || "N/A"}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">
                       Warehouse Name
                     </TableCell>
                     <TableCell>{fertilizer.warehouseName || "N/A"}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">
+                      Weight per Unit
+                    </TableCell>
+                    <TableCell>
+                      {fertilizer.weight ? `${fertilizer.weight} kg` : "N/A"}
+                    </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell className="font-medium">Quantity</TableCell>
@@ -236,12 +156,6 @@ const ViewStock = () => {
                             fertilizer.lastUpdated.seconds * 1000
                           ).toLocaleString()
                         : "N/A"}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Description</TableCell>
-                    <TableCell>
-                      {fertilizer.description || "No description available"}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -264,9 +178,7 @@ const ViewStock = () => {
                     </TableCell>
                     <TableCell>
                       {fertilizer.manufactureDate
-                        ? new Date(
-                            fertilizer.manufactureDate.seconds * 1000
-                          ).toLocaleDateString()
+                        ? new Date(fertilizer.manufactureDate).toLocaleDateString()
                         : "N/A"}
                     </TableCell>
                   </TableRow>
@@ -274,32 +186,8 @@ const ViewStock = () => {
                     <TableCell className="font-medium">Expiry Date</TableCell>
                     <TableCell>
                       {fertilizer.expiryDate
-                        ? new Date(
-                            fertilizer.expiryDate.seconds * 1000
-                          ).toLocaleDateString()
+                        ? new Date(fertilizer.expiryDate).toLocaleDateString()
                         : "N/A"}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">NPK Ratio</TableCell>
-                    <TableCell>{fertilizer.npkRatio || "N/A"}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">
-                      Recommended Crops
-                    </TableCell>
-                    <TableCell>
-                      {fertilizer.recommendedCrops
-                        ? fertilizer.recommendedCrops.join(", ")
-                        : "N/A"}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">
-                      Application Method
-                    </TableCell>
-                    <TableCell>
-                      {fertilizer.applicationMethod || "N/A"}
                     </TableCell>
                   </TableRow>
                 </TableBody>

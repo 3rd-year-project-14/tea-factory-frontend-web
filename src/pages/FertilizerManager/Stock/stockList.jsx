@@ -15,101 +15,126 @@ import {
   Pagination,
 } from "@nextui-org/react";
 import { Search } from "lucide-react";
-// Commented out Firebase imports for now
-// import { collection, getDocs } from "firebase/firestore";
-// import { db } from "../../../firebase";
+//backend - 01
+import axios from "axios";
 
 const StockList = () => {
-  // Dummy data for fertilizer stock
-  const dummyFertilizers = [
-    {
-      id: "f1",
-      categoryName: "Nitrogen Fertilizer",
-      companyName: "GreenGrow Inc.",
-      quantity: 120,
-      warehouseNumber: "WH-001",
-      warehouseName: "Main Storage",
-      unit: "kg",
-      description: "High nitrogen content fertilizer for leafy growth",
-      manufactureDate: { seconds: 1682035200 }, // April 21, 2023
-      expiryDate: { seconds: 1713571200 }, // April 20, 2024
-      npkRatio: "30-10-10",
-      recommendedCrops: ["Tea", "Vegetables", "Rice"],
-      applicationMethod: "Spread evenly around plants",
-    },
-    {
-      id: "f2",
-      categoryName: "Phosphate Fertilizer",
-      companyName: "AgriBoost Ltd.",
-      quantity: 15,
-      warehouseNumber: "WH-002",
-      warehouseName: "Secondary Storage",
-      unit: "kg",
-      description: "Promotes root development and flowering",
-      manufactureDate: { seconds: 1688169600 }, // July 1, 2023
-      expiryDate: { seconds: 1719792000 }, // July 1, 2024
-      npkRatio: "10-30-10",
-      recommendedCrops: ["Tea", "Fruits", "Flowers"],
-      applicationMethod: "Mix with soil before planting",
-    },
-    {
-      id: "f3",
-      categoryName: "Potassium Fertilizer",
-      companyName: "HarvestMax",
-      quantity: 85,
-      warehouseNumber: "WH-001",
-      warehouseName: "Main Storage",
-      unit: "kg",
-      description: "Enhances overall plant health and disease resistance",
-      manufactureDate: { seconds: 1693526400 }, // September 1, 2023
-      expiryDate: { seconds: 1725148800 }, // September 1, 2024
-      npkRatio: "10-10-30",
-      recommendedCrops: ["Tea", "Fruits", "Root vegetables"],
-      applicationMethod: "Apply during growing season",
-    },
-    {
-      id: "f4",
-      categoryName: "Complete NPK",
-      companyName: "GreenGrow Inc.",
-      quantity: 200,
-      warehouseNumber: "WH-003",
-      warehouseName: "Bulk Storage",
-      unit: "kg",
-      description: "Balanced nutrients for all-round plant growth",
-      manufactureDate: { seconds: 1696204800 }, // October 2, 2023
-      expiryDate: { seconds: 1727827200 }, // October 2, 2024
-      npkRatio: "20-20-20",
-      recommendedCrops: ["Tea", "All crops"],
-      applicationMethod: "Apply as needed throughout growing season",
-    },
-    {
-      id: "f5",
-      categoryName: "Organic Compost",
-      companyName: "NatureFarm Organics",
-      quantity: 350,
-      warehouseNumber: "WH-004",
-      warehouseName: "Organic Storage",
-      unit: "kg",
-      description: "Natural organic matter for soil improvement",
-      manufactureDate: { seconds: 1698883200 }, // November 2, 2023
-      expiryDate: { seconds: 1761955200 }, // November 2, 2025
-      npkRatio: "5-5-5",
-      recommendedCrops: ["Tea", "All crops"],
-      applicationMethod: "Mix with soil or use as top dressing",
-    },
-  ];
-
-  const [fertilizers, _setFertilizers] = useState(dummyFertilizers);
+  const [fertilizers, setFertilizers] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newFertilizer, setNewFertilizer] = useState({
+    companyName: "",
+    categoryName: "",
+    manufactureDate: "",
+    expiryDate: "",
+    weight: "",
+    quantity: "",
+    warehouseName: "",
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
   const navigate = useNavigate();
+  const [allCompanies, setAllCompanies] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
 
+  //backend - 02
   useEffect(() => {
-    // If we had real data fetching, it would go here
-    // For now, we're using the dummy data directly
-    console.log("Using dummy fertilizer data");
+    // Fetch stock data
+    axios
+      .get("http://localhost:8080/api/stocks")
+      .then((res) => setFertilizers(res.data))
+      .catch((err) => console.error(err));
+
+    // Fetch companies
+    axios
+      .get("http://localhost:8080/api/fertilizer-companies")
+      .then((res) => setAllCompanies(res.data))
+      .catch((err) => console.error(err));
+
+    // Fetch categories
+    axios
+      .get("http://localhost:8080/api/fertilizer-categories")
+      .then((res) => {
+        // Ensure the response is always an array
+        if (Array.isArray(res.data)) {
+          setAllCategories(res.data);
+        } else if (res.data) {
+          setAllCategories([res.data]);
+        } else {
+          setAllCategories([]);
+        }
+      })
+      .catch((err) => {
+        setAllCategories([]);
+        console.error(err);
+      });
   }, []);
+
+  const handleAddNewClick = () => {
+    setShowAddForm(true);
+  };
+
+  //backend - 03
+  const handleAddFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Find selected company and category objects
+      const selectedCompany = allCompanies.find(
+        (c) => c.name === newFertilizer.companyName
+      );
+      const selectedCategory = allCategories.find(
+        (c) => c.name === newFertilizer.categoryName
+      );
+
+      // Build payload for backend
+      const payload = {
+        companyId: selectedCompany ? selectedCompany.id : null,
+        categoryId: selectedCategory ? selectedCategory.id : null,
+        weight: newFertilizer.weight ? parseFloat(newFertilizer.weight) : 0,
+        quantity: newFertilizer.quantity ? parseInt(newFertilizer.quantity) : 0,
+        warehouseName: newFertilizer.warehouseName,
+        manufactureDate: newFertilizer.manufactureDate, // "YYYY-MM-DD"
+        expiryDate: newFertilizer.expiryDate, // "YYYY-MM-DD"
+      };
+
+      const response = await axios.post(
+        "http://localhost:8080/api/stocks",
+        payload
+      );
+      setFertilizers([response.data, ...fertilizers]);
+      setShowAddForm(false);
+      setNewFertilizer({
+        companyName: "",
+        categoryName: "",
+        manufactureDate: "",
+        expiryDate: "",
+        weight: "",
+        quantity: "",
+        warehouseName: "",
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  //
+
+  const handleAddFormChange = (e) => {
+    const { name, value } = e.target;
+    setNewFertilizer((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCancelAdd = () => {
+    setShowAddForm(false);
+    setNewFertilizer({
+      companyName: "",
+      categoryName: "",
+      manufactureDate: "",
+      expiryDate: "",
+      weight: "",
+      quantity: "",
+      warehouseName: "",
+    });
+  };
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -158,7 +183,158 @@ const StockList = () => {
             onChange={handleSearch}
           />
         </div>
+        <Button color="primary" onPress={handleAddNewClick} className="ml-4">
+          Add New Fertilizer
+        </Button>
       </div>
+
+      {showAddForm && (
+        <Card className="mb-6">
+          <CardBody>
+            <form
+              onSubmit={handleAddFormSubmit}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
+              {/* Fertilizer Name field removed as requested */}
+              <div>
+                <label className="block font-medium mb-1">Company Name</label>
+                <select
+                  name="companyName"
+                  value={newFertilizer.companyName}
+                  onChange={handleAddFormChange}
+                  required
+                  className="w-full px-3 py-2 border rounded"
+                >
+                  <option value="">Select company</option>
+                  {(() => {
+                    // If category selected, filter companies by that category
+                    if (newFertilizer.categoryName) {
+                      return allCompanies
+                        .filter(
+                          (c) =>
+                            c.categories &&
+                            c.categories.includes(newFertilizer.categoryName)
+                        )
+                        .map((company) => (
+                          <option key={company.name} value={company.name}>
+                            {company.name}
+                          </option>
+                        ));
+                    }
+                    // Otherwise show all
+                    return allCompanies.map((company) => (
+                      <option key={company.name} value={company.name}>
+                        {company.name}
+                      </option>
+                    ));
+                  })()}
+                </select>
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Category</label>
+                <select
+                  name="categoryName"
+                  value={newFertilizer.categoryName}
+                  onChange={handleAddFormChange}
+                  required
+                  className="w-full px-3 py-2 border rounded"
+                >
+                  <option value="">Select category</option>
+                  {(() => {
+                    // If company selected, filter categories by that company
+                    if (newFertilizer.companyName) {
+                      const company = allCompanies.find(
+                        (c) => c.name === newFertilizer.companyName
+                      );
+                      if (company && company.categories) {
+                        return company.categories.map((category) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ));
+                      }
+                    }
+                    // Otherwise show all
+                    return allCategories.map((category) => (
+                      <option key={category.name} value={category.name}>
+                        {category.name}
+                      </option>
+                    ));
+                  })()}
+                </select>
+              </div>
+              <div>
+                <label className="block font-medium mb-1">
+                  Weight Per Unit (kg)
+                </label>
+                <Input
+                  name="weight"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Enter weight"
+                  value={newFertilizer.weight}
+                  onChange={handleAddFormChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Quantity</label>
+                <Input
+                  name="quantity"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="Enter quantity"
+                  value={newFertilizer.quantity}
+                  onChange={handleAddFormChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Warehouse Name</label>
+                <Input
+                  name="warehouseName"
+                  placeholder="Enter warehouse name"
+                  value={newFertilizer.warehouseName}
+                  onChange={handleAddFormChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">
+                  Manufactured Date
+                </label>
+                <Input
+                  name="manufactureDate"
+                  type="date"
+                  value={newFertilizer.manufactureDate}
+                  onChange={handleAddFormChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Expired Date</label>
+                <Input
+                  name="expiryDate"
+                  type="date"
+                  value={newFertilizer.expiryDate}
+                  onChange={handleAddFormChange}
+                  required
+                />
+              </div>
+              <div className="flex items-center gap-2 mt-4">
+                <Button color="primary" type="submit" onPress={() => {}}>
+                  Add Fertilizer
+                </Button>
+                <Button color="default" type="button" onPress={handleCancelAdd}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </CardBody>
+        </Card>
+      )}
 
       <Card>
         <CardBody>
@@ -209,7 +385,7 @@ const StockList = () => {
                     <Button
                       color="primary"
                       size="sm"
-                      onClick={() => handleViewDetails(fertilizer.id)}
+                      onPress={() => handleViewDetails(fertilizer.id)}
                     >
                       View Details
                     </Button>
