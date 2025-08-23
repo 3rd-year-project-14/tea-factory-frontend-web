@@ -1,39 +1,87 @@
-import React, { useState } from 'react';
-import { Package, CheckCircle, Scale } from 'lucide-react';
-
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Package, CheckCircle, Scale } from "lucide-react";
 
 export default function Supplier() {
-  const [teaBags] = useState([
-    { bagNo: 'TN-B5' },
-    { bagNo: 'TN-B6' },
-    { bagNo: 'TN-B7' },
-  ]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Expecting these to be passed from previous page
+  const {
+    supplierId,
+    supplierName,
+    bags = [],
+    supplyRequestId,
+  } = location.state || {};
+  const [teaBags] = useState(
+    Array.isArray(bags) && bags.length > 0 ? bags : []
+  );
+  const [selectedBags, setSelectedBags] = useState(
+    teaBags.map((bag) => bag.bagNo)
+  );
+  const [selectedBagsWeight, setSelectedBagsWeight] = useState("");
+  const [bagWeightId, setBagWeightId] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [apiSuccess, setApiSuccess] = useState(false);
 
-  const [selectedBags, setSelectedBags] = useState(teaBags.map(bag => bag.bagNo));
-  const [selectedBagsWeight, setSelectedBagsWeight] = useState('');
-
+  useEffect(() => {
+    if (!supplyRequestId) return;
+    fetch(
+      `http://localhost:8080/api/inventory-process/supply-request/${supplyRequestId}/bagweight-id`
+    )
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        setBagWeightId(data ? data : null);
+      })
+      .catch(() => setBagWeightId(null));
+  }, [supplyRequestId]);
+  console.log("Bag Weight ID:", bagWeightId);
   const handleBagSelection = (bagNo) => {
-    setSelectedBags(prev =>
+    setSelectedBags((prev) =>
       prev.includes(bagNo)
-        ? prev.filter(bag => bag !== bagNo)
+        ? prev.filter((bag) => bag !== bagNo)
         : [...prev, bagNo]
     );
   };
 
-  const handleEnter = () => {
-    console.log('Processing bags:', {
-      selectedBags,
-      selectedBagsWeight
-    });
+  const handleEnter = async () => {
+    if (apiSuccess) {
+      navigate(-1); // Go back to previous page
+      return;
+    }
+    if (submitted) return; // Prevent further submissions
+    setSubmitted(true);
+    const payload = {
+      tareWeight: selectedBagsWeight,
+    };
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/inventory-process/empty-bag/${bagWeightId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to submit data");
+      setApiSuccess(true);
+      setSubmitted(false); // Re-enable button for back action
+      setSelectedBagsWeight(""); // Clear bag weight after success
+      console.log("Bag weights submitted successfully!");
+    } catch (err) {
+      setSubmitted(false);
+      setApiSuccess(false);
+      console.log("Error submitting bag weights:", err);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 pt-5 pb-5 px-4">
       <div className="max-w-8xl mx-auto space-y-4">
-
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
-          <h1 className="text-2xl font-bold" style={{ color: '#165E52' }}>Empty Bag Weight Management</h1>
+          <h1 className="text-2xl font-bold" style={{ color: "#165E52" }}>
+            Empty Bag Weighing
+          </h1>
         </div>
 
         {/* Top Statistics Cards */}
@@ -42,26 +90,12 @@ export default function Supplier() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-black-700">Total Bags</p>
-                <p className="text-2xl font-bold text-black-800">{teaBags.length}</p>
-                <p className="text-xs text-black-600">Available Bags</p>
+                <p className="text-2xl font-bold text-black-800">
+                  {teaBags.length}
+                </p>
               </div>
               <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
                 <Package className="text-black-600 w-5 h-5" />
-
-
-              </div>
-            </div>
-          </div>
-
-         <div className="bg-white px-4 py-3 rounded-lg shadow-md border-black-200 border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-black-700">Selected Bags</p>
-                <p className="text-2xl font-bold text-black-800">{selectedBags.length}</p>
-                <p className="text-xs text-black-600">Currently Selected</p>
-              </div>
-              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                 <CheckCircle className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
@@ -69,27 +103,32 @@ export default function Supplier() {
           <div className="bg-white px-4 py-3 rounded-lg shadow-md border-black-200 border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-black-700">Selected Weight</p>
-                <p className="text-2xl font-bold text-black-800">0 Kg</p>
-                <p className="text-xs text-black-600">Total Selected</p>
+                <p className="text-sm font-medium text-black-700">
+                  Supplier ID
+                </p>
+                <p className="text-2xl font-bold text-black-800">
+                  {supplierId || "N/A"}
+                </p>
               </div>
               <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-               <Scale className="text-black-600 w-5 h-5" />
+                <CheckCircle className="text-black-600 w-5 h-5" />
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Supplier Info Card */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Supplier No</label>
-              <div className="text-lg font-semibold text-emerald-800">TN-S104</div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Supplier Name</label>
-              <div className="text-lg font-semibold text-gray-900">Supplier - 4</div>
+          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-black-200 border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-black-700">
+                  Supplier Name
+                </p>
+                <p className="text-2xl font-bold text-black-800">
+                  {supplierName || "N/A"}
+                </p>
+              </div>
+              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
+                <Scale className="text-black-600 w-5 h-5" />
+              </div>
             </div>
           </div>
         </div>
@@ -98,20 +137,17 @@ export default function Supplier() {
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
           <div className="flex justify-between items-center gap-4">
             <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold text-gray-900">Bags Containing Tea Leaves</h2>
-              <span className="bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                {teaBags.length} Bags Available
-              </span>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Bags Containing Tea Leaves
+              </h2>
             </div>
           </div>
         </div>
 
         {/* Bags Table */}
         {/* <div className="bg-white rounded-lg shadow-sm border overflow-hidden "> */}
-          {/* <div className="bg-white rounded-lg shadow-sm border overflow-hidden max-w-md mx-auto"> */}
-            <div className="bg-white rounded-lg shadow-sm border overflow-hidden max-w-md">
-
-
+        {/* <div className="bg-white rounded-lg shadow-sm border overflow-hidden max-w-md mx-auto"> */}
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden max-w-md">
           <div className="bg-[#01251F] text-white">
             <div className="p-3 font-medium text-center">Bag No</div>
           </div>
@@ -122,10 +158,13 @@ export default function Supplier() {
                 className="p-4 text-center hover:bg-gray-50 cursor-pointer"
                 onClick={() => handleBagSelection(bag.bagNo)}
               >
-                <span className={`font-medium ${selectedBags.includes(bag.bagNo)
-                  ? 'text-emerald-700 bg-emerald-50 px-2 py-1 rounded'
-                  : 'text-gray-900'
-                  }`}>
+                <span
+                  className={`font-medium ${
+                    selectedBags.includes(bag.bagNo)
+                      ? "text-emerald-700 bg-emerald-50 px-2 py-1 rounded"
+                      : "text-gray-900"
+                  }`}
+                >
                   {bag.bagNo}
                 </span>
               </div>
@@ -135,39 +174,60 @@ export default function Supplier() {
 
         {/* In Factory Section */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200 pb-10">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">In Factory</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            In Factory
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Selected Bags</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Selected Bags
+              </label>
               <div className="text-sm text-gray-600 bg-emerald-50 p-3 rounded-lg border border-emerald-200 min-h-10 flex items-center">
-                {selectedBags.length > 0 ? selectedBags.join(' ') : 'No bags selected'}
+                {selectedBags.length > 0
+                  ? selectedBags.join(" ")
+                  : "No bags selected"}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Selected Bags Weight</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Selected Bags Weight
+              </label>
               <input
                 type="text"
                 value={selectedBagsWeight}
                 onChange={(e) => setSelectedBagsWeight(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="Enter weight"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    if (!submitted) {
+                      handleEnter();
+                    }
+                    e.preventDefault();
+                  }
+                }}
+                disabled={submitted}
               />
             </div>
 
             <div>
               <button
                 onClick={handleEnter}
-                disabled={selectedBags.length === 0}
-                className="bg-[#01251F] hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 w-full transform hover:scale-105"
+                disabled={
+                  !apiSuccess &&
+                  (selectedBags.length === 0 ||
+                    submitted ||
+                    !selectedBagsWeight)
+                }
+                className={`bg-[#01251F] hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 w-full transform hover:scale-105`}
               >
-                Enter
+                {apiSuccess ? "Back to Route" : "Enter"}
               </button>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

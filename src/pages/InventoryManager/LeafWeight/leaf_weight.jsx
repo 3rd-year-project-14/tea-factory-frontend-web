@@ -352,14 +352,15 @@ export default function Route() {
                           key={trip.tripId || index}
                           className="grid gap-4 p-4 items-center grid-cols-4 hover:bg-gray-50 cursor-pointer"
                           onClick={() =>
-                            navigate(`route/${trip.tripId}`, {
-                              state: {
-                                routeId: trip.routeId,
-                                routeName: trip.routeName,
-                                driverName: trip.driverName,
-                                currentView,
-                              },
-                            })
+                              navigate(`route/${trip.tripId}`, {
+                                state: {
+                                  routeId: trip.routeId,
+                                  routeName: trip.routeName,
+                                  driverName: trip.driverName,
+                                  currentView,
+                                  sessionId: trip.sessionId,
+                                },
+                              })
                           }
                         >
                           {rowContent}
