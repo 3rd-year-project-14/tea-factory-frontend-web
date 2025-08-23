@@ -37,6 +37,7 @@ export default [
       <Route path="supplier/:supplierId" element={<LeafBagsWeight />} />
     </Route>
   </Route>,
+
   <Route
     key="empty_bags_weight"
     path="/inventoryManager/empty_bags_weight"
@@ -45,27 +46,11 @@ export default [
         <EmptyBagsWeight />
       </Layout>
     }
-  />,
-  // <Route key="route_bags_weight" path="/inventoryManager/route_bags_weight" element={<Layout><RouteBagsWeight /></Layout>} />,
-  // <Route key="bags_weight_supplier" path="/inventoryManager/bags_weight_supplier" element={<Layout><SupplierBagsWeight /></Layout>} />,
-  <Route
-    key="empty_bags_weight_supplier"
-    path="/inventoryManager/empty_bags_weight_supplier"
-    element={
-      <Layout>
-        <EmptySupplierBag />
-      </Layout>
-    }
-  />,
-  <Route
-    key="empty_bags_weight_supplier_all"
-    path="/inventoryManager/empty_bags_weight_supplier_all"
-    element={
-      <Layout>
-        <EmptySupplierBagAll />
-      </Layout>
-    }
-  />,
+  >
+    <Route path="route/:tripId" element={<EmptySupplierBag />}>
+      <Route path="supplier/:supplierId" element={<EmptySupplierBagAll />} />
+    </Route>
+  </Route>,
   <Route
     key="history"
     path="/inventoryManager/history"
