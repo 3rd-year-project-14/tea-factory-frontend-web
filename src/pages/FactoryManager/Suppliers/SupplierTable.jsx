@@ -117,7 +117,7 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
                 </span>
               ) : (
                 <span className="font-medium">
-                  {supplier.route?.name || supplier.requestedRoute || "-"}
+                  {supplier.routeName|| "-"}
                 </span>
               )}
             </div>
