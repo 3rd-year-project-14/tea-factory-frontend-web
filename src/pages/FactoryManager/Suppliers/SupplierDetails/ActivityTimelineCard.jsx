@@ -23,30 +23,12 @@ export default function ActivityTimelineCard({ supplier }) {
                 Application Submitted
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                {supplier.user.createdAt
-                  ? supplier.user.createdAt.split("T")[0]
+                {supplier.requestDate
+                  ? supplier.requestDate
                   : "Unknown Date"}
               </p>
             </div>
           </div>
-
-          {supplier.status === "approved" && supplier.approvedDate && (
-            <div className="flex space-x-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <Check className="w-4 h-4 text-green-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">
-                  Application Approved
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {supplier.approvedDate
-                    ? supplier.approvedDate.split("T")[0]
-                    : "Unknown Date"}
-                </p>
-              </div>
-            </div>
-          )}
 
           {supplier.status === "rejected" && (
             <div className="flex space-x-3">
@@ -59,12 +41,12 @@ export default function ActivityTimelineCard({ supplier }) {
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
                   {supplier.rejectedDate
-                    ? supplier.rejectedDate.split("T")[0]
+                    ? supplier.rejectedDate
                     : "Unknown Date"}
                 </p>
               </div>
             </div>
-          )}
+          )} 
 
           {supplier.status === "pending" && (
             <div className="flex space-x-3">

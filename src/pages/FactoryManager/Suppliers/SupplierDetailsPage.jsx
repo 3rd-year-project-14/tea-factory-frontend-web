@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Check, X, Mail } from "lucide-react";
-
-// Modular components
 import ApprovalModal from "./SupplierDetails/Modals/ApprovalModal";
 import RejectionModal from "./SupplierDetails/Modals/RejectionModal";
 import ContactModal from "./SupplierDetails/Modals/ContactModal";
@@ -13,7 +11,6 @@ import BankingInfoCard from "./SupplierDetails/BankingInfoCard";
 import DocumentsCard from "./SupplierDetails/DocumentsCard";
 import ActivityTimelineCard from "./SupplierDetails/ActivityTimelineCard";
 import PerformanceChart from "./SupplierDetails/PerformanceChart";
-// ...existing code...
 
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
@@ -21,61 +18,51 @@ const BTN_COLOR = "#01251F";
 export default function SupplierDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const currentView = location.state?.currentView || "approved";
   const [supplier, setSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
   const [approvalError, setApprovalError] = useState("");
-
   const [showApproval, setShowApproval] = useState(false);
   const [showRejection, setShowRejection] = useState(false);
   const [showContact, setShowContact] = useState(false);
-
   const [approvalData, setApprovalData] = useState({
     route: "",
     bagLimit: "",
     notes: "",
   });
-
   const [rejectionReason, setRejectionReason] = useState("");
   const [contactData, setContactData] = useState({
     subject: "",
     message: "",
   });
 
-  // ...existing code...
-
   useEffect(() => {
     setLoading(true);
 
     const fetchSupplier = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8080/api/suppliers/${id}`
-        );
-        if (res.data && Object.keys(res.data).length > 0) {
-          setSupplier(res.data);
+        let res;
+        if (currentView === "approved") {
+          res = await axios.get(
+            `http://localhost:8080/api/suppliers/details/${id}`
+          );
         } else {
-          const alt = await axios.get(
-            `http://localhost:8080/api/supplier-requests/${id}`
+          res = await axios.get(
+            `http://localhost:8080/api/supplier-requests/details/${id}`
           );
-          setSupplier(alt.data);
         }
+        setSupplier(res.data);
+        console.log(res.data);
       } catch {
-        try {
-          const fallback = await axios.get(
-            `http://localhost:8080/api/supplier-requests/${id}`
-          );
-          setSupplier(fallback.data);
-        } catch {
-          setSupplier(null);
-        }
+        setSupplier(null);
       } finally {
         setLoading(false);
       }
     };
 
     fetchSupplier();
-  }, [id]);
+  }, [id, currentView]);
 
   const handleApproveSupplierRequest = async () => {
     setApprovalError("");
@@ -138,22 +125,16 @@ export default function SupplierDetailsPage() {
     navigate("/factoryManager/suppliers");
   };
 
-  // Normalize status
-  let normalizedStatus = supplier?.status;
-  if (!normalizedStatus && supplier?.approvedDate) {
-    normalizedStatus = "approved";
-  }
-
   let statusText = "Unknown";
   let statusColor = "text-gray-600 bg-gray-100";
 
-  if (normalizedStatus === "pending") {
+  if (currentView === "pending") {
     statusText = "Pending Review";
     statusColor = "text-yellow-700 bg-yellow-100";
-  } else if (normalizedStatus === "rejected") {
+  } else if (currentView === "rejected") {
     statusText = "Rejected";
     statusColor = "text-red-700 bg-red-100";
-  } else if (normalizedStatus === "approved") {
+  } else if (currentView === "approved") {
     statusText = "Approved";
     statusColor = "text-green-700 bg-green-100";
   }
@@ -204,7 +185,7 @@ export default function SupplierDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-auto">
+    <div className="min-h-screen bg-gray-50 overflow-y-auto custom-scrollbar">
       {/* Modals */}
       <ApprovalModal
         show={showApproval}
@@ -232,25 +213,28 @@ export default function SupplierDetailsPage() {
       />
 
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#cfece6] sticky top-0 z-20">
+      <div className="bg-white shadow-sm border-b border-[#cfece6]">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
             <div>
               <p className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
-                {supplier.user?.name || supplier.name}
+                {supplier.name}
               </p>
               <div className="flex flex-wrap items-center text-sm text-gray-600 gap-x-2 mt-2">
                 <span>
-                  ID: {supplier.supplierId || `2025-00${supplier.id}`}
+                  ID:{" "}
+                  {currentView === "approved"
+                    ? `SUP-${String(supplier.id).padStart(4, "0")}`
+                    : `2025-00${supplier.id}`}
                 </span>
                 <span>•</span>
-                {normalizedStatus === "approved" && supplier.approvedDate && (
+                {currentView === "approved" && supplier.approvedDate && (
                   <span>Approved: {supplier.approvedDate}</span>
                 )}
-                {normalizedStatus === "pending" && (
-                  <span>Submitted: {supplier.date}</span>
+                {currentView === "pending" && (
+                  <span>Submitted: {supplier.requestDate}</span>
                 )}
-                {normalizedStatus === "rejected" && supplier.rejectedDate && (
+                {currentView === "rejected" && supplier.rejectedDate && (
                   <span>Rejected: {supplier.rejectedDate}</span>
                 )}
                 <span
@@ -307,26 +291,18 @@ export default function SupplierDetailsPage() {
         {/* ...existing code... */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <PersonalInfoCard
-              supplier={{ ...supplier, status: normalizedStatus }}
-            />
-            <BusinessInfoCard
-              supplier={{ ...supplier, status: normalizedStatus }}
-            />
-            <PerformanceChart
-              supplier={{ ...supplier, status: normalizedStatus }}
-            />
+            <PersonalInfoCard supplier={{ ...supplier, status: currentView }} />
+            <BusinessInfoCard supplier={{ ...supplier, status: currentView }} />
+            <PerformanceChart supplier={{ ...supplier, status: currentView }} />
           </div>
           <div className="space-y-6">
-            <DocumentsCard
-              supplier={{ ...supplier, status: normalizedStatus }}
-            />
-            <BankingInfoCard
-              supplier={{ ...supplier, status: normalizedStatus }}
-            />
-            <ActivityTimelineCard
-              supplier={{ ...supplier, status: normalizedStatus }}
-            />
+            <DocumentsCard supplier={{ ...supplier, status: currentView }} />
+            <BankingInfoCard supplier={{ ...supplier, status: currentView }} />
+            {currentView !== "approved" && (
+              <ActivityTimelineCard
+                supplier={{ ...supplier, status: currentView }}
+              />
+            )}
           </div>
         </div>
       </div>

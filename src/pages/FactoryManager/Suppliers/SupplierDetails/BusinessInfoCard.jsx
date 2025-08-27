@@ -68,13 +68,13 @@ export default function BusinessInfoCard({ supplier }) {
           {/* Monthly Supply */}
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Monthly Supply
+              {supplier.status === "approved"
+                ? "Initial Bag Count"
+                : "Monthly Supply"}
             </label>
             <p className="mt-1 text-sm font-medium text-gray-900">
               {supplier.status === "approved"
-                ? supplier.initialBagCount
-                  ? `${supplier.initialBagCount} kg`
-                  : "-"
+                ? supplier.initialBagCount ?? "-"
                 : supplier.monthlySupply
                 ? `${supplier.monthlySupply} kg`
                 : "-"}
@@ -88,17 +88,7 @@ export default function BusinessInfoCard({ supplier }) {
                 Assigned Route
               </label>
               <p className="mt-1 text-sm font-medium text-gray-900">
-                {supplier.route?.name || "-"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Start: {supplier.route?.startLocation || "-"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                End: {supplier.route?.endLocation || "-"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Bag count:{" "}
-                {supplier.route?.bagCount || supplier.initialBagCount || "-"}
+                {supplier.routeName || "-"}
               </p>
             </div>
           )}
@@ -112,7 +102,7 @@ export default function BusinessInfoCard({ supplier }) {
                 Rejection Reason
               </label>
               <p className="mt-1 text-sm text-red-700 bg-red-50 p-3 rounded-lg border border-red-200">
-                {supplier.rejectReason}
+                {supplier.rejectionReason}
               </p>
             </div>
           )}

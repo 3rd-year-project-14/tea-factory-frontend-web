@@ -23,8 +23,10 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
   };
 
   const handleViewDetails = (supplier) => {
-    navigate(`/factoryManager/suppliers/${supplier.id}`);
-  };
+  navigate(`/factoryManager/suppliers/${supplier.id}`, {
+    state: { currentView },
+  });
+};
 
   // ✅ Unified green header for all views
   const getHeaderColor = () => ({
@@ -73,13 +75,9 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
     <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
       <div style={getHeaderColor()}>
         <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm text-center">
-          <div>Supplier ID</div>
+          <div>{currentView === "approved" ? "Supplier ID" : "Request ID"}</div>
           <div>Supplier Name</div>
-          <div>
-            {currentView === "pending" || currentView === "rejected"
-              ? "Monthly Supply"
-              : "Route"}
-          </div>
+          <div>{currentView === "approved" ? "Route" : "Monthly Supply"}</div>
           <div>
             {currentView === "pending"
               ? "Request Date"
@@ -116,9 +114,7 @@ export default function SupplierTable({ filteredSuppliers, currentView }) {
                     : "-"}
                 </span>
               ) : (
-                <span className="font-medium">
-                  {supplier.routeName|| "-"}
-                </span>
+                <span className="font-medium">{supplier.routeName || "-"}</span>
               )}
             </div>
             <div className="text-sm text-gray-900 text-center">
