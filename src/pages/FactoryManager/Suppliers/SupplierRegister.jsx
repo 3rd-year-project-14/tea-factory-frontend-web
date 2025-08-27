@@ -1,13 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import axios from "axios";
 import SupplierHeader from "./SupplierHeader.jsx";
 import SupplierSummaryCards from "./SupplierSummaryCards.jsx";
 import SupplierFilters from "./SupplierFilters.jsx";
 import SupplierTable from "./SupplierTable.jsx";
-
+import { useAuth } from "../../../contexts/AuthContext.jsx";
 
 const ACCENT_COLOR = "#165E52";
-
 
 export default function SupplierRegister() {
   const [suppliers, setSuppliers] = useState([]);
@@ -17,38 +16,63 @@ export default function SupplierRegister() {
     rejected: 0,
   });
   const [loading, setLoading] = useState(false);
-
-
-  const [filters, setFilters] = useState({
-    search: "",
-    status: "all",
-  });
-
-
+  const [filters, setFilters] = useState({ search: "", status: "all" });
   const [showFilters, setShowFilters] = useState(false);
   const [currentView, setCurrentView] = useState("approved");
+  const { user } = useAuth();
+  const factoryId = user?.factoryId;
 
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        // Fetch summary counts for the factory
+        const res = await axios.get(
+          `http://localhost:8080/api/suppliers/count/${factoryId}`
+        );
+        const data = res.data;
+        // If backend returns a message and status, treat as error
+        if (data.status === 404 && data.message) {
+          setMetrics({ approved: 0, pending: 0, rejected: 0 });
+          console.error(data.message);
+        } else {
+          setMetrics({
+            approved: data.activeSupplierCount,
+            pending: data.pendingRequestCount,
+            rejected: data.rejectedRequestCount,
+          });
+        }
+      } catch (error) {
+        setMetrics({ approved: 0, pending: 0, rejected: 0 });
+        if (error.response?.data?.message) {
+          console.error(error.response.data.message);
+        } else {
+          console.error("Error fetching supplier counts:", error);
+        }
+      }
+    };
+    if (factoryId) fetchCounts();
+  }, [factoryId]);
 
-  // API: Approve Supplier
   const handleApproveSupplierRequest = async (id, routeId, bagLimit) => {
     try {
       const initialBagCount = Number(bagLimit);
       const params = { routeId };
       if (initialBagCount > 0) params.initialBagCount = initialBagCount;
 
+      await axios.post(
+        `http://localhost:8080/api/supplier-requests/${id}/approve`,
+        null,
+        {
+          params,
+        }
+      );
 
-      await axios.post(`http://localhost:8080/api/supplier-requests/${id}/approve`, null, {
-        params,
-      });
-
-
-      fetchAllCounts();
+      // fetchAllCounts removed
       fetchTableData(currentView);
     } catch (error) {
       console.error("Error approving supplier request:", error);
     }
   };
-
 
   // API: Reject Supplier
   const handleRejectSupplierRequest = async (id, reason) => {
@@ -59,111 +83,67 @@ export default function SupplierRegister() {
         { params: { reason } }
       );
 
-
-      fetchAllCounts();
+      // fetchAllCounts removed
       fetchTableData(currentView);
     } catch (error) {
       console.error("Error rejecting supplier request:", error);
     }
   };
 
-
-  // Count summary data
-  const fetchAllCounts = async () => {
-    try {
-      const [approvedRes, requestsRes] = await Promise.all([
-        fetch("http://localhost:8080/api/suppliers"),
-        fetch("http://localhost:8080/api/supplier-requests"),
-      ]);
-      const approved = await approvedRes.json();
-      const requests = await requestsRes.json();
-
-
-      const approvedCount = approved.length;
-      const pendingCount = requests.filter((r) => r.status === "pending").length;
-      const rejectedCount = requests.filter((r) => r.status === "rejected").length;
-
-
-      setMetrics({
-        approved: approvedCount,
-        pending: pendingCount,
-        rejected: rejectedCount,
-      });
-    } catch {
-      setMetrics({ approved: 0, pending: 0, rejected: 0 });
-    }
-  };
-
-
   // Table data load
-  const fetchTableData = async (view) => {
-    setLoading(true);
-    setSuppliers([]);
+  const fetchTableData = useCallback(
+    async (view) => {
+      setLoading(true);
+      setSuppliers([]);
 
-
-    const endpoint =
-      view === "approved"
-        ? "http://localhost:8080/api/suppliers"
-        : "http://localhost:8080/api/supplier-requests";
-
-
-    try {
-      const res = await fetch(endpoint);
-      const data = await res.json();
-      let mapped = [];
-
-
+      let endpoint;
       if (view === "approved") {
-        mapped = data.map((item) => ({
-          id: item.supplierId,
-          name: item.user?.name || "",
-          nic: item.user?.nic || "",
-          phone: item.user?.contactNo || "",
-          location: item.user?.address || "",
-          email: item.user?.email || "",
-          monthlySupply: item.initialBagCount || "",
-          landSize: item.landSize || "",
-          supplierCreatedDate: item.user?.createdAt?.split("T")[0] || "",
-          requestedRoute: item.route?.name || "",
-          pickupLocation: item.pickupLocation || "",
-          landLocation: item.landLocation || "",
-          nicImage: item.nicImage || "",
-          status: "approved",
-          approvedDate: item.approvedDate || null,
-        }));
+        endpoint = `http://localhost:8080/api/suppliers/active/factory/${factoryId}`;
+      } else if (view === "pending" || view === "rejected") {
+        endpoint = `http://localhost:8080/api/supplier-requests/factory/${factoryId}/status/${view}`;
       } else {
-        const filtered = data.filter((item) => item.status === view);
-        mapped = filtered.map((item) => ({
-          id: item.id,
-          name: item.user?.name || "",
-          nic: item.user?.nic || "",
-          phone: item.user?.contactNo || "",
-          location: item.user?.address || "",
-          monthlySupply: item.monthlySupply || "",
-          landSize: item.landSize || "",
-          date: item.submittedDate || "",
-          supplierCreatedDate: item.user?.createdAt?.split("T")[0] || "",
-          approvedDate: item.approvedDate || null,
-          rejectedDate: item.rejectedDate || null,
-          rejectionReason: item.rejectReason || "",
-          status: item.status || "",
-          email: item.user?.email || "",
-          requestedRoute: item.requestedRoute || "",
-          pickupLocation: item.pickupLocation || "",
-          landLocation: item.landLocation || "",
-          nicImage: item.nicImage || "",
-        }));
+        endpoint = "";
       }
 
+      try {
+        const res = await axios.get(endpoint);
+        const data = res.data;
+        console.log("Raw fetched data:", data);
+        let mapped = [];
 
-      setSuppliers(mapped);
-    } catch {
-      setSuppliers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+        if (view === "approved") {
+          mapped = data.map((item) => ({
+            id: item.supplierId || null,
+            name: item.supplierName || null,
+            routeName: item.routeName || null,
+            approvedDate: item.approvedDate || null,
+          }));
+        } else {
+          mapped = data.map((item) => ({
+            id: item.supplierRequestId || null,
+            name: item.name || null,
+            monthlySupply: item.monthlySupply || null,
+            supplierCreatedDate: item.requestDate || null,
+            rejectedDate: item.rejectedDate || null,
+            status: view,
+          }));
+        }
+        setSuppliers(mapped);
+        console.log("Mapped supplier data:", mapped);
+      } catch (error) {
+        setSuppliers([]);
+        if (error.response?.data?.message) {
+          // TODO: Replace with a toast or custom UI notification
+          console.error(error.response.data.message);
+        } else {
+          console.error("Error fetching supplier table data:", error);
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [factoryId]
+  );
 
   // Filters
   const handleFilterChange = (e) => {
@@ -171,23 +151,18 @@ export default function SupplierRegister() {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-
   const clearFilters = () => {
     setFilters({ search: "", status: "all" });
   };
 
-
   const handleViewChange = (view) => {
     setCurrentView(view);
-    fetchTableData(view);
+    // fetchTableData will be triggered by useEffect below
   };
 
-
   useEffect(() => {
-    fetchAllCounts();
     fetchTableData(currentView);
-  }, [currentView]);
-
+  }, [currentView, fetchTableData]);
 
   // Apply search + status filter
   const filteredSuppliers = useMemo(() => {
@@ -196,28 +171,25 @@ export default function SupplierRegister() {
         supplier.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
         supplier.nic?.toLowerCase().includes(filters.search.toLowerCase()) ||
         supplier.phone?.includes(filters.search) ||
-        supplier.location?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        supplier.location
+          ?.toLowerCase()
+          .includes(filters.search.toLowerCase()) ||
         supplier.email?.toLowerCase().includes(filters.search.toLowerCase());
-
 
       if (currentView === "pending" || currentView === "rejected") {
         return matchesSearch && supplier.status === currentView;
       }
 
-
       const matchesStatus =
         filters.status === "all" || supplier.status === filters.status;
-
 
       return matchesSearch && matchesStatus;
     });
   }, [suppliers, filters, currentView]);
 
-
   return (
     <div className="min-h-screen bg-gray-50">
       <SupplierHeader />
-
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         <SupplierSummaryCards
@@ -225,7 +197,6 @@ export default function SupplierRegister() {
           currentView={currentView}
           setCurrentView={handleViewChange}
         />
-
 
         <SupplierFilters
           filters={filters}
@@ -235,10 +206,9 @@ export default function SupplierRegister() {
           setShowFilters={setShowFilters}
         />
 
-
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[##165E52] border-solid"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#165E52] border-solid"></div>
             <span className="ml-4 text-[#165E52] font-semibold">
               Loading suppliers...
             </span>
@@ -255,6 +225,3 @@ export default function SupplierRegister() {
     </div>
   );
 }
-
-
-

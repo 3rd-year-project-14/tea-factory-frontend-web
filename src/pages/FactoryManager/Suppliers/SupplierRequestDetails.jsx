@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 import { Check, X, Mail } from "lucide-react";
-
-
-// Import modular components
 import ApprovalModal from "./SupplierDetails/Modals/ApprovalModal";
 import RejectionModal from "./SupplierDetails/Modals/RejectionModal";
 import ContactModal from "./SupplierDetails/Modals/ContactModal";
@@ -15,10 +12,8 @@ import QuickActionsCard from "./SupplierDetails/QuickActionsCard";
 import PerformanceChart from "./SupplierDetails/PerformanceChart";
 
 
-// Design colors
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
-
 
 export default function SupplierRequestDetails({ supplier, onBack, onApprove, onReject }) {
   const [showApproval, setShowApproval] = useState(false);
