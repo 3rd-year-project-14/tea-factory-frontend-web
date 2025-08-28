@@ -23,6 +23,7 @@ export default function SupplierDetailsPage() {
   const [supplier, setSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
   const [approvalError, setApprovalError] = useState("");
+  const [error, setError] = useState(""); // General error state
   const [showApproval, setShowApproval] = useState(false);
   const [showRejection, setShowRejection] = useState(false);
   const [showContact, setShowContact] = useState(false);
@@ -39,6 +40,7 @@ export default function SupplierDetailsPage() {
 
   useEffect(() => {
     setLoading(true);
+    setError(""); // Reset error
 
     const fetchSupplier = async () => {
       try {
@@ -53,9 +55,13 @@ export default function SupplierDetailsPage() {
           );
         }
         setSupplier(res.data);
-        console.log(res.data);
-      } catch {
+        // console.log(res.data);
+      } catch (err) {
         setSupplier(null);
+        setError(
+          err?.response?.data?.message ||
+            "Failed to fetch supplier details. Please try again."
+        );
       } finally {
         setLoading(false);
       }
@@ -66,6 +72,7 @@ export default function SupplierDetailsPage() {
 
   const handleApproveSupplierRequest = async () => {
     setApprovalError("");
+    setError("");
     try {
       const response = await axios.post(
         `http://localhost:8080/api/supplier-requests/${supplier.id}/approve?routeId=${approvalData.route}`
@@ -80,12 +87,15 @@ export default function SupplierDetailsPage() {
       } else {
         setApprovalError("Failed to approve supplier.");
       }
-    } catch {
-      setApprovalError("Failed to approve supplier.");
+    } catch (err) {
+      setApprovalError(
+        err?.response?.data?.message || "Failed to approve supplier."
+      );
     }
   };
 
   const handleRejectSupplierRequest = async (id, reason) => {
+    setError("");
     try {
       await axios.post(
         `http://localhost:8080/api/supplier-requests/${id}/reject?reason=${encodeURIComponent(
@@ -94,8 +104,8 @@ export default function SupplierDetailsPage() {
       );
       setSupplier({ ...supplier, status: "rejected", rejectReason: reason });
       closeRejection();
-    } catch {
-      alert("Failed to reject supplier.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to reject supplier.");
     }
   };
 
@@ -152,6 +162,9 @@ export default function SupplierDetailsPage() {
               {approvalError}
             </span>
           )}
+          {error && (
+            <span className="text-red-600 font-semibold mt-2">{error}</span>
+          )}
         </div>
       </div>
     );
@@ -171,7 +184,7 @@ export default function SupplierDetailsPage() {
             Supplier Not Found
           </h2>
           <p className="text-gray-600 mb-4">
-            The supplier you're looking for doesn't exist.
+            {error || "The supplier you're looking for doesn't exist."}
           </p>
           <button
             onClick={handleBack}
