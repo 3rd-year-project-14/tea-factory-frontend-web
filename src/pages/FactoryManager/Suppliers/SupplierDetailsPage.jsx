@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+// Import your auth context/hook (adjust path as needed)
+import { useAuth } from "../../../contexts/AuthContext";
 import axios from "axios";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Check, X, Mail } from "lucide-react";
@@ -11,11 +13,19 @@ import BankingInfoCard from "./SupplierDetails/BankingInfoCard";
 import DocumentsCard from "./SupplierDetails/DocumentsCard";
 import ActivityTimelineCard from "./SupplierDetails/ActivityTimelineCard";
 import PerformanceChart from "./SupplierDetails/PerformanceChart";
+import { getNicImageUrl } from "../../../utils/firebaseStorage";
 
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
 
 export default function SupplierDetailsPage() {
+  const { user } = useAuth(); // Get user info from context/hook
+  // State for NIC image URL
+  const [nicImageUrl, setNicImageUrl] = useState("");
+
+  // Define your authorization logic (adjust as needed)
+  const isAuthorized =
+    user?.role === "FACTORY_MANAGER" || user?.role === "OWNER";
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,6 +47,20 @@ export default function SupplierDetailsPage() {
     subject: "",
     message: "",
   });
+console.log("NIC IMAGE URL:", nicImageUrl);
+console.log("IS AUTHORIZED:", isAuthorized);
+
+  // Fetch NIC image URL only if authorized and supplier is loaded
+  useEffect(() => {
+  if (!supplier?.nicImage) return; // nicImage is the objectName stored in DB
+
+  const fetchNicImage = async () => {
+    const url = await getNicImageUrl(supplier.nicImage);
+    setNicImageUrl(url);
+  };
+
+  fetchNicImage();
+}, [supplier]);
 
   useEffect(() => {
     setLoading(true);
@@ -309,7 +333,10 @@ export default function SupplierDetailsPage() {
             <PerformanceChart supplier={{ ...supplier, status: currentView }} />
           </div>
           <div className="space-y-6">
-            <DocumentsCard supplier={{ ...supplier, status: currentView }} />
+            <DocumentsCard
+              supplier={{ ...supplier, status: currentView }}
+              nicImageUrl={nicImageUrl}
+            />
             <BankingInfoCard supplier={{ ...supplier, status: currentView }} />
             {currentView !== "approved" && (
               <ActivityTimelineCard
