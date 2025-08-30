@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
-import axios from "axios";
+import { loginWithFirebaseToken } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -33,9 +33,7 @@ export default function Auth() {
         password
       );
       const token = await userCredential.user.getIdToken();
-      const res = await axios.post("http://localhost:8080/api/auth/login", {
-        token,
-      });
+      const res = await loginWithFirebaseToken(token);
       setUser(res.data);
       console.log(res.data);
       localStorage.setItem("userId", res.data.userId);

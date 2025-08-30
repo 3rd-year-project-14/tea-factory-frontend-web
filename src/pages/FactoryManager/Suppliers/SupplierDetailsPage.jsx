@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 // Import your auth context/hook (adjust path as needed)
 import { useAuth } from "../../../contexts/AuthContext";
-import axios from "axios";
+import {
+  getApprovedSupplierDetails,
+  getSupplierRequestDetails,
+  approveSupplierRequest,
+  rejectSupplierRequest,
+} from "../../../api/supplier";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Check, X, Mail } from "lucide-react";
 import ApprovalModal from "./SupplierDetails/Modals/ApprovalModal";
@@ -47,20 +52,20 @@ export default function SupplierDetailsPage() {
     subject: "",
     message: "",
   });
-console.log("NIC IMAGE URL:", nicImageUrl);
-console.log("IS AUTHORIZED:", isAuthorized);
+  console.log("NIC IMAGE URL:", nicImageUrl);
+  console.log("IS AUTHORIZED:", isAuthorized);
 
   // Fetch NIC image URL only if authorized and supplier is loaded
   useEffect(() => {
-  if (!supplier?.nicImage) return; // nicImage is the objectName stored in DB
+    if (!supplier?.nicImage) return; // nicImage is the objectName stored in DB
 
-  const fetchNicImage = async () => {
-    const url = await getNicImageUrl(supplier.nicImage);
-    setNicImageUrl(url);
-  };
+    const fetchNicImage = async () => {
+      const url = await getNicImageUrl(supplier.nicImage);
+      setNicImageUrl(url);
+    };
 
-  fetchNicImage();
-}, [supplier]);
+    fetchNicImage();
+  }, [supplier]);
 
   useEffect(() => {
     setLoading(true);
@@ -68,18 +73,13 @@ console.log("IS AUTHORIZED:", isAuthorized);
 
     const fetchSupplier = async () => {
       try {
-        let res;
+        let data;
         if (currentView === "approved") {
-          res = await axios.get(
-            `http://localhost:8080/api/suppliers/details/${id}`
-          );
+          data = await getApprovedSupplierDetails(id);
         } else {
-          res = await axios.get(
-            `http://localhost:8080/api/supplier-requests/details/${id}`
-          );
+          data = await getSupplierRequestDetails(id);
         }
-        setSupplier(res.data);
-        // console.log(res.data);
+        setSupplier(data);
       } catch (err) {
         setSupplier(null);
         setError(
@@ -98,19 +98,13 @@ console.log("IS AUTHORIZED:", isAuthorized);
     setApprovalError("");
     setError("");
     try {
-      const response = await axios.post(
-        `http://localhost:8080/api/supplier-requests/${supplier.id}/approve?routeId=${approvalData.route}`
-      );
-      if (response.status >= 200 && response.status < 300) {
-        setSupplier({
-          ...supplier,
-          status: "approved",
-          approvedDate: new Date().toISOString(),
-        });
-        closeApproval();
-      } else {
-        setApprovalError("Failed to approve supplier.");
-      }
+      await approveSupplierRequest(supplier.id, approvalData.route);
+      setSupplier({
+        ...supplier,
+        status: "approved",
+        approvedDate: new Date().toISOString(),
+      });
+      closeApproval();
     } catch (err) {
       setApprovalError(
         err?.response?.data?.message || "Failed to approve supplier."
@@ -121,11 +115,7 @@ console.log("IS AUTHORIZED:", isAuthorized);
   const handleRejectSupplierRequest = async (id, reason) => {
     setError("");
     try {
-      await axios.post(
-        `http://localhost:8080/api/supplier-requests/${id}/reject?reason=${encodeURIComponent(
-          reason
-        )}`
-      );
+      await rejectSupplierRequest(id, reason);
       setSupplier({ ...supplier, status: "rejected", rejectReason: reason });
       closeRejection();
     } catch (err) {
