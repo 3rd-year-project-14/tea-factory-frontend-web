@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// Import your auth context/hook (adjust path as needed)
+import { useAuth } from "../../../contexts/AuthContext";
+import {
+  getApprovedSupplierDetails,
+  getSupplierRequestDetails,
+  approveSupplierRequest,
+  rejectSupplierRequest,
+} from "../../../api/supplier";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Check, X, Mail } from "lucide-react";
 import ApprovalModal from "./SupplierDetails/Modals/ApprovalModal";
@@ -11,11 +18,19 @@ import BankingInfoCard from "./SupplierDetails/BankingInfoCard";
 import DocumentsCard from "./SupplierDetails/DocumentsCard";
 import ActivityTimelineCard from "./SupplierDetails/ActivityTimelineCard";
 import PerformanceChart from "./SupplierDetails/PerformanceChart";
+import { getNicImageUrl } from "../../../utils/firebaseStorage";
 
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
 
 export default function SupplierDetailsPage() {
+  const { user } = useAuth(); // Get user info from context/hook
+  // State for NIC image URL
+  const [nicImageUrl, setNicImageUrl] = useState("");
+
+  // Define your authorization logic (adjust as needed)
+  const isAuthorized =
+    user?.role === "FACTORY_MANAGER" || user?.role === "OWNER";
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,6 +38,7 @@ export default function SupplierDetailsPage() {
   const [supplier, setSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
   const [approvalError, setApprovalError] = useState("");
+  const [error, setError] = useState(""); // General error state
   const [showApproval, setShowApproval] = useState(false);
   const [showRejection, setShowRejection] = useState(false);
   const [showContact, setShowContact] = useState(false);
@@ -36,26 +52,40 @@ export default function SupplierDetailsPage() {
     subject: "",
     message: "",
   });
+  console.log("NIC IMAGE URL:", nicImageUrl);
+  console.log("IS AUTHORIZED:", isAuthorized);
+
+  // Fetch NIC image URL only if authorized and supplier is loaded
+  useEffect(() => {
+    if (!supplier?.nicImage) return; // nicImage is the objectName stored in DB
+
+    const fetchNicImage = async () => {
+      const url = await getNicImageUrl(supplier.nicImage);
+      setNicImageUrl(url);
+    };
+
+    fetchNicImage();
+  }, [supplier]);
 
   useEffect(() => {
     setLoading(true);
+    setError(""); // Reset error
 
     const fetchSupplier = async () => {
       try {
-        let res;
+        let data;
         if (currentView === "approved") {
-          res = await axios.get(
-            `http://localhost:8080/api/suppliers/details/${id}`
-          );
+          data = await getApprovedSupplierDetails(id);
         } else {
-          res = await axios.get(
-            `http://localhost:8080/api/supplier-requests/details/${id}`
-          );
+          data = await getSupplierRequestDetails(id);
         }
-        setSupplier(res.data);
-        console.log(res.data);
-      } catch {
+        setSupplier(data);
+      } catch (err) {
         setSupplier(null);
+        setError(
+          err?.response?.data?.message ||
+            "Failed to fetch supplier details. Please try again."
+        );
       } finally {
         setLoading(false);
       }
@@ -66,36 +96,30 @@ export default function SupplierDetailsPage() {
 
   const handleApproveSupplierRequest = async () => {
     setApprovalError("");
+    setError("");
     try {
-      const response = await axios.post(
-        `http://localhost:8080/api/supplier-requests/${supplier.id}/approve?routeId=${approvalData.route}`
+      await approveSupplierRequest(supplier.id, approvalData.route);
+      setSupplier({
+        ...supplier,
+        status: "approved",
+        approvedDate: new Date().toISOString(),
+      });
+      closeApproval();
+    } catch (err) {
+      setApprovalError(
+        err?.response?.data?.message || "Failed to approve supplier."
       );
-      if (response.status >= 200 && response.status < 300) {
-        setSupplier({
-          ...supplier,
-          status: "approved",
-          approvedDate: new Date().toISOString(),
-        });
-        closeApproval();
-      } else {
-        setApprovalError("Failed to approve supplier.");
-      }
-    } catch {
-      setApprovalError("Failed to approve supplier.");
     }
   };
 
   const handleRejectSupplierRequest = async (id, reason) => {
+    setError("");
     try {
-      await axios.post(
-        `http://localhost:8080/api/supplier-requests/${id}/reject?reason=${encodeURIComponent(
-          reason
-        )}`
-      );
+      await rejectSupplierRequest(id, reason);
       setSupplier({ ...supplier, status: "rejected", rejectReason: reason });
       closeRejection();
-    } catch {
-      alert("Failed to reject supplier.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to reject supplier.");
     }
   };
 
@@ -152,6 +176,9 @@ export default function SupplierDetailsPage() {
               {approvalError}
             </span>
           )}
+          {error && (
+            <span className="text-red-600 font-semibold mt-2">{error}</span>
+          )}
         </div>
       </div>
     );
@@ -171,7 +198,7 @@ export default function SupplierDetailsPage() {
             Supplier Not Found
           </h2>
           <p className="text-gray-600 mb-4">
-            The supplier you're looking for doesn't exist.
+            {error || "The supplier you're looking for doesn't exist."}
           </p>
           <button
             onClick={handleBack}
@@ -296,7 +323,10 @@ export default function SupplierDetailsPage() {
             <PerformanceChart supplier={{ ...supplier, status: currentView }} />
           </div>
           <div className="space-y-6">
-            <DocumentsCard supplier={{ ...supplier, status: currentView }} />
+            <DocumentsCard
+              supplier={{ ...supplier, status: currentView }}
+              nicImageUrl={nicImageUrl}
+            />
             <BankingInfoCard supplier={{ ...supplier, status: currentView }} />
             {currentView !== "approved" && (
               <ActivityTimelineCard

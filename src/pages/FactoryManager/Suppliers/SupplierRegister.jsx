@@ -1,5 +1,11 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import axios from "axios";
+import {
+  getSupplierCounts,
+  approveSupplierRequest,
+  rejectSupplierRequest,
+  getApprovedSuppliers,
+  getSupplierRequestsByStatus,
+} from "../../../api/supplier";
 import SupplierHeader from "./SupplierHeader.jsx";
 import SupplierSummaryCards from "./SupplierSummaryCards.jsx";
 import SupplierFilters from "./SupplierFilters.jsx";
@@ -25,12 +31,7 @@ export default function SupplierRegister() {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        // Fetch summary counts for the factory
-        const res = await axios.get(
-          `http://localhost:8080/api/suppliers/count/${factoryId}`
-        );
-        const data = res.data;
-        // If backend returns a message and status, treat as error
+        const data = await getSupplierCounts(factoryId);
         if (data.status === 404 && data.message) {
           setMetrics({ approved: 0, pending: 0, rejected: 0 });
           console.error(data.message);
@@ -56,18 +57,7 @@ export default function SupplierRegister() {
   const handleApproveSupplierRequest = async (id, routeId, bagLimit) => {
     try {
       const initialBagCount = Number(bagLimit);
-      const params = { routeId };
-      if (initialBagCount > 0) params.initialBagCount = initialBagCount;
-
-      await axios.post(
-        `http://localhost:8080/api/supplier-requests/${id}/approve`,
-        null,
-        {
-          params,
-        }
-      );
-
-      // fetchAllCounts removed
+      await approveSupplierRequest(id, routeId, initialBagCount);
       fetchTableData(currentView);
     } catch (error) {
       console.error("Error approving supplier request:", error);
@@ -77,13 +67,7 @@ export default function SupplierRegister() {
   // API: Reject Supplier
   const handleRejectSupplierRequest = async (id, reason) => {
     try {
-      await axios.post(
-        `http://localhost:8080/api/supplier-requests/${id}/reject`,
-        null,
-        { params: { reason } }
-      );
-
-      // fetchAllCounts removed
+      await rejectSupplierRequest(id, reason);
       fetchTableData(currentView);
     } catch (error) {
       console.error("Error rejecting supplier request:", error);
@@ -96,18 +80,13 @@ export default function SupplierRegister() {
       setLoading(true);
       setSuppliers([]);
 
-      let endpoint;
-      if (view === "approved") {
-        endpoint = `http://localhost:8080/api/suppliers/active/factory/${factoryId}`;
-      } else if (view === "pending" || view === "rejected") {
-        endpoint = `http://localhost:8080/api/supplier-requests/factory/${factoryId}/status/${view}`;
-      } else {
-        endpoint = "";
-      }
-
       try {
-        const res = await axios.get(endpoint);
-        const data = res.data;
+        let data = [];
+        if (view === "approved") {
+          data = await getApprovedSuppliers(factoryId);
+        } else if (view === "pending" || view === "rejected") {
+          data = await getSupplierRequestsByStatus(factoryId, view);
+        }
         console.log("Raw fetched data:", data);
         let mapped = [];
 
@@ -121,7 +100,7 @@ export default function SupplierRegister() {
         } else {
           mapped = data.map((item) => ({
             id: item.supplierRequestId || null,
-            name: item.name || null,
+            name: item.name || "N/A",
             monthlySupply: item.monthlySupply || null,
             supplierCreatedDate: item.requestDate || null,
             rejectedDate: item.rejectedDate || null,

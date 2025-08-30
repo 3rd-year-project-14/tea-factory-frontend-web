@@ -1,15 +1,12 @@
 import React, { useEffect } from "react";
 import { Check } from "lucide-react";
 import { useRoutes } from "../../../../../data/useRoutes";
-import axios from "axios";
-
 
 // Design Colors
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
 const BORDER_COLOR = "#cfece6";
 const HEADER_BG = "#e1f4ef";
-
 
 export default function ApprovalModal({
   show,
@@ -21,7 +18,6 @@ export default function ApprovalModal({
 }) {
   const { routes, loading, error } = useRoutes();
 
-
   useEffect(() => {
     document.body.style.overflow = show ? "hidden" : "unset";
     return () => {
@@ -29,9 +25,7 @@ export default function ApprovalModal({
     };
   }, [show]);
 
-
   if (!show) return null;
-
 
   const handleConfirm = async () => {
     if (
@@ -42,38 +36,21 @@ export default function ApprovalModal({
     )
       return;
 
-
     const bagLimitNum = Number(approvalData.bagLimit);
 
-
-    try {
-      const params = { routeId: approvalData.route };
-      if (bagLimitNum > 0) {
-        params.initialBagCount = bagLimitNum;
-      }
-
-
-      await axios.post(
-        `http://localhost:8080/api/supplier-requests/${supplier.id}/approve`,
-        null,
-        { params }
+    if (onApproveSupplierRequest) {
+      await onApproveSupplierRequest(
+        supplier.id,
+        approvalData.route,
+        bagLimitNum
       );
+    }
 
-
-      if (onApproveSupplierRequest) {
-        onApproveSupplierRequest(supplier.id, approvalData.route, bagLimitNum);
-      }
-
-
-      if (onClose) onClose();
-      if (window.history && window.history.length > 1) {
-        window.history.back();
-      }
-    } catch (error) {
-      console.error("Error approving supplier request:", error);
+    if (onClose) onClose();
+    if (window.history && window.history.length > 1) {
+      window.history.back();
     }
   };
-
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/30 overflow-hidden">
@@ -86,17 +63,16 @@ export default function ApprovalModal({
           className="p-6 border-b flex items-center space-x-3"
           style={{ borderColor: BORDER_COLOR, backgroundColor: HEADER_BG }}
         >
-          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "#e1f4ef" }}>
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: "#e1f4ef" }}
+          >
             <Check className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
           </div>
-          <h2
-            className="text-xl font-semibold"
-            style={{ color: ACCENT_COLOR }}
-          >
+          <h2 className="text-xl font-semibold" style={{ color: ACCENT_COLOR }}>
             Approve Supplier Registration
           </h2>
         </div>
-
 
         {/* Body */}
         <div className="p-6">
@@ -114,7 +90,6 @@ export default function ApprovalModal({
               Expected Supply: {supplier.monthlySupply} Kg
             </p>
           </div>
-
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {/* Route Selector */}
@@ -149,7 +124,6 @@ export default function ApprovalModal({
               </select>
             </div>
 
-
             {/* Bag Limit */}
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-700 mb-2">
@@ -166,15 +140,13 @@ export default function ApprovalModal({
                   const val = e.target.value;
                   setApprovalData({
                     ...approvalData,
-                    bagLimit:
-                      val !== "" && Number(val) > 0 ? Number(val) : "",
+                    bagLimit: val !== "" && Number(val) > 0 ? Number(val) : "",
                   });
                 }}
               />
             </div>
           </div>
         </div>
-
 
         {/* Footer Buttons */}
         <div
@@ -192,7 +164,6 @@ export default function ApprovalModal({
           >
             Cancel
           </button>
-
 
           <button
             className="px-6 py-2 rounded-lg text-sm font-medium text-white transition"
@@ -228,6 +199,3 @@ export default function ApprovalModal({
     </div>
   );
 }
-
-
-

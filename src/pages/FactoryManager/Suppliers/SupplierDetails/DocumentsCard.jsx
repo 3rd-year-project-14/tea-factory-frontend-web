@@ -5,8 +5,10 @@ const ACCENT_COLOR = "#165E52";
 const BORDER_COLOR = "#cfece6";
 const HEADER_BG = "#e1f4ef";
 
-export default function DocumentsCard({ supplier }) {
-  const nicComplete = !!supplier.nicImage;
+export default function DocumentsCard({ supplier, nicImageUrl }) {
+  // Prefer nicImageUrl if provided, else fallback to supplier.nicImage
+  const nicImage = nicImageUrl || supplier.nicImage;
+  const nicComplete = !!nicImage;
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -53,7 +55,7 @@ export default function DocumentsCard({ supplier }) {
               </div>
             </div>
 
-            {supplier.nicImage && (
+            {nicImage && (
               <div className="flex space-x-2">
                 <button
                   className="p-2 rounded-lg transition-colors shadow-sm"
@@ -70,7 +72,7 @@ export default function DocumentsCard({ supplier }) {
               </div>
             )}
             {/* NIC Image Modal */}
-            {showModal && (
+            {showModal && nicImage && (
               <div
                 className="fixed inset-0 z-50 flex items-center justify-center"
                 style={{
@@ -87,7 +89,7 @@ export default function DocumentsCard({ supplier }) {
                     &times;
                   </button>
                   <img
-                    src={supplier.nicImage}
+                    src={nicImage}
                     alt="NIC Copy"
                     className="w-full h-auto rounded-lg"
                     style={{ maxHeight: "70vh", objectFit: "contain" }}
