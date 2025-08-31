@@ -45,10 +45,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   if (!authReady) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "2rem" }}>Loading...</div>
-    );
-  }
+  return (
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%)"
+    }}>
+      <div style={{ textAlign: "center" }}>
+        <img src="/assets/logo2.png" alt="PureLeaf Logo" style={{ width: 80, marginBottom: 24 }} />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#165E52] border-solid mx-auto mb-4"></div>
+        <div style={{ color: "#165E52", fontWeight: "bold", fontSize: 20 }}>Loading...</div>
+      </div>
+    </div>
+  );
+}
   return (
     <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}

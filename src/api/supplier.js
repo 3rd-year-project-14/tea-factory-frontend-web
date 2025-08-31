@@ -8,9 +8,11 @@ export const getSupplierCounts = async (factoryId) => {
 
 // Approve supplier request
 export const approveSupplierRequest = async (id, routeId, initialBagCount) => {
-  const params = { routeId };
-  if (initialBagCount > 0) params.initialBagCount = initialBagCount;
-  return axios.post(`/supplier-requests/${id}/approve`, null, { params });
+  const body = {
+    routeId: Number(routeId),
+    initialBagCount: Number(initialBagCount)
+  };
+  return axios.post(`/supplier-requests/${id}/approve`, body);
 };
 
 // Reject supplier request
@@ -43,5 +45,11 @@ export const getApprovedSupplierDetails = async (id) => {
 // Get supplier request details (pending/rejected)
 export const getSupplierRequestDetails = async (id) => {
   const res = await axios.get(`/supplier-requests/details/${id}`);
+  return res.data;
+};
+
+// Get Route details
+export const getRoutesDetails = async (id) => {
+  const res = await axios.get(`/routes/factory/${id}`);
   return res.data;
 };

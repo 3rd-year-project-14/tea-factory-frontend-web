@@ -52,7 +52,7 @@ export default function SupplierRegister() {
       }
     };
     if (factoryId) fetchCounts();
-  }, [factoryId]);
+  }, [factoryId, currentView]);
 
   const handleApproveSupplierRequest = async (id, routeId, bagLimit) => {
     try {

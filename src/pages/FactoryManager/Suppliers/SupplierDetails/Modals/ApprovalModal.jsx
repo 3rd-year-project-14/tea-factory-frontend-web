@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Check } from "lucide-react";
-import { useRoutes } from "../../../../../data/useRoutes";
+import { useAuth } from "../../../../../contexts/AuthContext";
+import { getRoutesDetails } from "../../../../../api/supplier";
 
 // Design Colors
 const ACCENT_COLOR = "#165E52";
@@ -16,7 +17,22 @@ export default function ApprovalModal({
   setApprovalData,
   onApproveSupplierRequest,
 }) {
-  const { routes, loading, error } = useRoutes();
+  const { user } = useAuth();
+  const factoryId = user?.factoryId;
+  const [routes, setRoutes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [approveLoading, setApproveLoading] = useState(false);
+
+  useEffect(() => {
+    if (!show || !factoryId) return;
+    setLoading(true);
+    setError(null);
+    getRoutesDetails(factoryId)
+      .then((data) => setRoutes(data))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [show, factoryId]);
 
   useEffect(() => {
     document.body.style.overflow = show ? "hidden" : "unset";
@@ -36,19 +52,28 @@ export default function ApprovalModal({
     )
       return;
 
+    setApproveLoading(true);
     const bagLimitNum = Number(approvalData.bagLimit);
+    console.log("Sending to backend:", {
+      supplierId: supplier.id,
+      routeId: approvalData.route,
+      initialBagCount: bagLimitNum,
+    });
 
-    if (onApproveSupplierRequest) {
-      await onApproveSupplierRequest(
-        supplier.id,
-        approvalData.route,
-        bagLimitNum
-      );
-    }
-
-    if (onClose) onClose();
-    if (window.history && window.history.length > 1) {
-      window.history.back();
+    try {
+      if (onApproveSupplierRequest) {
+        await onApproveSupplierRequest(
+          supplier.id,
+          approvalData.route,
+          bagLimitNum
+        );
+      }
+      if (onClose) onClose();
+      if (window.history && window.history.length > 1) {
+        window.history.back();
+      }
+    } finally {
+      setApproveLoading(false);
     }
   };
 
@@ -84,7 +109,7 @@ export default function ApprovalModal({
               Supplier Information
             </h3>
             <p className="text-sm text-gray-700">
-              {supplier.user.name} - {supplier.user.address}
+              {supplier.supplierName} - {supplier.address}
             </p>
             <p className="text-sm text-gray-700">
               Expected Supply: {supplier.monthlySupply} Kg
@@ -118,7 +143,7 @@ export default function ApprovalModal({
                       key={route.routeId || route._id || route.name}
                       value={route.routeId || route._id || route.name}
                     >
-                      {route.name}
+                      {route.routeCode} - {route.name}
                     </option>
                   ))}
               </select>
@@ -135,12 +160,14 @@ export default function ApprovalModal({
                 placeholder="e.g., 50"
                 className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:outline-none"
                 style={{ borderColor: BORDER_COLOR }}
-                value={approvalData.bagLimit > 0 ? approvalData.bagLimit : ""}
+                value={
+                  approvalData.bagLimit !== "" ? approvalData.bagLimit : ""
+                }
                 onChange={(e) => {
                   const val = e.target.value;
                   setApprovalData({
                     ...approvalData,
-                    bagLimit: val !== "" && Number(val) > 0 ? Number(val) : "",
+                    bagLimit: val === "" ? "" : Number(val),
                   });
                 }}
               />
@@ -166,21 +193,23 @@ export default function ApprovalModal({
           </button>
 
           <button
-            className="px-6 py-2 rounded-lg text-sm font-medium text-white transition"
+            className="px-6 py-2 rounded-lg text-sm font-medium text-white transition flex items-center justify-center"
             style={{
               backgroundColor: BTN_COLOR,
               opacity:
                 !approvalData.route ||
                 !approvalData.bagLimit ||
                 approvalData.bagLimit <= 0 ||
-                isNaN(approvalData.bagLimit)
+                isNaN(approvalData.bagLimit) ||
+                approveLoading
                   ? 0.5
                   : 1,
               cursor:
                 !approvalData.route ||
                 !approvalData.bagLimit ||
                 approvalData.bagLimit <= 0 ||
-                isNaN(approvalData.bagLimit)
+                isNaN(approvalData.bagLimit) ||
+                approveLoading
                   ? "not-allowed"
                   : "pointer",
             }}
@@ -189,9 +218,13 @@ export default function ApprovalModal({
               !approvalData.route ||
               !approvalData.bagLimit ||
               approvalData.bagLimit <= 0 ||
-              isNaN(approvalData.bagLimit)
+              isNaN(approvalData.bagLimit) ||
+              approveLoading
             }
           >
+            {approveLoading && (
+              <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-white border-solid mr-2"></span>
+            )}
             Confirm Approval
           </button>
         </div>
