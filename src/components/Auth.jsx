@@ -35,7 +35,6 @@ export default function Auth() {
       const token = await userCredential.user.getIdToken();
       const res = await loginWithFirebaseToken(token);
       setUser(res.data);
-      console.log(res.data);
       localStorage.setItem("userId", res.data.userId);
       const role = res.data.role;
       setLoading(false);

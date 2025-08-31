@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-// Import your auth context/hook (adjust path as needed)
-import { useAuth } from "../../../contexts/AuthContext";
 import {
   getApprovedSupplierDetails,
   getSupplierRequestDetails,
@@ -24,13 +22,7 @@ const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
 
 export default function SupplierDetailsPage() {
-  const { user } = useAuth(); // Get user info from context/hook
-  // State for NIC image URL
   const [nicImageUrl, setNicImageUrl] = useState("");
-
-  // Define your authorization logic (adjust as needed)
-  const isAuthorized =
-    user?.role === "FACTORY_MANAGER" || user?.role === "OWNER";
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,8 +44,6 @@ export default function SupplierDetailsPage() {
     subject: "",
     message: "",
   });
-  console.log("NIC IMAGE URL:", nicImageUrl);
-  console.log("IS AUTHORIZED:", isAuthorized);
 
   // Fetch NIC image URL only if authorized and supplier is loaded
   useEffect(() => {
@@ -98,7 +88,8 @@ export default function SupplierDetailsPage() {
     setApprovalError("");
     setError("");
     try {
-      await approveSupplierRequest(supplier.id, approvalData.route);
+      // Always pass bagLimit as a number
+      await approveSupplierRequest(supplier.id, approvalData.route, Number(approvalData.bagLimit));
       setSupplier({
         ...supplier,
         status: "approved",
