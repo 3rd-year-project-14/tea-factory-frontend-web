@@ -17,9 +17,7 @@ export const approveSupplierRequest = async (id, routeId, initialBagCount) => {
 
 // Reject supplier request
 export const rejectSupplierRequest = async (id, reason) => {
-  return axios.post(`/supplier-requests/${id}/reject`, null, {
-    params: { reason },
-  });
+  return axios.post(`/supplier-requests/${id}/reject`, { reason });
 };
 
 // Get approved suppliers for a factory

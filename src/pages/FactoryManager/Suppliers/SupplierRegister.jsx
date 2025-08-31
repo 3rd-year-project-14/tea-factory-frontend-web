@@ -28,37 +28,40 @@ export default function SupplierRegister() {
   const { user } = useAuth();
   const factoryId = user?.factoryId;
 
-  useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const data = await getSupplierCounts(factoryId);
-        if (data.status === 404 && data.message) {
-          setMetrics({ approved: 0, pending: 0, rejected: 0 });
-          console.error(data.message);
-        } else {
-          setMetrics({
-            approved: data.activeSupplierCount,
-            pending: data.pendingRequestCount,
-            rejected: data.rejectedRequestCount,
-          });
-        }
-      } catch (error) {
+  const fetchCounts = useCallback(async () => {
+    if (!factoryId) return;
+    try {
+      const data = await getSupplierCounts(factoryId);
+      if (data.status === 404 && data.message) {
         setMetrics({ approved: 0, pending: 0, rejected: 0 });
-        if (error.response?.data?.message) {
-          console.error(error.response.data.message);
-        } else {
-          console.error("Error fetching supplier counts:", error);
-        }
+        console.error(data.message);
+      } else {
+        setMetrics({
+          approved: data.activeSupplierCount,
+          pending: data.pendingRequestCount,
+          rejected: data.rejectedRequestCount,
+        });
       }
-    };
-    if (factoryId) fetchCounts();
-  }, [factoryId, currentView]);
+    } catch (error) {
+      setMetrics({ approved: 0, pending: 0, rejected: 0 });
+      if (error.response?.data?.message) {
+        console.error(error.response.data.message);
+      } else {
+        console.error("Error fetching supplier counts:", error);
+      }
+    }
+  }, [factoryId]);
+
+  useEffect(() => {
+    fetchCounts();
+  }, [fetchCounts]);
 
   const handleApproveSupplierRequest = async (id, routeId, bagLimit) => {
     try {
       const initialBagCount = Number(bagLimit);
       await approveSupplierRequest(id, routeId, initialBagCount);
       fetchTableData(currentView);
+      await fetchCounts();
     } catch (error) {
       console.error("Error approving supplier request:", error);
     }
@@ -69,6 +72,7 @@ export default function SupplierRegister() {
     try {
       await rejectSupplierRequest(id, reason);
       fetchTableData(currentView);
+      await fetchCounts();
     } catch (error) {
       console.error("Error rejecting supplier request:", error);
     }
