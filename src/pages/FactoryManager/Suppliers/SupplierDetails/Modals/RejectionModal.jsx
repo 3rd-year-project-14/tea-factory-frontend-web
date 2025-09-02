@@ -1,11 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-
 
 const BORDER_COLOR = "#cfece6";
 const HEADER_BG = "#e1f4ef";
 const ACCENT_GREEN = "#165E52";
-
 
 export default function RejectionModal({
   show,
@@ -15,6 +13,7 @@ export default function RejectionModal({
   setRejectionReason,
   onRejectSupplierRequest,
 }) {
+  const [rejectLoading, setRejectLoading] = useState(false);
   useEffect(() => {
     if (show) {
       document.body.style.overflow = "hidden";
@@ -26,16 +25,18 @@ export default function RejectionModal({
     };
   }, [show]);
 
-
   if (!show) return null;
-
 
   const handleConfirm = async () => {
     if (!rejectionReason.trim()) return;
-    await onRejectSupplierRequest(supplier.id, rejectionReason);
-    onClose();
+    setRejectLoading(true);
+    try {
+      await onRejectSupplierRequest(supplier.id, rejectionReason);
+      onClose();
+    } finally {
+      setRejectLoading(false);
+    }
   };
-
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/30 overflow-hidden">
@@ -44,7 +45,10 @@ export default function RejectionModal({
         style={{ borderColor: BORDER_COLOR }}
       >
         {/* Header */}
-        <div className="p-6 border-b flex items-center space-x-3" style={{ borderColor: BORDER_COLOR, backgroundColor: HEADER_BG }}>
+        <div
+          className="p-6 border-b flex items-center space-x-3"
+          style={{ borderColor: BORDER_COLOR, backgroundColor: HEADER_BG }}
+        >
           <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
             <X className="w-5 h-5 text-red-600" />
           </div>
@@ -52,7 +56,6 @@ export default function RejectionModal({
             Reject Supplier Registration
           </h2>
         </div>
-
 
         {/* Body */}
         <div className="p-6">
@@ -62,9 +65,10 @@ export default function RejectionModal({
               Are you sure you want to reject the registration request from{" "}
               <strong>{supplier.name}</strong>?
             </p>
-            <p className="text-sm text-red-600 mt-2">This action cannot be undone.</p>
+            <p className="text-sm text-red-600 mt-2">
+              This action cannot be undone.
+            </p>
           </div>
-
 
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700 mb-2">
@@ -84,7 +88,6 @@ export default function RejectionModal({
           </div>
         </div>
 
-
         {/* Footer */}
         <div
           className="flex gap-3 justify-end p-6 border-t"
@@ -103,13 +106,20 @@ export default function RejectionModal({
           </button>
           <button
             onClick={handleConfirm}
-            disabled={!rejectionReason.trim()}
-            className="px-6 py-2 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-50"
+            disabled={!rejectionReason.trim() || rejectLoading}
+            className="px-6 py-2 rounded-lg text-sm font-medium text-white transition-colors flex items-center justify-center disabled:opacity-50"
             style={{
               backgroundColor: "#d90429",
-              cursor: rejectionReason.trim() ? "pointer" : "not-allowed",
+              cursor:
+                !rejectionReason.trim() || rejectLoading
+                  ? "not-allowed"
+                  : "pointer",
+              opacity: !rejectionReason.trim() || rejectLoading ? 0.5 : 1,
             }}
           >
+            {rejectLoading && (
+              <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-white border-solid mr-2"></span>
+            )}
             Confirm Rejection
           </button>
         </div>
@@ -117,6 +127,3 @@ export default function RejectionModal({
     </div>
   );
 }
-
-
-

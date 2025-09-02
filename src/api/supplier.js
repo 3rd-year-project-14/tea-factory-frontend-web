@@ -10,28 +10,33 @@ export const getSupplierCounts = async (factoryId) => {
 export const approveSupplierRequest = async (id, routeId, initialBagCount) => {
   const body = {
     routeId: Number(routeId),
-    initialBagCount: Number(initialBagCount)
+    initialBagCount: Number(initialBagCount),
   };
   return axios.post(`/supplier-requests/${id}/approve`, body);
 };
 
 // Reject supplier request
 export const rejectSupplierRequest = async (id, reason) => {
-  return axios.post(`/supplier-requests/${id}/reject`, null, {
-    params: { reason },
-  });
+  return axios.post(`/supplier-requests/${id}/reject`, { reason });
 };
 
 // Get approved suppliers for a factory
-export const getApprovedSuppliers = async (factoryId) => {
-  const res = await axios.get(`/suppliers/active/factory/${factoryId}`);
+export const getApprovedSuppliers = async (factoryId, params = {}) => {
+  const res = await axios.get(`/suppliers/active/factory/${factoryId}`, {
+    params,
+  });
   return res.data;
 };
 
 // Get supplier requests by status (pending/rejected) for a factory
-export const getSupplierRequestsByStatus = async (factoryId, status) => {
+export const getSupplierRequestsByStatus = async (
+  factoryId,
+  status,
+  params = {}
+) => {
   const res = await axios.get(
-    `/supplier-requests/factory/${factoryId}/status/${status}`
+    `/supplier-requests/factory/${factoryId}/status/${status}`,
+    { params }
   );
   return res.data;
 };
