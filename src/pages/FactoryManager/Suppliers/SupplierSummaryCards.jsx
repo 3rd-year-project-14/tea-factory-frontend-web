@@ -5,30 +5,14 @@ export default function SupplierSummaryCards({
   currentView,
   setCurrentView,
 }) {
-  const getBorderColor = (type) => {
-    switch (type) {
-      case "approved":
-        return "#000000";
-      case "pending":
-        return "#f59e0b";
-      case "rejected":
-        return "#ef4444";
-      default:
-        return "#d1d5db"; // default gray-300
-    }
-  };
+  // All cards use the same border color
+  const borderColor = "#165E52";
 
+  // All cards use the same ring color for active/selected state
+  // Enhance active card focus: stronger ring, scale, and shadow
   const getRingClass = (type) => {
-    if (type === "approved") return ""; // No ring for approved
     if (currentView === type) {
-      switch (type) {
-        case "pending":
-          return "ring-2 ring-[#f59e0b]/30";
-        case "rejected":
-          return "ring-2 ring-[#ef4444]/30";
-        default:
-          return "";
-      }
+      return "ring-4 ring-[#165E52]/60 scale-[1.04] shadow-lg z-10";
     }
     return "";
   };
@@ -62,11 +46,11 @@ export default function SupplierSummaryCards({
           <div
             key={card.type}
             onClick={() => setCurrentView(card.type)}
-            className={`bg-white p-6 rounded-lg shadow-md cursor-pointer transition-transform ${
+            className={`bg-white p-6 rounded-lg shadow-md cursor-pointer transition-transform duration-200 ${
               !isApproved ? "hover:scale-[1.02]" : "hover:shadow-none"
             } ${getRingClass(card.type)}`}
             style={{
-              border: `1px solid ${getBorderColor(card.type)}`,
+              border: `1px solid ${borderColor}`,
             }}
           >
             <div className="flex items-center justify-between">

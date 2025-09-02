@@ -1,10 +1,12 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect, useCallback } from "react";
 import {
   getSupplierCounts,
   approveSupplierRequest,
   rejectSupplierRequest,
   getApprovedSuppliers,
   getSupplierRequestsByStatus,
+  getRoutesDetails
 } from "../../../api/supplier";
 import SupplierHeader from "./SupplierHeader.jsx";
 import SupplierSummaryCards from "./SupplierSummaryCards.jsx";
@@ -15,19 +17,49 @@ import { useAuth } from "../../../contexts/AuthContext.jsx";
 const ACCENT_COLOR = "#165E52";
 
 export default function SupplierRegister() {
+  const { user } = useAuth();
+  const factoryId = user?.factoryId;
+
+  // State
   const [suppliers, setSuppliers] = useState([]);
   const [metrics, setMetrics] = useState({
     approved: 0,
     pending: 0,
     rejected: 0,
   });
-  const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({ search: "", status: "all" });
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    search: "",
+    status: "all",
+    route: "",
+  });
+  const [routes, setRoutes] = useState([]);
+  // Fetch routes for the factory
+  useEffect(() => {
+    if (!factoryId) return;
+    const fetchRoutes = async () => {
+      try {
+        const data = await getRoutesDetails(factoryId);
+        setRoutes(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setRoutes([]);
+        console.error("Error fetching routes:", err);
+      }
+    };
+    fetchRoutes();
+  }, [factoryId]);
   const [showFilters, setShowFilters] = useState(false);
   const [currentView, setCurrentView] = useState("approved");
-  const { user } = useAuth();
-  const factoryId = user?.factoryId;
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalElements, setTotalElements] = useState(0);
+  const [isFirstPage, setIsFirstPage] = useState(false);
+  const [isLastPage, setIsLastPage] = useState(false);
 
+  // Debounce timer
+  const [searchTimer, setSearchTimer] = useState(null);
+
+  // Fetch supplier counts
   const fetchCounts = useCallback(async () => {
     if (!factoryId) return;
     try {
@@ -44,11 +76,10 @@ export default function SupplierRegister() {
       }
     } catch (error) {
       setMetrics({ approved: 0, pending: 0, rejected: 0 });
-      if (error.response?.data?.message) {
-        console.error(error.response.data.message);
-      } else {
-        console.error("Error fetching supplier counts:", error);
-      }
+      console.error(
+        error.response?.data?.message || "Error fetching supplier counts:",
+        error
+      );
     }
   }, [factoryId]);
 
@@ -56,119 +87,140 @@ export default function SupplierRegister() {
     fetchCounts();
   }, [fetchCounts]);
 
+  // Approve handler
   const handleApproveSupplierRequest = async (id, routeId, bagLimit) => {
     try {
-      const initialBagCount = Number(bagLimit);
-      await approveSupplierRequest(id, routeId, initialBagCount);
-      fetchTableData(currentView);
+      await approveSupplierRequest(id, routeId, Number(bagLimit));
       await fetchCounts();
+      fetchTableData(currentView, page);
     } catch (error) {
       console.error("Error approving supplier request:", error);
     }
   };
 
-  // API: Reject Supplier
+  // Reject handler
   const handleRejectSupplierRequest = async (id, reason) => {
     try {
       await rejectSupplierRequest(id, reason);
-      fetchTableData(currentView);
       await fetchCounts();
+      fetchTableData(currentView, page);
     } catch (error) {
       console.error("Error rejecting supplier request:", error);
     }
   };
 
-  // Table data load
+  // Fetch table data (unmount-safe)
   const fetchTableData = useCallback(
-    async (view) => {
+    async (view, currentPage = 0, customFilters) => {
+      if (!factoryId) return;
+      let isMounted = true;
       setLoading(true);
       setSuppliers([]);
 
       try {
-        let data = [];
-        if (view === "approved") {
-          data = await getApprovedSuppliers(factoryId);
-        } else if (view === "pending" || view === "rejected") {
-          data = await getSupplierRequestsByStatus(factoryId, view);
+        let data;
+        const activeFilters = customFilters || filters;
+        const params = { page: currentPage, search: activeFilters.search };
+        if (activeFilters.route) {
+          params.routeId = activeFilters.route;
         }
-        console.log("Raw fetched data:", data);
-        let mapped = [];
 
         if (view === "approved") {
-          mapped = data.map((item) => ({
-            id: item.supplierId || null,
-            name: item.supplierName || null,
-            routeName: item.routeName || null,
-            approvedDate: item.approvedDate || null,
-          }));
-        } else {
-          mapped = data.map((item) => ({
-            id: item.supplierRequestId || null,
-            name: item.name || "N/A",
-            monthlySupply: item.monthlySupply || null,
-            supplierCreatedDate: item.requestDate || null,
-            rejectedDate: item.rejectedDate || null,
-            status: view,
-          }));
+          data = await getApprovedSuppliers(factoryId, {
+            ...params,
+            sort: "approvedDate,desc",
+          });
+        } else if (view === "pending" || view === "rejected") {
+          data = await getSupplierRequestsByStatus(factoryId, view, {
+            ...params,
+            sort: "requestedDate,desc",
+          });
         }
+
+        if (!isMounted) return;
+
+        setTotalElements(data.totalElements || 0);
+        setPageSize(data.size || data.pageable?.pageSize || 10);
+        setIsFirstPage(data.first ?? false);
+        setIsLastPage(data.last ?? false);
+
+        const items = Array.isArray(data.content) ? data.content : [];
+        const mapped =
+          view === "approved"
+            ? items.map((item) => ({
+                id: item.supplierId || null,
+                name: item.supplierName || null,
+                routeName: item.routeName || null,
+                approvedDate: item.approvedDate || null,
+              }))
+            : items.map((item) => ({
+                id: item.supplierRequestId || null,
+                name: item.name || "N/A",
+                monthlySupply: item.monthlySupply || null,
+                supplierCreatedDate: item.requestDate || null,
+                rejectedDate: item.rejectedDate || null,
+                status: view,
+              }));
+
         setSuppliers(mapped);
-        console.log("Mapped supplier data:", mapped);
       } catch (error) {
         setSuppliers([]);
-        if (error.response?.data?.message) {
-          // TODO: Replace with a toast or custom UI notification
-          console.error(error.response.data.message);
-        } else {
-          console.error("Error fetching supplier table data:", error);
-        }
+        console.error(
+          error.response?.data?.message ||
+            "Error fetching supplier table data:",
+          error
+        );
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
+
+      return () => {
+        isMounted = false;
+      };
     },
-    [factoryId]
+    [factoryId, filters]
   );
+
+  // Handle view change
+  const handleViewChange = (view) => {
+    setLoading(true);
+    setCurrentView(view);
+    setPage(0);
+    setFilters({ search: "", status: "all", route: "" });
+  };
+
+  // Clear filters on mount (refresh)
+  useEffect(() => {
+    setFilters({ search: "", status: "all", route: "" });
+    setPage(0);
+    // eslint-disable-next-line
+  }, []);
+
+  // Debounced fetch on filter/search change
+  useEffect(() => {
+    if (searchTimer) clearTimeout(searchTimer);
+
+    const timer = setTimeout(() => {
+      fetchTableData(currentView, 0);
+    }, 500); // 500ms debounce
+
+    setSearchTimer(timer);
+
+    return () => clearTimeout(timer);
+  }, [filters.route, filters.search, currentView, fetchTableData]);
 
   // Filters
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const clearFilters = () => {
-    setFilters({ search: "", status: "all" });
-  };
-
-  const handleViewChange = (view) => {
-    setCurrentView(view);
-    // fetchTableData will be triggered by useEffect below
-  };
-
-  useEffect(() => {
-    fetchTableData(currentView);
-  }, [currentView, fetchTableData]);
-
-  // Apply search + status filter
-  const filteredSuppliers = useMemo(() => {
-    return suppliers.filter((supplier) => {
-      const matchesSearch =
-        supplier.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        supplier.nic?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        supplier.phone?.includes(filters.search) ||
-        supplier.location
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase()) ||
-        supplier.email?.toLowerCase().includes(filters.search.toLowerCase());
-
-      if (currentView === "pending" || currentView === "rejected") {
-        return matchesSearch && supplier.status === currentView;
-      }
-
-      const matchesStatus =
-        filters.status === "all" || supplier.status === filters.status;
-
-      return matchesSearch && matchesStatus;
+    setFilters((prev) => {
+      const updated = { ...prev, [name]: value };
+      if (name === "route") setPage(0);
+      return updated;
     });
-  }, [suppliers, filters, currentView]);
+  };
+
+  const clearFilters = () =>
+    setFilters({ search: "", status: "all", route: "" });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -187,6 +239,8 @@ export default function SupplierRegister() {
           clearFilters={clearFilters}
           showFilters={showFilters}
           setShowFilters={setShowFilters}
+          routes={routes}
+          showRouteFilter={currentView === "approved"}
         />
 
         {loading ? (
@@ -198,8 +252,14 @@ export default function SupplierRegister() {
           </div>
         ) : (
           <SupplierTable
-            filteredSuppliers={filteredSuppliers}
+            filteredSuppliers={suppliers}
             currentView={currentView}
+            page={page}
+            size={pageSize}
+            totalElements={totalElements}
+            first={isFirstPage}
+            last={isLastPage}
+            onPageChange={setPage}
             onApproveSupplierRequest={handleApproveSupplierRequest}
             onRejectSupplierRequest={handleRejectSupplierRequest}
           />
