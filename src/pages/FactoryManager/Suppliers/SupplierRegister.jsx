@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   getSupplierCounts,
   approveSupplierRequest,
   rejectSupplierRequest,
   getApprovedSuppliers,
   getSupplierRequestsByStatus,
-  getRoutesDetails
+  getRoutesDetails,
 } from "../../../api/supplier";
 import SupplierHeader from "./SupplierHeader.jsx";
 import SupplierSummaryCards from "./SupplierSummaryCards.jsx";
@@ -56,8 +56,8 @@ export default function SupplierRegister() {
   const [isFirstPage, setIsFirstPage] = useState(false);
   const [isLastPage, setIsLastPage] = useState(false);
 
-  // Debounce timer
-  const [searchTimer, setSearchTimer] = useState(null);
+  // Debounce ref
+  const debounceRef = useRef();
 
   // Fetch supplier counts
   const fetchCounts = useCallback(async () => {
@@ -92,7 +92,7 @@ export default function SupplierRegister() {
     try {
       await approveSupplierRequest(id, routeId, Number(bagLimit));
       await fetchCounts();
-      fetchTableData(currentView, page);
+      // No need to call fetchTableData directly; effect will run due to dependency change
     } catch (error) {
       console.error("Error approving supplier request:", error);
     }
@@ -103,7 +103,7 @@ export default function SupplierRegister() {
     try {
       await rejectSupplierRequest(id, reason);
       await fetchCounts();
-      fetchTableData(currentView, page);
+      // No need to call fetchTableData directly; effect will run due to dependency change
     } catch (error) {
       console.error("Error rejecting supplier request:", error);
     }
@@ -183,7 +183,6 @@ export default function SupplierRegister() {
 
   // Handle view change
   const handleViewChange = (view) => {
-    setLoading(true);
     setCurrentView(view);
     setPage(0);
     setFilters({ search: "", status: "all", route: "" });
@@ -193,21 +192,20 @@ export default function SupplierRegister() {
   useEffect(() => {
     setFilters({ search: "", status: "all", route: "" });
     setPage(0);
-    // eslint-disable-next-line
   }, []);
 
-  // Debounced fetch on filter/search change
+  // Debounced fetch on filter/search/view/page change
   useEffect(() => {
-    if (searchTimer) clearTimeout(searchTimer);
-
-    const timer = setTimeout(() => {
-      fetchTableData(currentView, 0);
+    if (!factoryId) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setLoading(true);
+    debounceRef.current = setTimeout(() => {
+      fetchTableData(currentView, page);
     }, 500); // 500ms debounce
-
-    setSearchTimer(timer);
-
-    return () => clearTimeout(timer);
-  }, [filters.route, filters.search, currentView, fetchTableData]);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [filters.route, filters.search, currentView, page, factoryId, fetchTableData]);
 
   // Filters
   const handleFilterChange = (e) => {
@@ -217,6 +215,7 @@ export default function SupplierRegister() {
       if (name === "route") setPage(0);
       return updated;
     });
+    if (name !== "route") setPage(0); // Reset page on any filter change
   };
 
   const clearFilters = () =>
@@ -241,6 +240,7 @@ export default function SupplierRegister() {
           setShowFilters={setShowFilters}
           routes={routes}
           showRouteFilter={currentView === "approved"}
+          currentView={currentView}
         />
 
         {loading ? (
