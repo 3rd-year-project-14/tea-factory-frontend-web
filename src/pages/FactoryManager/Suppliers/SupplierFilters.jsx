@@ -6,13 +6,14 @@ const BORDER_COLOR = "#cfece6";
 const BG_LIGHT_GREEN = "#e1f4ef";
 
 export default function SupplierFilters({
-  filters = {}, // <-- Default to empty object
+  filters = {},
   handleFilterChange,
   clearFilters,
   showFilters,
   setShowFilters,
   routes = [],
   showRouteFilter = false,
+  currentView = "approved",
 }) {
   return (
     <div
@@ -28,7 +29,11 @@ export default function SupplierFilters({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
-                placeholder="Search by supplier name or ID..."
+                placeholder={
+                  currentView === "approved"
+                    ? "Search supplier by name or ID..."
+                    : "Search supplier by name..."
+                }
                 name="search"
                 value={filters?.search || ""}
                 onChange={handleFilterChange}
