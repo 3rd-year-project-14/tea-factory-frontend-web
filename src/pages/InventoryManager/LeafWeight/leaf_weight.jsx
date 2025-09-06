@@ -3,60 +3,111 @@ import { Search, Truck, Package, CheckCircle } from "lucide-react";
 import { useNavigate, Outlet, useMatch, useLocation } from "react-router-dom";
 
 import { useAuth } from "../../../contexts/AuthContext";
+import {
+  // getLeafWeightTrips,
+  getTripsByFactoryAndStatus,
+  getTripStatusCounts,
+} from "../../../api/inventoryManager/leafWeight";
 
 export default function Route() {
+  // immediate input value
+  const [searchInput, setSearchInput] = useState("");
+  // debounced value used for API calls
   const [searchTerm, setSearchTerm] = useState("");
   const [currentView, setCurrentView] = useState("arrived");
   const navigate = useNavigate();
   const { user } = useAuth();
   const factoryId = user?.factoryId;
   const [trips, setTrips] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [counts, setCounts] = useState(null);
   const location = useLocation();
 
+  // Load trips when factoryId, view, page, searchTerm or location changes
   useEffect(() => {
     if (!factoryId) return;
-    fetch(`http://localhost:8080/api/inventory-process/factory/${factoryId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTrips(Array.isArray(data) ? data : []);
-        console.log("Fetched trips:", data);
-      })
-      .catch((err) => {
+    let mounted = true;
+    const loadTrips = async () => {
+      try {
+        // use server-side status filtered endpoint
+        const status = currentView === "completed" ? "weighed" : currentView;
+        const data = await getTripsByFactoryAndStatus(
+          factoryId,
+          status,
+          page,
+          searchTerm
+        );
+        if (!mounted) return;
+        // backend returns pageable response with `content` and pagination meta
+        setTrips(Array.isArray(data.content) ? data.content : []);
+        setTotalPages(
+          typeof data.totalPages === "number" ? data.totalPages : 0
+        );
+        setTotalElements(
+          typeof data.totalElements === "number" ? data.totalElements : 0
+        );
+        console.log("Fetched trips (paged):", data);
+      } catch (err) {
         console.error("Error fetching trip details:", err);
-      });
-  }, [factoryId, location.key]);
+      }
+    };
 
-  const arrivedTrips = trips.filter((trip) => trip.tripStatus === "arrived");
-  const completedTrips = trips.filter((trip) => trip.tripStatus === "weighed");
-  const pendingTrips = trips.filter(
-    (trip) => trip.tripStatus === "pending" || trip.tripStatus === "collected"
-  );
+    loadTrips();
+    return () => {
+      mounted = false;
+    };
+  }, [factoryId, location.key, currentView, page, searchTerm]);
 
-  // Filtered for table: show arrived, completed, or pending
-  let filteredTrips = [];
-  if (currentView === "arrived") filteredTrips = arrivedTrips;
-  else if (currentView === "completed") filteredTrips = completedTrips;
-  else filteredTrips = pendingTrips;
+  // Load counts only when factoryId changes
+  useEffect(() => {
+    if (!factoryId) return;
+    let mounted = true;
+    const loadCounts = async () => {
+      try {
+        const data = await getTripStatusCounts(factoryId);
+        if (!mounted) return;
+        setCounts(data || null);
+        console.log("Fetched trip counts:", data);
+      } catch (err) {
+        console.error("Error fetching trip counts:", err);
+      }
+    };
 
-  // Optionally, add search filter
-  const searchedTrips = filteredTrips.filter(
-    (trip) =>
-      (trip.routeName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (trip.driverName || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    loadCounts();
+    return () => {
+      mounted = false;
+    };
+  }, [factoryId]);
+
+  // trips now contains server-side filtered content for the selected status
+  const searchedTrips = trips;
+
+  // debounce searchInput -> searchTerm to avoid calling API on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => setSearchTerm(searchInput.trim()), 500);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   const handleArrivedRoutesClick = () => {
     setCurrentView("arrived");
+    setPage(0);
+    setSearchInput("");
     setSearchTerm("");
   };
 
   const handleCompletedRoutesClick = () => {
     setCurrentView("completed");
+    setPage(0);
+    setSearchInput("");
     setSearchTerm("");
   };
 
   const handlePendingRoutesClick = () => {
     setCurrentView("pending");
+    setPage(0);
+    setSearchInput("");
     setSearchTerm("");
   };
 
@@ -104,7 +155,9 @@ export default function Route() {
                           : "text-black-800"
                       }`}
                     >
-                      {arrivedTrips.length}
+                      {counts && typeof counts.arrivedCount === "number"
+                        ? counts.arrivedCount
+                        : 0}
                     </p>
                     <p
                       className={`text-xs ${
@@ -155,7 +208,9 @@ export default function Route() {
                           : "text-black-800"
                       }`}
                     >
-                      {pendingTrips.length}
+                      {counts && typeof counts.pendingCount === "number"
+                        ? counts.pendingCount
+                        : 0}
                     </p>
                     <p
                       className={`text-xs ${
@@ -206,7 +261,9 @@ export default function Route() {
                           : "text-black-800"
                       }`}
                     >
-                      {completedTrips.length}
+                      {counts && typeof counts.weighedCount === "number"
+                        ? counts.weighedCount
+                        : 0}
                     </p>
                     <p
                       className={`text-xs ${
@@ -250,8 +307,11 @@ export default function Route() {
                   <input
                     type="text"
                     placeholder="Search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => {
+                      setSearchInput(e.target.value);
+                      setPage(0); // reset to first page on search
+                    }}
                     className="w-64 pl-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                   />
                   <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
@@ -276,7 +336,7 @@ export default function Route() {
               </div>
 
               <div className="divide-y divide-gray-200">
-                {searchedTrips.length > 0 ? (
+                {searchedTrips && searchedTrips.length > 0 ? (
                   searchedTrips.map((trip, index) => {
                     let rowContent;
                     if (currentView === "completed") {
@@ -295,7 +355,7 @@ export default function Route() {
                             {trip.bagCount}
                           </div>
                           <div className="text-gray-900 text-center">
-                            {trip.totalGrossWeight || "-"}
+                            {trip.grossWeight || "-"}
                           </div>
                         </>
                       );
@@ -352,15 +412,15 @@ export default function Route() {
                           key={trip.tripId || index}
                           className="grid gap-4 p-4 items-center grid-cols-4 hover:bg-gray-50 cursor-pointer"
                           onClick={() =>
-                              navigate(`route/${trip.tripId}`, {
-                                state: {
-                                  routeId: trip.routeId,
-                                  routeName: trip.routeName,
-                                  driverName: trip.driverName,
-                                  currentView,
-                                  sessionId: trip.sessionId,
-                                },
-                              })
+                            navigate(`route/${trip.tripId}`, {
+                              state: {
+                                routeId: trip.routeId,
+                                routeName: trip.routeName,
+                                driverName: trip.driverName,
+                                currentView,
+                                sessionId: trip.sessionId,
+                              },
+                            })
                           }
                         >
                           {rowContent}
@@ -373,6 +433,31 @@ export default function Route() {
                     No trips found.
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between mt-3">
+              <div className="text-sm text-gray-600">
+                Page {page + 1} of {totalPages} — {totalElements} items
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-1 bg-white border rounded disabled:opacity-50"
+                  disabled={page <= 0}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                >
+                  Previous
+                </button>
+                <button
+                  className="px-3 py-1 bg-white border rounded disabled:opacity-50"
+                  disabled={page + 1 >= totalPages}
+                  onClick={() =>
+                    setPage((p) => Math.min(totalPages - 1, p + 1))
+                  }
+                >
+                  Next
+                </button>
               </div>
             </div>
           </>

@@ -8,6 +8,13 @@ import {
   useParams,
 } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+import {
+  getTripDetails,
+  getWeighingSessionByTrip,
+  getPendingBagsForTrip,
+  getBagWeightsBySession,
+  createWeighingSession,
+} from "../../../api/inventoryManager/leafWeight";
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,71 +43,81 @@ export default function DriverRoute() {
   // Always fetch latest data when this page is shown or navigated to
   useEffect(() => {
     if (!tripId) return;
+    let mounted = true;
     // Always fetch trip details and session first
-    fetch(`http://localhost:8080/api/trips/${tripId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTripDetails(data);
-      })
-      .catch((err) => {
-        setTripDetails(null);
+    const load = async () => {
+      try {
+        const data = await getTripDetails(tripId);
+        if (mounted) setTripDetails(data);
+      } catch (err) {
+        if (mounted) setTripDetails(null);
         console.error("Error fetching trip details for tripId", tripId, err);
-      });
-    fetch(`http://localhost:8080/api/weighing-sessions/trip/${tripId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.sessionId) {
-          setSession(data);
+      }
+
+      try {
+        const sessionData = await getWeighingSessionByTrip(tripId);
+        if (!mounted) return;
+        if (sessionData && sessionData.sessionId) {
+          setSession(sessionData);
         } else {
           setSession(null);
         }
-      })
-      .catch((err) => {
-        setSession(null);
+      } catch (err) {
+        if (mounted) setSession(null);
         console.error(
           "Error fetching weighing session for tripId",
           tripId,
           err
         );
-      });
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
   }, [location.key, tripId]);
 
   // Fetch bags or supplier summary depending on status
   useEffect(() => {
     if (!tripDetails || !tripId) return;
-    if (view === "arrived") {
-      // Arrived view: fetch bags
-      fetch(
-        `http://localhost:8080/api/inventory-process/trip/${tripId}/bags/pending`
-      )
-        .then((res) => res.json())
-        .then((data) => {
+    let mounted = true;
+    const load = async () => {
+      if (view === "arrived") {
+        // Arrived view: fetch bags
+        try {
+          const data = await getPendingBagsForTrip(tripId);
+          if (!mounted) return;
           setBags(Array.isArray(data) ? data : []);
-        })
-        .catch((err) => {
-          setBags([]);
+        } catch (err) {
+          if (mounted) setBags([]);
           console.error("Error fetching bags for tripId", tripId, err);
-        });
-      setSupplierSummary([]);
-    } else {
-      // Completed view: fetch supplier summary using sessionId
-      const sessionId = session?.sessionId;
-      if (!sessionId) return;
-      fetch(`http://localhost:8080/api/bagweights/session/${sessionId}`)
-        .then((res) => res.json())
-        .then((data) => {
+        }
+        if (mounted) setSupplierSummary([]);
+      } else {
+        // Completed view: fetch supplier summary using sessionId
+        const sessionId = session?.sessionId;
+        if (!sessionId) return;
+        try {
+          const data = await getBagWeightsBySession(sessionId);
+          if (!mounted) return;
           setSupplierSummary(Array.isArray(data) ? data : []);
-        })
-        .catch((err) => {
-          setSupplierSummary([]);
+        } catch (err) {
+          if (mounted) setSupplierSummary([]);
           console.error(
             "Error fetching supplier summary for sessionId",
             sessionId,
             err
           );
-        });
-      setBags([]);
-    }
+        }
+        if (mounted) setBags([]);
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
   }, [tripDetails, session, tripId, view]);
 
   // Summary cards: use bags for arrived, supplierSummary for completed
@@ -286,7 +303,20 @@ export default function DriverRoute() {
                         const supplierBags = bags.filter(
                           (b) => b.supplierId === bag.supplierId
                         );
-                        const supplyRequestId = bag.supplyRequestId;
+                        const supplyRequestId =
+                          bag.supplyRequestId ??
+                          bag.supply_request_id ??
+                          bag.supplyRequest?.id ??
+                          bag.supplyRequest?.supplyRequestId ??
+                          bag.supplyRequest?.supplyRequestID ??
+                          bag.supplyRequest?.requestId ??
+                          null;
+                        if (supplyRequestId == null) {
+                          console.warn(
+                            "supplyRequestId not found on bag, available keys:",
+                            Object.keys(bag)
+                          );
+                        }
                         const sessionId = session?.sessionId;
                         if (!session) {
                           setConfirmPopup({
@@ -442,24 +472,13 @@ export default function DriverRoute() {
                         setConfirmPopup({ open: false });
                         let newSessionId = null;
                         try {
-                          const response = await fetch(
-                            "http://localhost:8080/api/weighing-sessions",
-                            {
-                              method: "POST",
-                              headers: {
-                                "Content-Type": "application/json",
-                              },
-                              body: JSON.stringify({
-                                userId: user?.userId,
-                                tripId: tripId,
-                              }),
-                            }
-                          );
-                          if (!response.ok) {
-                            throw new Error("Failed to create session");
-                          }
-                          const data = await response.json();
-                          newSessionId = data.sessionId;
+                          const data = await createWeighingSession({
+                            userId: user?.userId,
+                            tripId: tripId,
+                          });
+                          // backend may return sessionId directly or an object
+                          newSessionId =
+                            data?.sessionId || (data && data.sessionId) || null;
                         } catch (error) {
                           console.error(
                             "Error creating weighing session:",

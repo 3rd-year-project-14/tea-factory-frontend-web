@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Search, Users, Package, Scale } from "lucide-react";
 import {
+  getWeighedBagsForTrip,
+  getBagWeightsBySession,
+} from "../../../api/inventoryManager/bagWeight";
+import {
   useNavigate,
   Outlet,
   useMatch,
@@ -33,10 +37,7 @@ export default function DriverRoute() {
     setError(null);
     if (currentView === "weighed") {
       // Weighed view: fetch bags
-      fetch(
-        `http://localhost:8080/api/inventory-process/trip/${tripId}/bags/weighed`
-      )
-        .then((res) => res.json())
+      getWeighedBagsForTrip(tripId)
         .then((data) => {
           setSuppliers(
             Array.isArray(data)
@@ -62,8 +63,7 @@ export default function DriverRoute() {
         setLoading(false);
         return;
       }
-      fetch(`http://localhost:8080/api/bagweights/session/${sessionId}`)
-        .then((res) => res.json())
+      getBagWeightsBySession(sessionId)
         .then((data) => {
           setSuppliers(
             Array.isArray(data)

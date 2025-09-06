@@ -1,62 +1,111 @@
 import React, { useState, useEffect } from "react";
 import { Search, Truck, Package, CheckCircle } from "lucide-react";
-import { useNavigate, Outlet, useMatch } from "react-router-dom";
+import { useNavigate, Outlet, useMatch, useLocation } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+// use the server-side paged endpoint used by leaf_weight
+import {
+  getTripsByFactoryAndStatus,
+  getTripStatusCounts,
+} from "../../../api/inventoryManager/leafWeight";
 
 export default function Route() {
+  // immediate input value
+  const [searchInput, setSearchInput] = useState("");
+  // debounced value used for API calls
   const [searchTerm, setSearchTerm] = useState("");
   const [currentView, setCurrentView] = useState("weighed"); // "weighed", "arrived", "completed"
   const navigate = useNavigate();
   const { user } = useAuth();
   const factoryId = user?.factoryId;
   const [trips, setTrips] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [counts, setCounts] = useState(null);
+  const location = useLocation();
 
+  // Load trips when factoryId, view, page, searchTerm or location changes
   useEffect(() => {
     if (!factoryId) return;
-    fetch(`http://localhost:8080/api/inventory-process/factory/${factoryId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTrips(Array.isArray(data) ? data : []);
-      })
-      .catch((err) => {
+    let mounted = true;
+    const loadTrips = async () => {
+      try {
+        // status: map 'completed' view to the server's 'weighed' status if needed
+        const status = currentView;
+        const data = await getTripsByFactoryAndStatus(
+          factoryId,
+          status,
+          page,
+          searchTerm
+        );
+        if (!mounted) return;
+        // backend returns pageable response with `content` and pagination meta
+        setTrips(Array.isArray(data.content) ? data.content : []);
+        setTotalPages(
+          typeof data.totalPages === "number" ? data.totalPages : 0
+        );
+        setTotalElements(
+          typeof data.totalElements === "number" ? data.totalElements : 0
+        );
+        console.log("Fetched bag weight trips (paged):", data);
+      } catch (err) {
         console.error("Error fetching trip details:", err);
-      });
+      }
+    };
+
+    loadTrips();
+    return () => {
+      mounted = false;
+    };
+  }, [factoryId, location.key, currentView, page, searchTerm]);
+
+  // fetch status counts separately when factoryId changes
+  useEffect(() => {
+    if (!factoryId) return;
+    let mounted = true;
+    const loadCounts = async () => {
+      try {
+        const data = await getTripStatusCounts(factoryId);
+        if (!mounted) return;
+        setCounts(data || null);
+      } catch (err) {
+        console.error("Error fetching trip counts:", err);
+      }
+    };
+
+    loadCounts();
+    return () => {
+      mounted = false;
+    };
   }, [factoryId]);
-  // Filter trips by status
-  const weighedTrips = trips.filter((trip) => trip.tripStatus === "weighed");
-  const arrivedTrips = trips.filter((trip) => trip.tripStatus === "arrived");
-  const completedTrips = trips.filter(
-    (trip) => trip.tripStatus === "completed"
-  );
 
-  // Table data based on current view
-  let filteredTrips = [];
-  if (currentView === "weighed") filteredTrips = weighedTrips;
-  else if (currentView === "arrived") filteredTrips = arrivedTrips;
-  else filteredTrips = completedTrips;
+  // trips is now server-side filtered/paged content for the selected status
+  const searchedTrips = trips;
 
-  // Search filter
-  const searchedTrips = filteredTrips.filter(
-    (trip) =>
-      (trip.routeName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (trip.driverName || "")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      (trip.vehicleNo || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // debounce searchInput -> searchTerm to avoid calling API on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => setSearchTerm(searchInput.trim()), 500);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   const handleWeighedRoutesClick = () => {
     setCurrentView("weighed");
+    setPage(0);
+    setSearchInput("");
     setSearchTerm("");
   };
 
   const handleArrivedRoutesClick = () => {
     setCurrentView("arrived");
+    setPage(0);
+    setSearchInput("");
     setSearchTerm("");
   };
 
   const handleCompletedRoutesClick = () => {
     setCurrentView("completed");
+    setPage(0);
+    setSearchInput("");
     setSearchTerm("");
   };
 
@@ -104,7 +153,7 @@ export default function Route() {
                           : "text-black-800"
                       }`}
                     >
-                      {weighedTrips.length}
+                      {counts?.weighedCount ?? 0}
                     </p>
                     <p
                       className={`text-xs ${
@@ -155,7 +204,7 @@ export default function Route() {
                           : "text-black-800"
                       }`}
                     >
-                      {arrivedTrips.length}
+                      {counts?.arrivedCount ?? 0}
                     </p>
                     <p
                       className={`text-xs ${
@@ -206,7 +255,7 @@ export default function Route() {
                           : "text-black-800"
                       }`}
                     >
-                      {completedTrips.length}
+                      {counts?.completedCount ?? 0}
                     </p>
                     <p
                       className={`text-xs ${
@@ -265,8 +314,11 @@ export default function Route() {
                   <input
                     type="text"
                     placeholder="Search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => {
+                      setSearchInput(e.target.value);
+                      setPage(0);
+                    }}
                     className="w-64 pl-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                   />
                   <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
@@ -371,7 +423,8 @@ export default function Route() {
                           !isArrived ? "hover:bg-gray-50 cursor-pointer" : ""
                         }`}
                         {...(!isArrived && {
-                          onClick: () => navigate(`route/${trip.tripId}`, {
+                          onClick: () =>
+                            navigate(`route/${trip.tripId}`, {
                               state: {
                                 routeId: trip.routeId,
                                 routeName: trip.routeName,
@@ -392,6 +445,30 @@ export default function Route() {
                     No {currentView} routes found matching your search.
                   </div>
                 )}
+              </div>
+            </div>
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between mt-3">
+              <div className="text-sm text-gray-600">
+                Page {page + 1} of {totalPages} — {totalElements} items
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-1 bg-white border rounded disabled:opacity-50"
+                  disabled={page <= 0}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                >
+                  Previous
+                </button>
+                <button
+                  className="px-3 py-1 bg-white border rounded disabled:opacity-50"
+                  disabled={page + 1 >= totalPages}
+                  onClick={() =>
+                    setPage((p) => Math.min(totalPages - 1, p + 1))
+                  }
+                >
+                  Next
+                </button>
               </div>
             </div>
           </>
