@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Package, CheckCircle, Scale, BarChart2 } from "lucide-react";
+import {
+  getBagWeightIdBySupplyRequest,
+  createBagWeights,
+  updateBagWeights,
+} from "../../../api/inventoryManager/leafWeight";
 
 export default function Supplier() {
   const navigate = useNavigate();
@@ -28,44 +33,33 @@ export default function Supplier() {
   console.log("supplyRequestId:", supplyRequestId);
 
   // Reusable function to fetch bagWeightId
-  const fetchBagWeightId = React.useCallback(() => {
-    if (!supplyRequestId) return;
-    fetch(
-      `http://localhost:8080/api/inventory-process/supply-request/${supplyRequestId}/bagweight-id`
-    )
-      .then(async (response) => {
-        if (!response.ok) return null;
-        const text = await response.text();
-        console.log("Response text (bagWeightId):", text);
-        if (!text) return null;
-        try {
-          return JSON.parse(text);
-        } catch (e) {
-          console.error("Invalid JSON response for bagWeightId:", e);
-          return null;
-        }
-      })
-      .then((data) => {
-        if (
-          (Array.isArray(data) && data.length === 0) ||
-          (typeof data === "object" &&
-            data !== null &&
-            Object.keys(data).length === 0)
-        ) {
-          setBagWeightId(null);
-          console.log("No bagWeightId found for this supplyRequestId.");
-        } else if (data) {
-          setBagWeightId(data);
-          console.log("bagWeightId exists:", data);
-        } else {
-          setBagWeightId(null);
-          console.log("No bagWeightId found for this supplyRequestId.");
-        }
-      })
-      .catch((error) => {
+  const fetchBagWeightId = React.useCallback(async () => {
+    if (!supplyRequestId) {
+      setBagWeightId(null);
+      return;
+    }
+    try {
+      const data = await getBagWeightIdBySupplyRequest(supplyRequestId);
+      console.log("bagWeightId response:", data);
+      if (
+        (Array.isArray(data) && data.length === 0) ||
+        (typeof data === "object" &&
+          data !== null &&
+          Object.keys(data).length === 0)
+      ) {
         setBagWeightId(null);
-        console.error("Error checking bagWeightId:", error);
-      });
+        console.log("No bagWeightId found for this supplyRequestId.");
+      } else if (data) {
+        setBagWeightId(data);
+        console.log("bagWeightId exists:", data);
+      } else {
+        setBagWeightId(null);
+        console.log("No bagWeightId found for this supplyRequestId.");
+      }
+    } catch (error) {
+      setBagWeightId(null);
+      console.error("Error checking bagWeightId:", error);
+    }
   }, [supplyRequestId]);
 
   // Fetch bagWeightId when supplyRequestId is available
@@ -94,10 +88,15 @@ export default function Supplier() {
 
   // Removed unused handleLeafTypeChange
 
-  const handleEnter = () => {
+  const handleEnter = async () => {
+    // Build payload and omit supplyRequestId if it's undefined/null
     const payload = {
-      supplyRequestId: supplyRequestId ? Number(supplyRequestId) : null,
-      sessionId: sessionId ? Number(sessionId) : null,
+      ...(supplyRequestId !== undefined && supplyRequestId !== null
+        ? { supplyRequestId: Number(supplyRequestId) }
+        : {}),
+      ...(sessionId !== undefined && sessionId !== null
+        ? { sessionId: Number(sessionId) }
+        : {}),
       bagNumbers: selectedBags.map((b) => String(b)),
       coarse: parseFloat(coarseWeight) || 0,
       water: parseFloat(waterWeight) || 0,
@@ -107,46 +106,28 @@ export default function Supplier() {
     };
     console.log("Payload to send:", payload);
     console.log(bagWeightId);
-    const url = bagWeightId
-      ? `http://localhost:8080/api/bagweights/${bagWeightId}`
-      : "http://localhost:8080/api/bagweights";
-    const method = bagWeightId ? "PUT" : "POST";
-
-    fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to send data");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Success:", data);
-        // Mark selected bags as weighed
-        setTeaBags((prevBags) =>
-          prevBags.map((bag) =>
-            selectedBags.includes(bag.bagNumber)
-              ? { ...bag, weighed: true }
-              : bag
-          )
-        );
-        setSelectedBags([]); 
-        setSelectedBagsWeight("");
-        setWaterWeight("");
-        setCoarseWeight("");
-        setOtherWeight("");
-        setOtherWeightReason("");
-        fetchBagWeightId();
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        // Optionally show error message
-      });
+    try {
+      const data = bagWeightId
+        ? await updateBagWeights(bagWeightId, payload)
+        : await createBagWeights(payload);
+      console.log("Success:", data);
+      // Mark selected bags as weighed
+      setTeaBags((prevBags) =>
+        prevBags.map((bag) =>
+          selectedBags.includes(bag.bagNumber) ? { ...bag, weighed: true } : bag
+        )
+      );
+      setSelectedBags([]);
+      setSelectedBagsWeight("");
+      setWaterWeight("");
+      setCoarseWeight("");
+      setOtherWeight("");
+      setOtherWeightReason("");
+      fetchBagWeightId();
+    } catch (error) {
+      console.error("Error:", error);
+      // Optionally show error message
+    }
   };
 
   const selectedBagsTotal = teaBags

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Package, CheckCircle, Scale } from "lucide-react";
+import {
+  getBagWeightIdBySupplyRequest,
+  updateEmptyBagTare,
+} from "../../../api/inventoryManager/bagWeight";
 
 export default function Supplier() {
   const location = useLocation();
@@ -25,13 +29,8 @@ export default function Supplier() {
 
   useEffect(() => {
     if (!supplyRequestId) return;
-    fetch(
-      `http://localhost:8080/api/inventory-process/supply-request/${supplyRequestId}/bagweight-id`
-    )
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data) => {
-        setBagWeightId(data ? data : null);
-      })
+    getBagWeightIdBySupplyRequest(supplyRequestId)
+      .then((data) => setBagWeightId(data ? data : null))
       .catch(() => setBagWeightId(null));
   }, [supplyRequestId]);
   console.log("Bag Weight ID:", bagWeightId);
@@ -54,15 +53,8 @@ export default function Supplier() {
       tareWeight: selectedBagsWeight,
     };
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/inventory-process/empty-bag/${bagWeightId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-      if (!response.ok) throw new Error("Failed to submit data");
+      await updateEmptyBagTare(bagWeightId, payload);
+      // assume success if no exception thrown
       setApiSuccess(true);
       setSubmitted(false); // Re-enable button for back action
       setSelectedBagsWeight(""); // Clear bag weight after success
