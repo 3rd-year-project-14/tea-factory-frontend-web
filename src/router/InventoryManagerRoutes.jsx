@@ -34,7 +34,7 @@ export default [
     }
   >
     <Route path="route/:tripId" element={<RouteLeaf />}>
-      <Route path="supplier/:supplierId" element={<LeafBagsWeight />} />
+      <Route path="supplier/:supplyRequestId" element={<LeafBagsWeight />} />
     </Route>
   </Route>,
 

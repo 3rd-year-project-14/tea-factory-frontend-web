@@ -1,11 +1,5 @@
 import axios from "../axios";
 
-// Get all inventory process trips for a factory (bag weight view)
-export const getBagWeightTrips = async (factoryId) => {
-  const res = await axios.get(`/inventory-process/factory/${factoryId}`);
-  return res.data;
-};
-
 // Get weighed bags for a trip (weighed view)
 export const getWeighedBagsForTrip = async (tripId) => {
   const res = await axios.get(`/inventory-process/trip/${tripId}/bags/weighed`);

@@ -1,11 +1,5 @@
 import axios from "../axios";
 
-// Get all inventory process trips for a factory
-export const getLeafWeightTrips = async (factoryId) => {
-  const res = await axios.get(`/inventory-process/factory/${factoryId}`);
-  return res.data;
-};
-
 // Get trip details by tripId
 export const getTripDetails = async (tripId) => {
   const res = await axios.get(`/trips/${tripId}`);
@@ -24,9 +18,19 @@ export const getPendingBagsForTrip = async (tripId) => {
   return res.data;
 };
 
-// Get bag weights summary by sessionId (completed view)
-export const getBagWeightsBySession = async (sessionId) => {
-  const res = await axios.get(`/bagweights/session/${sessionId}`);
+// Get paginated bag weights by sessionId (completed view)
+// Supports pagination, search, and status param (should be 'weighed')
+// GET /bagweights/session/{sessionId}/paged?page=0&search=foo&status=weighed
+export const getBagWeightsBySession = async (
+  sessionId,
+  page = 0,
+  search = ""
+) => {
+  const params = { page, status: "weighed" };
+  if (search) params.search = search;
+  const res = await axios.get(`/bagweights/session/${sessionId}/paged`, {
+    params,
+  });
   return res.data;
 };
 
@@ -85,6 +89,60 @@ export const getTripsByFactoryAndStatus = async (
     `/trips/factory/${factoryId}/status/${status}/today`,
     {
       params,
+    }
+  );
+  return res.data;
+};
+
+// Get trip summary for cards in 'arrived' view
+// GET /inventory-process/trip/{tripId}/summary
+export const getTripSummary = async (tripId) => {
+  const res = await axios.get(`/inventory-process/trip/${tripId}/summary`);
+  return res.data;
+};
+
+// Get paginated bags for a trip (arrived view)
+// GET /trip-bags/trip/{tripId}/today?page=0&search=bagNo
+export const getPaginatedBagsForTrip = async (
+  tripId,
+  page = 0,
+  search = ""
+) => {
+  const params = { page };
+  if (search) params.search = search;
+  const res = await axios.get(`/trip-bags/trip/${tripId}/today`, { params });
+  return res.data;
+};
+
+// Get trip weighing summary for 'completed' view
+// GET /inventory-process/trip/{tripId}/weighing-summary?status={status}
+export const getTripWeighingSummary = async (tripId, status = "weighed") => {
+  const res = await axios.get(
+    `/inventory-process/trip/${tripId}/weighing-summary`,
+    { params: { status } }
+  );
+  return res.data;
+};
+
+// Get supplier info by supplyRequestId
+// GET /trip-bags/supplier-info/by-supply-request/{supplyRequestId}
+export const getSupplierInfoBySupplyRequest = async (supplyRequestId) => {
+  const res = await axios.get(
+    `/trip-bags/supplier-info/by-supply-request/${supplyRequestId}`
+  );
+  return res.data;
+};
+
+// Get bag details by supplyRequestId and status
+// GET /trip-bags/by-supply-request/{supplyRequestId}/details?status={status}
+export const getBagDetailsBySupplyRequest = async (
+  supplyRequestId,
+  status = "pending"
+) => {
+  const res = await axios.get(
+    `/trip-bags/by-supply-request/${supplyRequestId}/details`,
+    {
+      params: { status },
     }
   );
   return res.data;

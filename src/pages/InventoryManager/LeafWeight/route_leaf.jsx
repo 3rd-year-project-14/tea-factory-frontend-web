@@ -8,43 +8,42 @@ import {
   useParams,
 } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+import PaginationControls from "../../../components/ui/PaginationControls";
 import {
   getTripDetails,
-  getWeighingSessionByTrip,
-  getPendingBagsForTrip,
+  getPaginatedBagsForTrip,
   getBagWeightsBySession,
   createWeighingSession,
+  getTripSummary,
+  getTripWeighingSummary,
 } from "../../../api/inventoryManager/leafWeight";
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState("");
   const [bags, setBags] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
   const [tripDetails, setTripDetails] = useState(null);
-  const [session, setSession] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
+  const [sessionUserId, setSessionUserId] = useState(null);
   const [supplierSummary, setSupplierSummary] = useState([]); // For completed view
+  const [cardStats, setCardStats] = useState(null); // holds { totalSuppliers, totalBags, totalWeight }
   const [confirmPopup, setConfirmPopup] = useState({
     open: false,
     supplierBags: null,
-    supplierId: null,
-    supplierName: null,
   });
   const navigate = useNavigate();
   const location = useLocation();
   const { routeId, routeName, driverName, currentView } = location.state || {};
   const view = currentView;
-  console.log("Route details:", {
-    routeId,
-    routeName,
-    driverName,
-    currentView: view,
-  });
   const { tripId } = useParams();
   const { user } = useAuth();
+
   // Always fetch latest data when this page is shown or navigated to
   useEffect(() => {
     if (!tripId) return;
     let mounted = true;
-    // Always fetch trip details and session first
     const load = async () => {
       try {
         const data = await getTripDetails(tripId);
@@ -55,20 +54,16 @@ export default function DriverRoute() {
       }
 
       try {
-        const sessionData = await getWeighingSessionByTrip(tripId);
+        const summaryData = await getTripSummary(tripId);
         if (!mounted) return;
-        if (sessionData && sessionData.sessionId) {
-          setSession(sessionData);
-        } else {
-          setSession(null);
-        }
+        setCardStats(summaryData || null);
+        setSessionId(summaryData?.sessionId || null);
+        setSessionUserId(summaryData?.userId || null);
       } catch (err) {
-        if (mounted) setSession(null);
-        console.error(
-          "Error fetching weighing session for tripId",
-          tripId,
-          err
-        );
+        setCardStats(null);
+        setSessionId(null);
+        setSessionUserId(null);
+        console.error("Error fetching trip summary for tripId", tripId, err);
       }
     };
 
@@ -78,70 +73,132 @@ export default function DriverRoute() {
     };
   }, [location.key, tripId]);
 
-  // Fetch bags or supplier summary depending on status
+  // Fetch paginated bags for arrived view (depends on search/page)
   useEffect(() => {
-    if (!tripDetails || !tripId) return;
+    if (!tripDetails || !tripId || view !== "arrived") return;
     let mounted = true;
-    const load = async () => {
-      if (view === "arrived") {
-        // Arrived view: fetch bags
-        try {
-          const data = await getPendingBagsForTrip(tripId);
-          if (!mounted) return;
-          setBags(Array.isArray(data) ? data : []);
-        } catch (err) {
-          if (mounted) setBags([]);
-          console.error("Error fetching bags for tripId", tripId, err);
-        }
-        if (mounted) setSupplierSummary([]);
-      } else {
-        // Completed view: fetch supplier summary using sessionId
-        const sessionId = session?.sessionId;
-        if (!sessionId) return;
-        try {
-          const data = await getBagWeightsBySession(sessionId);
-          if (!mounted) return;
-          setSupplierSummary(Array.isArray(data) ? data : []);
-        } catch (err) {
-          if (mounted) setSupplierSummary([]);
-          console.error(
-            "Error fetching supplier summary for sessionId",
-            sessionId,
-            err
-          );
-        }
+    const loadBags = async () => {
+      try {
+        const bagsPage = await getPaginatedBagsForTrip(
+          tripId,
+          page,
+          searchTerm
+        );
+        if (!mounted) return;
+        setBags(Array.isArray(bagsPage.content) ? bagsPage.content : []);
+        setTotalPages(
+          typeof bagsPage.totalPages === "number" ? bagsPage.totalPages : 0
+        );
+        setTotalElements(
+          typeof bagsPage.totalElements === "number"
+            ? bagsPage.totalElements
+            : 0
+        );
+      } catch (err) {
         if (mounted) setBags([]);
+        setTotalPages(0);
+        setTotalElements(0);
+        console.error("Error fetching bags for tripId", tripId, err);
       }
+      if (mounted) setSupplierSummary([]);
     };
-
-    load();
+    loadBags();
     return () => {
       mounted = false;
     };
-  }, [tripDetails, session, tripId, view]);
+  }, [tripDetails, tripId, view, page, searchTerm]);
+
+  // Completed view: fetch paginated supplier summary and weighing summary for cards
+  useEffect(() => {
+    if (!tripDetails || !tripId || view === "arrived") return;
+    let mounted = true;
+    const loadCompleted = async () => {
+      try {
+        const [supplierDataPage, weighSummary] = await Promise.all([
+          sessionId
+            ? getBagWeightsBySession(sessionId, page, searchTerm)
+            : Promise.resolve({ content: [], totalPages: 0, totalElements: 0 }),
+          getTripWeighingSummary(tripId, "weighed"),
+        ]);
+        if (!mounted) return;
+        setSupplierSummary(
+          Array.isArray(supplierDataPage.content)
+            ? supplierDataPage.content
+            : []
+        );
+        setTotalPages(
+          typeof supplierDataPage.totalPages === "number"
+            ? supplierDataPage.totalPages
+            : 0
+        );
+        setTotalElements(
+          typeof supplierDataPage.totalElements === "number"
+            ? supplierDataPage.totalElements
+            : 0
+        );
+        setCardStats(weighSummary || null);
+      } catch (err) {
+        if (mounted) setSupplierSummary([]);
+        setTotalPages(0);
+        setTotalElements(0);
+        setCardStats(null);
+        console.error(
+          "Error fetching supplier/weight summary for tripId",
+          tripId,
+          err
+        );
+      }
+      if (mounted) setBags([]);
+    };
+    loadCompleted();
+    return () => {
+      mounted = false;
+    };
+  }, [tripDetails, sessionId, tripId, view, page, searchTerm]);
 
   // Summary cards: use bags for arrived, supplierSummary for completed
-  const totalSuppliers =
+  // Use API-provided cardStats when available, otherwise compute from local arrays
+  const computedTotalSuppliers =
     view === "arrived"
       ? [...new Set(bags.map((b) => b.supplierId))].length
       : supplierSummary.length;
-  const totalBags =
+  const computedTotalBags =
     view === "arrived"
       ? bags.length
-      : supplierSummary.reduce((sum, s) => sum + (s.bagTotal || 0), 0);
-  const totalWeight =
+      : supplierSummary.reduce((sum, s) => sum + (Number(s.bagTotal) || 0), 0);
+  const computedTotalWeight =
     view === "arrived"
-      ? bags.reduce((sum, b) => sum + b.driverWeight, 0)
-      : supplierSummary.reduce((sum, s) => sum + (s.grossWeight || 0), 0);
+      ? bags.reduce((sum, b) => sum + (Number(b.driverWeight) || 0), 0)
+      : supplierSummary.reduce(
+          (sum, s) => sum + (Number(s.grossWeight) || 0),
+          0
+        );
 
-  const filteredBags = bags.filter((b) =>
-    String(b.bagNumber).toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const filteredSuppliers = supplierSummary.filter(
-    (s) =>
-      (s.supplierName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      String(s.supplierId).toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const totalSuppliers =
+    cardStats && view === "arrived"
+      ? Number(cardStats.supplierRequestCount || cardStats.totalSuppliers || 0)
+      : cardStats && view !== "arrived"
+      ? Number(cardStats.totalSuppliers || 0)
+      : computedTotalSuppliers;
+
+  const totalBags =
+    cardStats && view === "arrived"
+      ? Number(cardStats.totalBags || 0)
+      : cardStats && view !== "arrived"
+      ? Number(cardStats.totalBags || 0)
+      : computedTotalBags;
+
+  const totalWeight =
+    cardStats && view === "arrived"
+      ? Number(cardStats.totalWeight || 0)
+      : cardStats && view !== "arrived"
+      ? Number(cardStats.totalGrossWeight || cardStats.totalWeight || 0)
+      : computedTotalWeight;
+
+  // Bags are already filtered by searchTerm from API
+  const filteredBags = bags;
+  // supplierSummary is already paginated and filtered by search from API
+  const filteredSuppliers = supplierSummary;
 
   const isBase = useMatch("/inventoryManager/leaf_weight/route/:routeId");
 
@@ -300,55 +357,20 @@ export default function DriverRoute() {
                         qualityColor = "#f59e42";
                       }
                       const handleBagClick = () => {
-                        const supplierBags = bags.filter(
-                          (b) => b.supplierId === bag.supplierId
-                        );
-                        const supplyRequestId =
-                          bag.supplyRequestId ??
-                          bag.supply_request_id ??
-                          bag.supplyRequest?.id ??
-                          bag.supplyRequest?.supplyRequestId ??
-                          bag.supplyRequest?.supplyRequestID ??
-                          bag.supplyRequest?.requestId ??
-                          null;
-                        if (supplyRequestId == null) {
-                          console.warn(
-                            "supplyRequestId not found on bag, available keys:",
-                            Object.keys(bag)
-                          );
-                        }
-                        const sessionId = session?.sessionId;
-                        if (!session) {
+                        const supplyRequestId = bag.supplyRequestId ?? null;
+
+                        if (!sessionId) {
                           setConfirmPopup({
                             open: true,
-                            supplierBags,
-                            supplierId: bag.supplierId,
-                            supplierName: bag.supplierName,
                             supplyRequestId,
-                            sessionId,
+                            tripId,
                           });
-                        } else if (
-                          session.userId === user?.userId &&
-                          session.status === "pending"
-                        ) {
-                          navigate(`supplier/${bag.supplierId}`, {
-                            state: {
-                              supplierBags,
-                              supplierId: bag.supplierId,
-                              supplierName: bag.supplierName,
-                              supplyRequestId,
-                              sessionId,
-                            },
+                        } else if (sessionUserId === user?.userId) {
+                          navigate(`supplier/${supplyRequestId}`, {
+                            state: { sessionId, tripId },
                           });
                         } else {
-                          setConfirmPopup({
-                            open: "session",
-                            supplierBags,
-                            supplierId: bag.supplierId,
-                            supplierName: bag.supplierName,
-                            supplyRequestId,
-                            sessionId,
-                          });
+                          setConfirmPopup({ open: "session" });
                         }
                       };
                       return (
@@ -358,10 +380,10 @@ export default function DriverRoute() {
                           className="grid grid-cols-3 gap-4 p-4 text-center hover:bg-gray-200 cursor-pointer transition"
                         >
                           <div className="font-medium text-[#01251F]">
-                            {bag.bagNumber}
+                            {bag.bagNo || bag.bagNumber}
                           </div>
                           <div className="font-medium text-[#165E52]">
-                            {bag.driverWeight}
+                            {bag.weight || bag.driverWeight}
                           </div>
                           <div
                             className="font-medium"
@@ -382,6 +404,15 @@ export default function DriverRoute() {
                         </div>
                       )}
                   </div>
+                  {/* Pagination Controls for current view (arrived) */}
+                  {view === "arrived" && tripDetails?.status !== "weighed" && (
+                    <PaginationControls
+                      page={page}
+                      totalPages={totalPages}
+                      totalElements={totalElements}
+                      setPage={setPage}
+                    />
+                  )}
                   {/* Show 'All bags weighed' only in arrived view and if status is weighed */}
                   {tripDetails?.status === "weighed" && (
                     <div className="flex flex-col items-center justify-center py-12">
@@ -436,6 +467,15 @@ export default function DriverRoute() {
                       </div>
                     )}
                   </div>
+                  {/* Pagination Controls for completed view */}
+                  {view !== "arrived" && (
+                    <PaginationControls
+                      page={page}
+                      totalPages={totalPages}
+                      totalElements={totalElements}
+                      setPage={setPage}
+                    />
+                  )}
                 </>
               )}
             </div>
@@ -476,22 +516,17 @@ export default function DriverRoute() {
                             userId: user?.userId,
                             tripId: tripId,
                           });
-                          // backend may return sessionId directly or an object
-                          newSessionId =
-                            data?.sessionId || (data && data.sessionId) || null;
+                          newSessionId = data?.sessionId;
                         } catch (error) {
                           console.error(
                             "Error creating weighing session:",
                             error
                           );
-                          // Optionally show error to user
                         }
-                        navigate(`supplier/${confirmPopup.supplierId}`, {
+                        navigate(`supplier/${confirmPopup.supplyRequestId}`, {
                           state: {
-                            supplierBags: confirmPopup.supplierBags,
-                            supplierId: confirmPopup.supplierId,
-                            supplierName: confirmPopup.supplierName,
                             sessionId: newSessionId,
+                            tripId: confirmPopup.tripId,
                           },
                         });
                       }}

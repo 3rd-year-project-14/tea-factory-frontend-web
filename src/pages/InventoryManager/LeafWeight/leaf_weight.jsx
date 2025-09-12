@@ -4,7 +4,6 @@ import { useNavigate, Outlet, useMatch, useLocation } from "react-router-dom";
 
 import { useAuth } from "../../../contexts/AuthContext";
 import {
-  // getLeafWeightTrips,
   getTripsByFactoryAndStatus,
   getTripStatusCounts,
 } from "../../../api/inventoryManager/leafWeight";
@@ -398,7 +397,6 @@ export default function Route() {
                                 routeName: trip.routeName,
                                 driverName: trip.driverName,
                                 currentView,
-                                sessionId: trip.sessionId,
                               },
                             })
                           }

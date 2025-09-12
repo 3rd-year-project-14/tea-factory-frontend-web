@@ -30,13 +30,33 @@ export default function DriverRoute() {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [stats, setStats] = useState({ totalSuppliers: 0, totalBags: 0 });
 
   useEffect(() => {
     if (!tripId) return;
     setLoading(true);
     setError(null);
+    // Fetch stats summary for cards
+    import("../../../api/inventoryManager/leafWeight").then(
+      ({ getTripWeighingSummary }) => {
+        getTripWeighingSummary(tripId, currentView)
+          .then((summary) => {
+            setStats({
+              totalSuppliers: summary.totalSuppliers ?? 0,
+              totalBags: summary.totalBags ?? 0,
+            });
+            setLoading(false);
+          })
+          .catch((err) => {
+            setStats({ totalSuppliers: 0, totalBags: 0 });
+            setError(err.message);
+            setLoading(false);
+          });
+      }
+    );
+
+    // Fetch suppliers for main content (unchanged logic)
     if (currentView === "weighed") {
-      // Weighed view: fetch bags
       getWeighedBagsForTrip(tripId)
         .then((data) => {
           setSuppliers(
@@ -49,18 +69,11 @@ export default function DriverRoute() {
                 }))
               : []
           );
-          setLoading(false);
         })
-        .catch((err) => {
-          setSuppliers([]);
-          setError(err.message);
-          setLoading(false);
-        });
+        .catch(() => setSuppliers([]));
     } else if (currentView === "completed") {
-      // Completed view: fetch supplier summary using sessionId
       if (!sessionId) {
         setSuppliers([]);
-        setLoading(false);
         return;
       }
       getBagWeightsBySession(sessionId)
@@ -75,23 +88,13 @@ export default function DriverRoute() {
                 }))
               : []
           );
-          setLoading(false);
         })
-        .catch((err) => {
-          setSuppliers([]);
-          setError(err.message);
-          setLoading(false);
-        });
-    } else {
-      setError("Invalid view type");
-      setSuppliers([]);
-      setLoading(false);
+        .catch(() => setSuppliers([]));
     }
   }, [tripId, location.key, currentView, sessionId]);
 
-  const totalSuppliers = [...new Set(suppliers.map((s) => s.supplierId))]
-    .length;
-  const totalBags = suppliers.length;
+  const totalSuppliers = stats.totalSuppliers;
+  const totalBags = stats.totalBags;
 
   const filteredSuppliers = suppliers.filter((s) =>
     (s.bagNo || "").toLowerCase().includes(searchTerm.toLowerCase())
