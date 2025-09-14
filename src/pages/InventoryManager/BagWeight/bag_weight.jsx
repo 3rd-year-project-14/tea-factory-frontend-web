@@ -1,28 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { Search, Truck, Package, CheckCircle } from "lucide-react";
+import PaginationControls from "../../../components/ui/PaginationControls";
 import { useNavigate, Outlet, useMatch, useLocation } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
-// use the server-side paged endpoint used by leaf_weight
-import {
-  getTripsByFactoryAndStatus,
-  getTripStatusCounts,
-} from "../../../api/inventoryManager/leafWeight";
+import { getTripsByFactoryAndStatus, getTripStatusCounts } from "../../../api/inventoryManager/leafWeight";
 
 export default function Route() {
-  // immediate input value
   const [searchInput, setSearchInput] = useState("");
-  // debounced value used for API calls
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentView, setCurrentView] = useState("weighed"); // "weighed", "arrived", "completed"
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const factoryId = user?.factoryId;
+  const [currentView, setCurrentView] = useState("weighed");
   const [trips, setTrips] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [counts, setCounts] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const factoryId = user?.factoryId;
 
   // Load trips when factoryId, view, page, searchTerm or location changes
   useEffect(() => {
@@ -448,29 +443,12 @@ export default function Route() {
               </div>
             </div>
             {/* Pagination Controls */}
-            <div className="flex items-center justify-between mt-3">
-              <div className="text-sm text-gray-600">
-                Page {page + 1} of {totalPages} — {totalElements} items
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1 bg-white border rounded disabled:opacity-50"
-                  disabled={page <= 0}
-                  onClick={() => setPage((p) => Math.max(0, p - 1))}
-                >
-                  Previous
-                </button>
-                <button
-                  className="px-3 py-1 bg-white border rounded disabled:opacity-50"
-                  disabled={page + 1 >= totalPages}
-                  onClick={() =>
-                    setPage((p) => Math.min(totalPages - 1, p + 1))
-                  }
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+            <PaginationControls
+              page={page}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              setPage={setPage}
+            />
           </>
         )}
         <Outlet />

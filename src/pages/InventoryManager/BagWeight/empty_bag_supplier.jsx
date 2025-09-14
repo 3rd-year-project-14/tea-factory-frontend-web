@@ -1,107 +1,116 @@
-import React, { useState, useEffect } from "react";
-import { Search, Users, Package, Scale } from "lucide-react";
-import {
-  getWeighedBagsForTrip,
-  getBagWeightsBySession,
-} from "../../../api/inventoryManager/bagWeight";
-import {
-  useNavigate,
-  Outlet,
-  useMatch,
-  useLocation,
-  useParams,
-} from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Search, Users, Package } from "lucide-react";
+import { getWeighedBagsForTripPaginated } from "../../../api/inventoryManager/bagWeight";
+import { getTripWeighingSummary, getTripSummary, getBagWeightsBySession } from "../../../api/inventoryManager/leafWeight";
+import PaginationControls from "../../../components/ui/PaginationControls";
+import { useNavigate, Outlet, useMatch, useLocation, useParams } from "react-router-dom";
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState("");
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { routeId, routeName, driverName, currentView, sessionId } =
-    location.state || {};
-  console.log("Route Details:", {
-    routeId,
-    routeName,
-    driverName,
-    currentView,
-    sessionId,
-  });
-  const { tripId } = useParams();
-  console.log("Trip ID:", tripId);
-  const [suppliers, setSuppliers] = useState([]);
+  const [bags, setBags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [stats, setStats] = useState({ totalSuppliers: 0, totalBags: 0 });
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { routeId, routeName, driverName, currentView } = location.state || {};
+  const { tripId } = useParams();
 
   useEffect(() => {
     if (!tripId) return;
     setLoading(true);
     setError(null);
+    // Fetch stats summary for cards
+    getTripWeighingSummary(tripId, currentView)
+      .then((summary) => {
+        setStats({
+          totalSuppliers: summary.totalSuppliers ?? 0,
+          totalBags: summary.totalBags ?? 0,
+        });
+      })
+      .catch((err) => {
+        setStats({ totalSuppliers: 0, totalBags: 0 });
+        setError(err.message);
+      });
+
+    // Fetch bags for weighed view with pagination & search
     if (currentView === "weighed") {
-      // Weighed view: fetch bags
-      getWeighedBagsForTrip(tripId)
+      getWeighedBagsForTripPaginated(tripId, {
+        page,
+        size: 15,
+        search: searchTerm,
+      })
         .then((data) => {
-          setSuppliers(
-            Array.isArray(data)
-              ? data.map((item) => ({
-                  bagNo: item.bagNumber || "-",
-                  supplierId: item.supplierId || "-",
-                  supplierName: item.supplierName || "Unknown Supplier",
-                  supplyRequestId: item.supplyRequestId || "-",
-                }))
-              : []
-          );
-          setLoading(false);
+          setBags(Array.isArray(data.content) ? data.content : []);
+          setTotalPages(data.totalPages || 1);
+          setTotalElements(data.totalElements || 0);
         })
         .catch((err) => {
-          setSuppliers([]);
+          setBags([]);
+          setTotalPages(1);
+          setTotalElements(0);
           setError(err.message);
-          setLoading(false);
-        });
+        })
+        .finally(() => setLoading(false));
     } else if (currentView === "completed") {
-      // Completed view: fetch supplier summary using sessionId
-      if (!sessionId) {
-        setSuppliers([]);
-        setLoading(false);
-        return;
-      }
-      getBagWeightsBySession(sessionId)
-        .then((data) => {
-          setSuppliers(
-            Array.isArray(data)
-              ? data.map((item) => ({
-                  tareWeight: item.tareWeight,
-                  bagTotal: item.bagTotal || "-",
-                  supplierId: item.supplierId,
-                  supplierName: item.supplierName,
-                }))
-              : []
-          );
-          setLoading(false);
+      // Fetch sessionId from trip summary, then fetch paginated bag weights
+      getTripSummary(tripId)
+        .then((summary) => {
+          const sessionId = summary.sessionId;
+          console.log("Trip summary data:", summary);
+          console.log("Session ID:", sessionId);
+          if (!sessionId) {
+            setBags([]);
+            setTotalPages(1);
+            setTotalElements(0);
+            setLoading(false);
+            return;
+          }
+          // status should be 'completed' for completed view
+          getBagWeightsBySession(sessionId, "completed", page, searchTerm)
+            .then((data) => {
+              console.log("Completed view data:", data);
+              setBags(Array.isArray(data.content) ? data.content : []);
+              setTotalPages(data.totalPages || 1);
+              setTotalElements(data.totalElements || 0);
+            })
+            .catch(() => {
+              setBags([]);
+              setTotalPages(1);
+              setTotalElements(0);
+            })
+            .finally(() => setLoading(false));
         })
-        .catch((err) => {
-          setSuppliers([]);
-          setError(err.message);
+        .catch(() => {
+          setBags([]);
+          setTotalPages(1);
+          setTotalElements(0);
           setLoading(false);
         });
-    } else {
-      setError("Invalid view type");
-      setSuppliers([]);
-      setLoading(false);
     }
-  }, [tripId, location.key, currentView, sessionId]);
+  }, [tripId, location.key, currentView, page, searchTerm]);
 
-  const totalSuppliers = [...new Set(suppliers.map((s) => s.supplierId))]
-    .length;
-  const totalBags = suppliers.length;
-
-  const filteredSuppliers = suppliers.filter((s) =>
-    (s.bagNo || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  const totalSuppliers = stats.totalSuppliers;
+  const totalBags = stats.totalBags;
   const isBase = useMatch("/inventoryManager/empty_bags_weight/route/:routeId");
+
+  // For weighed view: split bags into up to 3 columns, each with up to 5 bags
+  const getColumns = (bagsList) => {
+    const columns = [[], [], []];
+    bagsList.forEach((bag, idx) => {
+      const colIdx = idx % 3;
+      if (columns[colIdx].length < 5) columns[colIdx].push(bag);
+    });
+    return columns.filter((col) => col.length > 0);
+  };
+
   return (
     <div className="h-full bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto space-y-5">
-        {loading && (
+        {loading && isBase && (
           <div className="bg-white p-4 rounded shadow text-center text-gray-600">
             Loading bag details...
           </div>
@@ -202,7 +211,10 @@ export default function DriverRoute() {
                   <input
                     type="text"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                      setPage(0); // Reset to first page on search
+                      setSearchTerm(e.target.value);
+                    }}
                     placeholder="Search"
                     className="w-full px-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50
                  focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent"
@@ -231,7 +243,7 @@ export default function DriverRoute() {
 
             {/* Main content changes by currentView */}
             {currentView === "weighed" ? (
-              suppliers.length === 0 ? (
+              totalElements === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="text-green-600 font-semibold text-lg mb-4">
                     All Bags Weighed
@@ -244,15 +256,11 @@ export default function DriverRoute() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[0, 1, 2].map((col) => {
-                    // Split filteredSuppliers into 3 columns
-                    const colBags = filteredSuppliers.filter(
-                      (_, idx) => idx % 3 === col
-                    );
-                    return (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {getColumns(bags).map((colBags, colIdx) => (
                       <div
-                        key={col}
+                        key={colIdx}
                         className="bg-white rounded-lg border overflow-hidden"
                         style={{ borderColor: "#cfece6" }}
                       >
@@ -260,30 +268,19 @@ export default function DriverRoute() {
                           Bag Numbers
                         </div>
                         <div>
-                          {colBags.map((supplier, idx) => (
+                          {colBags.map((bag, idx) => (
                             <div
                               key={idx}
                               onClick={() => {
-                                const bagsForSupplier = suppliers.filter(
-                                  (b) => b.supplierId === supplier.supplierId
-                                );
-                                navigate(`supplier/${supplier.supplierId}`, {
+                                navigate(`supplier/${bag.supplyRequestId}`, {
                                   state: {
-                                    supplierId: supplier.supplierId,
-                                    supplierName: supplier.supplierName,
-                                    supplyRequestId: supplier.supplyRequestId,
-                                    tripId,
-                                    sessionId,
-                                    routeId,
-                                    bags: bagsForSupplier.map((b) => ({
-                                      bagNo: b.bagNo,
-                                    })),
+                                    sessionId: bag.sessionId,
                                   },
                                 });
                               }}
                               className="p-4 text-center hover:bg-gray-50 cursor-pointer transition font-medium text-[#01251F] border-b last:border-b-0"
                             >
-                              {supplier.bagNo}
+                              {bag.bagNumber || bag.bagNo}
                             </div>
                           ))}
                           {colBags.length === 0 && (
@@ -293,12 +290,18 @@ export default function DriverRoute() {
                           )}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    ))}
+                  </div>
+                  <PaginationControls
+                    page={page}
+                    totalPages={totalPages}
+                    totalElements={totalElements}
+                    setPage={setPage}
+                  />
+                </>
               )
             ) : currentView === "completed" ? (
-              suppliers.length === 0 ? (
+              totalElements === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="text-green-600 font-semibold text-lg mb-4">
                     No supplier summary found
@@ -311,34 +314,42 @@ export default function DriverRoute() {
                   </button>
                 </div>
               ) : (
-                <div
-                  className="bg-white rounded-lg border overflow-hidden"
-                  style={{ borderColor: "#cfece6" }}
-                >
-                  <div className="bg-[#01251F] text-white grid grid-cols-4 gap-4 p-3 text-sm font-semibold text-center">
-                    <div>Supplier ID</div>
-                    <div>Supplier Name</div>
-                    <div>Total Bags</div>
-                    <div>Tare Weight</div>
-                  </div>
-                  <div className="divide-y divide-gray-100">
-                    {suppliers.map((s, idx) => (
-                      <div
-                        key={idx}
-                        className="grid grid-cols-4 gap-4 p-4 text-center"
-                      >
-                        <div className="font-medium text-[#01251F]">
-                          {s.supplierId}
+                <>
+                  <div
+                    className="bg-white rounded-lg border overflow-hidden"
+                    style={{ borderColor: "#cfece6" }}
+                  >
+                    <div className="bg-[#01251F] text-white grid grid-cols-4 gap-4 p-3 text-sm font-semibold text-center">
+                      <div>Supplier ID</div>
+                      <div>Supplier Name</div>
+                      <div>Total Bags</div>
+                      <div>Tare Weight</div>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                      {bags.map((s, idx) => (
+                        <div
+                          key={idx}
+                          className="grid grid-cols-4 gap-4 p-4 text-center"
+                        >
+                          <div className="font-medium text-[#01251F]">
+                            {s.supplierId}
+                          </div>
+                          <div className="font-medium text-[#165E52]">
+                            {s.supplierName}
+                          </div>
+                          <div className="font-medium">{s.bagTotal}</div>
+                          <div className="font-medium">{s.tareWeight}</div>
                         </div>
-                        <div className="font-medium text-[#165E52]">
-                          {s.supplierName}
-                        </div>
-                        <div className="font-medium">{s.bagTotal}</div>
-                        <div className="font-medium">{s.tareWeight}</div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                  <PaginationControls
+                    page={page}
+                    totalPages={totalPages}
+                    totalElements={totalElements}
+                    setPage={setPage}
+                  />
+                </>
               )
             ) : null}
             <Outlet />

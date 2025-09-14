@@ -1,18 +1,12 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Package, CheckCircle, Scale, BarChart2 } from "lucide-react";
-import {
-  getBagWeightIdBySupplyRequest,
-  createBagWeights,
-  updateBagWeights,
-} from "../../../api/inventoryManager/leafWeight";
+import { getBagWeightIdBySupplyRequest, createBagWeights, updateBagWeights, getSupplierInfoBySupplyRequest, getBagDetailsBySupplyRequest } from "../../../api/inventoryManager/leafWeight";
 
 export default function Supplier() {
-  const navigate = useNavigate();
+  const [enterLoading, setEnterLoading] = useState(false);
   const [selectedBags, setSelectedBags] = useState([]);
-
-  const location = useLocation();
   const [selectedBagsWeight, setSelectedBagsWeight] = useState("");
   const [waterWeight, setWaterWeight] = useState("");
   const [coarseWeight, setCoarseWeight] = useState("");
@@ -20,76 +14,60 @@ export default function Supplier() {
   const [otherWeightReason, setOtherWeightReason] = useState("");
   const [bagWeightId, setBagWeightId] = useState(null);
   const [bagSearch, setBagSearch] = useState("");
-  const {
-    supplierBags = [],
-    supplierId,
-    supplierName,
-    supplyRequestId,
-    sessionId,
-  } = location.state || {};
-  console.log("supplierBags:", supplierBags);
-  console.log("supplierId:", supplierId);
-  console.log("supplierName:", supplierName);
-  console.log("supplyRequestId:", supplyRequestId);
+  const [supplierId, setSupplierId] = useState("");
+  const [supplierName, setSupplierName] = useState("");
+  const [teaBags, setTeaBags] = useState([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { supplyRequestId } = useParams();
+  const sessionId = location.state?.sessionId;
 
-  // Reusable function to fetch bagWeightId
+  // Fetch supplier info
+  useEffect(() => {
+    if (!supplyRequestId) return;
+    getSupplierInfoBySupplyRequest(supplyRequestId)
+      .then((data) => {
+        setSupplierId(data.supplierId);
+        setSupplierName(data.supplierName);
+      })
+      .catch(() => {
+        setSupplierId("");
+        setSupplierName("");
+      });
+  }, [supplyRequestId]);
+
+  // Fetch bag details
+  useEffect(() => {
+    if (!supplyRequestId) return;
+    getBagDetailsBySupplyRequest(supplyRequestId, "pending")
+      .then((data) => {
+        setTeaBags(data);
+      })
+      .catch(() => {
+        setTeaBags([]);
+      });
+  }, [supplyRequestId]);
+
+  // Fetch bagWeightId when supplyRequestId is available
   const fetchBagWeightId = React.useCallback(async () => {
     if (!supplyRequestId) {
       setBagWeightId(null);
       return;
     }
     try {
-      const data = await getBagWeightIdBySupplyRequest(supplyRequestId);
-      console.log("bagWeightId response:", data);
-      if (
-        (Array.isArray(data) && data.length === 0) ||
-        (typeof data === "object" &&
-          data !== null &&
-          Object.keys(data).length === 0)
-      ) {
-        setBagWeightId(null);
-        console.log("No bagWeightId found for this supplyRequestId.");
-      } else if (data) {
-        setBagWeightId(data);
-        console.log("bagWeightId exists:", data);
-      } else {
-        setBagWeightId(null);
-        console.log("No bagWeightId found for this supplyRequestId.");
-      }
-    } catch (error) {
+      const id = await getBagWeightIdBySupplyRequest(supplyRequestId);
+      setBagWeightId(id || null);
+    } catch {
       setBagWeightId(null);
-      console.error("Error checking bagWeightId:", error);
     }
   }, [supplyRequestId]);
 
-  // Fetch bagWeightId when supplyRequestId is available
-  React.useEffect(() => {
+  useEffect(() => {
     fetchBagWeightId();
   }, [fetchBagWeightId]);
 
-  // Use supplierBags from navigation state as the source of teaBags
-  const [teaBags, setTeaBags] = useState(supplierBags);
-
-  React.useEffect(() => {
-    setTeaBags(supplierBags);
-  }, [supplierBags]);
-
-  const handleBagSelection = (bagNumber) => {
-    setSelectedBags((prev) => {
-      if (prev.includes(bagNumber)) {
-        return prev.filter((bag) => bag !== bagNumber);
-      } else if (prev.length < 3) {
-        return [...prev, bagNumber];
-      } else {
-        return prev; // Do not add more than 3
-      }
-    });
-  };
-
-  // Removed unused handleLeafTypeChange
-
   const handleEnter = async () => {
-    // Build payload and omit supplyRequestId if it's undefined/null
+    setEnterLoading(true);
     const payload = {
       ...(supplyRequestId !== undefined && supplyRequestId !== null
         ? { supplyRequestId: Number(supplyRequestId) }
@@ -104,17 +82,15 @@ export default function Supplier() {
       otherWeight: parseFloat(otherWeight) || 0,
       reason: otherWeightReason || "",
     };
-    console.log("Payload to send:", payload);
-    console.log(bagWeightId);
     try {
-      const data = bagWeightId
-        ? await updateBagWeights(bagWeightId, payload)
-        : await createBagWeights(payload);
-      console.log("Success:", data);
-      // Mark selected bags as weighed
+      if (bagWeightId) {
+        await updateBagWeights(bagWeightId, payload);
+      } else {
+        await createBagWeights(payload);
+      }
       setTeaBags((prevBags) =>
         prevBags.map((bag) =>
-          selectedBags.includes(bag.bagNumber) ? { ...bag, weighed: true } : bag
+          selectedBags.includes(bag.bagNo) ? { ...bag, weighed: true } : bag
         )
       );
       setSelectedBags([]);
@@ -125,13 +101,14 @@ export default function Supplier() {
       setOtherWeightReason("");
       fetchBagWeightId();
     } catch (error) {
-      console.error("Error:", error);
-      // Optionally show error message
+      console.error(error);
+    } finally {
+      setEnterLoading(false);
     }
   };
 
   const selectedBagsTotal = teaBags
-    .filter((bag) => selectedBags.includes(bag.bagNumber))
+    .filter((bag) => selectedBags.includes(bag.bagNo))
     .reduce((sum, bag) => {
       const weightStr = bag.driverWeight ? String(bag.driverWeight) : "0";
       const num = parseFloat(weightStr.replace(" Kg", ""));
@@ -153,7 +130,7 @@ export default function Supplier() {
           {[
             {
               label: "Total Bags",
-              value: supplierBags.length,
+              value: teaBags.length,
               icon: <Package className="text-[#000000] w-5 h-5" />,
             },
             {
@@ -212,7 +189,7 @@ export default function Supplier() {
                 Supplier No
               </label>
               <div className="text-lg font-semibold text-[#01251F]">
-                {supplierId}
+                {supplierId || "-"}
               </div>
             </div>
             <div>
@@ -244,7 +221,8 @@ export default function Supplier() {
                     className="mr-2 h-4 w-4 text-[#165E52] border-gray-300 focus:ring-[#165E52]"
                     checked={
                       selectedBags.length ===
-                      Math.min(3, teaBags.filter((b) => !b.weighed).length)
+                        Math.min(3, teaBags.filter((b) => !b.weighed).length) &&
+                      selectedBags.length > 0
                     }
                     onChange={(e) => {
                       if (e.target.checked) {
@@ -252,12 +230,13 @@ export default function Supplier() {
                         const unweighedBags = teaBags
                           .filter((b) => !b.weighed)
                           .slice(0, 3)
-                          .map((b) => b.bagNumber);
+                          .map((b) => b.bagNo);
                         setSelectedBags(unweighedBags);
                       } else {
                         setSelectedBags([]);
                       }
                     }}
+                    disabled={teaBags.filter((b) => !b.weighed).length === 0}
                   />
                   Bag No
                 </div>
@@ -278,7 +257,7 @@ export default function Supplier() {
                 .filter(
                   (bag) =>
                     bagSearch.trim() === "" ||
-                    String(bag.bagNumber)
+                    String(bag.bagNo)
                       .toLowerCase()
                       .includes(bagSearch.trim().toLowerCase())
                 )
@@ -303,7 +282,7 @@ export default function Supplier() {
                   const isWeighed = !!bag.weighed;
                   return (
                     <div
-                      key={bag.bagNumber || i}
+                      key={bag.bagNo || i}
                       className="grid grid-cols-3 gap-4 p-4 items-center hover:bg-gray-50"
                       style={{ minHeight: "45px" }}
                     >
@@ -311,16 +290,25 @@ export default function Supplier() {
                         <input
                           type="checkbox"
                           className="mr-2 h-4 w-4 text-[#165E52] border-gray-300 focus:ring-[#165E52]"
-                          checked={selectedBags.includes(bag.bagNumber)}
-                          onChange={() => handleBagSelection(bag.bagNumber)}
+                          checked={selectedBags.includes(bag.bagNo)}
+                          onChange={() => {
+                            if (isWeighed) return;
+                            if (selectedBags.includes(bag.bagNo)) {
+                              setSelectedBags(
+                                selectedBags.filter((id) => id !== bag.bagNo)
+                              );
+                            } else if (selectedBags.length < 3) {
+                              setSelectedBags([...selectedBags, bag.bagNo]);
+                            }
+                          }}
                           disabled={
                             isWeighed ||
-                            (!selectedBags.includes(bag.bagNumber) &&
+                            (!selectedBags.includes(bag.bagNo) &&
                               selectedBags.length >= 3)
                           }
                         />
                         <span className="font-medium text-gray-900">
-                          {bag.bagNumber}
+                          {bag.bagNo}
                         </span>
                         {isWeighed && (
                           <span className="ml-2 px-2 py-1 rounded-full text-xs font-semibold bg-gray-300 text-gray-700">
@@ -431,13 +419,35 @@ export default function Supplier() {
               ) : (
                 <button
                   onClick={handleEnter}
-                  disabled={selectedBags.length === 0 || !selectedBagsWeight}
-                  className={` w-3/5 h-10 px-6 py-5 text-sm font-semibold rounded-lg transition-all duration-300 transform min-w-[100px] ${
-                    selectedBags.length === 0 || !selectedBagsWeight
+                  disabled={
+                    enterLoading ||
+                    selectedBags.length === 0 ||
+                    !selectedBagsWeight
+                  }
+                  className={`w-3/5 h-10 px-6 py-5 text-sm font-semibold rounded-lg transition-all duration-300 transform min-w-[100px] flex items-center justify-center ${
+                    enterLoading ||
+                    selectedBags.length === 0 ||
+                    !selectedBagsWeight
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                       : "bg-[#01251F] hover:bg-[#165E52] text-white shadow hover:scale-105 active:scale-95"
                   }`}
                 >
+                  {enterLoading ? (
+                    <span
+                      className="loader mr-2"
+                      style={{
+                        borderTopColor: "#165E52",
+                        borderWidth: "2px",
+                        width: "18px",
+                        height: "18px",
+                        borderRadius: "50%",
+                        borderStyle: "solid",
+                        borderColor: "#fff",
+                        animation: "spin 1s linear infinite",
+                        display: "inline-block",
+                      }}
+                    ></span>
+                  ) : null}
                   Enter
                 </button>
               )}
@@ -463,7 +473,7 @@ export default function Supplier() {
                   step="1"
                   value={waterWeight || ""}
                   onChange={(e) => setWaterWeight(e.target.value)}
-                  placeholder="0.00"
+                  placeholder="0"
                   className="w-40 px-2 py-1 border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-200 text-xs transition-all duration-200"
                   style={{ borderColor: "#cfece6" }}
                 />
@@ -482,7 +492,7 @@ export default function Supplier() {
                   step="1"
                   value={coarseWeight || ""}
                   onChange={(e) => setCoarseWeight(e.target.value)}
-                  placeholder="0.00"
+                  placeholder="0"
                   className="w-40 px-2 py-1 border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-200 text-xs transition-all duration-200"
                   style={{ borderColor: "#cfece6" }}
                 />
@@ -501,7 +511,7 @@ export default function Supplier() {
                   step="1"
                   value={otherWeight || ""}
                   onChange={(e) => setOtherWeight(e.target.value)}
-                  placeholder="0.00"
+                  placeholder="0"
                   className="w-40 px-2 py-1 border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-200 text-xs transition-all duration-200"
                   style={{ borderColor: "#cfece6" }}
                 />
@@ -524,42 +534,6 @@ export default function Supplier() {
                 />
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Measured Bags */}
-        <div
-          className="bg-white rounded-lg border p-4"
-          style={{ borderColor: "#cfece6" }}
-        >
-          <div className="flex justify-between items-center gap-4">
-            <h2 className="text-lg font-semibold" style={{ color: "#165E52" }}>
-              Measured Tea Leaf Bags
-            </h2>
-            <span className="bg-gray-100 text-gray-600 px-3 py-1 text-xs rounded-full">
-              No Data
-            </span>
-          </div>
-        </div>
-
-        <div
-          className="bg-white rounded-lg border overflow-hidden"
-          style={{ borderColor: "#cfece6" }}
-        >
-          <div className="bg-[#01251F] text-white">
-            <div className="grid grid-cols-4 gap-4 p-3 text-center font-medium">
-              <div>Bag No</div>
-              <div>Weight</div>
-              <div>Type</div>
-              <div>Status</div>
-            </div>
-          </div>
-          <div className="p-8 text-center text-gray-500">
-            <div className="text-4xl mb-2">📊</div>
-            <p className="text-sm">No measured tea leaf bags data available</p>
-            <p className="text-xs text-gray-400">
-              Data will appear once bags are processed
-            </p>
           </div>
         </div>
       </div>

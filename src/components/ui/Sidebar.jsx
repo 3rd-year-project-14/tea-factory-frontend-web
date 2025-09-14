@@ -209,7 +209,8 @@ export default function Sidebar() {
           }
           // Render other links as usual
           const Icon = link.icon;
-          const isActive = location.pathname === link.path;
+          // Highlight parent if inside nested route
+          const isActive = location.pathname.startsWith(link.path);
           return (
             <Link
               key={link.name}
