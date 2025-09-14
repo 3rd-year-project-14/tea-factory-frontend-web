@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
-import { Search, Truck, Package, CheckCircle } from "lucide-react";
+import { Search, Truck, CheckCircle } from "lucide-react";
 import PaginationControls from "../../../components/ui/PaginationControls";
 import { useNavigate, Outlet, useMatch, useLocation } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
-import {
-  getTripsByFactoryAndStatus,
-  getTripStatusCounts,
-} from "../../../api/inventoryManager/leafWeight";
+import { getTripsByFactoryAndStatus, getTripStatusCounts } from "../../../api/inventoryManager/leafWeight";
 
 export default function Route() {
   const [searchInput, setSearchInput] = useState("");
@@ -76,7 +73,7 @@ export default function Route() {
     return () => {
       mounted = false;
     };
-  }, [factoryId]);
+  }, [factoryId, location.key]);
 
   // trips now contains server-side filtered content for the selected status
   const searchedTrips = trips;

@@ -72,7 +72,7 @@ export default function Route() {
     return () => {
       mounted = false;
     };
-  }, [factoryId]);
+  }, [factoryId, location.key]);
 
   // trips is now server-side filtered/paged content for the selected status
   const searchedTrips = trips;
