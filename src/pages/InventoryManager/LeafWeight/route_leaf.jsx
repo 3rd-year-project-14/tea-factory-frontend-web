@@ -1,22 +1,9 @@
 import { useState, useEffect } from "react";
 import { Search, Users, Package, Scale } from "lucide-react";
-import {
-  useNavigate,
-  Outlet,
-  useMatch,
-  useLocation,
-  useParams,
-} from "react-router-dom";
+import { useNavigate, Outlet, useMatch, useLocation, useParams } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 import PaginationControls from "../../../components/ui/PaginationControls";
-import {
-  getTripDetails,
-  getPaginatedBagsForTrip,
-  getBagWeightsBySession,
-  createWeighingSession,
-  getTripSummary,
-  getTripWeighingSummary,
-} from "../../../api/inventoryManager/leafWeight";
+import { getTripDetails, getPaginatedBagsForTrip, getBagWeightsBySession, createWeighingSession, getTripSummary, getTripWeighingSummary } from "../../../api/inventoryManager/leafWeight";
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,12 +14,9 @@ export default function DriverRoute() {
   const [tripDetails, setTripDetails] = useState(null);
   const [sessionId, setSessionId] = useState(null);
   const [sessionUserId, setSessionUserId] = useState(null);
-  const [supplierSummary, setSupplierSummary] = useState([]); // For completed view
-  const [cardStats, setCardStats] = useState(null); // holds { totalSuppliers, totalBags, totalWeight }
-  const [confirmPopup, setConfirmPopup] = useState({
-    open: false,
-    supplierBags: null,
-  });
+  const [supplierSummary, setSupplierSummary] = useState([]);
+  const [cardStats, setCardStats] = useState(null);
+  const [confirmPopup, setConfirmPopup] = useState({ open: false, supplierBags: null });
   const navigate = useNavigate();
   const location = useLocation();
   const { routeId, routeName, driverName, currentView } = location.state || {};
@@ -55,6 +39,7 @@ export default function DriverRoute() {
 
       try {
         const summaryData = await getTripSummary(tripId);
+        console.log("Trip summary data:", summaryData);
         if (!mounted) return;
         setCardStats(summaryData || null);
         setSessionId(summaryData?.sessionId || null);
@@ -116,7 +101,7 @@ export default function DriverRoute() {
       try {
         const [supplierDataPage, weighSummary] = await Promise.all([
           sessionId
-            ? getBagWeightsBySession(sessionId, page, searchTerm)
+            ? getBagWeightsBySession(sessionId, "weighed", page, searchTerm )
             : Promise.resolve({ content: [], totalPages: 0, totalElements: 0 }),
           getTripWeighingSummary(tripId, "weighed"),
         ]);

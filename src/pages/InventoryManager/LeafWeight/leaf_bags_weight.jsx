@@ -2,19 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Package, CheckCircle, Scale, BarChart2 } from "lucide-react";
-import {
-  getBagWeightIdBySupplyRequest,
-  createBagWeights,
-  updateBagWeights,
-  getSupplierInfoBySupplyRequest,
-  getBagDetailsBySupplyRequest,
-} from "../../../api/inventoryManager/leafWeight";
+import { getBagWeightIdBySupplyRequest, createBagWeights, updateBagWeights, getSupplierInfoBySupplyRequest, getBagDetailsBySupplyRequest } from "../../../api/inventoryManager/leafWeight";
 
 export default function Supplier() {
   const [enterLoading, setEnterLoading] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { supplyRequestId } = useParams();
   const [selectedBags, setSelectedBags] = useState([]);
   const [selectedBagsWeight, setSelectedBagsWeight] = useState("");
   const [waterWeight, setWaterWeight] = useState("");
@@ -26,6 +17,9 @@ export default function Supplier() {
   const [supplierId, setSupplierId] = useState("");
   const [supplierName, setSupplierName] = useState("");
   const [teaBags, setTeaBags] = useState([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { supplyRequestId } = useParams();
   const sessionId = location.state?.sessionId;
 
   // Fetch supplier info
@@ -89,9 +83,11 @@ export default function Supplier() {
       reason: otherWeightReason || "",
     };
     try {
-      const data = bagWeightId
-        ? await updateBagWeights(bagWeightId, payload)
-        : await createBagWeights(payload);
+      if (bagWeightId) {
+        await updateBagWeights(bagWeightId, payload);
+      } else {
+        await createBagWeights(payload);
+      }
       setTeaBags((prevBags) =>
         prevBags.map((bag) =>
           selectedBags.includes(bag.bagNo) ? { ...bag, weighed: true } : bag
@@ -105,7 +101,7 @@ export default function Supplier() {
       setOtherWeightReason("");
       fetchBagWeightId();
     } catch (error) {
-      // Optionally show error message
+      console.error(error);
     } finally {
       setEnterLoading(false);
     }

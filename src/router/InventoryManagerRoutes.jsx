@@ -48,7 +48,7 @@ export default [
     }
   >
     <Route path="route/:tripId" element={<EmptySupplierBag />}>
-      <Route path="supplier/:supplierId" element={<EmptySupplierBagAll />} />
+      <Route path="supplier/:supplyRequestId" element={<EmptySupplierBagAll />} />
     </Route>
   </Route>,
   <Route

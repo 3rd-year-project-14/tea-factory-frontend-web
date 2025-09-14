@@ -23,10 +23,11 @@ export const getPendingBagsForTrip = async (tripId) => {
 // GET /bagweights/session/{sessionId}/paged?page=0&search=foo&status=weighed
 export const getBagWeightsBySession = async (
   sessionId,
+  status,
   page = 0,
   search = ""
 ) => {
-  const params = { page, status: "weighed" };
+  const params = { page, status };
   if (search) params.search = search;
   const res = await axios.get(`/bagweights/session/${sessionId}/paged`, {
     params,

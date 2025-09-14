@@ -46,3 +46,14 @@ export const updateBagWeights = async (bagWeightId, payload) => {
   const res = await axios.put(`/bagweights/${bagWeightId}`, payload);
   return res.data;
 };
+
+// Get weighed bags for a trip (paginated & searchable)
+export const getWeighedBagsForTripPaginated = async (
+  tripId,
+  { page = 0, size = 15, search = "" } = {}
+) => {
+  const params = { page, size };
+  if (search) params.search = search;
+  const res = await axios.get(`/trip-bags/trip/${tripId}/weighed`, { params });
+  return res.data;
+};

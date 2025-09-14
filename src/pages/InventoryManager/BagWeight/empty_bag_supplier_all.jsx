@@ -1,63 +1,62 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Package, CheckCircle, Scale } from "lucide-react";
-import {
-  getBagWeightIdBySupplyRequest,
-  updateEmptyBagTare,
-} from "../../../api/inventoryManager/bagWeight";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getBagWeightIdBySupplyRequest, updateEmptyBagTare } from "../../../api/inventoryManager/bagWeight";
+import { getSupplierInfoBySupplyRequest, getBagDetailsBySupplyRequest } from "../../../api/inventoryManager/supplyRequest";
 
 export default function Supplier() {
-  const location = useLocation();
   const navigate = useNavigate();
-  // Expecting these to be passed from previous page
-  const {
-    supplierId,
-    supplierName,
-    bags = [],
-    supplyRequestId,
-  } = location.state || {};
-  const [teaBags] = useState(
-    Array.isArray(bags) && bags.length > 0 ? bags : []
-  );
-  const [selectedBags, setSelectedBags] = useState(
-    teaBags.map((bag) => bag.bagNo)
-  );
+  const { supplyRequestId } = useParams();
+  const [teaBags, setTeaBags] = useState([]);
+  const [selectedBags, setSelectedBags] = useState([]);
   const [selectedBagsWeight, setSelectedBagsWeight] = useState("");
   const [bagWeightId, setBagWeightId] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [apiSuccess, setApiSuccess] = useState(false);
+  const [supplierInfo, setSupplierInfo] = useState(null);
 
   useEffect(() => {
     if (!supplyRequestId) return;
     getBagWeightIdBySupplyRequest(supplyRequestId)
       .then((data) => setBagWeightId(data ? data : null))
       .catch(() => setBagWeightId(null));
+    // Fetch supplier info
+    getSupplierInfoBySupplyRequest(supplyRequestId)
+      .then((data) => {
+        setSupplierInfo(data);
+        console.log("Supplier info from API:", data);
+      })
+      .catch(() => setSupplierInfo(null));
+    // Fetch weighed bags
+    getBagDetailsBySupplyRequest(supplyRequestId, "weighed")
+      .then((data) => {
+        const bags = Array.isArray(data) ? data : [];
+        setTeaBags(bags);
+        setSelectedBags(bags.map((bag) => bag.bagNo)); // Select all by default
+      })
+      .catch(() => {
+        setTeaBags([]);
+        setSelectedBags([]);
+      });
   }, [supplyRequestId]);
+
+  // sessionId is now available from location.state
   console.log("Bag Weight ID:", bagWeightId);
-  const handleBagSelection = (bagNo) => {
-    setSelectedBags((prev) =>
-      prev.includes(bagNo)
-        ? prev.filter((bag) => bag !== bagNo)
-        : [...prev, bagNo]
-    );
-  };
 
   const handleEnter = async () => {
     if (apiSuccess) {
-      navigate(-1); // Go back to previous page
+      navigate(-1);
       return;
     }
-    if (submitted) return; // Prevent further submissions
+    if (submitted) return;
     setSubmitted(true);
     const payload = {
       tareWeight: selectedBagsWeight,
     };
     try {
       await updateEmptyBagTare(bagWeightId, payload);
-      // assume success if no exception thrown
       setApiSuccess(true);
-      setSubmitted(false); // Re-enable button for back action
-      setSelectedBagsWeight(""); // Clear bag weight after success
+      setSubmitted(false);
+      setSelectedBagsWeight("");
       console.log("Bag weights submitted successfully!");
     } catch (err) {
       setSubmitted(false);
@@ -76,50 +75,43 @@ export default function Supplier() {
           </h1>
         </div>
 
-        {/* Top Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-black-200 border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-black-700">Total Bags</p>
-                <p className="text-2xl font-bold text-black-800">
-                  {teaBags.length}
-                </p>
-              </div>
-              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <Package className="text-black-600 w-5 h-5" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-black-200 border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-black-700">
-                  Supplier ID
-                </p>
-                <p className="text-2xl font-bold text-black-800">
-                  {supplierId || "N/A"}
-                </p>
-              </div>
-              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="text-black-600 w-5 h-5" />
+        {/* Supplier Info Section (not cards) */}
+        <div
+          className="bg-white rounded-lg shadow-sm p-4 mb-6 border"
+          style={{ borderColor: "#cfece6" }}
+        >
+          <div className="grid grid-cols-3 gap-6">
+            <div>
+              <label
+                className="text-sm font-semibold mb-1 block"
+                style={{ color: "#165E52" }}
+              >
+                Supplier ID
+              </label>
+              <div className="text-lg font-semibold text-[#01251F]">
+                {supplierInfo?.supplierId || "-"}
               </div>
             </div>
-          </div>
-
-          <div className="bg-white px-4 py-3 rounded-lg shadow-md border-black-200 border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-black-700">
-                  Supplier Name
-                </p>
-                <p className="text-2xl font-bold text-black-800">
-                  {supplierName || "N/A"}
-                </p>
+            <div>
+              <label
+                className="text-sm font-semibold mb-1 block"
+                style={{ color: "#165E52" }}
+              >
+                Supplier Name
+              </label>
+              <div className="text-lg font-semibold text-gray-900">
+                {supplierInfo?.supplierName || "Supplier Name Not Available"}
               </div>
-              <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <Scale className="text-black-600 w-5 h-5" />
+            </div>
+            <div>
+              <label
+                className="text-sm font-semibold mb-1 block"
+                style={{ color: "#165E52" }}
+              >
+                Total Bags
+              </label>
+              <div className="text-lg font-semibold text-gray-900">
+                {teaBags.length}
               </div>
             </div>
           </div>
@@ -143,22 +135,20 @@ export default function Supplier() {
           <div className="bg-[#01251F] text-white">
             <div className="p-3 font-medium text-center">Bag No</div>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div
+            className="divide-y divide-gray-200"
+            style={{
+              maxHeight: teaBags.length > 5 ? "320px" : "auto", // ~5 rows * 64px
+              overflowY: teaBags.length > 5 ? "auto" : "visible",
+              minHeight: "45px",
+            }}
+          >
             {teaBags.map((bag, index) => (
               <div
                 key={index}
-                className="p-4 text-center hover:bg-gray-50 cursor-pointer"
-                onClick={() => handleBagSelection(bag.bagNo)}
+                className="p-4 text-center bg-emerald-50 font-medium text-emerald-700"
               >
-                <span
-                  className={`font-medium ${
-                    selectedBags.includes(bag.bagNo)
-                      ? "text-emerald-700 bg-emerald-50 px-2 py-1 rounded"
-                      : "text-gray-900"
-                  }`}
-                >
-                  {bag.bagNo}
-                </span>
+                <span className="px-2 py-1 rounded">{bag.bagNo}</span>
               </div>
             ))}
           </div>
@@ -177,7 +167,7 @@ export default function Supplier() {
               </label>
               <div className="text-sm text-gray-600 bg-emerald-50 p-3 rounded-lg border border-emerald-200 min-h-10 flex items-center">
                 {selectedBags.length > 0
-                  ? selectedBags.join(" ")
+                  ? selectedBags.join(", ")
                   : "No bags selected"}
               </div>
             </div>
@@ -187,7 +177,7 @@ export default function Supplier() {
                 Selected Bags Weight
               </label>
               <input
-                type="text"
+                type="number"
                 value={selectedBagsWeight}
                 onChange={(e) => setSelectedBagsWeight(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
@@ -211,12 +201,19 @@ export default function Supplier() {
                   !apiSuccess &&
                   (selectedBags.length === 0 ||
                     submitted ||
-                    !selectedBagsWeight)
+                    !selectedBagsWeight ||
+                    !bagWeightId)
                 }
                 className={`bg-[#01251F] hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 w-full transform hover:scale-105`}
               >
                 {apiSuccess ? "Back to Route" : "Enter"}
               </button>
+              {!bagWeightId && (
+                <div className="mt-2 text-sm text-red-600 font-medium">
+                  No bag record found for today. Please check the date or supply
+                  request.
+                </div>
+              )}
             </div>
           </div>
         </div>
