@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getBagWeightIdBySupplyRequest, updateEmptyBagTare } from "../../../api/inventoryManager/bagWeight";
-import { getSupplierInfoBySupplyRequest, getBagDetailsBySupplyRequest } from "../../../api/inventoryManager/supplyRequest";
+import { getSupplierInfoBySupplyRequest, getBagDetailsBySupplyRequest } from "../../../api/inventoryManager/leafWeight";
 
 export default function Supplier() {
   const navigate = useNavigate();
