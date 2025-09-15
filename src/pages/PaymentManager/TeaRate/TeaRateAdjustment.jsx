@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { fetchTeaRateRecords, submitTeaRateAdjustment } from "../../../api/paymentManager";
+import { fetchTeaRateRecords, submitTeaRate } from "../../../api/factoryManager";
 
 import { Calculator, TrendingUp, Send, Table } from "lucide-react";
 // import { auth } from "../../../firebase";
-
-const API_URL = "http://localhost:8080/api/tea_rates";
 
 const BORDER_COLOR = "#cfece6";
 
@@ -66,14 +64,9 @@ export default function TeaRateAdjustment() {
   // Fetch tea rate records from backend
   const fetchRecords = async (userIdParam) => {
     setLoading(true);
-    try {
-      const data = await fetchTeaRateRecords(userIdParam);
-      setTeaRateRecords(data);
-    } catch (error) {
-      setTeaRateRecords([]);
-    } finally {
-      setLoading(false);
-    }
+    const records = await fetchTeaRateRecords(userIdParam);
+    setTeaRateRecords(records);
+    setLoading(false);
   };
 
   // Calculations
@@ -137,19 +130,25 @@ export default function TeaRateAdjustment() {
         totalPayout: totalPayout,
       };
 
-      await submitTeaRateAdjustment(payload);
-      alert("Rate submitted successfully!");
-      setIsSubmitted(true);
+      const res = await submitTeaRate(payload);
 
-      // Refresh tea rate records from backend
-      await fetchRecords(userId);
+      if (res.status === 200 || res.status === 201) {
+        alert("Rate submitted successfully!");
+        setIsSubmitted(true);
 
-      // Reset form
-      setNsaValue("");
-      setGsaValue("");
-      setTotalWeight("");
-      setIsSubmitted(false);
+        // Refresh tea rate records from backend
+        await fetchRecords(userId);
+
+        // Reset form
+        setNsaValue("");
+        setGsaValue("");
+        setTotalWeight("");
+        setIsSubmitted(false);
+      } else {
+        alert("Something went wrong.");
+      }
     } catch (err) {
+      console.error(err);
       alert("Error submitting data.");
     }
   };
