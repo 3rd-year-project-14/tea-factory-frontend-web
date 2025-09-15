@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { fetchTeaRateRecords, submitTeaRate } from "../../../api/factoryManager";
 
 import { Calculator, TrendingUp, Send, Table } from "lucide-react";
 // import { auth } from "../../../firebase";
-
-const API_URL = "http://localhost:8080/api/tea_rates";
 
 const BORDER_COLOR = "#cfece6";
 
@@ -56,7 +54,7 @@ export default function TeaRateAdjustment() {
     const storedUserId = localStorage.getItem("userId");
     if (storedUserId) {
       setUserId(Number(storedUserId));
-      fetchTeaRateRecords(Number(storedUserId));
+      fetchRecords(Number(storedUserId));
     } else {
       setUserId(null);
       console.warn("User ID not found in localStorage");
@@ -64,21 +62,11 @@ export default function TeaRateAdjustment() {
   }, []);
 
   // Fetch tea rate records from backend
-  const fetchTeaRateRecords = async (userIdParam) => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API_URL}?userId=${userIdParam}`);
-
-      if (response.status === 200) {
-        setTeaRateRecords(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching tea rate records:", error);
-      // If no records found or error, keep empty array
-      setTeaRateRecords([]);
-    } finally {
-      setLoading(false);
-    }
+  const fetchRecords = async (userIdParam) => {
+    setLoading(true);
+    const records = await fetchTeaRateRecords(userIdParam);
+    setTeaRateRecords(records);
+    setLoading(false);
   };
 
   // Calculations
@@ -132,7 +120,7 @@ export default function TeaRateAdjustment() {
     }
     try {
       const payload = {
-        userId: userId, // <-- DB user id directly send වෙනවා
+        userId: userId,
         month: `${2025}-${currentMonth.toString().padStart(2, "0")}`,
         nsa: parseFloat(nsaValue),
         gsa: parseFloat(gsaValue),
@@ -142,14 +130,14 @@ export default function TeaRateAdjustment() {
         totalPayout: totalPayout,
       };
 
-      const res = await axios.post(API_URL, payload);
+      const res = await submitTeaRate(payload);
 
       if (res.status === 200 || res.status === 201) {
         alert("Rate submitted successfully!");
         setIsSubmitted(true);
 
         // Refresh tea rate records from backend
-        await fetchTeaRateRecords(userId);
+        await fetchRecords(userId);
 
         // Reset form
         setNsaValue("");

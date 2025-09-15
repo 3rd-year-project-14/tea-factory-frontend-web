@@ -4,7 +4,7 @@ import Layout from "../layouts/Layout";
 
 import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
 import OwnerDashboard from "../pages/Owner/dashboard";
-import OwnerManagers from "../pages/Owner/Managerview/viewManagers";
+import OwnerManagers from "../pages/Owner/ManagerView/viewManagers";
 import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
 import OwnerReports from "../pages/Owner/Reports/reports";
 import OwnerPaymnets from "../pages/Owner/Payments/payment";
