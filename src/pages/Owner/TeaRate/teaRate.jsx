@@ -19,6 +19,13 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
+import {
+  getPendingTeaRates,
+  getApprovedTeaRates,
+  approveTeaRate,
+  adjustTeaRate,
+  exportTeaRateReport,
+} from "../../../api/owner";
 
 const OwnerDashboard = () => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -46,29 +53,15 @@ const OwnerDashboard = () => {
   const [approvedRates, setApprovedRates] = useState([]);
   const [factories, setFactories] = useState([]);
 
-  // API base URL - adjust this according to your backend configuration
-  const API_BASE_URL = "http://localhost:8080";
-
   // Function to fetch tea rates (pending) and approved rates from the backend
   const fetchTeaRates = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // Fetch pending/all rates
-      const response = await fetch(`${API_BASE_URL}/api/tea_rates`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-
+      // Fetch pending rates
+      const data = await getPendingTeaRates();
       // Fetch approved rates
-      const approvedResponse = await fetch(
-        `${API_BASE_URL}/api/tea_rates/approved`
-      );
-      if (!approvedResponse.ok) {
-        throw new Error(`HTTP error! status: ${approvedResponse.status}`);
-      }
-      const approvedData = await approvedResponse.json();
+      const approvedData = await getApprovedTeaRates();
 
       // Transform the backend data to match frontend structure
       const transformedPending = data
@@ -127,7 +120,7 @@ const OwnerDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL]);
+  }, []);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -146,31 +139,9 @@ const OwnerDashboard = () => {
     try {
       let updatedRate;
       if (adjustedRate !== null) {
-        // Adjustment: PATCH /api/tea_rates/{id}/adjust
-        const response = await fetch(
-          `${API_BASE_URL}/api/tea_rates/${rateId}/adjust`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              adjustedRate,
-              adjustmentReason: reason,
-            }),
-          }
-        );
-        if (!response.ok) throw new Error("Failed to adjust tea rate");
-        updatedRate = await response.json();
+        updatedRate = await adjustTeaRate(rateId, adjustedRate, reason);
       } else {
-        // Approve: PATCH /api/tea_rates/{id}/approve
-        const response = await fetch(
-          `${API_BASE_URL}/api/tea_rates/${rateId}/approve`,
-          {
-            method: "PATCH",
-          }
-        );
-        if (!response.ok) throw new Error("Failed to approve tea rate");
-        updatedRate = await response.json();
-        // Set adjustedRate to monthlyRate if not present
+        updatedRate = await approveTeaRate(rateId);
         if (!updatedRate.adjustedRate) {
           const orig = pendingRates.find((r) => r.id === rateId);
           if (orig) {
@@ -178,8 +149,6 @@ const OwnerDashboard = () => {
           }
         }
       }
-
-      // Remove from pending and add to approved/processed
       setPendingRates((prev) => prev.filter((r) => r.id !== rateId));
       setApprovedRates((prev) => [updatedRate, ...prev]);
       setProcessedRates((prev) => [updatedRate, ...prev]);
