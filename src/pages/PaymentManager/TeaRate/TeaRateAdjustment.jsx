@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { fetchTeaRateRecords, submitTeaRateAdjustment } from "../../../api/paymentManager";
 
 import { Calculator, TrendingUp, Send, Table } from "lucide-react";
 // import { auth } from "../../../firebase";
@@ -56,7 +56,7 @@ export default function TeaRateAdjustment() {
     const storedUserId = localStorage.getItem("userId");
     if (storedUserId) {
       setUserId(Number(storedUserId));
-      fetchTeaRateRecords(Number(storedUserId));
+      fetchRecords(Number(storedUserId));
     } else {
       setUserId(null);
       console.warn("User ID not found in localStorage");
@@ -64,17 +64,12 @@ export default function TeaRateAdjustment() {
   }, []);
 
   // Fetch tea rate records from backend
-  const fetchTeaRateRecords = async (userIdParam) => {
+  const fetchRecords = async (userIdParam) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await axios.get(`${API_URL}?userId=${userIdParam}`);
-
-      if (response.status === 200) {
-        setTeaRateRecords(response.data);
-      }
+      const data = await fetchTeaRateRecords(userIdParam);
+      setTeaRateRecords(data);
     } catch (error) {
-      console.error("Error fetching tea rate records:", error);
-      // If no records found or error, keep empty array
       setTeaRateRecords([]);
     } finally {
       setLoading(false);
@@ -132,7 +127,7 @@ export default function TeaRateAdjustment() {
     }
     try {
       const payload = {
-        userId: userId, // <-- DB user id directly send වෙනවා
+        userId: userId,
         month: `${2025}-${currentMonth.toString().padStart(2, "0")}`,
         nsa: parseFloat(nsaValue),
         gsa: parseFloat(gsaValue),
@@ -142,25 +137,19 @@ export default function TeaRateAdjustment() {
         totalPayout: totalPayout,
       };
 
-      const res = await axios.post(API_URL, payload);
+      await submitTeaRateAdjustment(payload);
+      alert("Rate submitted successfully!");
+      setIsSubmitted(true);
 
-      if (res.status === 200 || res.status === 201) {
-        alert("Rate submitted successfully!");
-        setIsSubmitted(true);
+      // Refresh tea rate records from backend
+      await fetchRecords(userId);
 
-        // Refresh tea rate records from backend
-        await fetchTeaRateRecords(userId);
-
-        // Reset form
-        setNsaValue("");
-        setGsaValue("");
-        setTotalWeight("");
-        setIsSubmitted(false);
-      } else {
-        alert("Something went wrong.");
-      }
+      // Reset form
+      setNsaValue("");
+      setGsaValue("");
+      setTotalWeight("");
+      setIsSubmitted(false);
     } catch (err) {
-      console.error(err);
       alert("Error submitting data.");
     }
   };
