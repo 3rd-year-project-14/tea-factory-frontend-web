@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Search, User, Scale, Filter, Clock, Calendar } from "lucide-react";
 import { getRoutesDetails } from "../../../api/supplier";
 import {
@@ -17,6 +17,8 @@ export default function InventoryHistory() {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const debounceTimeout = useRef();
   const [routeFilter, setRouteFilter] = useState("");
   const [userIdFilter, setUserIdFilter] = useState("");
   const [selectedDate, setSelectedDate] = useState(null); // Date object
@@ -26,6 +28,15 @@ export default function InventoryHistory() {
   const factoryId = user?.factoryId;
 
   // Fetch paginated history from API
+  // Debounce searchTerm
+  useEffect(() => {
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 400);
+    return () => clearTimeout(debounceTimeout.current);
+  }, [searchTerm]);
+
   useEffect(() => {
     if (!factoryId) return;
     setLoading(true);
@@ -42,7 +53,7 @@ export default function InventoryHistory() {
       const dd = String(localDate.getDate()).padStart(2, "0");
       params.date = `${yyyy}-${mm}-${dd}`;
     }
-    if (searchTerm) params.search = searchTerm;
+    if (debouncedSearch) params.search = debouncedSearch;
     getBagWeights(factoryId, params)
       .then((data) => {
         setHistory(data.content || []);
@@ -55,7 +66,14 @@ export default function InventoryHistory() {
         setTotalElements(0);
       })
       .finally(() => setLoading(false));
-  }, [factoryId, page, routeFilter, userIdFilter, selectedDate, searchTerm]);
+  }, [
+    factoryId,
+    page,
+    routeFilter,
+    userIdFilter,
+    selectedDate,
+    debouncedSearch,
+  ]);
 
   // Unique userIds for filter dropdowns
   // Fetch inventory managers for filter dropdown
@@ -74,9 +92,10 @@ export default function InventoryHistory() {
         setRouteOptions(data);
       })
       .catch((err) => {
+        console.error("Error fetching routes:", err);
         setRouteOptions([]);
       });
-  }, []);
+  }, [factoryId]);
 
   return (
     <div className="h-full bg-gray-50 p-4">
@@ -97,7 +116,7 @@ export default function InventoryHistory() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search by Supplier ID or Name..."
+                placeholder="Search by Supplier Name"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-gray-50"
@@ -174,10 +193,6 @@ export default function InventoryHistory() {
               <h2 className="text-lg font-semibold text-gray-900">
                 History Records
               </h2>
-              <span className="bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                {totalElements} {totalElements === 1 ? "Record" : "Records"}{" "}
-                Found
-              </span>
             </div>
           </div>
         </div>
