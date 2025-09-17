@@ -1,27 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { getInventoryManagerDashboardSummary } from "../../api/inventoryManager/history";
 import {
-  Calendar,
+  getInventoryManagerDashboardSummary,
+  getTodayTrips,
+} from "../../api/inventoryManager/history";
+import PaginationControls from "../../components/ui/PaginationControls";
+import {
   MapPin,
   User,
   Scale,
-  CheckCircle,
-  Clock,
   TrendingUp,
-  AlertTriangle,
-  Truck,
   Weight,
   BarChart3,
   RefreshCw,
-  Plus,
-  Eye,
-  Edit,
-  Download,
-  ChevronRight,
-  ChevronDown,
-  Home,
-  Users,
-  X,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -41,28 +31,28 @@ function SupplierHeader() {
   );
 }
 
-// Main Inventory Manager Dashboard
 export default function InventoryManagerDashboard() {
+  const [refreshTripsFlag, setRefreshTripsFlag] = useState(0);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   const [dashboardSummary, setDashboardSummary] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [trips, setTrips] = useState([]);
+  const [tripsPage, setTripsPage] = useState(0);
+  const [tripsTotalPages, setTripsTotalPages] = useState(1);
+  const [tripsTotalElements, setTripsTotalElements] = useState(0);
+  const [tripsLoading, setTripsLoading] = useState(false);
 
   const { user } = useAuth();
   const factoryId = user?.factoryId;
 
   useEffect(() => {
     const fetchSummary = async () => {
-      setLoading(true);
-      setError(null);
       try {
         const data = await getInventoryManagerDashboardSummary(factoryId);
         setDashboardSummary(data);
       } catch (err) {
         console.error(err);
-        setError("Failed to load dashboard summary");
-      } finally {
-        setLoading(false);
       }
     };
     fetchSummary();
@@ -70,47 +60,33 @@ export default function InventoryManagerDashboard() {
     return () => clearInterval(interval);
   }, [factoryId]);
 
-  const [activeRoutesData] = useState([
-    {
-      id: "TN-1",
-      routeName: "Route - 1",
-      driverName: "Driver - 1",
-      status: "active",
-      progress: 75,
-      suppliersTotal: 10,
-      suppliersCompleted: 7,
-      bagsCollected: 18,
-      currentWeight: "320 Kg",
-      lastUpdate: "14:25",
-      alerts: [],
-    },
-    {
-      id: "TK-1",
-      routeName: "Route - 2",
-      driverName: "Driver - 2",
-      status: "active",
-      progress: 45,
-      suppliersTotal: 12,
-      suppliersCompleted: 5,
-      bagsCollected: 12,
-      currentWeight: "235 Kg",
-      lastUpdate: "14:20",
-      alerts: ["Delay at Supplier S-108"],
-    },
-    {
-      id: "TK-2",
-      routeName: "Route - 4",
-      driverName: "Driver - 4",
-      status: "delayed",
-      progress: 30,
-      suppliersTotal: 8,
-      suppliersCompleted: 2,
-      bagsCollected: 5,
-      currentWeight: "95 Kg",
-      lastUpdate: "13:45",
-      alerts: ["Vehicle maintenance required", "Behind schedule"],
-    },
-  ]);
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Fetch paginated trips for today
+  useEffect(() => {
+    if (!factoryId) return;
+    setTripsLoading(true);
+    getTodayTrips(factoryId, {
+      page: tripsPage,
+      size: 10,
+      search: debouncedSearch,
+    })
+      .then((data) => {
+        setTrips(data.content || []);
+        setTripsTotalPages(data.totalPages || 1);
+        setTripsTotalElements(data.totalElements || 0);
+      })
+      .catch(() => {
+        setTrips([]);
+      })
+      .finally(() => setTripsLoading(false));
+  }, [factoryId, tripsPage, debouncedSearch, refreshTripsFlag]);
 
   // recentActivities removed
 
@@ -358,108 +334,142 @@ export default function InventoryManagerDashboard() {
                 >
                   Active Routes Monitoring
                 </h3>
-                <div className="flex gap-2">
-                  <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setTripsPage(0);
+                    }}
+                    placeholder="Search routes"
+                    className="border border-gray-300 rounded px-3 py-2 text-sm w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 ml-4"
+                    style={{ minWidth: 180 }}
+                  />
+                  <button
+                    className="bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200 transition-colors flex items-center"
+                    title="Refresh"
+                    onClick={() => setRefreshTripsFlag((f) => f + 1)}
+                  >
                     <RefreshCw className="h-4 w-4" />
-                    Refresh
                   </button>
                 </div>
               </div>
-
-              <div className="space-y-4">
-                {activeRoutesData.map((route) => (
-                  <div
-                    key={route.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div>
-                          <h4 className="font-semibold text-gray-900">
-                            {route.routeName} ({route.id})
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            {route.driverName}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {route.alerts.length > 0 && (
-                          <div className="flex items-center gap-1 text-red-600">
-                            <AlertTriangle className="h-4 w-4" />
-                            <span className="text-xs">
-                              {route.alerts.length}
+              {tripsLoading ? (
+                <div className="text-center py-8 text-gray-500">Loading...</div>
+              ) : trips.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No trips found for today.
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    {trips.map((trip) => (
+                      <div
+                        key={trip.tripId}
+                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">
+                                {trip.routeName} ({trip.routeCode})
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                {trip.driverName}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                                trip.tripStatus
+                              )}`}
+                            >
+                              {trip.tripStatus.charAt(0).toUpperCase() +
+                                trip.tripStatus.slice(1)}
                             </span>
                           </div>
-                        )}
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                            route.status
-                          )}`}
-                        >
-                          {route.status.charAt(0).toUpperCase() +
-                            route.status.slice(1)}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-emerald-600">
-                          {route.progress}%
-                        </p>
-                        <p className="text-xs text-gray-600">Progress</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-lg font-semibold text-gray-900">
-                          {route.suppliersCompleted}/{route.suppliersTotal}
-                        </p>
-                        <p className="text-xs text-gray-600">Suppliers</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-lg font-semibold text-gray-900">
-                          {route.bagsCollected}
-                        </p>
-                        <p className="text-xs text-gray-600">Bags Collected</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-lg font-semibold text-emerald-700">
-                          {route.currentWeight}
-                        </p>
-                        <p className="text-xs text-gray-600">Total Weight</p>
-                      </div>
-                    </div>
-
-                    <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(
-                          route.progress
-                        )}`}
-                        style={{ width: `${route.progress}%` }}
-                      ></div>
-                    </div>
-
-                    <div className="flex justify-between items-center text-sm text-gray-600">
-                      <span></span>
-                      <span>Last Update: {route.lastUpdate}</span>
-                    </div>
-
-                    {route.alerts.length > 0 && (
-                      <div className="mt-3 space-y-1">
-                        {route.alerts.map((alert, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-2 rounded"
-                          >
-                            <AlertTriangle className="h-4 w-4" />
-                            {alert}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
+                          <div className="text-center">
+                            <p className="text-2xl font-bold text-emerald-600">
+                              {/* Progress is not provided by API, so show percent of completed suppliers */}
+                              {trip.totalSuppliers > 0
+                                ? Math.round(
+                                    (trip.completedSuppliers /
+                                      trip.totalSuppliers) *
+                                      100
+                                  )
+                                : 0}
+                              %
+                            </p>
+                            <p className="text-xs text-gray-600">Progress</p>
                           </div>
-                        ))}
+                          <div className="text-center">
+                            <p className="text-lg font-semibold text-gray-900">
+                              {trip.completedSuppliers}/{trip.totalSuppliers}
+                            </p>
+                            <p className="text-xs text-gray-600">Suppliers</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-lg font-semibold text-gray-900">
+                              {trip.totalBags}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Bags Collected
+                            </p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-lg font-semibold text-emerald-700">
+                              {trip.totalWeight} Kg
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Total Weight
+                            </p>
+                          </div>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+                          <div
+                            className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(
+                              trip.totalSuppliers > 0
+                                ? Math.round(
+                                    (trip.completedSuppliers /
+                                      trip.totalSuppliers) *
+                                      100
+                                  )
+                                : 0
+                            )}`}
+                            style={{
+                              width: `${
+                                trip.totalSuppliers > 0
+                                  ? Math.round(
+                                      (trip.completedSuppliers /
+                                        trip.totalSuppliers) *
+                                        100
+                                    )
+                                  : 0
+                              }%`,
+                            }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between items-center text-sm text-gray-600">
+                          <span></span>
+                          <span>
+                            Last Update: {trip.lastUpdate?.slice(0, 5) ?? "-"}
+                          </span>
+                        </div>
                       </div>
-                    )}
+                    ))}
                   </div>
-                ))}
-              </div>
+                  <PaginationControls
+                    page={tripsPage}
+                    totalPages={tripsTotalPages}
+                    totalElements={tripsTotalElements}
+                    setPage={setTripsPage}
+                  />
+                </>
+              )}
             </div>
           </div>
         )}
