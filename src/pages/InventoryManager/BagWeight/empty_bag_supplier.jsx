@@ -1,12 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, Users, Package } from "lucide-react";
 import { getWeighedBagsForTripPaginated } from "../../../api/inventoryManager/bagWeight";
-import { getTripWeighingSummary, getTripSummary, getBagWeightsBySession } from "../../../api/inventoryManager/leafWeight";
+import {
+  getTripWeighingSummary,
+  getTripSummary,
+  getBagWeightsBySession,
+} from "../../../api/inventoryManager/leafWeight";
 import PaginationControls from "../../../components/ui/PaginationControls";
-import { useNavigate, Outlet, useMatch, useLocation, useParams } from "react-router-dom";
+import {
+  useNavigate,
+  Outlet,
+  useMatch,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const searchInputRef = useRef(null);
   const [bags, setBags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,6 +30,21 @@ export default function DriverRoute() {
   const location = useLocation();
   const { routeId, routeName, driverName, currentView } = location.state || {};
   const { tripId } = useParams();
+
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(searchInput);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
+
+  // Keep search input focused after searchTerm changes (API call)
+  useEffect(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchTerm]);
 
   useEffect(() => {
     if (!tripId) return;
@@ -110,6 +137,110 @@ export default function DriverRoute() {
   return (
     <div className="h-full bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto space-y-5">
+        {/* Header */}
+        <div className="bg-white p-4 shadow-sm">
+          <h1 className="text-2xl font-bold" style={{ color: "#165E52" }}>
+            Route Details
+          </h1>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            {
+              label: "No of Suppliers",
+              value: totalSuppliers,
+              icon: <Users className="text-[#000000] w-5 h-5" />,
+            },
+            {
+              label: "No of Bags",
+              value: totalBags,
+              icon: <Package className="text-[#000000] w-5 h-5" />,
+            },
+          ].map((card, idx) => (
+            <div
+              key={idx}
+              className="bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg"
+              style={{ borderColor: "#000000" }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p
+                    className="text-sm font-medium"
+                    style={{ color: "#000000" }}
+                  >
+                    {card.label}
+                  </p>
+                  <p className="text-2xl font-bold text-[#000000]">
+                    {card.value}
+                  </p>
+                </div>
+                <div className="h-10 w-10 bg-[#f3f4f6] rounded-full flex items-center justify-center text-lg">
+                  {card.icon}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Route Info + Search (always rendered) */}
+        <div
+          className="bg-white rounded-lg shadow-sm p-4 border"
+          style={{ borderColor: "#cfece6" }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+              <label
+                className="text-sm font-semibold mb-1 block"
+                style={{ color: "#165E52" }}
+              >
+                Route No
+              </label>
+              <div className="text-lg font-bold text-[#01251F]">
+                {routeId || "Route ID Not Available"}
+              </div>
+            </div>
+            <div>
+              <label
+                className="text-sm font-semibold mb-1 block"
+                style={{ color: "#165E52" }}
+              >
+                Route Name
+              </label>
+              <div className="text-lg font-bold text-gray-800">
+                {routeName || "Route Name Not Available"}
+              </div>
+            </div>
+            <div>
+              <label
+                className="text-sm font-semibold mb-1 block"
+                style={{ color: "#165E52" }}
+              >
+                Driver Name
+              </label>
+              <div className="text-lg font-bold text-gray-800">
+                {driverName || "Driver Name Not Available"}
+              </div>
+            </div>
+            <div className="relative">
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchInput}
+                onChange={(e) => {
+                  setPage(0); // Reset to first page on search
+                  setSearchInput(e.target.value);
+                }}
+                placeholder="Search"
+                className="w-full px-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50
+             focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent"
+              />
+              <Search className="absolute text-gray-400 h-4 w-4 right-3 top-3" />
+            </div>
+          </div>
+        </div>
+
+        {/* Loading/Error messages (do not unmount search) */}
         {loading && isBase && (
           <div className="bg-white p-4 rounded shadow text-center text-gray-600">
             Loading bag details...
@@ -120,128 +251,27 @@ export default function DriverRoute() {
             {error}
           </div>
         )}
-        {!loading && !error && isBase && (
+
+        {/* Supplier Action Bar */}
+        <div
+          className="bg-white rounded-lg shadow-sm p-4 border"
+          style={{ borderColor: "#cfece6" }}
+        >
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <h2
+                className="text-lg font-semibold"
+                style={{ color: "#165E52" }}
+              >
+                Supplier Bags
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        {/* Main content changes by currentView */}
+        {isBase && (
           <>
-            {/* Header */}
-            <div className="bg-white p-4 shadow-sm">
-              <h1 className="text-2xl font-bold" style={{ color: "#165E52" }}>
-                Route Details
-              </h1>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                {
-                  label: "No of Suppliers",
-                  value: totalSuppliers,
-                  icon: <Users className="text-[#000000] w-5 h-5" />,
-                },
-                {
-                  label: "No of Bags",
-                  value: totalBags,
-                  icon: <Package className="text-[#000000] w-5 h-5" />,
-                },
-              ].map((card, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg"
-                  style={{ borderColor: "#000000" }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p
-                        className="text-sm font-medium"
-                        style={{ color: "#000000" }}
-                      >
-                        {card.label}
-                      </p>
-                      <p className="text-2xl font-bold text-[#000000]">
-                        {card.value}
-                      </p>
-                    </div>
-                    <div className="h-10 w-10 bg-[#f3f4f6] rounded-full flex items-center justify-center text-lg">
-                      {card.icon}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Route Info + Search */}
-            <div
-              className="bg-white rounded-lg shadow-sm p-4 border"
-              style={{ borderColor: "#cfece6" }}
-            >
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <div>
-                  <label
-                    className="text-sm font-semibold mb-1 block"
-                    style={{ color: "#165E52" }}
-                  >
-                    Route No
-                  </label>
-                  <div className="text-lg font-bold text-[#01251F]">
-                    {routeId || "Route ID Not Available"}
-                  </div>
-                </div>
-                <div>
-                  <label
-                    className="text-sm font-semibold mb-1 block"
-                    style={{ color: "#165E52" }}
-                  >
-                    Route Name
-                  </label>
-                  <div className="text-lg font-bold text-gray-800">
-                    {routeName || "Route Name Not Available"}
-                  </div>
-                </div>
-                <div>
-                  <label
-                    className="text-sm font-semibold mb-1 block"
-                    style={{ color: "#165E52" }}
-                  >
-                    Driver Name
-                  </label>
-                  <div className="text-lg font-bold text-gray-800">
-                    {driverName || "Driver Name Not Available"}
-                  </div>
-                </div>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setPage(0); // Reset to first page on search
-                      setSearchTerm(e.target.value);
-                    }}
-                    placeholder="Search"
-                    className="w-full px-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50
-                 focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent"
-                  />
-                  <Search className="absolute text-gray-400 h-4 w-4 right-3 top-3" />
-                </div>
-              </div>
-            </div>
-
-            {/* Supplier Action Bar */}
-            <div
-              className="bg-white rounded-lg shadow-sm p-4 border"
-              style={{ borderColor: "#cfece6" }}
-            >
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <h2
-                    className="text-lg font-semibold"
-                    style={{ color: "#165E52" }}
-                  >
-                    Supplier Bags
-                  </h2>
-                </div>
-              </div>
-            </div>
-
-            {/* Main content changes by currentView */}
             {currentView === "weighed" ? (
               totalElements === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
