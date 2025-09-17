@@ -10,7 +10,6 @@ import EmptyBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight";
 // import WeightCondition from "../pages/InventoryManager/weight_condition";
 import History from "../pages/InventoryManager/History/history";
 // import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier";
-import CRUD from "../pages/InventoryManager/Report/inventorycrud";
 import EmptySupplierBag from "../pages/InventoryManager/BagWeight/empty_bag_supplier";
 import EmptySupplierBagAll from "../pages/InventoryManager/BagWeight/empty_bag_supplier_all";
 
@@ -57,16 +56,6 @@ export default [
     element={
       <Layout>
         <History />
-      </Layout>
-    }
-  />,
-  // <Route key="report" path="/inventoryManager/report" element={<Layout><SupplierAdd /></Layout>} />,
-  <Route
-    key="crud"
-    path="/inventoryManager/crud"
-    element={
-      <Layout>
-        <CRUD />
       </Layout>
     }
   />,

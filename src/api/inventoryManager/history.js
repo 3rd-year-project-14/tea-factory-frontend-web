@@ -1,8 +1,13 @@
 import axios from "../axios";
 
 // API functions for inventory manager
-export const getInventoryManagerDashboard = async () => {
-  // ...implement get inventory manager dashboard API call...
+
+// Fetch dashboard summary for Inventory Manager
+export const getInventoryManagerDashboardSummary = async (factoryId) => {
+  const res = await axios.get(
+    `/inventory-process/${factoryId}/dashboard-summary`
+  );
+  return res.data;
 };
 
 export const getInventoryManagersByFactory = async (factoryId) => {
