@@ -37,6 +37,19 @@ export const getFertilizerCompanies = async () => {
   return res.data;
 };
 
+// Simplified dropdown (id + name)
+export const getFertilizerCompanyDropdown = async () => {
+  const res = await axios.get("/fertilizer-companies/dropdown");
+  return res.data; // [{id, name}]
+};
+
+// Categories for a selected company
+export const getFertilizerCategoriesByCompany = async (companyId) => {
+  if (!companyId) return [];
+  const res = await axios.get(`/fertilizer-companies/${companyId}/categories`);
+  return res.data; // [{id, name}]
+};
+
 export const createFertilizerCompany = async (companyData) => {
   const res = await axios.post("/fertilizer-companies", companyData);
   return res.data;

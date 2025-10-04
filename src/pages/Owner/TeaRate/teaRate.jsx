@@ -829,14 +829,21 @@ ${data.data.processed
   );
 
   const filteredRates = (rates) => {
+    // Defensive guards to avoid calling string methods on null/undefined values
+    if (!Array.isArray(rates)) return [];
+    const search = (searchTerm || "").toLowerCase();
     return rates.filter((rate) => {
+      const factoryName = (rate?.factoryName ?? "").toString();
+      const managerName = (rate?.manager ?? "").toString();
+      const monthVal = rate?.month;
+
       const matchesFactory =
-        selectedFactory === "all" || rate.factoryName === selectedFactory;
+        selectedFactory === "all" || factoryName === selectedFactory;
       const matchesMonth =
-        selectedMonth === "all" || rate.month.includes(selectedMonth);
-      const matchesSearch =
-        rate.factoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        rate.manager.toLowerCase().includes(searchTerm.toLowerCase());
+        selectedMonth === "all" || (typeof monthVal === "string" && monthVal.includes(selectedMonth));
+      const factoryMatch = factoryName.toLowerCase().includes(search);
+      const managerMatch = managerName.toLowerCase().includes(search);
+      const matchesSearch = search === "" || factoryMatch || managerMatch;
       return matchesFactory && matchesMonth && matchesSearch;
     });
   };
