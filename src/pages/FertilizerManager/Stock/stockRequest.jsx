@@ -1,307 +1,344 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Divider,
-  Button,
-  Input,
-  Textarea,
-  Select,
-  SelectItem,
-} from "@nextui-org/react";
-import { ArrowLeft } from "lucide-react";
-// Commented out Firebase imports for now
-// import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-// import { db } from "../../../firebase";
-import { useAuth } from "../../../contexts/AuthContext";
+import React, { useEffect, useState } from "react";
+import { FileText, Send, Package, Building2, MessageSquare, Loader2 } from "lucide-react";
+import { 
+  getFertilizerCompanyDropdown, 
+  getFertilizerCategoriesByCompany 
+} from "../../../api/owner";
+
+const ACCENT_COLOR = "#165E52";
 
 const StockRequest = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { currentUser } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formSubmitted, setFormSubmitted] = useState(false);
-
-  // Initialize form with pre-filled data if available
-  const initialFormData = location.state || {
-    categoryName: "",
-    companyName: "",
-    currentQuantity: 0,
-    requestedQuantity: "",
+  const [formData, setFormData] = useState({
+    fertilizerType: "",
+    company: "",
+    quantity: "",
     urgency: "normal",
     notes: "",
-  };
+  });
 
-  const [formData, setFormData] = useState(initialFormData);
+  // Company dropdown options (array of {id, name})
+  const [companies, setCompanies] = useState([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
+  const [categories, setCategories] = useState([]); // Fertilizer types for selected company
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [categoryError, setCategoryError] = useState("");
 
-  // Handle input changes
+  useEffect(() => {
+    let mounted = true;
+    const fetchCompanies = async () => {
+      setLoadingCompanies(true);
+      try {
+        const res = await getFertilizerCompanyDropdown();
+        if (!mounted) return;
+        setCompanies(Array.isArray(res) ? res : []);
+      } catch (e) {
+        if (!mounted) return;
+        // fallback static if error
+        setCompanies([
+          { id: 0, name: "GreenGrow Ltd" },
+          { id: 1, name: "AgriBoost Ltd." },
+          { id: 2, name: "HarvestMax" },
+        ]);
+      } finally {
+        if (mounted) setLoadingCompanies(false);
+      }
+    };
+    fetchCompanies();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Fetch categories when company changes
+  useEffect(() => {
+    let mounted = true;
+    const companyObj = companies.find(c => c.name === formData.company);
+    if (!companyObj) {
+      setCategories([]);
+      return () => { mounted = false; };
+    }
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      setCategoryError("");
+      try {
+        const res = await getFertilizerCategoriesByCompany(companyObj.id);
+        if (!mounted) return;
+        // Expect [{id,name}] ; map to names for select
+        setCategories(Array.isArray(res) ? res : []);
+      } catch (e) {
+        if (!mounted) return;
+        setCategoryError("Failed to load fertilizer types for company");
+        setCategories([]);
+      } finally {
+        if (mounted) setLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+    return () => { mounted = false; };
+  }, [formData.company, companies]);
+
+  const [requests, setRequests] = useState([
+    {
+      id: 1,
+      fertilizerType: "NPK 20-20-20",
+      company: "GreenGrow Ltd",
+      quantity: 100,
+      urgency: "high",
+      status: "pending",
+      dateRequested: "2024-07-15",
+      notes: "Urgent stock replenishment needed",
+    },
+  ]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmitRequest = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Create request object
-      const requestData = {
-        categoryName: formData.categoryName,
-        companyName: formData.companyName,
-        currentQuantity: formData.currentQuantity,
-        requestedQuantity: Number(formData.requestedQuantity),
-        urgency: formData.urgency,
-        notes: formData.notes,
+    if (formData.fertilizerType && formData.company && formData.quantity) {
+      const newRequest = {
+        id: requests.length + 1,
+        ...formData,
+        quantity: parseInt(formData.quantity),
         status: "pending",
-        requestedBy: {
-          uid: currentUser?.uid || "dummy-user-id",
-          email: currentUser?.email || "dummy@example.com",
-          displayName: currentUser?.displayName || "Fertilizer Manager",
-        },
-        createdAt: new Date().toISOString(),
+        dateRequested: new Date().toISOString().split("T")[0],
       };
-
-      // In a real app, we would save to Firestore:
-      // await addDoc(collection(db, "fertilizerRequests"), requestData);
-
-      // For demo, just log the data
-      console.log("Request submitted:", requestData);
-
-      // Show success message
-      setFormSubmitted(true);
-
-      // Reset form after 3 seconds and navigate back
-      setTimeout(() => {
-        navigate("/fertilizerManager/stock");
-      }, 3000);
-    } catch (error) {
-      console.error("Error submitting request:", error);
-      alert("Failed to submit request. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      setRequests((prev) => [...prev, newRequest]);
+      setFormData({
+        fertilizerType: "",
+        company: "",
+        quantity: "",
+        urgency: "normal",
+        notes: "",
+      });
     }
   };
 
-  const handleBack = () => {
-    navigate("/fertilizerManager/stock");
+  const getUrgencyColor = (urgency) => {
+    switch (urgency) {
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-green-100 text-green-800";
+    }
   };
 
-  if (formSubmitted) {
-    return (
-      <div className="container mx-auto py-10">
-        <Card className="shadow-md border-none">
-          <CardBody className="text-center py-12">
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12 text-green-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold text-green-600 mb-4">
-              Request Submitted Successfully!
-            </h2>
-            <p className="mb-6 text-gray-600 max-w-md mx-auto">
-              Your fertilizer stock request has been submitted and is pending
-              approval. You will be notified when your request is processed.
-            </p>
-            <div className="flex justify-center gap-4">
-              <Button
-                color="primary"
-                onClick={handleBack}
-                size="lg"
-                className="px-8"
-              >
-                Return to Stock List
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6 flex items-center">
-        <Button
-          color="default"
-          variant="light"
-          startContent={<ArrowLeft size={16} />}
-          onClick={handleBack}
-          className="font-medium"
-        >
-          Back to Stock List
-        </Button>
-        <h2 className="text-xl font-bold ml-auto">New Stock Request</h2>
-      </div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Stock Requests
+          </h1>
+          <p className="text-gray-600">
+            Request additional fertilizer stock from suppliers
+          </p>
+        </div>
 
-      <Card className="shadow-none border-none">
-        <CardHeader className="flex gap-3 bg-primary-100 rounded-t-lg">
-          <div className="flex flex-col">
-            <h1 className="text-xl font-bold">Fertilizer Stock Request</h1>
-            <p className="text-small text-default-500">
-              Request additional fertilizer stock
-            </p>
-          </div>
-        </CardHeader>
-        <Divider className="opacity-0" />
-        <CardBody className="px-6 py-8">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Stock Information */}
-            <div className="bg-white rounded-md p-4">
-              <div className="flex flex-col gap-4">
-                <div className="grid grid-cols-2 items-center pb-2">
-                  <div className="font-medium text-gray-700">Category Name</div>
-                  <div className="text-gray-900">
-                    {formData.categoryName || "Nitrogen Fertilizer"}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 items-center pb-2">
-                  <div className="font-medium text-gray-700">Company Name</div>
-                  <div className="text-gray-900">
-                    {formData.companyName || "GreenGrow Inc."}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 items-center pb-2">
-                  <div className="font-medium text-gray-700">
-                    Warehouse Number
-                  </div>
-                  <div className="text-gray-900">WH-001</div>
-                </div>
-
-                <div className="grid grid-cols-2 items-center pb-2">
-                  <div className="font-medium text-gray-700">
-                    Warehouse Name
-                  </div>
-                  <div className="text-gray-900">Main Storage</div>
-                </div>
-
-                <div className="grid grid-cols-2 items-center pb-2">
-                  <div className="font-medium text-gray-700">
-                    Current Stock Quantity
-                  </div>
-                  <div className="text-gray-900">
-                    {formData.currentQuantity} units
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 items-center">
-                  <div className="font-medium text-gray-700">
-                    Requested Quantity
-                  </div>
-                  <Input
-                    aria-label="Requested Quantity"
-                    name="requestedQuantity"
-                    type="number"
-                    placeholder="Enter amount"
-                    value={formData.requestedQuantity}
-                    onChange={handleInputChange}
-                    isRequired
-                    variant="flat"
-                    endContent={
-                      <div className="text-sm text-gray-500">units</div>
-                    }
-                    size="sm"
-                  />
-                </div>
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Request Form */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center mb-4">
+              <FileText className="text-blue-600 mr-3" size={24} />
+              <h2 className="text-xl font-semibold text-gray-900">
+                New Stock Request
+              </h2>
             </div>
 
-            {/* Request Details */}
-            <div className="space-y-2">
-              <h3 className="text-md font-medium text-gray-700">
-                Request Details
-              </h3>
-              <div className="rounded-lg p-4 bg-gray-50">
-                <Select
-                  label="Urgency Level"
-                  name="urgency"
-                  selectedKeys={[formData.urgency]}
-                  onChange={(e) =>
-                    setFormData({ ...formData, urgency: e.target.value })
-                  }
-                  className="mb-4 w-full"
-                  variant="flat"
-                  labelPlacement="outside"
-                >
-                  <SelectItem key="low" value="low" className="text-success">
-                    Low - Not Urgent
-                  </SelectItem>
-                  <SelectItem
-                    key="normal"
-                    value="normal"
-                    className="text-primary"
-                  >
-                    Normal - Standard Resupply
-                  </SelectItem>
-                  <SelectItem key="high" value="high" className="text-warning">
-                    High - Limited Stock
-                  </SelectItem>
-                  <SelectItem
-                    key="critical"
-                    value="critical"
-                    className="text-danger"
-                  >
-                    Critical - Immediate Attention Required
-                  </SelectItem>
-                </Select>
+            <form onSubmit={handleSubmitRequest} className="space-y-4">
 
-                <Textarea
-                  label="Additional Notes"
-                  name="notes"
-                  placeholder="Provide any additional information about this request, including specific usage details, delivery preferences, or other requirements."
-                  value={formData.notes}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Company/Supplier
+                </label>
+                <div className="relative">
+                  <Building2 className="pointer-events-none absolute left-3 top-3 text-gray-400" size={18} />
+                  <select
+                    name="company"
+                    value={formData.company}
+                    onChange={(e) => {
+                      // reset fertilizer type when company changes
+                      setFormData(prev => ({...prev, company: e.target.value, fertilizerType: ""}));
+                    }}
+                    className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white disabled:opacity-60"
+                    required
+                    disabled={loadingCompanies && companies.length === 0}
+                  >
+                    <option value="" disabled>
+                      {loadingCompanies && companies.length === 0 ? "Loading companies..." : "Select a company"}
+                    </option>
+                    {companies.map((c) => (
+                      <option key={c.id} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  {loadingCompanies && (
+                    <Loader2 className="absolute right-3 top-3 animate-spin text-gray-400" size={18} />
+                  )}
+                </div>
+              </div>
+
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Fertilizer Type
+                </label>
+                <div className="relative">
+                  <Package className="pointer-events-none absolute left-3 top-3 text-gray-400" size={18} />
+                  <select
+                    name="fertilizerType"
+                    value={formData.fertilizerType}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white disabled:opacity-60"
+                    required
+                    disabled={loadingCategories || !formData.company}
+                  >
+                    <option value="" disabled>
+                      {formData.company
+                        ? loadingCategories
+                          ? "Loading types..."
+                          : categories.length
+                            ? "Select fertilizer type"
+                            : categoryError || "No types found"
+                        : "Select company first"}
+                    </option>
+                    {categories.map((c) => (
+                      <option key={c.id || c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {categoryError && (
+                  <p className="mt-1 text-xs text-red-600">{categoryError}</p>
+                )}
+              </div>
+
+              
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Quantity Needed
+                </label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={formData.quantity}
                   onChange={handleInputChange}
-                  minRows={4}
-                  variant="flat"
-                  labelPlacement="outside"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter quantity"
+                  min="1"
+                  required
                 />
               </div>
-            </div>
 
-            <div className="flex justify-end gap-3 pt-4">
-              <Button
-                color="default"
-                variant="flat"
-                onClick={handleBack}
-                size="lg"
-              >
-                Cancel
-              </Button>
-              <Button
-                color="primary"
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Urgency Level
+                </label>
+                <select
+                  name="urgency"
+                  value={formData.urgency}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="normal">Normal</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Notes (Optional)
+                </label>
+                <div className="relative">
+                  <MessageSquare className="absolute left-3 top-3 text-gray-400" size={18} />
+                  <textarea
+                    name="notes"
+                    value={formData.notes}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Additional notes or requirements..."
+                  />
+                </div>
+              </div>
+
+              <button
                 type="submit"
-                isLoading={isSubmitting}
-                size="lg"
-                startContent={isSubmitting ? null : <span>📝</span>}
+                style={{ backgroundColor: ACCENT_COLOR }}
+                className="w-full hover:opacity-90 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 font-semibold transition-opacity"
               >
+                <Send size={18} />
                 Submit Request
-              </Button>
+              </button>
+            </form>
+          </div>
+
+          {/* Request History */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Recent Requests
+            </h2>
+
+            <div className="space-y-4">
+              {requests.map((request) => (
+                <div
+                  key={request.id}
+                  className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-medium text-gray-900">
+                      {request.fertilizerType}
+                    </h3>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getUrgencyColor(
+                        request.urgency
+                      )}`}
+                    >
+                      {request.urgency.charAt(0).toUpperCase() + request.urgency.slice(1)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-1">{request.company}</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Quantity: {request.quantity} units
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">
+                      Requested on {request.dateRequested}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        request.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : request.status === "approved"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                    </span>
+                  </div>
+                  {request.notes && (
+                    <p className="text-xs text-gray-500 mt-2 italic">
+                      "{request.notes}"
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
-          </form>
-        </CardBody>
-      </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

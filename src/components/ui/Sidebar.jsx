@@ -66,7 +66,7 @@ const sidebarLinks = {
   ],
   FERTILIZER_MANAGER: [
     { name: "Dashboard", path: "/fertilizerManager/Dashboard", icon: Home },
-    { name: "Stock", path: "/fertilizerManager/stock", icon: Truck },
+    { name: "Stock", path: "/fertilizerManager/stocks", icon: Truck },
     { name: "Request", path: "/fertilizerManager/request", icon: Package },
     { name: "Report", path: "/fertilizerManager/report", icon: Users },
   ],
