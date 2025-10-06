@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FileText, Send, Package, Building2, MessageSquare, Loader2 } from "lucide-react";
 import { 
-  getFertilizerCompanyDropdown, 
-  getFertilizerCategoriesByCompany 
+  getAllFertilizerCategories,
+  getCompaniesByFertilizerCategory
 } from "../../../api/owner";
 
 const ACCENT_COLOR = "#165E52";
@@ -16,66 +16,66 @@ const StockRequest = () => {
     notes: "",
   });
 
-  // Company dropdown options (array of {id, name})
-  const [companies, setCompanies] = useState([]);
-  const [loadingCompanies, setLoadingCompanies] = useState(false);
-  const [categories, setCategories] = useState([]); // Fertilizer types for selected company
+  // Fertilizer categories dropdown options (array of {id, name})
+  const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
-  const [categoryError, setCategoryError] = useState("");
+  const [companies, setCompanies] = useState([]); // Companies for selected fertilizer type
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
+  const [companyError, setCompanyError] = useState("");
 
   useEffect(() => {
     let mounted = true;
-    const fetchCompanies = async () => {
-      setLoadingCompanies(true);
-      try {
-        const res = await getFertilizerCompanyDropdown();
-        if (!mounted) return;
-        setCompanies(Array.isArray(res) ? res : []);
-      } catch (e) {
-        if (!mounted) return;
-        // fallback static if error
-        setCompanies([
-          { id: 0, name: "GreenGrow Ltd" },
-          { id: 1, name: "AgriBoost Ltd." },
-          { id: 2, name: "HarvestMax" },
-        ]);
-      } finally {
-        if (mounted) setLoadingCompanies(false);
-      }
-    };
-    fetchCompanies();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // Fetch categories when company changes
-  useEffect(() => {
-    let mounted = true;
-    const companyObj = companies.find(c => c.name === formData.company);
-    if (!companyObj) {
-      setCategories([]);
-      return () => { mounted = false; };
-    }
     const fetchCategories = async () => {
       setLoadingCategories(true);
-      setCategoryError("");
       try {
-        const res = await getFertilizerCategoriesByCompany(companyObj.id);
+        const res = await getAllFertilizerCategories();
         if (!mounted) return;
-        // Expect [{id,name}] ; map to names for select
         setCategories(Array.isArray(res) ? res : []);
       } catch (e) {
         if (!mounted) return;
-        setCategoryError("Failed to load fertilizer types for company");
-        setCategories([]);
+        // fallback static if error
+        setCategories([
+          { id: 0, name: "NPK 20-20-20" },
+          { id: 1, name: "Urea" },
+          { id: 2, name: "Phosphate" },
+        ]);
       } finally {
         if (mounted) setLoadingCategories(false);
       }
     };
     fetchCategories();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Fetch companies when fertilizer type changes
+  useEffect(() => {
+    let mounted = true;
+    const categoryObj = categories.find(c => c.name === formData.fertilizerType);
+    if (!categoryObj) {
+      setCompanies([]);
+      return () => { mounted = false; };
+    }
+    const fetchCompanies = async () => {
+      setLoadingCompanies(true);
+      setCompanyError("");
+      try {
+        const res = await getCompaniesByFertilizerCategory(categoryObj.id);
+        if (!mounted) return;
+        // Expect [{id,name}] ; map to names for select
+        setCompanies(Array.isArray(res) ? res : []);
+      } catch (e) {
+        if (!mounted) return;
+        setCompanyError("Failed to load companies for fertilizer type");
+        setCompanies([]);
+      } finally {
+        if (mounted) setLoadingCompanies(false);
+      }
+    };
+    fetchCompanies();
     return () => { mounted = false; };
-  }, [formData.company, companies]);
+  }, [formData.fertilizerType, categories]);
 
   const [requests, setRequests] = useState([
     {
@@ -156,6 +156,38 @@ const StockRequest = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Fertilizer Type
+                </label>
+                <div className="relative">
+                  <Package className="pointer-events-none absolute left-3 top-3 text-gray-400" size={18} />
+                  <select
+                    name="fertilizerType"
+                    value={formData.fertilizerType}
+                    onChange={(e) => {
+                      // reset company when fertilizer type changes
+                      setFormData(prev => ({...prev, fertilizerType: e.target.value, company: ""}));
+                    }}
+                    className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white disabled:opacity-60"
+                    required
+                    disabled={loadingCategories && categories.length === 0}
+                  >
+                    <option value="" disabled>
+                      {loadingCategories && categories.length === 0 ? "Loading fertilizer types..." : "Select fertilizer type"}
+                    </option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  {loadingCategories && (
+                    <Loader2 className="absolute right-3 top-3 animate-spin text-gray-400" size={18} />
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Company/Supplier
                 </label>
                 <div className="relative">
@@ -163,16 +195,19 @@ const StockRequest = () => {
                   <select
                     name="company"
                     value={formData.company}
-                    onChange={(e) => {
-                      // reset fertilizer type when company changes
-                      setFormData(prev => ({...prev, company: e.target.value, fertilizerType: ""}));
-                    }}
+                    onChange={handleInputChange}
                     className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white disabled:opacity-60"
                     required
-                    disabled={loadingCompanies && companies.length === 0}
+                    disabled={loadingCompanies || !formData.fertilizerType}
                   >
                     <option value="" disabled>
-                      {loadingCompanies && companies.length === 0 ? "Loading companies..." : "Select a company"}
+                      {formData.fertilizerType
+                        ? loadingCompanies
+                          ? "Loading companies..."
+                          : companies.length
+                            ? "Select a company"
+                            : companyError || "No companies found"
+                        : "Select fertilizer type first"}
                     </option>
                     {companies.map((c) => (
                       <option key={c.id} value={c.name}>
@@ -184,41 +219,8 @@ const StockRequest = () => {
                     <Loader2 className="absolute right-3 top-3 animate-spin text-gray-400" size={18} />
                   )}
                 </div>
-              </div>
-
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fertilizer Type
-                </label>
-                <div className="relative">
-                  <Package className="pointer-events-none absolute left-3 top-3 text-gray-400" size={18} />
-                  <select
-                    name="fertilizerType"
-                    value={formData.fertilizerType}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white disabled:opacity-60"
-                    required
-                    disabled={loadingCategories || !formData.company}
-                  >
-                    <option value="" disabled>
-                      {formData.company
-                        ? loadingCategories
-                          ? "Loading types..."
-                          : categories.length
-                            ? "Select fertilizer type"
-                            : categoryError || "No types found"
-                        : "Select company first"}
-                    </option>
-                    {categories.map((c) => (
-                      <option key={c.id || c.name} value={c.name}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {categoryError && (
-                  <p className="mt-1 text-xs text-red-600">{categoryError}</p>
+                {companyError && (
+                  <p className="mt-1 text-xs text-red-600">{companyError}</p>
                 )}
               </div>
 
