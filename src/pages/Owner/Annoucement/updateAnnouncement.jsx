@@ -86,7 +86,7 @@ export default function UpdateAnnouncement() {
     });
     try {
       const apiUrl =
-        process.env.NODE_ENV === "development"
+        import.meta.env?.DEV
           ? `http://localhost:8080/api/announcements/${announcement.id}`
           : `/api/announcements/${announcement.id}`;
       const response = await fetch(apiUrl, {

@@ -30,7 +30,7 @@ export default function PureLeafDashboard() {
     async function fetchAnnouncements() {
       try {
         const apiUrl =
-          process.env.NODE_ENV === "development"
+          import.meta.env?.DEV
             ? "http://localhost:8080/api/announcements"
             : "/api/announcements";
         const response = await fetch(apiUrl);
@@ -64,7 +64,7 @@ export default function PureLeafDashboard() {
   const handleDelete = async (id) => {
     try {
       const apiUrl =
-        process.env.NODE_ENV === "development"
+        import.meta.env?.DEV
           ? `http://localhost:8080/api/announcements/${id}`
           : `/api/announcements/${id}`;
       const response = await fetch(apiUrl, {
