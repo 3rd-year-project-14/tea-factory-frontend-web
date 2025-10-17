@@ -1,3 +1,8 @@
+// Create fertilizer stock (connects to backend DTO)
+export async function createFertilizerStock(payload) {
+  const { data } = await axios.post("/fertilizer-stocks", payload);
+  return data;
+}
 // File: src/api/fertilizerManager.js
 // Axios API client for fertilizer requests aligned with backend controller
 // Uses shared axios instance that already sets Authorization header

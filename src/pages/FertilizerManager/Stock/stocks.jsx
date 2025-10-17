@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getAllFertilizerCategories, getCompaniesByFertilizerCategory } from "../../../api/owner";
+import { createFertilizerStock } from "../../../api/fertilizerManager";
+import { useAuth } from "../../../contexts/AuthContext";
 import {
   Plus,
   Package,
@@ -18,6 +21,7 @@ const BUTTON_COLOR = "#172526";
 const BORDER_COLOR = "#cfece6";
 
 const FertilizerStocks = () => {
+  const { user } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
   const [fertilizers, setFertilizers] = useState([
     {
@@ -48,15 +52,36 @@ const FertilizerStocks = () => {
       dateAdded: "2024-07-10",
     },
   ]);
-
+  //dropdown states
+  // Backend-connected dropdowns
+  const [categories, setCategories] = useState([]);
+  const [companies, setCompanies] = useState([]);
+//
   const [formData, setFormData] = useState({
     name: "",
     company: "",
     quantity: "",
     weight: "",
     warehouse: "",
+    purchasePrice: "",
+    sellPrice: "",
   });
+//dropdown data fetching
+  // Fetch categories on mount
+  useEffect(() => {
+    getAllFertilizerCategories().then(setCategories);
+  }, []);
 
+  // Fetch companies when category changes
+  useEffect(() => {
+    const selectedCategory = categories.find(c => c.name === formData.name);
+    if (selectedCategory) {
+      getCompaniesByFertilizerCategory(selectedCategory.id).then(setCompanies);
+    } else {
+      setCompanies([]);
+    }
+  }, [formData.name, categories]);
+//
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -72,23 +97,39 @@ const FertilizerStocks = () => {
       formData.company &&
       formData.quantity &&
       formData.weight &&
-      formData.warehouse
+      formData.warehouse &&
+      formData.purchasePrice &&
+      formData.sellPrice
     ) {
-      const newFertilizer = {
-        id: fertilizers.length + 1,
-        ...formData,
+      const selectedCategory = categories.find(c => c.name === formData.name);
+      const selectedCompany = companies.find(c => c.name === formData.company);
+      const payload = {
+        userId: user?.userId,
+        categoryId: selectedCategory?.id,
+        companyId: selectedCompany?.id,
+        weightPerQuantity: parseFloat(formData.weight),
+        purchasePrice: parseFloat(formData.purchasePrice),
+        sellPrice: parseFloat(formData.sellPrice),
+        warehouse: formData.warehouse,
         quantity: parseInt(formData.quantity),
-        dateAdded: new Date().toISOString().split("T")[0],
       };
-      setFertilizers((prev) => [...prev, newFertilizer]);
-      setFormData({
-        name: "",
-        company: "",
-        quantity: "",
-        weight: "",
-        warehouse: "",
-      });
-      setShowAddForm(false);
+      createFertilizerStock(payload)
+        .then((newStock) => {
+          setFertilizers((prev) => [...prev, newStock]);
+          setFormData({
+            name: "",
+            company: "",
+            quantity: "",
+            weight: "",
+            warehouse: "",
+            purchasePrice: "",
+            sellPrice: "",
+          });
+          setShowAddForm(false);
+        })
+        .catch((err) => {
+          console.error("Failed to add fertilizer stock", err);
+        });
     }
   };
 
@@ -150,39 +191,46 @@ const FertilizerStocks = () => {
               </div>
 
               <form onSubmit={handleAddFertilizer} className="space-y-4">
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fertilizer Name
+                    Fertilizer Category
                   </label>
                   <div className="relative">
                     <Package className="absolute left-3 top-3 text-gray-400" size={18} />
-                    <input
-                      type="text"
+                    <select
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
                       className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter fertilizer name"
                       required
-                    />
+                    >
+                      <option value="">Select Fertilizer Category</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.name}>{cat.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Name
+                    Company
                   </label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-3 text-gray-400" size={18} />
-                    <input
-                      type="text"
+                    <select
                       name="company"
                       value={formData.company}
                       onChange={handleInputChange}
                       className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter company name"
                       required
-                    />
+                    >
+                      <option value="">Select Company</option>
+                      {companies.map((comp) => (
+                        <option key={comp.id} value={comp.name}>{comp.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -239,7 +287,42 @@ const FertilizerStocks = () => {
                       <option value="Warehouse C">Warehouse C</option>
                     </select>
                   </div>
+                  
                 </div>
+                                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Purchase Price
+                  </label>
+                  <input
+                    type="number"
+                    name="purchasePrice"
+                    value={formData.purchasePrice}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter purchase price"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Sell Price
+                  </label>
+                  <input
+                    type="number"
+                    name="sellPrice"
+                    value={formData.sellPrice}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter sell price"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+
 
                 <div className="flex gap-3 pt-4">
                   <button
@@ -326,7 +409,7 @@ const FertilizerStocks = () => {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                              {fertilizer.name}
+                              {typeof fertilizer.name === "object" && fertilizer.name !== null ? fertilizer.name.name : fertilizer.name}
                             </div>
                             <div className="text-sm text-gray-500">
                               ID: {fertilizer.id}
@@ -336,7 +419,7 @@ const FertilizerStocks = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {fertilizer.company}
+                          {typeof fertilizer.company === "object" && fertilizer.company !== null ? fertilizer.company.name : fertilizer.company}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
