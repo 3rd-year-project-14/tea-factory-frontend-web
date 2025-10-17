@@ -1,61 +1,55 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, Eye, Edit } from "lucide-react";
+import { getManagers, getManagersByFactory } from "../../../api/manager";
 
 export default function ManagerDashboard() {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedFactory, setSelectedFactory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [managers, setManagers] = useState([
-    {
-      id: "MG_A_001",
-      name: "Gayan Sadamal",
-      email: "gayan@gmail.com",
-      role: "Manager",
-      status: "Active",
-      factory: "A",
-    },
-    {
-      id: "MG_A_011",
-      name: "Gayan Sadamal",
-      email: "gayan@gmail.com",
-      role: "Manager",
-      status: "Suspended",
-      factory: "A",
-    },
-    {
-      id: "MG_A_023",
-      name: "Gayan Sadamal",
-      email: "gayan@gmail.com",
-      role: "Manager",
-      status: "Active",
-      factory: "A",
-    },
-    {
-      id: "MG_B_001",
-      name: "John Smith",
-      email: "john@gmail.com",
-      role: "Supervisor",
-      status: "Active",
-      factory: "B",
-    },
-    {
-      id: "MG_C_111",
-      name: "Sarah Wilson",
-      email: "sarah@gmail.com",
-      role: "Admin",
-      status: "Active",
-      factory: "C",
-    },
-    {
-      id: "MG_B_002",
-      name: "Mike Johnson",
-      email: "mike@gmail.com",
-      role: "Manager",
-      status: "Suspended",
-      factory: "B",
-    },
-  ]);
+  const [managers, setManagers] = useState([]);
+
+  // Helper to convert factoryId number to letter (A, B, C...) for display only
+  const factoryIdToLetter = (factoryId) => {
+    if (factoryId == null) return "-";
+    // Simple mapping: 1 -> A, 2 -> B, 3 -> C, etc.
+    const n = Number(factoryId);
+    if (Number.isNaN(n)) return String(factoryId);
+    return String.fromCharCode(64 + n) || String(factoryId);
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchManagers = async () => {
+      try {
+        let data;
+        if (selectedFactory) {
+          // map factory letter back to id: A->1, B->2, C->3
+          const id = selectedFactory.charCodeAt(0) - 64;
+          data = await getManagersByFactory(id);
+        } else {
+          data = await getManagers();
+        }
+        if (!mounted) return;
+        // map backend DTOs to UI shape
+        const mapped = (data || []).map((m) => ({
+          id: m.id ? String(m.id) : "",
+          name: m.name || m.email || "",
+          email: m.email || "",
+          role: m.role || "",
+          status: m.status || "Active",
+          factory: factoryIdToLetter(m.factoryId),
+        }));
+        setManagers(mapped);
+      } catch (err) {
+        console.error("Failed to load managers:", err);
+      }
+    };
+    fetchManagers();
+    return () => {
+      mounted = false;
+    };
+  }, [selectedFactory]);
 
   const filteredManagers = useMemo(() => {
     return managers.filter((manager) => {
