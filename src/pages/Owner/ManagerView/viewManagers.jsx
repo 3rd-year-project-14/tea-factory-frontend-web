@@ -1,22 +1,24 @@
-import { useState, useMemo, useEffect } from "react";
-import { Search, Eye, Edit } from "lucide-react";
+import { Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { getManagers, getManagersByFactory } from "../../../api/manager";
 
 export default function ManagerDashboard() {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedFactory, setSelectedFactory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
   const [managers, setManagers] = useState([]);
 
-  // Helper to convert factoryId number to letter (A, B, C...) for display only
-  const factoryIdToLetter = (factoryId) => {
-    if (factoryId == null) return "-";
-    // Simple mapping: 1 -> A, 2 -> B, 3 -> C, etc.
-    const n = Number(factoryId);
-    if (Number.isNaN(n)) return String(factoryId);
-    return String.fromCharCode(64 + n) || String(factoryId);
-  };
+  const factoryOptions = [
+    { id: "1", name: "Wawlugala Tea Factory" },
+    { id: "2", name: "Miyanawathura Tea Factory" },
+    { id: "3", name: "Andaradeniya Tea Factory" },
+    { id: "4", name: "Andaradeniya Tea Factory" },
+    { id: "5", name: "Duli Ella Tea Factory" },
+    { id: "6", name: "Devonia Tea Factory" },
+    { id: "7", name: "Fortune Tea Factory" },
+    { id: "8", name: "Galaxi Tea Factory" },
+    { id: "9", name: "Ruhunu Tea Factory" },
+  ];
 
   useEffect(() => {
     let mounted = true;
@@ -24,22 +26,24 @@ export default function ManagerDashboard() {
       try {
         let data;
         if (selectedFactory) {
-          // map factory letter back to id: A->1, B->2, C->3
-          const id = selectedFactory.charCodeAt(0) - 64;
-          data = await getManagersByFactory(id);
+          data = await getManagersByFactory(Number(selectedFactory));
         } else {
           data = await getManagers();
         }
         if (!mounted) return;
-        // map backend DTOs to UI shape
-        const mapped = (data || []).map((m) => ({
-          id: m.id ? String(m.id) : "",
-          name: m.name || m.email || "",
-          email: m.email || "",
-          role: m.role || "",
-          status: m.status || "Active",
-          factory: factoryIdToLetter(m.factoryId),
-        }));
+        // map backend DTOs to UI shape and attach factory name
+        const mapped = (data || []).map((m) => {
+          const found = factoryOptions.find((f) => String(f.id) === String(m.factoryId));
+          return {
+            id: m.id ? String(m.id) : "",
+            name: m.name || m.email || "",
+            email: m.email || "",
+            role: m.role || "",
+            status: m.status || "Active",
+            factory: found ? found.name : (m.factoryId ? String(m.factoryId) : "-"),
+            factoryId: m.factoryId,
+          };
+        });
         setManagers(mapped);
       } catch (err) {
         console.error("Failed to load managers:", err);
@@ -57,7 +61,7 @@ export default function ManagerDashboard() {
         !selectedRole ||
         manager.role.toLowerCase() === selectedRole.toLowerCase();
       const matchesFactory =
-        !selectedFactory || manager.factory === selectedFactory;
+        !selectedFactory || String(manager.factoryId) === String(selectedFactory);
       const matchesSearch =
         !searchTerm ||
         manager.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -143,9 +147,11 @@ export default function ManagerDashboard() {
               aria-label="Filter by Factory"
             >
               <option value="">All Factories</option>
-              <option value="A">Factory A</option>
-              <option value="B">Factory B</option>
-              <option value="C">Factory C</option>
+              {factoryOptions.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
             </select>
 
             {/* Search Input */}
