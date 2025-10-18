@@ -109,6 +109,7 @@ const sidebarLinks = {
   OWNER: [
     { name: "Dashboard", path: "/owner/Dashboard", icon: Home },
     { name: "Annoucement", path: "/owner/annoucement", icon: Bell },
+    { name: "Loan Rates", path: "/owner/loan-rates", icon: BarChart3 },
     { name: "Payments", path: "/owner/payments", icon: DollarSign },
     { name: "manager works", path: "/owner/managers", icon: UserCheck },
     { name: "Tea Rate", path: "/owner/teaRate", icon: Package },
