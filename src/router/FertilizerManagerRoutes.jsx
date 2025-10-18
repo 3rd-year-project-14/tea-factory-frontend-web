@@ -8,6 +8,7 @@ import StockRequest from "../pages/FertilizerManager/Stock/stockRequest";
 import ReportPage from "../pages/FertilizerManager/Report/report";
 import StocksComponent from "../pages/FertilizerManager/Stock/stocks";
 // import History from "../pages/FertilizerManager/History/history";
+import AnnouncementComponent from "../components/Announcement/Announcement";
 
 export default [
   <Route
@@ -59,6 +60,15 @@ export default [
     element={
       <Layout>
         <ReportPage />
+      </Layout>
+    }
+  />,
+  <Route
+    key="announcements"
+    path="/fertilizerManager/announcements"
+    element={
+      <Layout>
+        <AnnouncementComponent />
       </Layout>
     }
   />,

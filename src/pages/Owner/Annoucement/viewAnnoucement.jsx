@@ -21,7 +21,7 @@ export default function PureLeafDashboard() {
     { id: 1, name: "Wawlugala Tea Factory" },
     { id: 2, name: "Miyanawathura Tea Factory" },
     { id: 3, name: "Andaradeniya Tea Factory" },
-    { id: 4, name: "Andaradeniya Tea Factory" },
+    { id: 4, name: "Batuwangala Tea Factory" },
     { id: 5, name: "Duli Ella Tea Factory" },
     { id: 6, name: "Devonia Tea Factory" },
     { id: 7, name: "Fortune Tea Factory" },

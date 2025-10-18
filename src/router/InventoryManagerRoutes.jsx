@@ -12,6 +12,7 @@ import History from "../pages/InventoryManager/History/history";
 // import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier";
 import EmptySupplierBag from "../pages/InventoryManager/BagWeight/empty_bag_supplier";
 import EmptySupplierBagAll from "../pages/InventoryManager/BagWeight/empty_bag_supplier_all";
+import AnnouncementComponent from "../components/Announcement/Announcement";
 
 export default [
   <Route
@@ -59,4 +60,13 @@ export default [
       </Layout>
     }
   />,
+  <Route
+    key="announcements"
+    path="/inventoryManager/announcements"
+    element={
+      <Layout>
+        <AnnouncementComponent />
+      </Layout>
+    }
+  />, 
 ];

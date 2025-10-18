@@ -11,6 +11,7 @@ import InventoryRoutesPage from "../pages/FactoryManager/Inventory/InventoryRout
 import InventorySuppliersPage from "../pages/FactoryManager/Inventory/InventorySuppliersPage";
 import InventorySupplierDetailPage from "../pages/FactoryManager/Inventory/InventorySupplierDetailPage";
 import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
+import AnnouncementComponent from "../components/Announcement/Announcement";
 // Payment Manager Components
 import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
 import AdvanceManagement from "../pages/PaymentManager/Advance/AdvanceManagement";
@@ -138,6 +139,14 @@ const FactoryManagerRoutes = (
       element={
         <Layout>
           <RouteManagement />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/announcements"
+      element={
+        <Layout>
+          <AnnouncementComponent />
         </Layout>
       }
     />
