@@ -392,6 +392,7 @@ const FertilizerStocks = () => {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
@@ -406,6 +407,13 @@ const FertilizerStocks = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {fertilizers.map((fertilizer) => (
                     <tr key={fertilizer.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {fertilizer.categoryName && fertilizer.companyName
+                            ? `${fertilizer.categoryName} - ${fertilizer.companyName}`
+                            : (fertilizer.productName || fertilizer.name || '-')}
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{fertilizer.categoryName}</div>
                         <div className="text-xs text-gray-500">ID: {fertilizer.id}</div>

@@ -1,7 +1,10 @@
 import { X } from "lucide-react";
+import { useState } from "react";
 import { getStatusColor, formatDate } from "./fertilizerUtils";
 
 export default function FertilizerRequestModal({ request, isOpen, onClose, onApprove, onReject, loading }) {
+  const [showRejectBox, setShowRejectBox] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
   if (!isOpen) return null;
 
   return (
@@ -86,21 +89,42 @@ export default function FertilizerRequestModal({ request, isOpen, onClose, onApp
 
               {/* Actions */}
               {request.status === "PENDING" && (
-                <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-                  <button
-                    onClick={() => onReject(request.id)}
-                    className="px-4 py-2 border border-red-500 text-red-600 rounded-md hover:bg-red-50 disabled:opacity-50"
-                    disabled={loading}
-                  >
-                    {loading === "reject" ? "Rejecting..." : "Reject"}
-                  </button>
-                  <button
-                    onClick={() => onApprove(request.id)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
-                    disabled={loading}
-                  >
-                    {loading === "approve" ? "Approving..." : "Approve"}
-                  </button>
+                <div className="flex flex-col gap-3 mt-6 pt-4 border-t">
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => setShowRejectBox((prev) => !prev)}
+                      className="px-4 py-2 border border-red-500 text-red-600 rounded-md hover:bg-red-50 disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      {loading === "reject" ? "Rejecting..." : "Reject"}
+                    </button>
+                    <button
+                      onClick={() => onApprove(request.id)}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      {loading === "approve" ? "Approving..." : "Approve"}
+                    </button>
+                  </div>
+                  {showRejectBox && (
+                    <div className="mt-2 flex flex-col items-end gap-2">
+                      <input
+                        type="text"
+                        className="w-full border border-red-300 rounded-md p-2"
+                        placeholder="Enter reject reason..."
+                        value={rejectReason}
+                        onChange={e => setRejectReason(e.target.value)}
+                        disabled={loading}
+                      />
+                      <button
+                        onClick={() => onReject(request.id, rejectReason)}
+                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                        disabled={loading || !rejectReason.trim()}
+                      >
+                        Confirm Reject
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
