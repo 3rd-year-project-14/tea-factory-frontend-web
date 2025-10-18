@@ -1,8 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { fetchLoanRequests, createLoanRequest } from "../../../api/factoryManager";
-import { Search, Filter, ChevronDown, Eye } from "lucide-react";
+import { Search, Filter, ChevronDown, Eye, ExternalLink } from "lucide-react";
 import LoanDetails from "./LoanDetails.jsx";
+import { approveLoanRequest } from "../../../api/loan";
 import { Users, Clock, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // 🎨 Color tokens
 const ACCENT_COLOR = "#165E52";
@@ -12,6 +14,7 @@ const BG_LIGHT_GREEN = "#e1f4ef";
 
 
 export default function LoanManagement() {
+  const navigate = useNavigate();
   const [loans, setLoans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -267,8 +270,19 @@ export default function LoanManagement() {
   };
 
   // Approval/rejection handlers (to be implemented)
-  const handleApproveLoan = (loanId, data) => {
-    // Implement backend call if needed
+  // Approval handler: call backend API and update UI
+  const handleApproveLoan = async (loanId) => {
+    try {
+      await approveLoanRequest(loanId);
+      setLoans((prevLoans) =>
+        prevLoans.map((loan) =>
+          loan.id === loanId ? { ...loan, status: "approved" } : loan
+        )
+      );
+      // Optionally show notification or refresh data
+    } catch (err) {
+      setError("Failed to approve loan: " + err);
+    }
   };
   const handleRejectLoan = (loanId, reason) => {
     // Implement backend call if needed
@@ -314,6 +328,13 @@ export default function LoanManagement() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <button
+                onClick={() => navigate('/payment-manager/loans/active')}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <ExternalLink className="h-4 w-4" />
+                View Active Loans
+              </button>
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-gray-700">Month:</label>
                 <select
