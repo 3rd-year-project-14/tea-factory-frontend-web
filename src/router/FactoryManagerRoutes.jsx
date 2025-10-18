@@ -14,6 +14,7 @@ import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
 // Payment Manager Components
 import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
 import AdvanceManagement from "../pages/PaymentManager/Advance/AdvanceManagement";
+import AdvanceDetails from "../pages/PaymentManager/Advance/AdvanceDetails";
 import LoanManagement from "../pages/PaymentManager/Loans/LoanManagement";
 import TeaRateAdjustment from "../pages/PaymentManager/TeaRate/TeaRateAdjustment";
 import PaymentManagement from "../pages/PaymentManager/Payments/PaymentManagement";
@@ -42,6 +43,14 @@ const FactoryManagerRoutes = (
       element={
         <Layout>
           <AdvanceManagement />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/advance/:advanceId"
+      element={
+        <Layout>
+          <AdvanceDetails />
         </Layout>
       }
     />
