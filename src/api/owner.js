@@ -75,6 +75,17 @@ export const addAnnouncement = async (formData) => {
   return res.data;
 };
 
+// Loan Rate APIs
+export const getLoanRates = async () => {
+  const res = await axios.get("/loan-rate");
+  return res.data;
+};
+
+export const createLoanRate = async (loanRateData) => {
+  const res = await axios.post("/loan-rate", loanRateData);
+  return res.data;
+};
+
 // Update an existing announcement by id (supports FormData)
 export const updateAnnouncement = async (id, formData) => {
   const res = await axios.put(`/announcements/${id}`, formData, {

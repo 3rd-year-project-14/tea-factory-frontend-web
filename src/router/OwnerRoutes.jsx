@@ -7,6 +7,7 @@ import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
 import OwnerAnnouncementManage from "../pages/Owner/Announcement/Announcement";
 import OwnerDashboard from "../pages/Owner/dashboard";
 import FertilizerCompany from "../pages/Owner/FertilizerCompany/FertilizerCompany";
+import LoanRates from "../pages/Owner/LoanRates/LoanRates";
 import AddManagers from "../pages/Owner/ManagerView/addManagers";
 import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
 import OwnerManagers from "../pages/Owner/ManagerView/viewManagers";
@@ -152,6 +153,15 @@ export default [
         <Layout>
           {" "}
           <FertilizerCompany />{" "}
+        </Layout>
+      }
+    />
+    <Route
+      path="/owner/loan-rates"
+      element={
+        <Layout>
+          {" "}
+          <LoanRates />{" "}
         </Layout>
       }
     />
