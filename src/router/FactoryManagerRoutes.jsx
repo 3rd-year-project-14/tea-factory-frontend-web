@@ -4,6 +4,7 @@ import Layout from "../layouts/Layout";
 // Factory Manager Components
 import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
 import SupplierRegister from "../pages/FactoryManager/Suppliers/SupplierRegister";
+import FertilizersPage from "../pages/FactoryManager/Fertilizers/FertilizersPage";
 import SupplierDetailsPage from "../pages/FactoryManager/Suppliers/SupplierDetailsPage";
 import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
 import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
@@ -74,6 +75,14 @@ const FactoryManagerRoutes = (
       element={
         <Layout>
           <SupplierRegister />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/fertilizers"
+      element={
+        <Layout>
+          <FertilizersPage />
         </Layout>
       }
     />

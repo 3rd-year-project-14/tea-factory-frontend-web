@@ -342,28 +342,32 @@ export default function TeaRateAdjustment() {
                 {teaRateRecords.map((record, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="border border-gray-200 px-4 py-2 text-sm text-gray-900">
-                      {new Date(record.month).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                      })}
+                      {record?.month
+                        ? (() => {
+                            const d = new Date(record.month);
+                            return isNaN(d.getTime())
+                              ? String(record.month)
+                              : d.toLocaleDateString("en-US", { year: "numeric", month: "long" });
+                          })()
+                        : "-"}
                     </td>
                     <td className="border border-gray-200 px-4 py-2 text-sm text-gray-900">
-                      {record.nsa.toFixed(2)}
+                      {record?.nsa != null ? Number(record.nsa).toFixed(2) : "-"}
                     </td>
                     <td className="border border-gray-200 px-4 py-2 text-sm text-gray-900">
-                      {record.gsa.toFixed(2)}
+                      {record?.gsa != null ? Number(record.gsa).toFixed(2) : "-"}
                     </td>
                     <td className="border border-gray-200 px-4 py-2 text-sm text-gray-900">
-                      {record.monthlyRate.toFixed(1)}%
+                      {record?.monthlyRate != null ? Number(record.monthlyRate).toFixed(1) + "%" : "-"}
                     </td>
                     <td className="border border-gray-200 px-4 py-2 text-sm text-gray-900">
-                      {record.totalWeight.toLocaleString()}
+                      {record?.totalWeight != null ? Number(record.totalWeight).toLocaleString() : "-"}
                     </td>
                     <td className="border border-gray-200 px-4 py-2 text-sm font-medium text-green-900">
-                      {record.finalRatePerKg.toFixed(2)}
+                      {record?.finalRatePerKg != null ? Number(record.finalRatePerKg).toFixed(2) : "-"}
                     </td>
                     <td className="border border-gray-200 px-4 py-2 text-sm font-medium text-green-900">
-                      {record.totalPayout.toLocaleString()}
+                      {record?.totalPayout != null ? Number(record.totalPayout).toLocaleString() : "-"}
                     </td>
                   </tr>
                 ))}

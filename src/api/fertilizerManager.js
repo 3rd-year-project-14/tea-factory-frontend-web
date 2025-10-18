@@ -1,3 +1,19 @@
+// Approve fertilizer request (new endpoint)
+export async function approveFertilizerRequest(id) {
+  const { data } = await axios.patch(`/fertilizer-requests/${id}/approve`);
+  return data;
+}
+
+// Reject fertilizer request (new endpoint)
+export async function rejectFertilizerRequest(id, rejectReason) {
+  const { data } = await axios.patch(`/fertilizer-requests/${id}/reject`, { rejectReason });
+  return data;
+}
+// Get all fertilizer stocks
+export async function getAllFertilizerStocks() {
+  const { data } = await axios.get("/fertilizer-stocks");
+  return data;
+}
 // Create fertilizer stock (connects to backend DTO)
 export async function createFertilizerStock(payload) {
   const { data } = await axios.post("/fertilizer-stocks", payload);

@@ -72,6 +72,7 @@ const sidebarLinks = {
   ],
   FACTORY_MANAGER: [
     { name: "Dashboard", path: "/factoryManager/dashboard", icon: Home },
+    { name: "Fertilizers", path: "/factoryManager/fertilizers", icon: Package },
     { name: "Suppliers", path: "/factoryManager/suppliers", icon: Users },
     { name: "Routes", path: "/factoryManager/routes", icon: Route },
     { name: "Inventory", path: "/factoryManager/inventory", icon: Package },

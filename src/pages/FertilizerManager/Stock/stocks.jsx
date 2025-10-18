@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getAllFertilizerCategories, getCompaniesByFertilizerCategory } from "../../../api/owner";
 import { createFertilizerStock } from "../../../api/fertilizerManager";
+import { getAllFertilizerStocks } from "../../../api/fertilizerManager";
 import { useAuth } from "../../../contexts/AuthContext";
 import {
   Plus,
@@ -21,37 +22,15 @@ const BUTTON_COLOR = "#172526";
 const BORDER_COLOR = "#cfece6";
 
 const FertilizerStocks = () => {
+  useEffect(() => {
+    // Fetch all stocks from backend on mount
+    getAllFertilizerStocks().then(setFertilizers).catch((err) => {
+      console.error("Failed to fetch fertilizer stocks", err);
+    });
+  }, []);
   const { user } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
-  const [fertilizers, setFertilizers] = useState([
-    {
-      id: 1,
-      name: "NPK 20-20-20",
-      company: "GreenGrow Ltd",
-      quantity: 150,
-      weight: "50kg",
-      warehouse: "Warehouse A",
-      dateAdded: "2024-07-01",
-    },
-    {
-      id: 2,
-      name: "Urea",
-      company: "Agro Direct",
-      quantity: 75,
-      weight: "25kg",
-      warehouse: "Warehouse B",
-      dateAdded: "2024-07-05",
-    },
-    {
-      id: 3,
-      name: "Potassium Sulfate",
-      company: "FertilizerMax",
-      quantity: 200,
-      weight: "40kg",
-      warehouse: "Warehouse A",
-      dateAdded: "2024-07-10",
-    },
-  ]);
+  const [fertilizers, setFertilizers] = useState([]);
   //dropdown states
   // Backend-connected dropdowns
   const [categories, setCategories] = useState([]);
@@ -144,9 +123,8 @@ const FertilizerStocks = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
+
+      <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Fertilizer Stock Management
           </h1>
@@ -154,6 +132,47 @@ const FertilizerStocks = () => {
             Manage your fertilizer inventory and stock levels
           </p>
         </div>
+        <div className="max-w-7xl mx-auto">
+        {/* Summary cards */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 mb-6">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Package className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Total Fertilizers</p>
+                <p className="text-2xl font-semibold text-gray-900">{fertilizers.length}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Building2 className="h-8 w-8 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Total Companies</p>
+                <p className="text-2xl font-semibold text-gray-900">{new Set(fertilizers.map((f) => f.companyName || f.company)).size}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Warehouse className="h-8 w-8 text-purple-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Warehouses Used</p>
+                <p className="text-2xl font-semibold text-gray-900">{new Set(fertilizers.map((f) => f.warehouse)).size}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Header */}
+        
 
         {/* Action Buttons */}
         <div className="mb-6 flex gap-4">
@@ -373,54 +392,26 @@ const FertilizerStocks = () => {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Fertilizer Details
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Company
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Quantity
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Weight
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Warehouse
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date Added
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight/Unit</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchase Price</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sell Price</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warehouse</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {fertilizers.map((fertilizer) => (
-                    <tr
-                      key={fertilizer.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
+                    <tr key={fertilizer.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                            <Package className="text-green-600" size={20} />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {typeof fertilizer.name === "object" && fertilizer.name !== null ? fertilizer.name.name : fertilizer.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              ID: {fertilizer.id}
-                            </div>
-                          </div>
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{fertilizer.categoryName}</div>
+                        <div className="text-xs text-gray-500">ID: {fertilizer.id}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {typeof fertilizer.company === "object" && fertilizer.company !== null ? fertilizer.company.name : fertilizer.company}
-                        </div>
+                        <div className="text-sm text-gray-900">{fertilizer.companyName}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -428,9 +419,13 @@ const FertilizerStocks = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {fertilizer.weight}
-                        </div>
+                        <div className="text-sm text-gray-900">{fertilizer.weightPerQuantity}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">Rs. {fertilizer.purchasePrice}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">Rs. {fertilizer.sellPrice}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
@@ -439,28 +434,18 @@ const FertilizerStocks = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">
-                          {fertilizer.dateAdded}
+                          {fertilizer.createdAt ? new Date(fertilizer.createdAt).toLocaleDateString() : "-"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex gap-2">
-                          <button
-                            className="text-blue-600 hover:text-blue-900"
-                            title="View Details"
-                          >
+                          <button className="text-blue-600 hover:text-blue-900" title="View Details">
                             <Eye size={18} />
                           </button>
-                          <button
-                            className="text-green-600 hover:text-green-900"
-                            title="Edit"
-                          >
+                          <button className="text-green-600 hover:text-green-900" title="Edit">
                             <Edit size={18} />
                           </button>
-                          <button
-                            onClick={() => handleDeleteFertilizer(fertilizer.id)}
-                            className="text-red-600 hover:text-red-900"
-                            title="Delete"
-                          >
+                          <button onClick={() => handleDeleteFertilizer(fertilizer.id)} className="text-red-600 hover:text-red-900" title="Delete">
                             <Trash2 size={18} />
                           </button>
                         </div>
