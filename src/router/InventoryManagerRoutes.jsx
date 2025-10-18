@@ -1,18 +1,18 @@
 import { Route } from "react-router-dom";
 import Layout from "../layouts/Layout";
+import EmptyBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight";
 import InventoryManagerDashboard from "../pages/InventoryManager/dashboard";
+import LeafBagsWeight from "../pages/InventoryManager/LeafWeight/leaf_bags_weight";
 import LeafWeight from "../pages/InventoryManager/LeafWeight/leaf_weight";
 import RouteLeaf from "../pages/InventoryManager/LeafWeight/route_leaf";
-import LeafBagsWeight from "../pages/InventoryManager/LeafWeight/leaf_bags_weight";
-import EmptyBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight";
 // import RouteBagsWeight from "../pages/InventoryManager/BagWeight/route_bags_weight";
 // import SupplierBagsWeight from "../pages/InventoryManager/BagWeight/bag_weight_supplier";
 // import WeightCondition from "../pages/InventoryManager/weight_condition";
 import History from "../pages/InventoryManager/History/history";
 // import SupplierAdd from "../pages/InventoryManager/Report/Addsupplier";
+import AnnouncementComponent from "../components/Announcement/Announcement";
 import EmptySupplierBag from "../pages/InventoryManager/BagWeight/empty_bag_supplier";
 import EmptySupplierBagAll from "../pages/InventoryManager/BagWeight/empty_bag_supplier_all";
-import AnnouncementComponent from "../components/Announcement/Announcement";
 
 export default [
   <Route

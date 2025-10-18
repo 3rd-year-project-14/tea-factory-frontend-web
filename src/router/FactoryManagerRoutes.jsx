@@ -2,23 +2,22 @@ import { Route } from "react-router-dom";
 import Layout from "../layouts/Layout";
 
 // Factory Manager Components
-import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
-import SupplierRegister from "../pages/FactoryManager/Suppliers/SupplierRegister";
-import SupplierDetailsPage from "../pages/FactoryManager/Suppliers/SupplierDetailsPage";
-import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
-import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
-import InventoryRoutesPage from "../pages/FactoryManager/Inventory/InventoryRoutesPage";
-import InventorySuppliersPage from "../pages/FactoryManager/Inventory/InventorySuppliersPage";
-import InventorySupplierDetailPage from "../pages/FactoryManager/Inventory/InventorySupplierDetailPage";
-import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
 import AnnouncementComponent from "../components/Announcement/Announcement";
+import FactoryManagerDashboard from "../pages/FactoryManager/dashboard";
+import DriverManagement from "../pages/FactoryManager/Drivers/DriverManagement";
+import InventoryRoutesPage from "../pages/FactoryManager/Inventory/InventoryRoutesPage";
+import InventorySupplierDetailPage from "../pages/FactoryManager/Inventory/InventorySupplierDetailPage";
+import InventorySuppliersPage from "../pages/FactoryManager/Inventory/InventorySuppliersPage";
+import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
+import SupplierDetailsPage from "../pages/FactoryManager/Suppliers/SupplierDetailsPage";
+import SupplierRegister from "../pages/FactoryManager/Suppliers/SupplierRegister";
 // Payment Manager Components
-import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
-import AdvanceManagement from "../pages/PaymentManager/Advance/AdvanceManagement";
 import AdvanceDetails from "../pages/PaymentManager/Advance/AdvanceDetails";
+import AdvanceManagement from "../pages/PaymentManager/Advance/AdvanceManagement";
+import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
 import LoanManagement from "../pages/PaymentManager/Loans/LoanManagement";
-import TeaRateAdjustment from "../pages/PaymentManager/TeaRate/TeaRateAdjustment";
 import PaymentManagement from "../pages/PaymentManager/Payments/PaymentManagement";
+import TeaRateAdjustment from "../pages/PaymentManager/TeaRate/TeaRateAdjustment";
 
 const FactoryManagerRoutes = (
   <>

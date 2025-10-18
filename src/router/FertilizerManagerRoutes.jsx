@@ -1,12 +1,11 @@
-import React from "react";
 import { Route } from "react-router-dom";
 import Layout from "../layouts/Layout";
 import Dashboard from "../pages/FertilizerManager/dashboard";
-import ViewStock from "../pages/FertilizerManager/Stock/ViewStock";
+import ReportPage from "../pages/FertilizerManager/Report/report";
 import Request from "../pages/FertilizerManager/Request/supplierRequest";
 import StockRequest from "../pages/FertilizerManager/Stock/stockRequest";
-import ReportPage from "../pages/FertilizerManager/Report/report";
 import StocksComponent from "../pages/FertilizerManager/Stock/stocks";
+import ViewStock from "../pages/FertilizerManager/Stock/ViewStock";
 // import History from "../pages/FertilizerManager/History/history";
 import AnnouncementComponent from "../components/Announcement/Announcement";
 
