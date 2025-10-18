@@ -31,6 +31,16 @@ export default function AddAnnouncement() {
   ];
   const navigate = useNavigate();
 
+  const topicOptions = [
+    { id: "general", name: "General" },
+    { id: "payments", name: "Payments" },
+    { id: "maintenance", name: "Maintenance" },
+    { id: "routes", name: "Routes" },
+    { id: "inventory", name: "Inventory" },
+    { id: "fertilizer", name: "Fertilizer" },
+    { id: "event", name: "Event" },
+  ];
+
   const handleInputChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -164,14 +174,17 @@ export default function AddAnnouncement() {
                   <label className="block text-gray-700 font-medium mb-2">
                     Topic :
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={form.topic}
                     onChange={(e) => handleInputChange("topic", e.target.value)}
                     className="w-full px-4 py-3 border rounded-lg text-gray-900 focus:ring-2 focus:ring-[#165e52]"
-                    placeholder="Enter announcement topic"
                     style={{ borderColor: BORDER_COLOR }}
-                  />
+                  >
+                    <option value="">Select topic</option>
+                    {topicOptions.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Subject */}
