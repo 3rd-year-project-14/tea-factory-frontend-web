@@ -39,6 +39,16 @@ export default function UpdateAnnouncement() {
     { id: "9", name: "Ruhunu Tea Factory" },
   ];
 
+  const topicOptions = [
+    { id: "general", name: "General" },
+    { id: "payments", name: "Payments" },
+    { id: "maintenance", name: "Maintenance" },
+    { id: "routes", name: "Routes" },
+    { id: "inventory", name: "Inventory" },
+    { id: "fertilizer", name: "Fertilizer" },
+    { id: "event", name: "Event" },
+  ];
+
   const handleInputChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -165,14 +175,17 @@ export default function UpdateAnnouncement() {
                   >
                     Topic :
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={form.topic}
                     onChange={(e) => handleInputChange("topic", e.target.value)}
                     className="w-full px-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#165e52] focus:border-[#165e52] transition-all bg-white"
-                    placeholder="Enter announcement topic"
                     style={{ borderColor: BORDER_COLOR }}
-                  />
+                  >
+                    <option value="">Select topic</option>
+                    {topicOptions.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Subject Field */}

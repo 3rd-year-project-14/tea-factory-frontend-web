@@ -8,6 +8,7 @@ import { viewAnnouncements } from "../../api/owner";
 import { useAuth } from "../../contexts/AuthContext";
 
 const BUTTON_COLOR = "#172526";
+const ACCENT_COLOR = "#165e52";
 
 export default function AnnouncementComponent() {
   const navigate = useNavigate();
@@ -108,8 +109,9 @@ export default function AnnouncementComponent() {
       <div className="bg-white shadow-md border-b">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold mb-1 text-gray-900">Announcements</h1>
-            <p className="text-[#000000] opacity-80 max-w-2xl">Owner Dashboard - Announcement Center</p>
+            <h1 className="text-3xl font-bold mb-1" style={{ color: ACCENT_COLOR }}>Announcements</h1>
+            {/* <h1 className="text-3xl font-bold mb-1 text-gray-900">Announcements</h1> */}
+            {/* <p className="text-[#000000] opacity-80 max-w-2xl">Owner Dashboard - Announcement Center</p> */}
           </div>
           {/* Add New removed */}
         </div>

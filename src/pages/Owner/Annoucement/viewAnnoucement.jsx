@@ -29,6 +29,22 @@ export default function PureLeafDashboard() {
     { id: 9, name: "Ruhunu Tea Factory" },
   ];
 
+  const topicOptions = [
+    { id: "general", name: "General" },
+    { id: "payments", name: "Payments" },
+    { id: "maintenance", name: "Maintenance" },
+    { id: "routes", name: "Routes" },
+    { id: "inventory", name: "Inventory" },
+    { id: "fertilizer", name: "Fertilizer" },
+    { id: "event", name: "Event" },
+  ];
+
+  const formatTopic = (topic) => {
+    if (!topic) return "-";
+    const found = topicOptions.find((t) => String(t.id) === String(topic));
+    return found ? found.name : String(topic);
+  };
+
   const [notification, setNotification] = useState(null);
 
   // Fetch announcements from backend on mount (use centralized API helper)
@@ -217,7 +233,7 @@ export default function PureLeafDashboard() {
                     }}
                   >
                     <span className="w-2 h-2 rounded-full bg-[#165e52] inline-block"></span>
-                    {announcement.topic}
+                    {formatTopic(announcement.topic)}
                   </span>
                   <span className="text-xs text-gray-500 italic">
                     # {announcement.factories
