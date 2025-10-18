@@ -1,6 +1,7 @@
 import { Paperclip, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { addAnnouncement } from "../../../api/owner";
 
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
@@ -18,10 +19,15 @@ export default function AddAnnouncement() {
   });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const factoryOptions = [
-    { id: "1", name: "Factory A" },
-    { id: "2", name: "Factory B" },
-    { id: "3", name: "Factory C" },
-    { id: "4", name: "Factory D" },
+    { id: "1", name: "Wawlugala Tea Factory" },
+    { id: "2", name: "Miyanawathura Tea Factory" },
+    { id: "3", name: "Andaradeniya Tea Factory" },
+    { id: "4", name: "Batuwangala Tea Factory" },
+    { id: "5", name: "Duli Ella Tea Factory" },
+    { id: "6", name: "Devonia Tea Factory" },
+    { id: "7", name: "Fortune Tea Factory" },
+    { id: "8", name: "Galaxi Tea Factory" },
+    { id: "9", name: "Ruhunu Tea Factory" },
   ];
   const navigate = useNavigate();
 
@@ -88,25 +94,13 @@ export default function AddAnnouncement() {
   });
 
   try {
-    const apiUrl =
-      process.env.NODE_ENV === "development"
-        ? "http://localhost:8080/api/announcements"
-        : "/api/announcements";
-
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      body: formData, // ❌ Content-Type manually දාන්න එපා
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      console.log("Backend response:", result);
-      navigate(-1);
-    } else {
-      console.error("Backend error:", response.status, await response.text());
-    }
+    // Use centralized axios helper which is configured with baseURL and interceptors
+    const result = await addAnnouncement(formData);
+    console.log("Backend response:", result);
+    navigate(-1);
   } catch (error) {
-    console.error("Error sending announcement:", error);
+    // axios error may have response data
+    console.error("Error sending announcement:", error?.response || error?.message || error);
   }
 };
 

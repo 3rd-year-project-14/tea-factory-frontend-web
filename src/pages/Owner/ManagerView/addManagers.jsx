@@ -105,6 +105,7 @@ export default function AddManagersInterface() {
   ];
 
   const factories = [
+    // { label: '1', value: 'Andaradeniya Tea Factory' },
     'Andaradeniya Tea Factory', 'Batuwangala Tea Factory', 'Ruhuna Tea Factory',
     'Duli Ella Tea Factory', 'Fortune Tea Factory', 'Waulugala Tea Factory',
     'Williegroup Tea Factory', 'Devonia Tea Factory', 'Galaxy Tea Factory',

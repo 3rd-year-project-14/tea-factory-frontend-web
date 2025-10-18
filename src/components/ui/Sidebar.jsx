@@ -1,22 +1,21 @@
-import { Link, useLocation } from "react-router-dom";
-import React from "react";
-import { useAuth } from "../../contexts/AuthContext";
 import {
-  Home,
-  Package,
-  Settings,
-  Users,
-  Truck,
   Award,
-  BarChart3,
-  DollarSign,
-  Route,
   BadgeAlert,
-  ListCheck,
-  UserCheck,
-  FileBarChart,
+  BarChart3,
   Bell,
+  DollarSign,
+  Home,
+  ListCheck,
+  Package,
+  Route,
+  Settings,
+  Truck,
+  UserCheck,
+  Users
 } from "lucide-react";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 // Custom Accent Green
 const ACCENT_COLOR = "#104137";
@@ -42,6 +41,7 @@ const sidebarLinks = {
     { name: "Drivers", path: "/transportManager/drivers", icon: Users },
     { name: "Vehicle", path: "/transportManager/vehicle", icon: Truck },
     { name: "Route", path: "/transportManager/routeList", icon: Route },
+    { name: "Announcements", path: "/transportManager/announcements", icon: Bell },
     {
       name: "Route Planner",
       path: "/transportManager/routePlan",
@@ -61,6 +61,7 @@ const sidebarLinks = {
       path: "/inventoryManager/empty_bags_weight",
       icon: Package,
     },
+    { name: "Announcements", path: "/inventoryManager/announcements", icon: Bell },
     { name: "History", path: "/inventoryManager/history", icon: Award },
     
   ],
@@ -68,11 +69,13 @@ const sidebarLinks = {
     { name: "Dashboard", path: "/fertilizerManager/Dashboard", icon: Home },
     { name: "Stock", path: "/fertilizerManager/stocks", icon: Truck },
     { name: "Request", path: "/fertilizerManager/request", icon: Package },
+    { name: "Announcements", path: "/fertilizerManager/announcements", icon: Bell },
     { name: "Report", path: "/fertilizerManager/report", icon: Users },
   ],
   FACTORY_MANAGER: [
     { name: "Dashboard", path: "/factoryManager/dashboard", icon: Home },
     { name: "Suppliers", path: "/factoryManager/suppliers", icon: Users },
+    { name: "Announcements", path: "/factoryManager/announcements", icon: Bell },
     { name: "Routes", path: "/factoryManager/routes", icon: Route },
     { name: "Inventory", path: "/factoryManager/inventory", icon: Package },
     { name: "Drivers", path: "/factoryManager/drivers", icon: Users },

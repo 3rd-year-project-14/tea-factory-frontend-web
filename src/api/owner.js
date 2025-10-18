@@ -64,3 +64,33 @@ export const deleteFertilizerCompany = async (id) => {
   const res = await axios.delete(`/fertilizer-companies/${id}`);
   return res.data;
 };
+
+// Announcements
+// Create a new announcement (supports attachments via FormData)
+export const addAnnouncement = async (formData) => {
+  // formData should be a FormData instance with fields: topic, subject, content, factories[], attachments[]
+  const res = await axios.post("/announcements", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+// Update an existing announcement by id (supports FormData)
+export const updateAnnouncement = async (id, formData) => {
+  const res = await axios.put(`/announcements/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+// View announcements (optionally pass params for filtering/pagination)
+export const viewAnnouncements = async (params = {}) => {
+  const res = await axios.get("/announcements", { params });
+  return res.data;
+};
+
+// Delete announcement by id
+export const deleteAnnouncement = async (id) => {
+  const res = await axios.delete(`/announcements/${id}`);
+  return res.data;
+};
