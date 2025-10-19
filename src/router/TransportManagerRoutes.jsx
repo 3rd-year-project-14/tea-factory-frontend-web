@@ -1,18 +1,18 @@
-import React from "react";
 import { Route } from "react-router-dom";
+import AnnouncementComponent from "../components/Announcement/Announcement";
 import Layout from "../layouts/Layout";
 import TransportManagerDashboard from "../pages/TransportManager/dashboard";
-import Vehicle from "../pages/TransportManager/Vehicle/VehicleList";
-import AddVehicle from "../pages/TransportManager/Vehicle/AddVehicle";
-import EditVehicle from "../pages/TransportManager/Vehicle/EditVehicle";
-import ViewVehicle from "../pages/TransportManager/Vehicle/ViewVehicle";
-import TrackRoutes from "../pages/TransportManager/Route/RouteList";
-import Emergency from "../pages/TransportManager/Emergency/EmergencyList";
-import RoutePlan from "../pages/TransportManager/RoutePlanner/RoutePlan";
-import CreateRoute from "../pages/TransportManager/Route/CreateRoute";
-import Drivers from "../pages/TransportManager/Drivers/DriverList";
 import DriverDetails from "../pages/TransportManager/Drivers/AddDriverDetails";
 import DriverUser from "../pages/TransportManager/Drivers/AddDriverUser";
+import Drivers from "../pages/TransportManager/Drivers/DriverList";
+import Emergency from "../pages/TransportManager/Emergency/EmergencyList";
+import CreateRoute from "../pages/TransportManager/Route/CreateRoute";
+import TrackRoutes from "../pages/TransportManager/Route/RouteList";
+import RoutePlan from "../pages/TransportManager/RoutePlanner/RoutePlan";
+import AddVehicle from "../pages/TransportManager/Vehicle/AddVehicle";
+import EditVehicle from "../pages/TransportManager/Vehicle/EditVehicle";
+import Vehicle from "../pages/TransportManager/Vehicle/VehicleList";
+import ViewVehicle from "../pages/TransportManager/Vehicle/ViewVehicle";
 
 const transportManagerRoutes = [
   <Route
@@ -120,6 +120,15 @@ const transportManagerRoutes = [
     element={
       <Layout>
         <RoutePlan />
+      </Layout>
+    }
+  />,
+  <Route
+    key="announcements"
+    path="/transportManager/announcements"
+    element={
+      <Layout>
+        <AnnouncementComponent />
       </Layout>
     }
   />,

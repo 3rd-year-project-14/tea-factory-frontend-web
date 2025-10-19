@@ -1,6 +1,7 @@
 import { Paperclip, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { addAnnouncement } from "../../../api/owner";
 
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
@@ -18,12 +19,27 @@ export default function AddAnnouncement() {
   });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const factoryOptions = [
-    { id: "1", name: "Factory A" },
-    { id: "2", name: "Factory B" },
-    { id: "3", name: "Factory C" },
-    { id: "4", name: "Factory D" },
+    { id: "1", name: "Wawlugala Tea Factory" },
+    { id: "2", name: "Miyanawathura Tea Factory" },
+    { id: "3", name: "Andaradeniya Tea Factory" },
+    { id: "4", name: "Batuwangala Tea Factory" },
+    { id: "5", name: "Duli Ella Tea Factory" },
+    { id: "6", name: "Devonia Tea Factory" },
+    { id: "7", name: "Fortune Tea Factory" },
+    { id: "8", name: "Galaxi Tea Factory" },
+    { id: "9", name: "Ruhunu Tea Factory" },
   ];
   const navigate = useNavigate();
+
+  const topicOptions = [
+    { id: "general", name: "General" },
+    { id: "payments", name: "Payments" },
+    { id: "maintenance", name: "Maintenance" },
+    { id: "routes", name: "Routes" },
+    { id: "inventory", name: "Inventory" },
+    { id: "fertilizer", name: "Fertilizer" },
+    { id: "event", name: "Event" },
+  ];
 
   const handleInputChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -88,25 +104,12 @@ export default function AddAnnouncement() {
   });
 
   try {
-    const apiUrl =
-      import.meta.env?.DEV
-        ? "http://localhost:8080/api/announcements"
-        : "/api/announcements";
-
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      body: formData, // ❌ Content-Type manually දාන්න එපා
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      console.log("Backend response:", result);
-      navigate(-1);
-    } else {
-      console.error("Backend error:", response.status, await response.text());
-    }
+    const result = await addAnnouncement(formData);
+    console.log("Backend response:", result);
+    navigate(-1);
   } catch (error) {
-    console.error("Error sending announcement:", error);
+    // axios error may have response data
+    console.error("Error sending announcement:", error?.response || error?.message || error);
   }
 };
 
@@ -170,14 +173,17 @@ export default function AddAnnouncement() {
                   <label className="block text-gray-700 font-medium mb-2">
                     Topic :
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={form.topic}
                     onChange={(e) => handleInputChange("topic", e.target.value)}
                     className="w-full px-4 py-3 border rounded-lg text-gray-900 focus:ring-2 focus:ring-[#165e52]"
-                    placeholder="Enter announcement topic"
                     style={{ borderColor: BORDER_COLOR }}
-                  />
+                  >
+                    <option value="">Select topic</option>
+                    {topicOptions.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Subject */}

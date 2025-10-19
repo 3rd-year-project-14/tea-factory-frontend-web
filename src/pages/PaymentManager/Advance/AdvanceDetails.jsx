@@ -1,26 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { Check, X, Clock, FileText } from "lucide-react";
 import AdvanceChart from "../../../components/charts/AdvanceChart";
+import { useAuth } from "../../../contexts/AuthContext";
+import {
+  getAdvanceDetails,
+  approveAdvance,
+  rejectAdvance,
+} from "../../../api/paymentManager";
 
-export default function AdvanceDetails({
-  supplier,
-  onBack,
-  onApprove,
-  onReject,
-}) {
+export default function AdvanceDetails() {
+  const { advanceId } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [supplier, setSupplier] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   // Modal state (must be before any return)
   const [showApproval, setShowApproval] = useState(false);
   const [showRejection, setShowRejection] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [approvedAmount, setApprovedAmount] = useState(0);
+
+  useEffect(() => {
+    const fetchAdvanceDetails = async () => {
+      try {
+        setLoading(true);
+        const data = await getAdvanceDetails(advanceId);
+        setSupplier(data);
+      } catch (err) {
+        console.error("Error fetching advance details:", err);
+        setError("Failed to load advance details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (advanceId) {
+      fetchAdvanceDetails();
+    }
+  }, [advanceId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#165E52] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading advance details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => navigate("/factoryManager/payment/advance")}
+            className="px-4 py-2 bg-[#165E52] text-white rounded-lg hover:bg-[#0f3d35]"
+          >
+            Back to Advances
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!supplier) return null;
 
   let statusText = "";
   let statusColor = "";
 
-  if (supplier.status === "pending") {
+  if (supplier.status === "REQUESTED") {
     statusText = "Pending Review";
     statusColor = "text-yellow-600 bg-yellow-100";
-  } else if (supplier.status === "approved") {
+  } else if (supplier.status === "APPROVED") {
     statusText = "Approved";
     statusColor = "text-green-600 bg-green-100";
   } else {
@@ -29,28 +86,55 @@ export default function AdvanceDetails({
   }
 
   // Modal close handlers
-  const closeApproval = () => setShowApproval(false);
-  const closeRejection = () => setShowRejection(false);
-
-  // Handlers for confirm actions
-  const handleApprove = () => {
-    if (onApprove) {
-      onApprove(supplier.id, {
-        route: "Route A-01",
-        loanTerms: {
-          duration: 3, // months
-          monthlyInstallment: Math.ceil(supplier.amount / 3),
-        },
-      });
-    }
-    closeApproval();
+  const closeApproval = () => {
+    setShowApproval(false);
+    setApprovedAmount(0);
+  };
+  const closeRejection = () => {
+    setShowRejection(false);
+    setRejectionReason("");
   };
 
-  const handleReject = () => {
-    if (onReject) {
-      onReject(supplier.id, "Reason not specified");
+  // Handlers for confirm actions
+  const handleApprove = async () => {
+    const approvalData = {
+      approvedByUserId: user?.userId,
+      approvedAmount: approvedAmount,
+      action: "APPROVE",
+    };
+    try {
+      await approveAdvance(supplier.id, approvalData);
+      setShowApproval(false);
+      // Navigate back after approval
+      navigate("/factoryManager/payment/advance", {
+        state: { view: "pending" },
+      });
+    } catch (error) {
+      console.error("Error approving advance:", error);
+      // TODO: Show error message to user
     }
-    closeRejection();
+  };
+
+  const handleReject = async () => {
+    try {
+      await rejectAdvance(supplier.id, {
+        rejectedByUserId: user?.userId,
+        rejectionReason: rejectionReason || "No reason provided",
+      });
+      setShowRejection(false);
+      setRejectionReason(""); // Reset
+      // Navigate back after rejection
+      navigate("/factoryManager/payment/advance", {
+        state: { view: "pending" },
+      });
+    } catch (error) {
+      console.error("Error rejecting advance:", error);
+      // TODO: Show error message to user
+    }
+  };
+
+  const handleBack = () => {
+    navigate("/factoryManager/payment/advance");
   };
 
   return (
@@ -73,22 +157,31 @@ export default function AdvanceDetails({
             <div className="p-6">
               <div className="mb-6 text-[#0f172a] text-base">
                 <p className="mb-2 font-semibold text-align-center">
-                  Approve advance request for Rs. {supplier.amount} <br />
-                  from {supplier.name}?
+                  Approve advance request for Rs. {supplier.requestedAmount}{" "}
+                  <br />
+                  from {supplier.supplierName}?
                 </p>
                 <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <h4 className="font-semibold text-blue-800 mb-2">
-                    Loan Terms
+                    Advance Details
                   </h4>
                   <div className="text-sm text-blue-700 space-y-1">
-                    <p>• Duration: 3 months</p>
-                    <p>
-                      • Monthly Installment: Rs.{" "}
-                      {Math.ceil(supplier.amount / 3).toLocaleString()}
-                    </p>
-                    <p>
-                      • This will create a loan entry for tracking repayments
-                    </p>
+                    <p>• Purpose: {supplier.purpose}</p>
+                    <p>• Payment Method: {supplier.paymentMethod}</p>
+                    <div className="flex flex-col">
+                      <label className="text-xs font-medium text-blue-800 mb-1">
+                        Approved Amount
+                      </label>
+                      <input
+                        type="number"
+                        value={approvedAmount}
+                        onChange={(e) =>
+                          setApprovedAmount(Number(e.target.value))
+                        }
+                        className="border border-blue-300 rounded px-2 py-1 text-sm"
+                        min="0"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -136,6 +229,8 @@ export default function AdvanceDetails({
                 <textarea
                   className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm min-h-[80px] resize-y"
                   placeholder="This reason will be visible to the supplier..."
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
                 ></textarea>
               </div>
             </div>
@@ -157,20 +252,20 @@ export default function AdvanceDetails({
         </div>
       )}
       {/* Enhanced Header with Quick Stats */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-20">
+      <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
             <div className="flex items-center space-x-4">
               <div>
                 <p className="text-3xl font-bold text-gray-900">
-                  {supplier.name}
+                  {supplier.supplierName}
                 </p>
                 <div className="flex items-center space-x-4 mt-1">
                   <span className="text-sm text-gray-500">
                     ID: {supplier.id}
                   </span>
                   <span className="text-sm text-gray-500">•</span>
-                  {supplier.status === "approved" && supplier.approvedDate && (
+                  {supplier.status === "APPROVED" && supplier.approvedDate && (
                     <>
                       <span className="text-sm text-gray-500">
                         Approved: {supplier.approvedDate}
@@ -178,15 +273,15 @@ export default function AdvanceDetails({
                       <span className="text-sm text-gray-500">•</span>
                     </>
                   )}
-                  {supplier.status === "pending" && (
+                  {supplier.status === "REQUESTED" && (
                     <>
                       <span className="text-sm text-gray-500">
-                        Submitted: {supplier.date}
+                        Submitted: {supplier.requestedDate}
                       </span>
                       <span className="text-sm text-gray-500">•</span>
                     </>
                   )}
-                  {supplier.status === "rejected" && supplier.rejectedDate && (
+                  {supplier.status === "REJECTED" && supplier.rejectedDate && (
                     <>
                       <span className="text-sm text-gray-500">
                         Rejected: {supplier.rejectedDate}
@@ -205,18 +300,31 @@ export default function AdvanceDetails({
 
             {/* Action buttons */}
             <div className="flex items-center space-x-3">
-              {supplier.status === "pending" && (
+              {supplier.status === "REQUESTED" && (
                 <>
                   <button
                     className="inline-flex items-center px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors"
-                    onClick={() => setShowApproval(true)}
+                    onClick={() => {
+                      setApprovedAmount(supplier.requestedAmount);
+                      setShowApproval(true);
+                    }}
                   >
                     <Check className="w-4 h-4 mr-2" />
                     Approve
                   </button>
                   <button
                     className="inline-flex items-center px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors"
-                    onClick={() => setShowRejection(true)}
+                    onClick={() => {
+                      if (
+                        supplier.eligibilityStatus === "FAIL" &&
+                        supplier.eligibilityFailReasons
+                      ) {
+                        setRejectionReason(
+                          supplier.eligibilityFailReasons.join("\n")
+                        );
+                      }
+                      setShowRejection(true);
+                    }}
                   >
                     <X className="w-4 h-4 mr-2" />
                     Reject
@@ -224,7 +332,7 @@ export default function AdvanceDetails({
                 </>
               )}
               <button
-                onClick={onBack}
+                onClick={handleBack}
                 className="px-6 py-3 rounded-xl text-sm font-semibold bg-[#f1f5f9] text-[#000] border-none hover:bg-[#e2e8f0] ml-2"
               >
                 ← Back
@@ -241,7 +349,7 @@ export default function AdvanceDetails({
           <div className="bg-white shadow overflow-hidden mb-6 rounded border border-[#94a3b8]">
             <div className="p-6 pb-0 border-b border-[#cbd5e1] mb-6">
               <h2 className="text-lg font-bold text-[#0f172a] mb-2">
-                {supplier.status === "approved"
+                {supplier.status === "APPROVED"
                   ? "Advance Details"
                   : "Advance Request Details"}
               </h2>
@@ -249,37 +357,52 @@ export default function AdvanceDetails({
             <div className="px-6 pb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Show eligibility only for pending status */}
-                {supplier.status === "pending" && (
+                {supplier.status === "REQUESTED" && (
                   <div className="flex flex-col items-center justify-center">
                     <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
                       ELIGIBILITY
                     </span>
                     <span
                       className={`text-xl font-bold ${
-                        supplier.eligibility === "PASS"
+                        supplier.eligibilityStatus === "PASS"
                           ? "text-[#10b981]"
                           : "text-[#ef4444]"
                       }`}
                     >
-                      {supplier.eligibility}
+                      {supplier.eligibilityStatus}
                     </span>
+                    {supplier.eligibilityStatus === "FAIL" &&
+                      supplier.eligibilityFailReasons && (
+                        <div className="mt-2 text-xs text-red-600">
+                          {supplier.eligibilityFailReasons.map(
+                            (reason, index) => (
+                              <p key={index}>• {reason}</p>
+                            )
+                          )}
+                        </div>
+                      )}
                   </div>
                 )}
 
                 {/* Other details - adjust grid based on status */}
                 <div
                   className={`${
-                    supplier.status === "pending" ? "col-span-2" : "col-span-3"
+                    supplier.status === "REQUESTED"
+                      ? "col-span-2"
+                      : "col-span-3"
                   } grid grid-cols-1 md:grid-cols-3 gap-6`}
                 >
                   <div className="flex flex-col">
                     <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                      {supplier.status === "approved"
+                      {supplier.status === "APPROVED"
                         ? "GIVEN AMOUNT"
                         : "REQUESTED AMOUNT"}
                     </span>
                     <span className="text-base font-bold text-[#0f172a]">
-                      Rs. {supplier.amount}
+                      Rs.{" "}
+                      {supplier.status === "APPROVED"
+                        ? supplier.approvedAmount
+                        : supplier.requestedAmount}
                     </span>
                   </div>
                   <div className="flex flex-col">
@@ -287,7 +410,15 @@ export default function AdvanceDetails({
                       TYPE
                     </span>
                     <span className="text-base font-bold text-[#0f172a] capitalize">
-                      {supplier.type || "Cash"}
+                      {supplier.paymentMethod || "Cash"}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                      PURPOSE
+                    </span>
+                    <span className="text-base font-bold text-[#0f172a]">
+                      {supplier.purpose}
                     </span>
                   </div>
                   <div className="flex flex-col">
@@ -295,17 +426,17 @@ export default function AdvanceDetails({
                       LAST MONTH INCOME
                     </span>
                     <span className="text-base font-bold text-[#0f172a]">
-                      Rs. {supplier.last_income}
+                      Rs. {supplier.lastMonthIncome}
                     </span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                      {supplier.status === "approved"
+                      {supplier.status === "APPROVED"
                         ? "CURRENT MONTH TEA WEIGHT"
                         : "THIS MONTH WEIGHT"}
                     </span>
                     <span className="text-base font-bold text-[#0f172a]">
-                      {supplier.this_weight}Kg
+                      {supplier.thisMonthWeight}Kg
                     </span>
                   </div>
                   <div className="flex flex-col">
@@ -313,7 +444,7 @@ export default function AdvanceDetails({
                       EXISTING LOANS
                     </span>
                     <span className="text-base font-bold text-[#0f172a]">
-                      Rs. {supplier.loans || "0"}
+                      Rs. {supplier.loanAmount || "0"}
                     </span>
                   </div>
                   <div className="flex flex-col">
@@ -321,20 +452,20 @@ export default function AdvanceDetails({
                       FERTILIZER LOANS
                     </span>
                     <span className="text-base font-bold text-[#0f172a]">
-                      Rs. {supplier.fertilizer_loans}
+                      Rs. {supplier.fertilizerLoan}
                     </span>
                   </div>
-                  {supplier.status === "pending" && (
+                  {supplier.status === "REQUESTED" && (
                     <div className="flex flex-col">
                       <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
                         THIS MONTH INCOME
                       </span>
                       <span className="text-base font-bold text-[#0f172a]">
-                        Rs. {supplier.this_income}
+                        Rs. {supplier.thisMonthIncome}
                       </span>
                     </div>
                   )}
-                  {supplier.status === "rejected" &&
+                  {supplier.status === "REJECTED" &&
                     supplier.rejectionReason && (
                       <div className="flex flex-col col-span-3">
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
@@ -380,11 +511,14 @@ export default function AdvanceDetails({
                         Advance Request Submitted
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {new Date(supplier.date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}{" "}
+                        {new Date(supplier.requestedDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}{" "}
                         at 2:30 PM
                       </p>
                     </div>
@@ -399,17 +533,20 @@ export default function AdvanceDetails({
                         Eligibility Assessment
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {new Date(supplier.date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}{" "}
+                        {new Date(supplier.requestedDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}{" "}
                         at 2:45 PM
                       </p>
                     </div>
                   </div>
 
-                  {supplier.status === "approved" && supplier.approvedDate && (
+                  {supplier.status === "APPROVED" && supplier.approvedDate && (
                     <div className="flex space-x-3">
                       <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                         <Check className="w-4 h-4 text-green-600" />
@@ -425,7 +562,7 @@ export default function AdvanceDetails({
                     </div>
                   )}
 
-                  {supplier.status === "rejected" && supplier.rejectedDate && (
+                  {supplier.status === "REJECTED" && supplier.rejectedDate && (
                     <div className="flex space-x-3">
                       <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
                         <X className="w-4 h-4 text-red-600" />
@@ -441,7 +578,7 @@ export default function AdvanceDetails({
                     </div>
                   )}
 
-                  {supplier.status === "pending" && (
+                  {supplier.status === "REQUESTED" && (
                     <div className="flex space-x-3">
                       <div className="flex-shrink-0 w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
                         <Clock className="w-4 h-4 text-yellow-600" />

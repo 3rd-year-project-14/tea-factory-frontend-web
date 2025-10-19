@@ -65,6 +65,47 @@ export const deleteFertilizerCompany = async (id) => {
   return res.data;
 };
 
+// Announcements
+// Create a new announcement (supports attachments via FormData)
+export const addAnnouncement = async (formData) => {
+  // formData should be a FormData instance with fields: topic, subject, content, factories[], attachments[]
+  const res = await axios.post("/announcements", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+// Loan Rate APIs
+export const getLoanRates = async () => {
+  const res = await axios.get("/loan-rate");
+  return res.data;
+};
+
+export const createLoanRate = async (loanRateData) => {
+  const res = await axios.post("/loan-rate", loanRateData);
+  return res.data;
+};
+
+// Update an existing announcement by id (supports FormData)
+export const updateAnnouncement = async (id, formData) => {
+  const res = await axios.put(`/announcements/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+// View announcements (optionally pass params for filtering/pagination)
+export const viewAnnouncements = async (params = {}) => {
+  const res = await axios.get("/announcements", { params });
+  return res.data;
+};
+
+// Delete announcement by id
+export const deleteAnnouncement = async (id) => {
+  const res = await axios.delete(`/announcements/${id}`);
+  return res.data;
+};
+
 // Get all fertilizer categories
 export const getAllFertilizerCategories = async () => {
   const res = await axios.get("/fertilizer-categories");

@@ -1,21 +1,22 @@
-import React from "react";
 import { Route } from "react-router-dom";
 import Layout from "../layouts/Layout";
 
-import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
-import OwnerDashboard from "../pages/Owner/dashboard";
-import OwnerManagers from "../pages/Owner/ManagerView/viewManagers";
-import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
-import OwnerReports from "../pages/Owner/Reports/reports";
-import OwnerPaymnets from "../pages/Owner/Payments/payment";
-import AddManagers from "../pages/Owner/ManagerView/addManagers";
-import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
 import AddAnnouncement from "../pages/Owner/Annoucement/addAnnouncement";
 import UpdateAnnouncement from "../pages/Owner/Annoucement/updateAnnouncement";
+import OwnerAnnoucement from "../pages/Owner/Annoucement/viewAnnoucement";
+import OwnerAnnouncementManage from "../pages/Owner/Announcement/Announcement";
+import OwnerDashboard from "../pages/Owner/dashboard";
+import FertilizerCompany from "../pages/Owner/FertilizerCompany/FertilizerCompany";
+import LoanRates from "../pages/Owner/LoanRates/LoanRates";
+import AddManagers from "../pages/Owner/ManagerView/addManagers";
+import GiveAccess from "../pages/Owner/ManagerView/giveaccess";
+import OwnerManagers from "../pages/Owner/ManagerView/viewManagers";
+import OwnerPaymnets from "../pages/Owner/Payments/payment";
 import ViewAdvanceFactoryWise from "../pages/Owner/Payments/viewAdvanceFactoryWise";
 import ViewLoanFactoryWise from "../pages/Owner/Payments/viewLoanFactoryWise";
 import ViewPaymentFactoryWise from "../pages/Owner/Payments/viewPaymentFactoryWise";
-import FertilizerCompany from "../pages/Owner/FertilizerCompany/FertilizerCompany";
+import OwnerReports from "../pages/Owner/Reports/reports";
+import OwnerTeaRate from "../pages/Owner/TeaRate/teaRate";
 
 export default [
   <>
@@ -52,6 +53,15 @@ export default [
         <Layout>
           {" "}
           <OwnerAnnoucement />{" "}
+        </Layout>
+      }
+    />
+    <Route
+      path="/owner/annoucement/manage"
+      element={
+        <Layout>
+          {" "}
+          <OwnerAnnouncementManage />{" "}
         </Layout>
       }
     />
@@ -143,6 +153,15 @@ export default [
         <Layout>
           {" "}
           <FertilizerCompany />{" "}
+        </Layout>
+      }
+    />
+    <Route
+      path="/owner/loan-rates"
+      element={
+        <Layout>
+          {" "}
+          <LoanRates />{" "}
         </Layout>
       }
     />

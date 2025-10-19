@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { deleteAnnouncement, viewAnnouncements } from "../../../api/owner";
 
 const ACCENT_COLOR = "#165e52";
 const BUTTON_COLOR = "#172526";
@@ -17,34 +18,51 @@ export default function PureLeafDashboard() {
   const navigate = useNavigate();
   const [announcements, setAnnouncements] = useState([]);
   const factoryOptions = [
-    { id: 1, name: "Factory A" },
-    { id: 2, name: "Factory B" },
-    { id: 3, name: "Factory C" },
-    { id: 4, name: "Factory D" },
+    { id: 1, name: "Wawlugala Tea Factory" },
+    { id: 2, name: "Miyanawathura Tea Factory" },
+    { id: 3, name: "Andaradeniya Tea Factory" },
+    { id: 4, name: "Batuwangala Tea Factory" },
+    { id: 5, name: "Duli Ella Tea Factory" },
+    { id: 6, name: "Devonia Tea Factory" },
+    { id: 7, name: "Fortune Tea Factory" },
+    { id: 8, name: "Galaxi Tea Factory" },
+    { id: 9, name: "Ruhunu Tea Factory" },
   ];
+
+  const topicOptions = [
+    { id: "general", name: "General" },
+    { id: "payments", name: "Payments" },
+    { id: "maintenance", name: "Maintenance" },
+    { id: "routes", name: "Routes" },
+    { id: "inventory", name: "Inventory" },
+    { id: "fertilizer", name: "Fertilizer" },
+    { id: "event", name: "Event" },
+  ];
+
+  const formatTopic = (topic) => {
+    if (!topic) return "-";
+    const found = topicOptions.find((t) => String(t.id) === String(topic));
+    return found ? found.name : String(topic);
+  };
 
   const [notification, setNotification] = useState(null);
 
-  // Fetch announcements from backend on mount
+  // Fetch announcements from backend on mount (use centralized API helper)
   useEffect(() => {
+    let mounted = true;
     async function fetchAnnouncements() {
       try {
-        const apiUrl =
-          import.meta.env?.DEV
-            ? "http://localhost:8080/api/announcements"
-            : "/api/announcements";
-        const response = await fetch(apiUrl);
-        if (response.ok) {
-          const data = await response.json();
-          setAnnouncements(data);
-        } else {
-          console.error("Failed to fetch announcements:", response.status);
-        }
+
+        const data = await viewAnnouncements();
+        if (mounted) setAnnouncements(data);
       } catch (error) {
-        console.error("Error fetching announcements:", error);
+        console.error("Error fetching announcements:", error?.response || error?.message || error);
       }
     }
     fetchAnnouncements();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Auto-hide notification after 3 seconds
@@ -63,22 +81,13 @@ export default function PureLeafDashboard() {
 
   const handleDelete = async (id) => {
     try {
-      const apiUrl =
-        import.meta.env?.DEV
-          ? `http://localhost:8080/api/announcements/${id}`
-          : `/api/announcements/${id}`;
-      const response = await fetch(apiUrl, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        setAnnouncements(announcements.filter((ann) => ann.id !== id));
-        showNotification("Announcement deleted successfully", "success");
-      } else {
-        showNotification("Failed to delete announcement", "error");
-      }
+
+      await deleteAnnouncement(id);
+      setAnnouncements((prev) => prev.filter((ann) => ann.id !== id));
+      showNotification("Announcement deleted successfully", "success");
     } catch (error) {
-      showNotification("Error deleting announcement", "error");
-      console.error("Error deleting announcement:", error);
+      showNotification("Failed to delete announcement", "error");
+      console.error("Error deleting announcement:", error?.response || error?.message || error);
     }
   };
 
@@ -226,7 +235,7 @@ export default function PureLeafDashboard() {
                     }}
                   >
                     <span className="w-2 h-2 rounded-full bg-[#165e52] inline-block"></span>
-                    {announcement.topic}
+                    {formatTopic(announcement.topic)}
                   </span>
                   <span className="text-xs text-gray-500 italic">
                     # {announcement.factories
