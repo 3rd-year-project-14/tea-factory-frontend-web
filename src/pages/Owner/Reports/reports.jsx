@@ -83,17 +83,39 @@ export default function OwnerReportView() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          body { background: white !important; }
+          .print\\:hidden { display: none !important; }
+          .print\\:block { display: block !important; }
+          .shadow, .shadow-2xl, .rounded-2xl, .rounded-lg, .border { 
+            box-shadow: none !important; 
+            border: none !important; 
+          }
+          .bg-white, .bg-gray-100, .bg-\\[\\#f4fbf9\\] { 
+            background: white !important; 
+          }
+          .px-8, .py-8, .py-6, .px-4, .py-2 { 
+            padding: 0 !important; 
+          }
+          .min-h-screen {
+            min-height: auto !important;
+          }
+        }
+      `}</style>
+
       <div className="max-w-5xl mx-auto rounded-2xl border shadow-2xl bg-white" style={{ borderColor: BORDER_COLOR }}>
         <div className="px-8 py-6 border-b flex flex-wrap gap-4 justify-between items-center print:block" style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}>
           <h2 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Owner Dashboard Report</h2>
           <div className="flex gap-2 print:hidden">
-            <button
+            {/* <button
               onClick={handleDownloadPDF}
               className="px-6 py-2 rounded-lg text-white font-medium shadow transition-colors"
               style={{ backgroundColor: '#01251F' }}
             >
               Download PDF
-            </button>
+            </button> */}
             <button
               onClick={handlePrint}
               className="px-6 py-2 rounded-lg text-white font-medium shadow transition-colors"
@@ -103,17 +125,7 @@ export default function OwnerReportView() {
             </button>
           </div>
         </div>
-      {/* Print styles */}
-      <style>{`
-        @media print {
-          body { background: white !important; }
-          .print\:hidden { display: none !important; }
-          .print\:block { display: block !important; }
-          .shadow, .shadow-2xl, .rounded-2xl, .rounded-lg, .border { box-shadow: none !important; border: none !important; }
-          .bg-white, .bg-gray-100, .bg-\[\#f4fbf9\] { background: white !important; }
-          .px-8, .py-8, .py-6, .px-4, .py-2 { padding: 0 !important; }
-        }
-      `}</style>
+
         <div ref={reportRef} className="px-8 py-8 space-y-10">
           {loading ? (
             <div>Loading...</div>
@@ -121,39 +133,55 @@ export default function OwnerReportView() {
             <>
               {/* Current Loan Rate */}
               <div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Current Loan Rate</h3>
-                <div className="bg-[#f4fbf9] rounded-lg p-4 flex items-center gap-8">
-                  <span className="text-2xl font-bold">{loanRate.rate}%</span>
-                  <span className="text-gray-600">Effective Date: {loanRate.effectiveDate}</span>
+                <h3 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>Current Loan Rate</h3>
+                <div className="bg-[#f4fbf9] rounded-lg p-6 border" style={{ borderColor: BORDER_COLOR }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Current Rate</p>
+                      <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>{loanRate.rate}%</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600 mb-1">Effective Date</p>
+                      <span className="text-lg font-medium">{loanRate.effectiveDate}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Current Tea Rate */}
               <div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Current Tea Rate</h3>
-                <div className="bg-[#f4fbf9] rounded-lg p-4 flex items-center gap-8">
-                  <span className="text-2xl font-bold">Rs. {teaRate.rate}</span>
-                  <span className="text-gray-600">Effective Date: {teaRate.effectiveDate}</span>
+                <h3 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>Current Tea Rate</h3>
+                <div className="bg-[#f4fbf9] rounded-lg p-6 border" style={{ borderColor: BORDER_COLOR }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Current Rate</p>
+                      <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Rs. {teaRate.rate}</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600 mb-1">Effective Date</p>
+                      <span className="text-lg font-medium">{teaRate.effectiveDate}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Tea Collections Table */}
               <div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Today's Tea Collections</h3>
-                <table className="w-full table-auto border-collapse">
+                <h3 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>Today's Tea Collections</h3>
+                <table className="w-full table-auto border-collapse border" style={{ borderColor: BORDER_COLOR }}>
                   <thead>
                     <tr style={{ backgroundColor: HEADER_BG }}>
-                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Factory</th>
-                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Date</th>
-                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Amount (kg)</th>
+                      <th className="py-3 px-4 border text-left" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Factory</th>
+                      <th className="py-3 px-4 border text-left" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Date</th>
+                      <th className="py-3 px-4 border text-right" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Amount (kg)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {teaCollections.map((c, idx) => (
-                      <tr key={idx}>
-                        <td className="py-2 px-4 border-b">{c.factory}</td>
-                        <td className="py-2 px-4 border-b">{c.date}</td>
-                        <td className="py-2 px-4 border-b">{c.amount}</td>
+                      <tr key={idx} className="hover:bg-gray-50">
+                        <td className="py-3 px-4 border" style={{ borderColor: BORDER_COLOR }}>{c.factory}</td>
+                        <td className="py-3 px-4 border" style={{ borderColor: BORDER_COLOR }}>{c.date}</td>
+                        <td className="py-3 px-4 border text-right" style={{ borderColor: BORDER_COLOR }}>{c.amount}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -162,19 +190,19 @@ export default function OwnerReportView() {
 
               {/* Factory Growth Table */}
               <div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Factory Growth (%)</h3>
-                <table className="w-full table-auto border-collapse">
+                <h3 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>Factory Growth (%)</h3>
+                <table className="w-full table-auto border-collapse border" style={{ borderColor: BORDER_COLOR }}>
                   <thead>
                     <tr style={{ backgroundColor: HEADER_BG }}>
-                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Factory</th>
-                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Growth (%)</th>
+                      <th className="py-3 px-4 border text-left" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Factory</th>
+                      <th className="py-3 px-4 border text-right" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Growth (%)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {factoryGrowth.map((f, idx) => (
-                      <tr key={idx}>
-                        <td className="py-2 px-4 border-b">{f.factory}</td>
-                        <td className="py-2 px-4 border-b">{f.growth}</td>
+                      <tr key={idx} className="hover:bg-gray-50">
+                        <td className="py-3 px-4 border" style={{ borderColor: BORDER_COLOR }}>{f.factory}</td>
+                        <td className="py-3 px-4 border text-right" style={{ borderColor: BORDER_COLOR }}>{f.growth}</td>
                       </tr>
                     ))}
                   </tbody>
