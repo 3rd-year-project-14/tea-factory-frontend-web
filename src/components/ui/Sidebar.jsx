@@ -118,8 +118,7 @@ const sidebarLinks = {
       path: "/owner/fertilizer-company",
       icon: Package,
     },
-
-    // { name: "Reports", path: "/owner/reports", icon: FileBarChart },
+    { name: "Reports", path: "/owner/reports", icon: BarChart3 },
   ],
 };
 

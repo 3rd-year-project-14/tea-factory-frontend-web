@@ -1,3 +1,9 @@
+/* Hide Sidebar and Navbar when printing */
+@media print {
+  .sidebar-print-hide, .navbar-print-hide {
+    display: none !important;
+  }
+}
 /* Enable smooth scrolling for the main scroll container */
 .custom-scrollbar {
   scroll-behavior: smooth;
