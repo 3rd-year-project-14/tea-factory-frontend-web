@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { getLoanRates } from "../../../api/owner";
 // Dynamically load html2pdf.js when needed
 function loadHtml2PdfScript() {
   return new Promise((resolve, reject) => {
@@ -24,6 +25,7 @@ const HEADER_BG = "#e1f4ef";
 export default function OwnerReportView() {
   // Dummy/placeholder data for demonstration
   const [loanRate, setLoanRate] = useState(null);
+  const [upcomingRates, setUpcomingRates] = useState([]);
   const [teaRate, setTeaRate] = useState(null);
   const [teaCollections, setTeaCollections] = useState([]);
   const [factoryGrowth, setFactoryGrowth] = useState([]);
@@ -38,7 +40,26 @@ export default function OwnerReportView() {
   useEffect(() => {
     // Simulate API calls with dummy data
     async function fetchData() {
-      setLoanRate({ rate: 5.5, effectiveDate: "2025-10-01" });
+      try {
+        const rates = await getLoanRates();
+        const today = new Date().toISOString().slice(0, 10);
+        // Find the current rate (effective today or the latest before today)
+        let current = null;
+        let futureRates = [];
+        if (Array.isArray(rates)) {
+          // Sort by effectiveDate ascending
+          const sorted = rates.sort((a, b) => new Date(a.effectiveDate) - new Date(b.effectiveDate));
+          // Find the latest rate whose effectiveDate <= today
+          current = sorted.filter(r => new Date(r.effectiveDate) <= new Date(today)).pop();
+          // Find all rates whose effectiveDate > today
+          futureRates = sorted.filter(r => new Date(r.effectiveDate) > new Date(today));
+        }
+        setLoanRate(current || null);
+        setUpcomingRates(futureRates);
+      } catch (err) {
+        setLoanRate(null);
+        setUpcomingRates([]);
+      }
       setTeaRate({ rate: 120.75, effectiveDate: "2025-10-01" });
       setTeaCollections([
         { date: "2025-10-01", factory: "Factory A", amount: 1200 },
@@ -138,13 +159,26 @@ export default function OwnerReportView() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Current Rate</p>
-                      <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>{loanRate.rate}%</span>
+                      <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>{loanRate ? loanRate.rate + "%" : "N/A"}</span>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-gray-600 mb-1">Effective Date</p>
-                      <span className="text-lg font-medium">{loanRate.effectiveDate}</span>
+                      <span className="text-lg font-medium">{loanRate ? loanRate.effectiveDate : "N/A"}</span>
                     </div>
                   </div>
+                  {upcomingRates.length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="text-md font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Upcoming Loan Rates</h4>
+                      <ul className="space-y-2">
+                        {upcomingRates.map((r, i) => (
+                          <li key={i} className="flex justify-between items-center">
+                            <span className="font-medium text-gray-700">{r.rate}%</span>
+                            <span className="text-sm text-gray-600">Effective: {r.effectiveDate}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
 
