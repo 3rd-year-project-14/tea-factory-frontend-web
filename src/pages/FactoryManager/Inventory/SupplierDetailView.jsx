@@ -1,11 +1,32 @@
-import { Calendar, Plus, ChevronDown, UserX } from "lucide-react";
-import { useState } from "react";
+import { Calendar, UserX } from "lucide-react";
+import { useState, useEffect } from "react";
+
+import { getSupplierDailySummary } from "../../../api/factoryManagerDashboard";
 
 export default function SupplierDetailView({ supplier }) {
-  const [newNote, setNewNote] = useState("");
-  const [showNoteInput, setShowNoteInput] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [dailyData, setDailyData] = useState([]);
+
+  useEffect(() => {
+    const fetchDailyData = async () => {
+      if (!supplier?.id) return;
+
+      try {
+        const data = await getSupplierDailySummary(
+          supplier.id,
+          selectedMonth + 1,
+          selectedYear
+        );
+        setDailyData(data);
+      } catch (error) {
+        console.error("Failed to fetch daily summary:", error);
+        setDailyData([]);
+      }
+    };
+
+    fetchDailyData();
+  }, [supplier?.id, selectedMonth, selectedYear]);
 
   if (!supplier) {
     return (
@@ -16,23 +37,6 @@ export default function SupplierDetailView({ supplier }) {
     );
   }
 
-  const handleAddNote = () => {
-    if (newNote.trim()) {
-      // Save note logic here
-      setNewNote("");
-      setShowNoteInput(false);
-    }
-  };
-
-  const handleShowNoteInput = () => {
-    setShowNoteInput(true);
-  };
-
-  const handleCancelNote = () => {
-    setNewNote("");
-    setShowNoteInput(false);
-  };
-
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString();
@@ -41,42 +45,19 @@ export default function SupplierDetailView({ supplier }) {
   const generateMonthlyData = () => {
     const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
     const monthlyData = [];
-    const fallbackEntries = [
-      { day: 1, weight: 125.5, hasWater: true, hasCoarseLeaf: true },
-      { day: 3, weight: 142.2, hasWater: false, hasCoarseLeaf: true },
-      { day: 4, weight: 135.8, hasWater: true, hasCoarseLeaf: false },
-      { day: 7, weight: 152.3, hasWater: true, hasCoarseLeaf: true },
-      { day: 10, weight: 148.7, hasWater: false, hasCoarseLeaf: false },
-      { day: 12, weight: 138.7, hasWater: true, hasCoarseLeaf: true },
-      { day: 15, weight: 145.6, hasWater: false, hasCoarseLeaf: true },
-      { day: 18, weight: 154.5, hasWater: true, hasCoarseLeaf: false },
-      { day: 20, weight: 108.9, hasWater: false, hasCoarseLeaf: false },
-    ];
-
-    const teaLeafEntries = supplier.teaLeafEntries || fallbackEntries;
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const deliveryEntry = teaLeafEntries.find((entry) => entry.day === day);
+      const deliveryEntry = dailyData.find((entry) => entry.day === day);
 
       if (deliveryEntry) {
-        const totalWeight = deliveryEntry.weight || 0;
-        const bagCount = Math.max(
-          1,
-          Math.floor(totalWeight / 25) + Math.floor(Math.random() * 3)
-        );
-        const bagWeight = Math.max(bagCount * 1.0, totalWeight * 0.02);
-        const waterContent = deliveryEntry.hasWater ? totalWeight * 0.15 : 0;
-        const coarseLeaf = deliveryEntry.hasCoarseLeaf ? totalWeight * 0.05 : 0;
-        const netWeight = totalWeight - bagWeight - waterContent - coarseLeaf;
-
         monthlyData.push({
           day,
-          bagCount,
-          totalWeight,
-          bagWeight,
-          waterContent,
-          coarseLeaf,
-          netWeight,
+          bagCount: deliveryEntry.bagCount || 0,
+          totalWeight: deliveryEntry.grossWeight || 0,
+          bagWeight: deliveryEntry.bagWeight || 0,
+          waterContent: deliveryEntry.water || 0,
+          coarseLeaf: deliveryEntry.coarseLeaf || 0,
+          netWeight: deliveryEntry.netWeight || 0,
           hasDelivery: true,
         });
       } else {
@@ -103,7 +84,11 @@ export default function SupplierDetailView({ supplier }) {
       {/* Basic Information */}
       <div className="bg-white rounded-lg shadow-md border border-emerald-200 p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Basic Information
+          Basic Information -{" "}
+          {new Date(selectedYear, selectedMonth).toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric",
+          })}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
@@ -141,11 +126,7 @@ export default function SupplierDetailView({ supplier }) {
               Total Net Weight
             </label>
             <p className="mt-1 text-lg font-semibold text-emerald-600">
-              {(
-                (supplier.totalWeight || 0) *
-                (1 - (supplier.moistureContent || 3.0) / 100)
-              ).toFixed(1)}{" "}
-              kg
+              {(supplier.totalNetWeight || 0).toFixed(1)} kg
             </p>
           </div>
           <div>
@@ -156,89 +137,6 @@ export default function SupplierDetailView({ supplier }) {
               {supplier.totalBags}
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Notice Section */}
-      <div className="bg-emerald-50 border-l-4 border-emerald-400 p-4 rounded-r-lg">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg
-              className="h-5 w-5 text-emerald-400"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-emerald-800">Notice</h3>
-            <div className="mt-2 text-sm text-emerald-700">
-              <p>Water is increasing weekly.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Manager Notes Section */}
-      <div className="bg-white rounded-lg shadow-md border border-emerald-200 p-6">
-        <div className="space-y-4">
-          {!showNoteInput && (
-            <button
-              onClick={handleShowNoteInput}
-              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Note
-            </button>
-          )}
-
-          {showNoteInput && (
-            <div className="space-y-3">
-              <textarea
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                rows={4}
-                className="w-full px-3 py-2 border border-emerald-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm text-gray-900 bg-white"
-                placeholder="Enter your note about this supplier..."
-                style={{ color: "#111827" }}
-                autoFocus
-              />
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={handleCancelNote}
-                  className="px-4 py-2 border border-emerald-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddNote}
-                  disabled={!newNote.trim()}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Save Note
-                </button>
-              </div>
-            </div>
-          )}
-
-          {supplier.notes && (
-            <div className="pt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Current Note
-              </label>
-              <div className="bg-emerald-50 rounded-md p-3 border border-emerald-200">
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                  {supplier.notes}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -294,7 +192,8 @@ export default function SupplierDetailView({ supplier }) {
                 {monthlyData.filter((day) => day.hasDelivery).length}
               </div>
               <div className="text-xs text-gray-500">
-                out of {new Date(selectedYear, selectedMonth + 1, 0).getDate()} days
+                out of {new Date(selectedYear, selectedMonth + 1, 0).getDate()}{" "}
+                days
               </div>
             </div>
             <div className="bg-white p-3 rounded-lg border border-emerald-200">
