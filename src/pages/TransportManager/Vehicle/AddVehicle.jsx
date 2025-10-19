@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { createVehicle } from "../../../api/transportManager";
+import { useAuth } from "../../../contexts/AuthContext";
 import {
   Truck,
   FileText,
@@ -17,37 +19,23 @@ const BTN_COLOR = "#01251F"; // button bg color
 const HEADER_BG = "#e1f4ef"; // header/footer bg
 const INPUT_BG = "#ffffff";
 
-// Dummy data for vehicle types and drivers (replace with real data)
-const vehicleTypes = [
-  { value: "truck", label: "Truck" },
-  { value: "van", label: "Van" },
-  { value: "lorry", label: "Lorry" },
-];
-const statusOptions = [
-  { value: "Available", label: "Available" },
-  { value: "Unavailable", label: "Unavailable" },
-];
-const drivers = [
-  { value: "", label: "Select Driver" },
-  { value: "1", label: "Nimal Perera" },
-  { value: "2", label: "Kamal Silva" },
-];
-
 export default function AddVehicle() {
+  const { user } = useAuth();
   const [form, setForm] = useState({
     vehicleNumber: "",
-    vehicleType: "",
+    model: "",
     capacity: "",
-    status: "Available",
-    assignedDriver: "",
-    lastServiceDate: "",
-    vehicleImage: null,
+    registeredDate: "",
+    incomeCertificate: null,
+    image: null,
   });
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "vehicleImage") {
-      setForm({ ...form, vehicleImage: files[0] });
+    const { name, value, files, type, checked } = e.target;
+    if (type === "file") {
+      setForm({ ...form, [name]: files[0] });
+    } else if (type === "checkbox") {
+      setForm({ ...form, [name]: checked });
     } else {
       setForm({ ...form, [name]: value });
     }
@@ -55,24 +43,62 @@ export default function AddVehicle() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(
-      "Vehicle registered successfully!\n" +
-        JSON.stringify(
-          {
-            ...form,
-            vehicleImage: form.vehicleImage
-              ? form.vehicleImage.name
-              : "No image",
-          },
-          null,
-          2
-        )
+    const factoryId = user?.factoryId;
+    if (!factoryId) {
+      alert(
+        "Cannot determine your factory. Please ensure you're logged in and have a factory assigned."
+      );
+      return;
+    }
+
+    console.log("incomeCertificate file:", form.incomeCertificate);
+    console.log("image file:", form.image);
+
+    // Build vehicle JSON object and append as a JSON part named 'vehicle'
+    const vehicleObj = {
+      vehicleNo: form.vehicleNumber,
+      model: form.model,
+      capacity: form.capacity ? parseInt(form.capacity, 10) : null,
+      factoryId: factoryId,
+      registeredDate: form.registeredDate || null,
+    };
+
+    const data = new FormData();
+    data.append(
+      "vehicle",
+      new Blob([JSON.stringify(vehicleObj)], { type: "application/json" })
     );
+    if (form.image) data.append("image", form.image);
+    if (form.incomeCertificate)
+      data.append("incomeCertificate", form.incomeCertificate);
+
+    // Debug: log FormData contents (for files this will show File objects)
+    for (let pair of data.entries()) {
+      console.log(pair[0] + ":", pair[1]);
+    }
+
+    createVehicle(data)
+      .then(() => {
+        alert("Vehicle registered successfully.");
+        // reset form
+        setForm({
+          vehicleNumber: "",
+          model: "",
+          capacity: "",
+          registeredDate: "",
+          incomeCertificate: null,
+          image: null,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Failed to register vehicle. See console for details.");
+      });
   };
 
   return (
     <div
-      className="max-w-4xl mx-auto my-10 rounded-2xl border shadow-2xl overflow-hidden bg-white"
+      className="max-w-5xl mx-auto my-5 rounded-2xl border shadow-2xl overflow-hidden bg-white"
       style={{ borderColor: BORDER_COLOR }}
     >
       {/* Header */}
@@ -117,38 +143,31 @@ export default function AddVehicle() {
           </div>
         </div>
 
-        {/* Vehicle Type */}
+        {/* Model */}
         <div>
           <label
-            htmlFor="vehicleType"
+            htmlFor="model"
             className="block mb-1 text-sm font-medium"
             style={{ color: ACCENT_COLOR }}
           >
-            Vehicle Type
+            Model
           </label>
           <div
             className="flex items-center gap-3 rounded-lg p-3 border"
             style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
           >
             <Truck className="text-[rgba(22,94,82,0.8)]" size={24} />
-            <select
-              id="vehicleType"
-              name="vehicleType"
-              value={form.vehicleType}
+            <input
+              id="model"
+              type="text"
+              name="model"
+              value={form.model}
               onChange={handleChange}
+              placeholder="Vehicle model (e.g., Hino 500)"
               required
               className="w-full bg-transparent focus:outline-none text-sm"
               style={{ color: ACCENT_COLOR }}
-            >
-              <option value="" disabled>
-                Choose vehicle type
-              </option>
-              {vehicleTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
+            />
           </div>
         </div>
 
@@ -159,7 +178,7 @@ export default function AddVehicle() {
             className="block mb-1 text-sm font-medium"
             style={{ color: ACCENT_COLOR }}
           >
-            Capacity
+            Capacity (kg)
           </label>
           <div
             className="flex items-center gap-3 rounded-lg p-3 border"
@@ -168,11 +187,13 @@ export default function AddVehicle() {
             <Package className="text-[rgba(22,94,82,0.8)]" size={24} />
             <input
               id="capacity"
-              type="text"
+              type="number"
+              min="0"
+              step="1"
               name="capacity"
               value={form.capacity}
               onChange={handleChange}
-              placeholder="Capacity (e.g., 1000kg)"
+              placeholder="Capacity in kg"
               required
               className="w-full bg-transparent focus:outline-none text-sm"
               style={{ color: ACCENT_COLOR }}
@@ -180,99 +201,30 @@ export default function AddVehicle() {
           </div>
         </div>
 
-        {/* Status */}
-        <div>
-          <label
-            htmlFor="status"
-            className="block mb-1 text-sm font-medium"
+        {/* Registered Date (datetime) */}
+        {/* <div
+          className="flex items-center gap-3 rounded-lg p-3 border"
+          style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
+        >Re
+          <Calendar className="text-[rgba(22,94,82,0.8)]" size={24} />
+          <input
+            id="registeredDate"
+            type="datetime-local"
+            name="registeredDate"
+            value={form.registeredDate}
+            onChange={handleChange}
+            required
+            className="w-full bg-transparent focus:outline-none text-sm"
             style={{ color: ACCENT_COLOR }}
-          >
-            Status
-          </label>
-          <div
-            className="flex items-center gap-3 rounded-lg p-3 border"
-            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
-          >
-            <Settings className="text-[rgba(22,94,82,0.8)]" size={24} />
-            <select
-              id="status"
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              className="w-full bg-transparent focus:outline-none text-sm"
-              style={{ color: ACCENT_COLOR }}
-            >
-              {statusOptions.map((status) => (
-                <option key={status.value} value={status.value}>
-                  {status.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+          />
+        </div> */}
 
-        {/* Assigned Driver */}
+        {/* Image */}
+
+        {/* Image */}
         <div>
           <label
-            htmlFor="assignedDriver"
-            className="block mb-1 text-sm font-medium"
-            style={{ color: ACCENT_COLOR }}
-          >
-            Assigned Driver
-          </label>
-          <div
-            className="flex items-center gap-3 rounded-lg p-3 border"
-            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
-          >
-            <UserCircle className="text-[rgba(22,94,82,0.8)]" size={24} />
-            <select
-              id="assignedDriver"
-              name="assignedDriver"
-              value={form.assignedDriver}
-              onChange={handleChange}
-              className="w-full bg-transparent focus:outline-none text-sm"
-              style={{ color: ACCENT_COLOR }}
-            >
-              {drivers.map((driver) => (
-                <option key={driver.value} value={driver.value}>
-                  {driver.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Last Service Date */}
-        <div>
-          <label
-            htmlFor="lastServiceDate"
-            className="block mb-1 text-sm font-medium"
-            style={{ color: ACCENT_COLOR }}
-          >
-            Last Service Date
-          </label>
-          <div
-            className="flex items-center gap-3 rounded-lg p-3 border"
-            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
-          >
-            <Calendar className="text-[rgba(22,94,82,0.8)]" size={24} />
-            <input
-              id="lastServiceDate"
-              type="date"
-              name="lastServiceDate"
-              value={form.lastServiceDate}
-              onChange={handleChange}
-              required
-              className="w-full bg-transparent focus:outline-none text-sm"
-              style={{ color: ACCENT_COLOR }}
-            />
-          </div>
-        </div>
-
-        {/* Vehicle Image */}
-        <div>
-          <label
-            htmlFor="vehicleImage"
+            htmlFor="image"
             className="block mb-1 text-sm font-medium"
             style={{ color: ACCENT_COLOR }}
           >
@@ -287,23 +239,63 @@ export default function AddVehicle() {
               style={{ color: ACCENT_COLOR }}
             >
               <Camera className="text-[rgba(22,94,82,0.8)]" size={20} />
-              Upload Vehicle Image
+              Upload Image
               <input
-                id="vehicleImage"
+                id="image"
                 type="file"
-                name="vehicleImage"
+                name="image"
                 accept="image/*"
                 onChange={handleChange}
                 className="hidden"
               />
             </label>
-            {form.vehicleImage && (
+            {form.image && (
               <p
                 className="mt-1 text-sm text-green-600 flex items-center gap-1"
                 style={{ color: "#165E52" }}
               >
                 <CheckCircle size={14} />
-                {form.vehicleImage.name}
+                {form.image.name}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Require Income Certificate (checkbox + conditional upload) */}
+        <div className="md:col-span-2">
+          <label
+            htmlFor="image"
+            className="block mb-1 text-sm font-medium"
+            style={{ color: ACCENT_COLOR }}
+          >
+            Vehicle Income Certificate
+          </label>
+          <div
+            className="mt-3 rounded-lg p-3 border"
+            style={{ borderColor: BORDER_COLOR, backgroundColor: INPUT_BG }}
+          >
+            <label
+              className="flex items-center gap-2 text-sm font-medium cursor-pointer"
+              style={{ color: ACCENT_COLOR }}
+            >
+              <FileText className="text-[rgba(22,94,82,0.8)]" size={18} />
+              Upload Certificate
+              <input
+                id="incomeCertificate"
+                type="file"
+                name="incomeCertificate"
+                accept="image/*,.pdf"
+                onChange={handleChange}
+                className="hidden"
+              />
+            </label>
+            {form.incomeCertificate && (
+              <p
+                className="mt-1 text-sm text-green-600 flex items-center gap-1"
+                style={{ color: "#165E52" }}
+              >
+                <CheckCircle size={14} />
+                {form.incomeCertificate.name}
               </p>
             )}
           </div>
