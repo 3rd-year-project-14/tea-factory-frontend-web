@@ -175,10 +175,7 @@ export default function DriversList() {
                     } hover:bg-[#e1f4ef] transition-colors`}
                   >
                     <td className="py-3 px-4 flex items-center gap-3 text-[#01251F]">
-                      <UserCircle
-                        className="text-[#165E52] bg-[#e1f4ef] rounded-lg p-1"
-                        size={28}
-                      />
+                     
                       <div>
                         <div className="font-semibold">{d.name}</div>
                         <div className="text-xs text-[#165E52] opacity-70">

@@ -8,6 +8,14 @@ const HEADER_BG = "#e1f4ef";
 
 
 export default function PersonalInfoCard({ supplier }) {
+  if (!supplier) return null;
+  // Fallbacks for each field
+  const name = supplier.supplierName || "-";
+  const nic = supplier.nic || "-";
+  const contactNo = supplier.contactNo || "-";
+  const email = supplier.email || "-";
+  const address = supplier.address || "-";
+
   return (
     <div
       className="bg-white rounded-xl shadow-sm border overflow-hidden"
@@ -27,7 +35,6 @@ export default function PersonalInfoCard({ supplier }) {
         </h2>
       </div>
 
-
       {/* Card Body */}
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -37,10 +44,9 @@ export default function PersonalInfoCard({ supplier }) {
               Full Name
             </label>
             <p className="mt-1 text-sm font-medium text-gray-900">
-              {supplier.user.name}
+              {name}
             </p>
           </div>
-
 
           {/* NIC Number */}
           <div>
@@ -48,10 +54,9 @@ export default function PersonalInfoCard({ supplier }) {
               NIC Number
             </label>
             <p className="mt-1 text-sm font-medium text-gray-900">
-              {supplier.user.nic}
+              {nic}
             </p>
           </div>
-
 
           {/* Mobile Number */}
           <div>
@@ -61,11 +66,10 @@ export default function PersonalInfoCard({ supplier }) {
             <div className="mt-1 flex items-center space-x-2">
               <Phone className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
               <p className="text-sm font-medium text-gray-900">
-                {supplier.user.contactNo}
+                {contactNo}
               </p>
             </div>
           </div>
-
 
           {/* Email Address */}
           <div>
@@ -75,11 +79,10 @@ export default function PersonalInfoCard({ supplier }) {
             <div className="mt-1 flex items-center space-x-2">
               <Mail className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
               <p className="text-sm font-medium text-gray-900 truncate">
-                {supplier.user.email}
+                {email}
               </p>
             </div>
           </div>
-
 
           {/* Address */}
           <div>
@@ -89,7 +92,7 @@ export default function PersonalInfoCard({ supplier }) {
             <div className="mt-1 flex items-start space-x-2">
               <MapPin className="w-4 h-4 mt-0.5" style={{ color: ACCENT_COLOR }} />
               <p className="text-sm font-medium text-gray-900">
-                {supplier.user.address}
+                {address}
               </p>
             </div>
           </div>

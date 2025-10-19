@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { FileText, Eye, Download } from "lucide-react";
-
 
 const ACCENT_COLOR = "#165E52";
 const BORDER_COLOR = "#cfece6";
 const HEADER_BG = "#e1f4ef";
 
-
-export default function DocumentsCard({ supplier }) {
-  const nicComplete = !!supplier.nicImage;
-
+export default function DocumentsCard({ supplier, nicImageUrl }) {
+  // Prefer nicImageUrl if provided, else fallback to supplier.nicImage
+  const nicImage = nicImageUrl || supplier.nicImage;
+  const nicComplete = !!nicImage;
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <div
@@ -36,7 +36,6 @@ export default function DocumentsCard({ supplier }) {
         </span>
       </div>
 
-
       {/* Content */}
       <div className="p-6">
         <div className="space-y-4">
@@ -56,8 +55,7 @@ export default function DocumentsCard({ supplier }) {
               </div>
             </div>
 
-
-            {supplier.nicImage && (
+            {nicImage && (
               <div className="flex space-x-2">
                 <button
                   className="p-2 rounded-lg transition-colors shadow-sm"
@@ -66,19 +64,37 @@ export default function DocumentsCard({ supplier }) {
                     backgroundColor: "#f0fdfa",
                     border: `2px solid ${BORDER_COLOR}`,
                   }}
+                  onClick={() => setShowModal(true)}
+                  title="View NIC Image"
                 >
                   <Eye className="w-4 h-4" />
                 </button>
-                <button
-                  className="p-2 rounded-lg transition-colors shadow-sm"
-                  style={{
-                    color: ACCENT_COLOR,
-                    backgroundColor: "#f0fdfa",
-                    border: `2px solid ${BORDER_COLOR}`,
-                  }}
-                >
-                  <Download className="w-4 h-4" />
-                </button>
+              </div>
+            )}
+            {/* NIC Image Modal */}
+            {showModal && nicImage && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center"
+                style={{
+                  backdropFilter: "blur(8px)",
+                  background: "rgba(0,0,0,0.15)",
+                }}
+              >
+                <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-black"
+                    onClick={() => setShowModal(false)}
+                    title="Close"
+                  >
+                    &times;
+                  </button>
+                  <img
+                    src={nicImage}
+                    alt="NIC Copy"
+                    className="w-full h-auto rounded-lg"
+                    style={{ maxHeight: "70vh", objectFit: "contain" }}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -87,6 +103,3 @@ export default function DocumentsCard({ supplier }) {
     </div>
   );
 }
-
-
-

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
+import {
+  getApprovedSupplierDetails,
+  getSupplierRequestDetails,
+  approveSupplierRequest,
+  rejectSupplierRequest,
+} from "../../../api/supplier";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Check, X, Mail } from "lucide-react";
-
-// Modular components
 import ApprovalModal from "./SupplierDetails/Modals/ApprovalModal";
 import RejectionModal from "./SupplierDetails/Modals/RejectionModal";
 import ContactModal from "./SupplierDetails/Modals/ContactModal";
@@ -13,122 +16,101 @@ import BankingInfoCard from "./SupplierDetails/BankingInfoCard";
 import DocumentsCard from "./SupplierDetails/DocumentsCard";
 import ActivityTimelineCard from "./SupplierDetails/ActivityTimelineCard";
 import PerformanceChart from "./SupplierDetails/PerformanceChart";
-import SupplierFilters from "./SupplierFilters"; // <-- Fix import path
+import { getNicImageUrl } from "../../../utils/firebaseStorage";
 
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
 
 export default function SupplierDetailsPage() {
+  const [nicImageUrl, setNicImageUrl] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const currentView = location.state?.currentView || "approved";
   const [supplier, setSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
   const [approvalError, setApprovalError] = useState("");
-
+  const [error, setError] = useState(""); // General error state
   const [showApproval, setShowApproval] = useState(false);
   const [showRejection, setShowRejection] = useState(false);
   const [showContact, setShowContact] = useState(false);
-
   const [approvalData, setApprovalData] = useState({
     route: "",
     bagLimit: "",
     notes: "",
   });
-
   const [rejectionReason, setRejectionReason] = useState("");
   const [contactData, setContactData] = useState({
     subject: "",
     message: "",
   });
 
-  // Add filter state and handlers
-  const [filters, setFilters] = useState({
-    search: "",
-    region: "",
-    status: "all",
-  });
-  const [showFilters, setShowFilters] = useState(false);
+  // Fetch NIC image URL only if authorized and supplier is loaded
+  useEffect(() => {
+    if (!supplier?.nicImage) return; // nicImage is the objectName stored in DB
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+    const fetchNicImage = async () => {
+      const url = await getNicImageUrl(supplier.nicImage);
+      setNicImageUrl(url);
+    };
 
-  const clearFilters = () => {
-    setFilters({
-      search: "",
-      region: "",
-      status: "all",
-    });
-  };
+    fetchNicImage();
+  }, [supplier]);
 
   useEffect(() => {
     setLoading(true);
+    setError(""); // Reset error
 
     const fetchSupplier = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/suppliers/${id}`);
-        if (res.data && Object.keys(res.data).length > 0) {
-          setSupplier(res.data);
+        let data;
+        if (currentView === "approved") {
+          data = await getApprovedSupplierDetails(id);
         } else {
-          const alt = await axios.get(
-            `http://localhost:8080/api/supplier-requests/${id}`
-          );
-          setSupplier(alt.data);
+          data = await getSupplierRequestDetails(id);
         }
-      } catch {
-        try {
-          const fallback = await axios.get(
-            `http://localhost:8080/api/supplier-requests/${id}`
-          );
-          setSupplier(fallback.data);
-        } catch {
-          setSupplier(null);
-        }
+        setSupplier(data);
+      } catch (err) {
+        setSupplier(null);
+        setError(
+          err?.response?.data?.message ||
+            "Failed to fetch supplier details. Please try again."
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchSupplier();
-  }, [id]);
+  }, [id, currentView]);
 
   const handleApproveSupplierRequest = async () => {
     setApprovalError("");
+    setError("");
     try {
-      const response = await axios.post(
-        `http://localhost:8080/api/supplier-requests/${supplier.id}/approve?routeId=${approvalData.route}`
+      // Always pass bagLimit as a number
+      await approveSupplierRequest(supplier.id, approvalData.route, Number(approvalData.bagLimit));
+      setSupplier({
+        ...supplier,
+        status: "approved",
+        approvedDate: new Date().toISOString(),
+      });
+      closeApproval();
+    } catch (err) {
+      setApprovalError(
+        err?.response?.data?.message || "Failed to approve supplier."
       );
-      if (response.status >= 200 && response.status < 300) {
-        setSupplier({
-          ...supplier,
-          status: "approved",
-          approvedDate: new Date().toISOString(),
-        });
-        closeApproval();
-      } else {
-        setApprovalError("Failed to approve supplier.");
-      }
-    } catch {
-      setApprovalError("Failed to approve supplier.");
     }
   };
 
   const handleRejectSupplierRequest = async (id, reason) => {
+    setError("");
     try {
-      await axios.post(
-        `http://localhost:8080/api/supplier-requests/${id}/reject?reason=${encodeURIComponent(
-          reason
-        )}`
-      );
+      await rejectSupplierRequest(id, reason);
       setSupplier({ ...supplier, status: "rejected", rejectReason: reason });
       closeRejection();
-    } catch {
-      alert("Failed to reject supplier.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to reject supplier.");
     }
   };
 
@@ -158,22 +140,16 @@ export default function SupplierDetailsPage() {
     navigate("/factoryManager/suppliers");
   };
 
-  // Normalize status
-  let normalizedStatus = supplier?.status;
-  if (!normalizedStatus && supplier?.approvedDate) {
-    normalizedStatus = "approved";
-  }
-
   let statusText = "Unknown";
   let statusColor = "text-gray-600 bg-gray-100";
 
-  if (normalizedStatus === "pending") {
+  if (currentView === "pending") {
     statusText = "Pending Review";
     statusColor = "text-yellow-700 bg-yellow-100";
-  } else if (normalizedStatus === "rejected") {
+  } else if (currentView === "rejected") {
     statusText = "Rejected";
     statusColor = "text-red-700 bg-red-100";
-  } else if (normalizedStatus === "approved") {
+  } else if (currentView === "approved") {
     statusText = "Approved";
     statusColor = "text-green-700 bg-green-100";
   }
@@ -190,6 +166,9 @@ export default function SupplierDetailsPage() {
             <span className="text-red-600 font-semibold mt-2">
               {approvalError}
             </span>
+          )}
+          {error && (
+            <span className="text-red-600 font-semibold mt-2">{error}</span>
           )}
         </div>
       </div>
@@ -210,7 +189,7 @@ export default function SupplierDetailsPage() {
             Supplier Not Found
           </h2>
           <p className="text-gray-600 mb-4">
-            The supplier you're looking for doesn't exist.
+            {error || "The supplier you're looking for doesn't exist."}
           </p>
           <button
             onClick={handleBack}
@@ -224,7 +203,7 @@ export default function SupplierDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-auto">
+    <div className="min-h-screen bg-gray-50 overflow-y-auto custom-scrollbar">
       {/* Modals */}
       <ApprovalModal
         show={showApproval}
@@ -252,26 +231,28 @@ export default function SupplierDetailsPage() {
       />
 
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#cfece6] sticky top-0 z-20">
+      <div className="bg-white shadow-sm border-b border-[#cfece6]">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
             <div>
-              <p
-                className="text-3xl font-bold"
-                style={{ color: ACCENT_COLOR }}
-              >
-                {supplier.user?.name || supplier.name}
+              <p className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
+                {supplier.name}
               </p>
               <div className="flex flex-wrap items-center text-sm text-gray-600 gap-x-2 mt-2">
-                <span>ID: {supplier.supplierId || `2025-00${supplier.id}`}</span>
+                <span>
+                  ID:{" "}
+                  {currentView === "approved"
+                    ? `SUP-${String(supplier.id).padStart(4, "0")}`
+                    : `2025-00${supplier.id}`}
+                </span>
                 <span>•</span>
-                {normalizedStatus === "approved" && supplier.approvedDate && (
+                {currentView === "approved" && supplier.approvedDate && (
                   <span>Approved: {supplier.approvedDate}</span>
                 )}
-                {normalizedStatus === "pending" && (
-                  <span>Submitted: {supplier.date}</span>
+                {currentView === "pending" && (
+                  <span>Submitted: {supplier.requestDate}</span>
                 )}
-                {normalizedStatus === "rejected" && supplier.rejectedDate && (
+                {currentView === "rejected" && supplier.rejectedDate && (
                   <span>Rejected: {supplier.rejectedDate}</span>
                 )}
                 <span
@@ -325,30 +306,27 @@ export default function SupplierDetailsPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Add SupplierFilters here */}
-        <SupplierFilters
-          filters={filters}
-          handleFilterChange={handleFilterChange}
-          clearFilters={clearFilters}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-        />
+        {/* ...existing code... */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <PersonalInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
-            <BusinessInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
-            <PerformanceChart supplier={{ ...supplier, status: normalizedStatus }} />
+            <PersonalInfoCard supplier={{ ...supplier, status: currentView }} />
+            <BusinessInfoCard supplier={{ ...supplier, status: currentView }} />
+            <PerformanceChart supplier={{ ...supplier, status: currentView }} />
           </div>
           <div className="space-y-6">
-            <DocumentsCard supplier={{ ...supplier, status: normalizedStatus }} />
-            <BankingInfoCard supplier={{ ...supplier, status: normalizedStatus }} />
-            <ActivityTimelineCard supplier={{ ...supplier, status: normalizedStatus }} />
+            <DocumentsCard
+              supplier={{ ...supplier, status: currentView }}
+              nicImageUrl={nicImageUrl}
+            />
+            <BankingInfoCard supplier={{ ...supplier, status: currentView }} />
+            {currentView !== "approved" && (
+              <ActivityTimelineCard
+                supplier={{ ...supplier, status: currentView }}
+              />
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-
-

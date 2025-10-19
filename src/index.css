@@ -1,3 +1,24 @@
+/* Enable smooth scrolling for the main scroll container */
+.custom-scrollbar {
+  scroll-behavior: smooth;
+}
+/* Custom scrollbar styles for better scroll UI */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #165e52 #e5e7eb;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #165e52;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 8px;
+}
 @import "tailwindcss";
 
 /* Hide scrollbar utility */

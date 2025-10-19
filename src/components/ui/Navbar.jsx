@@ -9,6 +9,17 @@ const ACCENT_COLOR = "#01251F";
 const FONT_FAMILY = "Inter, Segoe UI, Arial, sans-serif"; // More professional and modern
 
 const Navbar = () => {
+  // Get current date in Sri Lanka time zone
+  const date = () => {
+    const date = new Date();
+    return date.toLocaleDateString("en-GB", {
+      timeZone: "Asia/Colombo",
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    });
+  };
+  const todayDate = date();
   const { user } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -35,14 +46,13 @@ const Navbar = () => {
     >
       <div className="flex items-center justify-between">
         {/* Company Name */}
-        <div
-          className="text-xl font-bold text-black tracking-tight"
-          style={{
-            letterSpacing: "0.04em",
-            fontFamily: FONT_FAMILY,
-          }}
-        >
-          Andaradeniya State Pvt LTD
+        <div className="flex flex-col items-start">
+          <span className="text-3xl font-bold text-black tracking-tight font-sans">
+            {user?.factoryName || "Factory Name"}
+          </span>
+          <span className="text-s text-gray-500 font-normal mt-1">
+            {todayDate}
+          </span>
         </div>
 
         <div className="flex items-center space-x-4 ml-auto">
@@ -73,7 +83,7 @@ const Navbar = () => {
               <UserAvatar name={user?.username} />
               <div className="hidden md:block text-left">
                 <p className="font-semibold text-sm text-[#172526] leading-tight">
-                  {user?.username || "John Manager"}
+                  {user?.name || ""}
                 </p>
                 <p className="text-gray-500 text-xs capitalize font-medium">
                   {user?.role?.toLowerCase() || "Supervisor"}
@@ -81,7 +91,9 @@ const Navbar = () => {
               </div>
               {/* Dropdown Arrow */}
               <svg
-                className={`w-4 h-4 text-gray-400 ml-1 transition-transform ${showProfile ? "rotate-180" : ""}`}
+                className={`w-4 h-4 text-gray-400 ml-1 transition-transform ${
+                  showProfile ? "rotate-180" : ""
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

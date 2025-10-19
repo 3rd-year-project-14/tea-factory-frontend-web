@@ -36,7 +36,10 @@ export default function InventoryHeader({
   };
 
   return (
-    <div className="bg-white shadow-md border-b" style={{ borderColor: BORDER }}>
+    <div
+      className="bg-white shadow-md border-b"
+      style={{ borderColor: BORDER }}
+    >
       <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
           {/* Title */}
@@ -67,24 +70,23 @@ export default function InventoryHeader({
               <>
                 {/* View Toggle */}
                 <div className="flex gap-2">
-  {["daily", "monthly"].map((mode) => (
-    <button
-      key={mode}
-      onClick={() => onViewModeChange(mode)}
-      className={`px-4 py-2 text-sm font-medium rounded-lg min-w-[90px] transition-colors duration-200 ${
-        viewMode === mode
-          ? "bg-[#01251F] text-white border border-[#01251F] shadow"
-          : "bg-white text-[#01251F] border border-[#01251F] hover:bg-[#01251F] hover:text-white"
-      }`}
-      style={{
-        outline: "none",
-      }}
-    >
-      {mode.charAt(0).toUpperCase() + mode.slice(1)}
-    </button>
-  ))}
-</div>
-
+                  {["daily", "monthly"].map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => onViewModeChange(mode)}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg min-w-[90px] transition-colors duration-200 ${
+                        viewMode === mode
+                          ? "bg-[#01251F] text-white border border-[#01251F] shadow"
+                          : "bg-white text-[#01251F] border border-[#01251F] hover:bg-[#01251F] hover:text-white"
+                      }`}
+                      style={{
+                        outline: "none",
+                      }}
+                    >
+                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    </button>
+                  ))}
+                </div>
 
                 {/* Controls for Daily View */}
                 {viewMode === "daily" && (
@@ -96,9 +98,13 @@ export default function InventoryHeader({
 
                         const yesterday = new Date();
                         yesterday.setDate(today.getDate() - 1);
-                        const yesterdayStr = yesterday.toISOString().split("T")[0];
+                        const yesterdayStr = yesterday
+                          .toISOString()
+                          .split("T")[0];
 
-                        onDateChange(selectedDate === todayStr ? yesterdayStr : todayStr);
+                        onDateChange(
+                          selectedDate === todayStr ? yesterdayStr : todayStr
+                        );
                       }}
                       className="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 min-w-[90px]"
                       style={{
@@ -114,7 +120,10 @@ export default function InventoryHeader({
                     </button>
 
                     <div className="flex items-center gap-2">
-                      <label className="text-sm font-medium" style={{ color: ACCENT }}>
+                      <label
+                        className="text-sm font-medium"
+                        style={{ color: ACCENT }}
+                      >
                         Date:
                       </label>
                       <input
@@ -136,12 +145,17 @@ export default function InventoryHeader({
                 {viewMode === "monthly" && (
                   <>
                     <div className="flex items-center gap-2">
-                      <label className="text-sm font-medium" style={{ color: ACCENT }}>
+                      <label
+                        className="text-sm font-medium"
+                        style={{ color: ACCENT }}
+                      >
                         Month:
                       </label>
                       <select
                         value={selectedMonth}
-                        onChange={(e) => onMonthChange(parseInt(e.target.value))}
+                        onChange={(e) =>
+                          onMonthChange(parseInt(e.target.value))
+                        }
                         className="px-3 py-2 rounded-lg font-medium"
                         style={{
                           backgroundColor: BG_LIGHT,
@@ -158,7 +172,10 @@ export default function InventoryHeader({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <label className="text-sm font-medium" style={{ color: ACCENT }}>
+                      <label
+                        className="text-sm font-medium"
+                        style={{ color: ACCENT }}
+                      >
                         Year:
                       </label>
                       <select
@@ -168,7 +185,9 @@ export default function InventoryHeader({
                           onYearChange(newYear);
                           const availableMonths = getAvailableMonths(newYear);
                           if (!availableMonths.includes(selectedMonth)) {
-                            onMonthChange(availableMonths[availableMonths.length - 1]);
+                            onMonthChange(
+                              availableMonths[availableMonths.length - 1]
+                            );
                           }
                         }}
                         className="px-3 py-2 rounded-lg font-medium"

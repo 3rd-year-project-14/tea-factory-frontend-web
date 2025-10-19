@@ -1,15 +1,13 @@
-import React from "react";
 import { Route } from "react-router-dom";
 import Layout from "../layouts/Layout";
-import Stock from "../pages/FertilizerManager/Stock/stockList";
 import Dashboard from "../pages/FertilizerManager/dashboard";
-import AddStock from "../pages/FertilizerManager/Stock/AddStock";
-import ViewStock from "../pages/FertilizerManager/Stock/ViewStock";
-import EditStock from "../pages/FertilizerManager/Stock/EditStock";
+import ReportPage from "../pages/FertilizerManager/Report/report";
 import Request from "../pages/FertilizerManager/Request/supplierRequest";
 import StockRequest from "../pages/FertilizerManager/Stock/stockRequest";
-import ReportPage from "../pages/FertilizerManager/Report/report";
+import StocksComponent from "../pages/FertilizerManager/Stock/stocks";
+import ViewStock from "../pages/FertilizerManager/Stock/ViewStock";
 // import History from "../pages/FertilizerManager/History/history";
+import AnnouncementComponent from "../components/Announcement/Announcement";
 
 export default [
   <Route
@@ -21,28 +19,28 @@ export default [
     }
   />,
   <Route
-    path="/fertilizerManager/stock"
+    path="/fertilizerManager/stocks"
     element={
       <Layout>
-        <Stock />
-      </Layout>
-    }
-  />,
-  <Route
-    key="add_stock"
-    path="/inventoryManager/add_stock"
-    element={
-      <Layout>
-        <AddStock />
+        <StocksComponent />
       </Layout>
     }
   />,
   <Route
     key="view_stock"
-    path="/inventoryManager/view_stock"
+    path="/fertilizerManager/stocks/view/:id"
     element={
       <Layout>
         <ViewStock />
+      </Layout>
+    }
+  />,
+  <Route
+    key="stock_request"
+    path="/fertilizerManager/stocks/request"
+    element={
+      <Layout>
+        <StockRequest />
       </Layout>
     }
   />,
@@ -56,20 +54,20 @@ export default [
     }
   />,
   <Route
-    key="stock_request"
-    path="/fertilizerManager/stockRequest"
-    element={
-      <Layout>
-        <StockRequest />
-      </Layout>
-    }
-  />,
-  <Route
     key="report"
     path="/fertilizerManager/report"
     element={
       <Layout>
         <ReportPage />
+      </Layout>
+    }
+  />,
+  <Route
+    key="announcements"
+    path="/fertilizerManager/announcements"
+    element={
+      <Layout>
+        <AnnouncementComponent />
       </Layout>
     }
   />,
@@ -82,5 +80,4 @@ export default [
   //     </Layout>
   //   }
   // />,
-  
 ];

@@ -1,26 +1,24 @@
-import { Link, useLocation } from "react-router-dom";
-import React from "react";
-import { useAuth } from "../../contexts/AuthContext";
 import {
-  Home,
-  Package,
-  Settings,
-  Users,
-  Truck,
   Award,
-  BarChart3,
-  DollarSign,
-  Route,
   BadgeAlert,
-  ListCheck,
-  UserCheck,
-  FileBarChart,
+  BarChart3,
   Bell,
+  DollarSign,
+  Home,
+  ListCheck,
+  Package,
+  Route,
+  Settings,
+  Truck,
+  UserCheck,
+  Users
 } from "lucide-react";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 // Custom Accent Green
 const ACCENT_COLOR = "#104137";
-
 
 // For your project logo, adjust the src path to match your assets location.
 // Example: "/assets/logo.png"
@@ -43,6 +41,7 @@ const sidebarLinks = {
     { name: "Drivers", path: "/transportManager/drivers", icon: Users },
     { name: "Vehicle", path: "/transportManager/vehicle", icon: Truck },
     { name: "Route", path: "/transportManager/routeList", icon: Route },
+    { name: "Announcements", path: "/transportManager/announcements", icon: Bell },
     {
       name: "Route Planner",
       path: "/transportManager/routePlan",
@@ -57,21 +56,26 @@ const sidebarLinks = {
   INVENTORY_MANAGER: [
     { name: "Dashboard", path: "/inventoryManager/Dashboard", icon: Home },
     { name: "Leaf Weight", path: "/inventoryManager/leaf_weight", icon: Truck },
-    { name: "Bag Weight", path: "/inventoryManager/empty_bags_weight", icon: Package,},
+    {
+      name: "Bag Weight",
+      path: "/inventoryManager/empty_bags_weight",
+      icon: Package,
+    },
+    { name: "Announcements", path: "/inventoryManager/announcements", icon: Bell },
     { name: "History", path: "/inventoryManager/history", icon: Award },
-    { name: "Report", path: "/inventoryManager/report", icon: Users },
-    // { name: "CRUD", path: "/inventoryManager/crud", icon: Users },
+    
   ],
   FERTILIZER_MANAGER: [
     { name: "Dashboard", path: "/fertilizerManager/Dashboard", icon: Home },
-    { name: "Stock", path: "/fertilizerManager/stock", icon: Truck },
+    { name: "Stock", path: "/fertilizerManager/stocks", icon: Truck },
     { name: "Request", path: "/fertilizerManager/request", icon: Package },
-    { name: "History", path: "/fertilizerManager/history", icon: Award },
+    { name: "Announcements", path: "/fertilizerManager/announcements", icon: Bell },
     { name: "Report", path: "/fertilizerManager/report", icon: Users },
   ],
   FACTORY_MANAGER: [
     { name: "Dashboard", path: "/factoryManager/dashboard", icon: Home },
     { name: "Suppliers", path: "/factoryManager/suppliers", icon: Users },
+    { name: "Announcements", path: "/factoryManager/announcements", icon: Bell },
     { name: "Routes", path: "/factoryManager/routes", icon: Route },
     { name: "Inventory", path: "/factoryManager/inventory", icon: Package },
     { name: "Drivers", path: "/factoryManager/drivers", icon: Users },
@@ -99,18 +103,23 @@ const sidebarLinks = {
           path: "/factoryManager/payment/loans",
           icon: BarChart3,
         },
-        
-        
       ],
     },
   ],
   OWNER: [
     { name: "Dashboard", path: "/owner/Dashboard", icon: Home },
     { name: "Annoucement", path: "/owner/annoucement", icon: Bell },
+    { name: "Loan Rates", path: "/owner/loan-rates", icon: BarChart3 },
     { name: "Payments", path: "/owner/payments", icon: DollarSign },
     { name: "manager works", path: "/owner/managers", icon: UserCheck },
     { name: "Tea Rate", path: "/owner/teaRate", icon: Package },
-    { name: "Reports", path: "/owner/reports", icon: FileBarChart },
+    {
+      name: "Fertilizer Company",
+      path: "/owner/fertilizer-company",
+      icon: Package,
+    },
+
+    // { name: "Reports", path: "/owner/reports", icon: FileBarChart },
   ],
 };
 
@@ -154,22 +163,22 @@ export default function Sidebar() {
           if (role === "FACTORY_MANAGER" && link.name === "Payments") {
             return (
               <div key={link.name}>
-               <button
-  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 font-medium transition-all duration-200 ${
-    paymentsOpen
-      ? "shadow-lg text-white bg-[#104137]"
-      : "text-white/70 hover:bg-[#104137] hover:text-white"
-  }`}
-  onClick={() => setPaymentsOpen((open) => !open)}
-  style={{
-    backgroundColor: paymentsOpen ? "#104137" : "transparent",
-    // additional style if needed
-  }}
->
-  <link.icon className="w-5 h-5" />
-  <span>{link.name}</span>
-  <span className="ml-auto">{paymentsOpen ? "▲" : "▼"}</span>
-</button>
+                <button
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 font-medium transition-all duration-200 ${
+                    paymentsOpen
+                      ? "shadow-lg text-white bg-[#104137]"
+                      : "text-white/70 hover:bg-[#104137] hover:text-white"
+                  }`}
+                  onClick={() => setPaymentsOpen((open) => !open)}
+                  style={{
+                    backgroundColor: paymentsOpen ? "#104137" : "transparent",
+                    // additional style if needed
+                  }}
+                >
+                  <link.icon className="w-5 h-5" />
+                  <span>{link.name}</span>
+                  <span className="ml-auto">{paymentsOpen ? "▲" : "▼"}</span>
+                </button>
 
                 {paymentsOpen && (
                   <div className="ml-6">
@@ -203,7 +212,8 @@ export default function Sidebar() {
           }
           // Render other links as usual
           const Icon = link.icon;
-          const isActive = location.pathname === link.path;
+          // Highlight parent if inside nested route
+          const isActive = location.pathname.startsWith(link.path);
           return (
             <Link
               key={link.name}

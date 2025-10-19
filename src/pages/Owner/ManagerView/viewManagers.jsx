@@ -1,61 +1,59 @@
-import { useState, useMemo } from "react";
-import { Search, Eye, Edit } from "lucide-react";
+import { Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { getManagers, getManagersByFactory } from "../../../api/manager";
 
 export default function ManagerDashboard() {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedFactory, setSelectedFactory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [managers, setManagers] = useState([]);
 
-  const [managers, setManagers] = useState([
-    {
-      id: "MG_A_001",
-      name: "Gayan Sadamal",
-      email: "gayan@gmail.com",
-      role: "Manager",
-      status: "Active",
-      factory: "A",
-    },
-    {
-      id: "MG_A_011",
-      name: "Gayan Sadamal",
-      email: "gayan@gmail.com",
-      role: "Manager",
-      status: "Suspended",
-      factory: "A",
-    },
-    {
-      id: "MG_A_023",
-      name: "Gayan Sadamal",
-      email: "gayan@gmail.com",
-      role: "Manager",
-      status: "Active",
-      factory: "A",
-    },
-    {
-      id: "MG_B_001",
-      name: "John Smith",
-      email: "john@gmail.com",
-      role: "Supervisor",
-      status: "Active",
-      factory: "B",
-    },
-    {
-      id: "MG_C_111",
-      name: "Sarah Wilson",
-      email: "sarah@gmail.com",
-      role: "Admin",
-      status: "Active",
-      factory: "C",
-    },
-    {
-      id: "MG_B_002",
-      name: "Mike Johnson",
-      email: "mike@gmail.com",
-      role: "Manager",
-      status: "Suspended",
-      factory: "B",
-    },
-  ]);
+  const factoryOptions = [
+    { id: "1", name: "Wawlugala Tea Factory" },
+    { id: "2", name: "Miyanawathura Tea Factory" },
+    { id: "3", name: "Andaradeniya Tea Factory" },
+    { id: "4", name: "Andaradeniya Tea Factory" },
+    { id: "5", name: "Duli Ella Tea Factory" },
+    { id: "6", name: "Devonia Tea Factory" },
+    { id: "7", name: "Fortune Tea Factory" },
+    { id: "8", name: "Galaxi Tea Factory" },
+    { id: "9", name: "Ruhunu Tea Factory" },
+  ];
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchManagers = async () => {
+      try {
+        let data;
+        if (selectedFactory) {
+          data = await getManagersByFactory(Number(selectedFactory));
+        } else {
+          data = await getManagers();
+        }
+        if (!mounted) return;
+        // map backend DTOs to UI shape and attach factory name
+        const mapped = (data || []).map((m) => {
+          const found = factoryOptions.find((f) => String(f.id) === String(m.factoryId));
+          return {
+            id: m.id ? String(m.id) : "",
+            name: m.name || m.email || "",
+            email: m.email || "",
+            role: m.role || "",
+            status: m.status || "Active",
+            factory: found ? found.name : (m.factoryId ? String(m.factoryId) : "-"),
+            factoryId: m.factoryId,
+          };
+        });
+        setManagers(mapped);
+      } catch (err) {
+        console.error("Failed to load managers:", err);
+      }
+    };
+    fetchManagers();
+    return () => {
+      mounted = false;
+    };
+  }, [selectedFactory]);
 
   const filteredManagers = useMemo(() => {
     return managers.filter((manager) => {
@@ -63,7 +61,7 @@ export default function ManagerDashboard() {
         !selectedRole ||
         manager.role.toLowerCase() === selectedRole.toLowerCase();
       const matchesFactory =
-        !selectedFactory || manager.factory === selectedFactory;
+        !selectedFactory || String(manager.factoryId) === String(selectedFactory);
       const matchesSearch =
         !searchTerm ||
         manager.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -108,8 +106,8 @@ export default function ManagerDashboard() {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-[#165E52]">Managers</h1>
-            <p className="text-[#165E52] opacity-80 mt-1 text-sm">
+            <h1 className="text-3xl font-bold text-[#165E52] text-gray-900">Managers</h1>
+            <p className="text-[#000000] opacity-80 mt-1 text-sm">
               Owner Dashboard - Manager Overview & Control
             </p>
           </div>
@@ -149,9 +147,11 @@ export default function ManagerDashboard() {
               aria-label="Filter by Factory"
             >
               <option value="">All Factories</option>
-              <option value="A">Factory A</option>
-              <option value="B">Factory B</option>
-              <option value="C">Factory C</option>
+              {factoryOptions.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
             </select>
 
             {/* Search Input */}

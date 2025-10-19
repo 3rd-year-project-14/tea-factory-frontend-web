@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import InventoryHeader from "./InventoryHeader";
 import InventoryFilters from "./InventoryFilters";
 import SummaryCards from "./SummaryCards";
 import MainContent from "./MainContent";
+import PaginationControls from "../../../components/ui/PaginationControls";
 import {
   routes,
   monthNames,
@@ -11,21 +12,32 @@ import {
   getAvailableMonths,
 } from "./inventoryData";
 import { getInventoryStatistics } from "./inventoryUtils";
+import { useAuth } from "../../../contexts/AuthContext";
+import {
+  getInventorySummary,
+  getInventoryRoutes,
+} from "../../../api/factoryManagerDashboard";
 
 export default function InventoryRoutesPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
 
   // View mode state - daily or monthly
-  const [viewMode, setViewMode] = useState("daily");
+  const [viewMode, setViewMode] = useState(location.state?.viewMode || "daily");
 
   // Date selection state
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
+    location.state?.selectedDate || new Date().toISOString().split("T")[0]
   );
 
   // Month/Year selection state for monthly view
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(
+    location.state?.selectedMonth ?? new Date().getMonth()
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    location.state?.selectedYear ?? new Date().getFullYear()
+  );
 
   const [filters, setFilters] = useState({
     search: "",
@@ -34,48 +46,118 @@ export default function InventoryRoutesPage() {
     storageType: "All",
   });
 
-  // Filter routes data
-  const filteredData = useMemo(() => {
-    let data = routes;
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    // Apply search filters
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      data = data.filter(
-        (item) =>
-          item.routeName.toLowerCase().includes(searchLower) ||
-          item.routeNumber?.toLowerCase().includes(searchLower)
-      );
-    }
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(filters.search), 500);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
 
-    // Apply status filter
-    if (filters.status !== "All") {
-      data = data.filter((item) => item.status === filters.status);
-    }
+  const [summary, setSummary] = useState({});
 
-    // Apply sorting
-    if (filters.sortOrder) {
-      data = [...data].sort((a, b) => {
-        const aValue = a.totalWeight || 0;
-        const bValue = b.totalWeight || 0;
-        return filters.sortOrder === "asc" ? aValue - bValue : bValue - aValue;
-      });
-    }
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [routesData, setRoutesData] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-    return data;
-  }, [filters]);
+  // Reset page to 0 when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [filters.search, filters.sortOrder]);
 
-  // Calculate summary data
-  const summary = useMemo(() => {
-    return getInventoryStatistics(filteredData);
-  }, [filteredData]);
+  // Fetch routes data
+  useEffect(() => {
+    const fetchRoutes = async () => {
+      if (!user?.factoryId) return;
+
+      setLoading(true);
+      try {
+        const params = {
+          page,
+          size,
+          search: debouncedSearch,
+          sortDir: filters.sortOrder === "asc" ? "asc" : "desc",
+        };
+
+        if (viewMode === "daily") {
+          params.date = selectedDate;
+        } else if (viewMode === "monthly") {
+          params.month = selectedMonth + 1;
+          params.year = selectedYear;
+        }
+
+        const data = await getInventoryRoutes(user.factoryId, viewMode, params);
+        setRoutesData(data.content || []);
+        setTotalPages(data.totalPages || 0);
+        setTotalElements(data.totalElements || 0);
+      } catch (error) {
+        console.error("Failed to fetch inventory routes:", error);
+        // Fallback to dummy data
+        setRoutesData(routes);
+        setTotalPages(Math.ceil(routes.length / size));
+        setTotalElements(routes.length);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoutes();
+  }, [
+    user,
+    viewMode,
+    selectedDate,
+    selectedMonth,
+    selectedYear,
+    page,
+    size,
+    debouncedSearch,
+    filters.sortOrder,
+  ]);
+
+  // Fetch summary data
+  useEffect(() => {
+    const fetchSummary = async () => {
+      if (!user?.factoryId) return;
+
+      try {
+        const params =
+          viewMode === "daily"
+            ? { date: selectedDate }
+            : { month: selectedMonth + 1, year: selectedYear };
+        const data = await getInventorySummary(
+          user.factoryId,
+          viewMode,
+          params
+        );
+        console.log("Fetched Inventory Summary Data:", data);
+        // Transform API data to match component expectations
+        const transformedData = {
+          totalWeight: data.totalGrossWeight || 0,
+          totalBags: data.totalBags || 0,
+          netWeight: data.totalNetWeight || 0,
+        };
+        setSummary(transformedData);
+      } catch (error) {
+        console.error("Failed to fetch inventory summary:", error);
+        // Fallback to dummy data calculation
+        setSummary(getInventoryStatistics(routes));
+      }
+    };
+
+    fetchSummary();
+  }, [user, viewMode, selectedDate, selectedMonth, selectedYear]);
 
   const handleViewRoute = (route) => {
-    navigate(`/factoryManager/inventory/routes/${route.id}`);
+    navigate(`/factoryManager/inventory/routes/${route.routeId || route.id}`, {
+      state: { route, viewMode, selectedDate, selectedMonth, selectedYear },
+    });
   };
 
   const handleDownloadCSV = () => {
-    const csvContent = generateCSV(routes, "routes");
+    const csvContent = generateCSV(routesData, "routes");
     downloadCSV(csvContent, `inventory_routes_${Date.now()}.csv`);
   };
 
@@ -106,9 +188,9 @@ export default function InventoryRoutesPage() {
 
         <MainContent
           currentView="routes"
-          filteredData={filteredData}
+          filteredData={routesData}
           summary={summary}
-          getCurrentData={() => routes}
+          getCurrentData={() => routesData}
           onViewRoute={handleViewRoute}
           onDownloadCSV={handleDownloadCSV}
           viewMode={viewMode}
@@ -116,6 +198,14 @@ export default function InventoryRoutesPage() {
           selectedMonth={selectedMonth}
           selectedYear={selectedYear}
           monthNames={monthNames}
+          loading={loading}
+        />
+
+        <PaginationControls
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements}
+          setPage={setPage}
         />
       </div>
     </div>

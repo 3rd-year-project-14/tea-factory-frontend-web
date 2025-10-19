@@ -1,6 +1,7 @@
 import { Paperclip, X } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { updateAnnouncement } from "../../../api/owner";
 
 const ACCENT_COLOR = "#165E52";
 const BTN_COLOR = "#01251F";
@@ -18,20 +19,46 @@ export default function UpdateAnnouncement() {
     factories: [],
     attachments: [],
   };
-  const [form, setForm] = useState({ ...announcement });
+  // Ensure factories are always stored as IDs (strings)
+  const [form, setForm] = useState({
+    ...announcement,
+    factories: Array.isArray(announcement.factories)
+      ? announcement.factories.map(f => typeof f === "object" && f.id ? f.id : String(f))
+      : [],
+  });
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const factoryOptions = ["Factory A", "Factory B", "Factory C", "Factory D"];
+  const factoryOptions = [
+    { id: "1", name: "Wawlugala Tea Factory" },
+    { id: "2", name: "Miyanawathura Tea Factory" },
+    { id: "3", name: "Andaradeniya Tea Factory" },
+    { id: "4", name: "Batuwangala Tea Factory" },
+    { id: "5", name: "Duli Ella Tea Factory" },
+    { id: "6", name: "Devonia Tea Factory" },
+    { id: "7", name: "Fortune Tea Factory" },
+    { id: "8", name: "Galaxi Tea Factory" },
+    { id: "9", name: "Ruhunu Tea Factory" },
+  ];
+
+  const topicOptions = [
+    { id: "general", name: "General" },
+    { id: "payments", name: "Payments" },
+    { id: "maintenance", name: "Maintenance" },
+    { id: "routes", name: "Routes" },
+    { id: "inventory", name: "Inventory" },
+    { id: "fertilizer", name: "Fertilizer" },
+    { id: "event", name: "Event" },
+  ];
 
   const handleInputChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFactoryToggle = (factory) => {
+  const handleFactoryToggle = (factoryId) => {
     setForm((prev) => {
-      const isSelected = prev.factories.includes(factory);
+      const isSelected = prev.factories.includes(factoryId);
       const newFactories = isSelected
-        ? prev.factories.filter((f) => f !== factory)
-        : [...prev.factories, factory];
+        ? prev.factories.filter((f) => f !== factoryId)
+        : [...prev.factories, factoryId];
       return {
         ...prev,
         factories: newFactories,
@@ -62,10 +89,24 @@ export default function UpdateAnnouncement() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Backend update logic here
-    navigate(-1);
+    // Prepare FormData for backend
+    const formData = new FormData();
+    formData.append("topic", form.topic);
+    formData.append("subject", form.subject);
+    formData.append("content", form.content);
+    form.factories.forEach(f => formData.append("factories", f));
+    form.attachments.forEach(att => {
+      if (att.file) formData.append("attachments", att.file);
+    });
+    try {
+      const result = await updateAnnouncement(announcement.id, formData);
+      console.log("Update response:", result);
+      navigate(-1);
+    } catch (error) {
+      console.error("Error updating announcement:", error?.response || error?.message || error);
+    }
   };
 
   return (
@@ -73,14 +114,14 @@ export default function UpdateAnnouncement() {
       {/* Header */}
       <div
         className="bg-white shadow-sm border-b"
-        style={{ borderColor: BORDER_COLOR }}
+        // style={{ borderColor: BORDER_COLOR }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
               <h1
-                className="text-3xl font-bold"
-                style={{ color: ACCENT_COLOR }}
+                className="text-3xl font-bold text-gray-900"
+                // style={{ color: ACCENT_COLOR }}
               >
                 Update Announcement
               </h1>
@@ -101,12 +142,8 @@ export default function UpdateAnnouncement() {
                 onClick={handleSubmit}
                 className="px-6 py-2 rounded-lg font-medium shadow transition-colors text-white"
                 style={{ backgroundColor: BTN_COLOR }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = ACCENT_COLOR)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = BTN_COLOR)
-                }
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = ACCENT_COLOR)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = BTN_COLOR)}
               >
                 Update Announcement
               </button>
@@ -138,14 +175,17 @@ export default function UpdateAnnouncement() {
                   >
                     Topic :
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={form.topic}
                     onChange={(e) => handleInputChange("topic", e.target.value)}
                     className="w-full px-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#165e52] focus:border-[#165e52] transition-all bg-white"
-                    placeholder="Enter announcement topic"
                     style={{ borderColor: BORDER_COLOR }}
-                  />
+                  >
+                    <option value="">Select topic</option>
+                    {topicOptions.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Subject Field */}
@@ -209,18 +249,58 @@ export default function UpdateAnnouncement() {
                     Factories :
                   </label>
                   <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setDropdownOpen(!dropdownOpen)}
-                      className="w-full px-4 py-3 border rounded-lg text-left cursor-pointer bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#165e52] focus:border-[#165e52] transition-all"
-                      style={{ borderColor: BORDER_COLOR }}
-                      aria-haspopup="listbox"
-                      aria-expanded={dropdownOpen}
-                    >
-                      {form.factories.length > 0
-                        ? form.factories.join(", ")
-                        : "Select factories"}
-                    </button>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        readOnly
+                        value={form.factories.length > 0
+                          ? factoryOptions
+                              .filter((f) => form.factories.includes(f.id))
+                              .map((f) => f.name)
+                              .join(", ")
+                          : "Select factories"}
+                        className="w-full px-4 py-3 border rounded-lg text-left cursor-pointer bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#165e52] focus:border-[#165e52] transition-all"
+                        style={{ borderColor: BORDER_COLOR }}
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                        aria-haspopup="listbox"
+                        aria-expanded={dropdownOpen}
+                        placeholder="Select factories"
+                      />
+                      {dropdownOpen && (
+                        <ul
+                          className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-lg border border-[#165e52] bg-white shadow-lg z-50"
+                          role="listbox"
+                          tabIndex={-1}
+                        >
+                          {factoryOptions.map((factory) => (
+                            <li
+                              key={factory.id}
+                              role="option"
+                              aria-selected={form.factories.includes(factory.id)}
+                              className={`flex items-center px-4 py-2 cursor-pointer hover:bg-[#e1f4ef] ${
+                                form.factories.includes(factory.id)
+                                  ? "bg-[#d4eadf] font-semibold"
+                                  : ""
+                              }`}
+                              onClick={() => handleFactoryToggle(factory.id)}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={form.factories.includes(factory.id)}
+                                readOnly
+                                className="w-4 h-4 mr-2 cursor-pointer text-[#165e52] bg-white border border-gray-300 rounded focus:ring-[#165e52] focus:ring-2"
+                              />
+                              <span className="flex items-center gap-2">
+                                {factory.name}
+                                {form.factories.includes(factory.id) && (
+                                  <span className="text-green-600 ml-1">&#10003;</span>
+                                )}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                     {dropdownOpen && (
                       <ul
                         className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-lg border border-[#165e52] bg-white shadow-lg z-50"
@@ -229,30 +309,45 @@ export default function UpdateAnnouncement() {
                       >
                         {factoryOptions.map((factory) => (
                           <li
-                            key={factory}
+                            key={factory.id}
                             role="option"
-                            aria-selected={form.factories.includes(factory)}
+                            aria-selected={form.factories.includes(factory.id)}
                             className={`flex items-center px-4 py-2 cursor-pointer hover:bg-[#e1f4ef] ${
-                              form.factories.includes(factory)
+                              form.factories.includes(factory.id)
                                 ? "bg-[#d4eadf] font-semibold"
                                 : ""
                             }`}
-                            onClick={() => handleFactoryToggle(factory)}
+                            onClick={() => handleFactoryToggle(factory.id)}
                           >
                             <input
                               type="checkbox"
-                              checked={form.factories.includes(factory)}
+                              checked={form.factories.includes(factory.id)}
                               readOnly
                               className="w-4 h-4 mr-2 cursor-pointer text-[#165e52] bg-white border border-gray-300 rounded focus:ring-[#165e52] focus:ring-2"
                             />
-                            {factory}
+                            <span className="flex items-center gap-2">
+                              {factory.name}
+                              {form.factories.includes(factory.id) && (
+                                <span className="text-green-600 ml-1">&#10003;</span>
+                              )}
+                            </span>
                           </li>
                         ))}
                       </ul>
                     )}
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    {form.factories.length} selected
+                  <div className="text-sm text-gray-700 mt-2">
+                    <span className="font-medium">Selected Factories:</span>
+                    {form.factories.length > 0 ? (
+                      <span className="ml-2">
+                        {factoryOptions
+                          .filter(f => form.factories.includes(f.id))
+                          .map(f => f.name)
+                          .join(", ")}
+                      </span>
+                    ) : (
+                      <span className="ml-2 text-gray-400">None</span>
+                    )}
                   </div>
                 </div>
 
@@ -276,7 +371,7 @@ export default function UpdateAnnouncement() {
                       />
                       <label
                         htmlFor="fileUpload"
-                        className="flex items-center space-x-2 bg-[#165e52] hover:bg-[#01251f] text-white px-4 py-2 rounded-lg cursor-pointer select-none transition-colors"
+                        className="flex items-center space-x-2 bg-[#01251f] hover:bg-[#165e52] text-white px-4 py-2 rounded-lg cursor-pointer select-none transition-colors"
                       >
                         <Paperclip className="w-4 h-4" />
                         <span>Choose Files</span>

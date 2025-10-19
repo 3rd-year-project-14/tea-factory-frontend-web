@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Search,
   Plus,
+   Truck, // <-- Add this line
 } from "lucide-react";
 
 const ACCENT_COLOR = "#165E52"; // Title & highlights
@@ -102,7 +103,7 @@ export default function Emergency() {
       <div className="bg-white shadow-md border-b border-gray-200 mb-8">
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
           <div className="flex items-center gap-3">
-            <AlertTriangle size={32} style={{ color: ACCENT_COLOR }} />
+       
             <h1 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
               Emergency Vehicle Replacement
             </h1>
@@ -135,12 +136,13 @@ export default function Emergency() {
             {/* Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="text-3xl select-none">🚛</div>
+                <Truck className="text-[#000000] w-8 h-8" />
+
                 <div>
-                  <h2 className="font-bold text-lg text-[#165E52]">
+                  <h2 className="font-bold text-lg text-[#000000]">
                     {broken.id} - {broken.model}
                   </h2>
-                  <p className="text-sm text-[#165E52] opacity-70">
+                  <p className="text-sm text-[##000000] opacity-70">
                     {broken.type}
                   </p>
                 </div>
@@ -148,7 +150,7 @@ export default function Emergency() {
             </div>
 
             {/* Info */}
-            <div className="text-[#165E52] space-y-1 text-sm font-medium">
+            <div className="text-[#000000] space-y-1 text-sm font-medium">
               <p>
                 <span className="font-semibold">Driver:</span> {broken.driver}
               </p>
@@ -163,7 +165,7 @@ export default function Emergency() {
 
             {/* Selector */}
             <div>
-              <label className="block text-sm font-semibold text-[#165E52] mb-1">
+              <label className="block text-sm font-semibold text-[#000000] mb-1">
                 Assign Replacement Vehicle
               </label>
               <select
@@ -194,7 +196,7 @@ export default function Emergency() {
                 className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white text-sm transition-colors duration-200 ${
                   allAssigned
                     ? "bg-red-600 hover:bg-red-700"
-                    : "bg-[#165E52] cursor-not-allowed"
+                    : "bg-[#172526] cursor-not-allowed"
                 }`}
               >
                 <CheckCircle2 size={18} />

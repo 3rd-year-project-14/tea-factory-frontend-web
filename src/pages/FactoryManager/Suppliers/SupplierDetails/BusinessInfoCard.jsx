@@ -1,13 +1,41 @@
 import React from "react";
-import { Building, MapPin } from "lucide-react";
-
+import { Building } from "lucide-react";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+// Replace with your actual Google Maps API key
+const GOOGLE_MAPS_API_KEY = "AIzaSyCC1yw0F2ZC9dCYPDmcEdm3VAU6UqTYefo";
 
 const ACCENT_COLOR = "#165E52";
 const BORDER_COLOR = "#cfece6";
 const HEADER_BG = "#e1f4ef";
 
-
 export default function BusinessInfoCard({ supplier }) {
+  // Parse coordinates (assume { lat, lng } or "lat,lng" string)
+  const parseLocation = (loc) => {
+    if (!loc) return null;
+    if (typeof loc === "object" && loc.lat && loc.lng) return loc;
+    if (typeof loc === "string") {
+      // Handle Google Maps URL format: https://maps.google.com/?q=lat,lng
+      const match = loc.match(/q=([-\d.]+),([-\d.]+)/);
+      if (match) {
+        const lat = parseFloat(match[1]);
+        const lng = parseFloat(match[2]);
+        if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+      }
+      // Handle plain "lat,lng" string
+      if (loc.includes(",")) {
+        const [lat, lng] = loc.split(",").map(Number);
+        if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+      }
+    }
+    return null;
+  };
+
+  const landCoords = parseLocation(supplier.landLocation);
+  const pickupCoords = parseLocation(supplier.pickupLocation);
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+  });
   return (
     <div
       className="bg-white rounded-xl shadow-sm border overflow-hidden"
@@ -24,7 +52,6 @@ export default function BusinessInfoCard({ supplier }) {
         </h2>
       </div>
 
-
       {/* Body */}
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -38,23 +65,21 @@ export default function BusinessInfoCard({ supplier }) {
             </p>
           </div>
 
-
           {/* Monthly Supply */}
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Monthly Supply
+              {supplier.status === "approved"
+                ? "Initial Bag Count"
+                : "Monthly Supply"}
             </label>
             <p className="mt-1 text-sm font-medium text-gray-900">
               {supplier.status === "approved"
-                ? supplier.initialBagCount
-                  ? `${supplier.initialBagCount} kg`
-                  : "-"
+                ? supplier.initialBagCount ?? "-"
                 : supplier.monthlySupply
                 ? `${supplier.monthlySupply} kg`
                 : "-"}
             </p>
           </div>
-
 
           {/* Route Info */}
           {supplier.status === "approved" && (
@@ -63,32 +88,12 @@ export default function BusinessInfoCard({ supplier }) {
                 Assigned Route
               </label>
               <p className="mt-1 text-sm font-medium text-gray-900">
-                {supplier.route?.name || "-"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Start: {supplier.route?.startLocation || "-"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                End: {supplier.route?.endLocation || "-"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Bag count: {supplier.route?.bagCount || supplier.initialBagCount || "-"}
+                {supplier.routeName || "-"}
               </p>
             </div>
           )}
 
-
-          {supplier.status !== "approved" && (
-            <div>
-              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                Requested Route
-              </label>
-              <p className="mt-1 text-sm font-medium text-gray-900">
-                {supplier.requestedRoute || "Not specified"}
-              </p>
-            </div>
-          )}
-
+          {/* ...existing code... */}
 
           {/* Rejection Reason */}
           {supplier.status === "rejected" && (
@@ -97,32 +102,52 @@ export default function BusinessInfoCard({ supplier }) {
                 Rejection Reason
               </label>
               <p className="mt-1 text-sm text-red-700 bg-red-50 p-3 rounded-lg border border-red-200">
-                {supplier.rejectReason}
+                {supplier.rejectionReason}
               </p>
             </div>
           )}
         </div>
 
-
-        {/* Map Placeholder */}
+        {/* Google Maps for Land and Pickup Locations */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="h-40 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-            <div className="text-center">
-              <MapPin className="w-8 h-8 mx-auto mb-2" style={{ color: ACCENT_COLOR }} />
-              <p className="text-sm text-gray-500">Land Location Map</p>
-            </div>
+          <div className="h-40 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden">
+            <p className="text-sm text-gray-500 text-center mb-1">
+              Land Location Map
+            </p>
+            {isLoaded && landCoords ? (
+              <GoogleMap
+                mapContainerStyle={{ width: "100%", height: "140px" }}
+                center={landCoords}
+                zoom={15}
+              >
+                <Marker position={landCoords} />
+              </GoogleMap>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                No location
+              </div>
+            )}
           </div>
-          <div className="h-40 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-            <div className="text-center">
-              <MapPin className="w-8 h-8 mx-auto mb-2" style={{ color: ACCENT_COLOR }} />
-              <p className="text-sm text-gray-500">Pickup Location Map</p>
-            </div>
+          <div className="h-40 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden">
+            <p className="text-sm text-gray-500 text-center mb-1">
+              Pickup Location Map
+            </p>
+            {isLoaded && pickupCoords ? (
+              <GoogleMap
+                mapContainerStyle={{ width: "100%", height: "140px" }}
+                center={pickupCoords}
+                zoom={15}
+              >
+                <Marker position={pickupCoords} />
+              </GoogleMap>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                No location
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-
-
