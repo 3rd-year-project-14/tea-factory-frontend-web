@@ -1,376 +1,187 @@
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+// Dynamically load html2pdf.js when needed
+function loadHtml2PdfScript() {
+  return new Promise((resolve, reject) => {
+    if (window.html2pdf) return resolve(window.html2pdf);
+    const existing = document.querySelector('script[src*="html2pdf"]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(window.html2pdf));
+      existing.addEventListener('error', reject);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    script.onload = () => resolve(window.html2pdf);
+    script.onerror = reject;
+    document.body.appendChild(script);
+  });
+}
 
-import { auth } from "../../../firebase"; // adjust path if needed
-import { createUserWithEmailAndPassword, getIdToken } from "firebase/auth";
-
-// Design Tokens
 const ACCENT_COLOR = "#165E52";
-const BTN_COLOR = "#01251F";
 const BORDER_COLOR = "#cfece6";
 const HEADER_BG = "#e1f4ef";
-const INPUT_BG = "#ffffff";
 
-export default function AddManagersInterface() {
-  const [formData, setFormData] = useState({
-    name: "",
-    password: "",
-    email: "",
-    nic: "",
-    mobile: "",
-    role: "",
-    factory: "",
-  });
+export default function OwnerReportView() {
+  // Dummy/placeholder data for demonstration
+  const [loanRate, setLoanRate] = useState(null);
+  const [teaRate, setTeaRate] = useState(null);
+  const [teaCollections, setTeaCollections] = useState([]);
+  const [factoryGrowth, setFactoryGrowth] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const reportRef = useRef();
 
-  const [dropdowns, setDropdowns] = useState({
-    role: false,
-    factory: false,
-  });
-
-  const roles = [
-    "Factory Manager",
-    "Inventory Manager",
-    "Fertilizer Manager",
-    "Transport Manager",
-  ];
-  const factories = ["Factory A", "Factory B", "Factory C", "Factory D"];
-
-  const navigate = useNavigate();
-
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  // Fix: define handlePrint before usage
+  const handlePrint = () => {
+    window.print();
   };
 
-  const toggleDropdown = (dropdown) => {
-    setDropdowns({
-      ...dropdowns,
-      [dropdown]: !dropdowns[dropdown],
-    });
-  };
+  useEffect(() => {
+    // Simulate API calls with dummy data
+    async function fetchData() {
+      setLoanRate({ rate: 5.5, effectiveDate: "2025-10-01" });
+      setTeaRate({ rate: 120.75, effectiveDate: "2025-10-01" });
+      setTeaCollections([
+        { date: "2025-10-01", factory: "Factory A", amount: 1200 },
+        { date: "2025-10-01", factory: "Factory B", amount: 950 },
+        { date: "2025-10-01", factory: "Factory C", amount: 1100 },
+      ]);
+      setFactoryGrowth([
+        { factory: "Factory A", growth: 12.5 },
+        { factory: "Factory B", growth: 8.2 },
+        { factory: "Factory C", growth: 15.1 },
+      ]);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
 
-  const selectOption = (field, value) => {
-    setFormData({
-      ...formData,
-      [field]: value,
-    });
-    setDropdowns({
-      ...dropdowns,
-      [field]: false,
-    });
-  };
-
-  const handleSave = async () => {
+  const handleDownloadPDF = async () => {
     try {
-      // Create manager auth in Firebase
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      );
-      const user = userCredential.user;
-
-      // Get Firebase ID token
-      const token = await getIdToken(user);
-
-      // Post to backend
-
-      const response = await axios.post(
-        "http://localhost:8080/api/users",
-        {
-          firebaseUid: user.uid,
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          nic: formData.nic,
-          contactNo: formData.mobile,
-          role: formData.role,
-          factory: formData.factory,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("Saved:", response.data);
-      navigate("/owner/managerview/giveaccess", {
-        state: { manager: formData },
-      });
-    } catch (error) {
-      console.error("Error creating manager:", error);
+      let html2pdf = window.html2pdf;
+      if (!html2pdf) {
+        await loadHtml2PdfScript();
+        html2pdf = window.html2pdf;
+      }
+      if (!html2pdf) {
+        alert('Failed to load PDF library. Please check your internet connection.');
+        return;
+      }
+      html2pdf()
+        .set({
+          margin: 0.5,
+          filename: 'owner_dashboard_report.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        })
+        .from(reportRef.current)
+        .save();
+    } catch (err) {
+      alert('PDF download failed. Please try again.');
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
-      <div
-        className="max-w-6xl mx-auto rounded-2xl border shadow-2xl overflow-hidden bg-white"
-        style={{ borderColor: BORDER_COLOR }}
-      >
-        {/* Header */}
-        <div
-          className="px-8 py-6 border-b"
-          style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}
-        >
-          <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
-              Add Manager
-            </h2>
+      <div className="max-w-5xl mx-auto rounded-2xl border shadow-2xl bg-white" style={{ borderColor: BORDER_COLOR }}>
+        <div className="px-8 py-6 border-b flex flex-wrap gap-4 justify-between items-center print:block" style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}>
+          <h2 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Owner Dashboard Report</h2>
+          <div className="flex gap-2 print:hidden">
             <button
-              onClick={handleSave}
-              className="px-8 py-2 rounded-lg text-white font-medium shadow-md transition-colors"
-              style={{ backgroundColor: BTN_COLOR }}
-              type="button"
+              onClick={handleDownloadPDF}
+              className="px-6 py-2 rounded-lg text-white font-medium shadow transition-colors"
+              style={{ backgroundColor: '#01251F' }}
             >
-              Save &amp; Give Access
+              Download PDF
+            </button>
+            <button
+              onClick={handlePrint}
+              className="px-6 py-2 rounded-lg text-white font-medium shadow transition-colors"
+              style={{ backgroundColor: '#165E52' }}
+            >
+              Print
             </button>
           </div>
         </div>
-
-        {/* Form Section */}
-        <div className="px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Left Column - Personal Information */}
-            <div className="space-y-6">
-              <div className="border-b border-gray-100 pb-4 mb-6">
-                <h3
-                  className="text-lg font-semibold"
-                  style={{ color: ACCENT_COLOR }}
-                >
-                  Personal Information
-                </h3>
-              </div>
-
-              {/* Name */}
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          body { background: white !important; }
+          .print\:hidden { display: none !important; }
+          .print\:block { display: block !important; }
+          .shadow, .shadow-2xl, .rounded-2xl, .rounded-lg, .border { box-shadow: none !important; border: none !important; }
+          .bg-white, .bg-gray-100, .bg-\[\#f4fbf9\] { background: white !important; }
+          .px-8, .py-8, .py-6, .px-4, .py-2 { padding: 0 !important; }
+        }
+      `}</style>
+        <div ref={reportRef} className="px-8 py-8 space-y-10">
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            <>
+              {/* Current Loan Rate */}
               <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
-                  Name :
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
-                  placeholder="Enter manager name"
-                />
-              </div>
-
-              {/* NIC */}
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
-                  NIC :
-                </label>
-                <input
-                  type="text"
-                  name="nic"
-                  value={formData.nic}
-                  onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
-                  placeholder="Enter NIC number"
-                />
-              </div>
-
-              {/* Mobile Number */}
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
-                  Mobile Number :
-                </label>
-                <input
-                  type="tel"
-                  name="mobile"
-                  value={formData.mobile}
-                  onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
-                  placeholder="Enter mobile number"
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
-                  E-mail :
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
-                  placeholder="Enter email address"
-                />
-              </div>
-
-              {/* Password */}
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
-                  Password :
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
-                  placeholder="Enter password"
-                />
-              </div>
-            </div>
-
-            {/* Right Column - Role & Assignment */}
-            <div className="space-y-6">
-              <div className="border-b border-gray-100 pb-4 mb-6">
-                <h3
-                  className="text-lg font-semibold"
-                  style={{ color: ACCENT_COLOR }}
-                >
-                  Role & Assignment
-                </h3>
-              </div>
-
-              {/* Role Dropdown */}
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
-                  Role :
-                </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown("role")}
-                    className="w-full rounded-lg px-4 py-3 border bg-white text-left flex items-center justify-between"
-                    style={{
-                      borderColor: BORDER_COLOR,
-                      color: formData.role ? ACCENT_COLOR : "#A0AEC0",
-                    }}
-                  >
-                    <span>{formData.role || "Select Role"}</span>
-                    <ChevronDown
-                      size={20}
-                      className={`transition-transform ${
-                        dropdowns.role ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
-                  {dropdowns.role && (
-                    <div
-                      className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
-                      style={{ borderColor: BORDER_COLOR }}
-                    >
-                      {roles.map((role) => (
-                        <button
-                          key={role}
-                          type="button"
-                          onClick={() => selectOption("role", role)}
-                          className="w-full px-4 py-3 text-left hover:bg-[#e1f4ef] first:rounded-t-lg last:rounded-b-lg transition-colors"
-                          style={{ color: ACCENT_COLOR }}
-                        >
-                          {role}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                <h3 className="text-xl font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Current Loan Rate</h3>
+                <div className="bg-[#f4fbf9] rounded-lg p-4 flex items-center gap-8">
+                  <span className="text-2xl font-bold">{loanRate.rate}%</span>
+                  <span className="text-gray-600">Effective Date: {loanRate.effectiveDate}</span>
                 </div>
               </div>
 
-              {/* Factory Dropdown */}
+              {/* Current Tea Rate */}
               <div>
-                <label
-                  className="block mb-2 text-sm font-medium"
-                  style={{ color: ACCENT_COLOR }}
-                >
-                  Factory :
-                </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown("factory")}
-                    className="w-full rounded-lg px-4 py-3 border bg-white text-left flex items-center justify-between"
-                    style={{
-                      borderColor: BORDER_COLOR,
-                      color: formData.factory ? ACCENT_COLOR : "#A0AEC0",
-                    }}
-                  >
-                    <span>{formData.factory || "Select Factory"}</span>
-                    <ChevronDown
-                      size={20}
-                      className={`transition-transform ${
-                        dropdowns.factory ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
-                  {dropdowns.factory && (
-                    <div
-                      className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
-                      style={{ borderColor: BORDER_COLOR }}
-                    >
-                      {factories.map((factory) => (
-                        <button
-                          key={factory}
-                          type="button"
-                          onClick={() => selectOption("factory", factory)}
-                          className="w-full px-4 py-3 text-left hover:bg-[#e1f4ef] first:rounded-t-lg last:rounded-b-lg transition-colors"
-                          style={{ color: ACCENT_COLOR }}
-                        >
-                          {factory}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                <h3 className="text-xl font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Current Tea Rate</h3>
+                <div className="bg-[#f4fbf9] rounded-lg p-4 flex items-center gap-8">
+                  <span className="text-2xl font-bold">Rs. {teaRate.rate}</span>
+                  <span className="text-gray-600">Effective Date: {teaRate.effectiveDate}</span>
                 </div>
               </div>
-            </div>
-          </div>
+
+              {/* Tea Collections Table */}
+              <div>
+                <h3 className="text-xl font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Today's Tea Collections</h3>
+                <table className="w-full table-auto border-collapse">
+                  <thead>
+                    <tr style={{ backgroundColor: HEADER_BG }}>
+                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Factory</th>
+                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Date</th>
+                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Amount (kg)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {teaCollections.map((c, idx) => (
+                      <tr key={idx}>
+                        <td className="py-2 px-4 border-b">{c.factory}</td>
+                        <td className="py-2 px-4 border-b">{c.date}</td>
+                        <td className="py-2 px-4 border-b">{c.amount}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Factory Growth Table */}
+              <div>
+                <h3 className="text-xl font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Factory Growth (%)</h3>
+                <table className="w-full table-auto border-collapse">
+                  <thead>
+                    <tr style={{ backgroundColor: HEADER_BG }}>
+                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Factory</th>
+                      <th className="py-2 px-4 border-b" style={{ color: ACCENT_COLOR }}>Growth (%)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {factoryGrowth.map((f, idx) => (
+                      <tr key={idx}>
+                        <td className="py-2 px-4 border-b">{f.factory}</td>
+                        <td className="py-2 px-4 border-b">{f.growth}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
