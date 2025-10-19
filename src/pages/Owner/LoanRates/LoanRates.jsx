@@ -1,4 +1,3 @@
-import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createLoanRate, getLoanRates } from "../../../api/owner";
@@ -79,15 +78,7 @@ export default function LoanRates() {
             <h1 className="text-3xl font-bold mb-1 text-gray-900">Loan Rates</h1>
             <p className="text-[#000000] opacity-80 max-w-2xl">Owner Dashboard - Manage Loan Rates</p>
           </div>
-          <div>
-            <button
-              onClick={openAdd}
-              className="flex items-center gap-2 px-6 py-2 rounded-lg font-medium shadow transition-colors"
-              style={{ backgroundColor: BUTTON_COLOR, color: "white" }}
-            >
-              <Plus className="w-5 h-5" /> Add New
-            </button>
-          </div>
+          {/* Add New button removed: form is always visible */}
         </div>
       </div>
 
