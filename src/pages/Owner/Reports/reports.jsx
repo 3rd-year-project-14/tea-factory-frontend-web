@@ -128,7 +128,7 @@ export default function OwnerReportView() {
 
       <div className="max-w-5xl mx-auto rounded-2xl border shadow-2xl bg-white" style={{ borderColor: BORDER_COLOR }}>
         <div className="px-8 py-6 border-b flex flex-wrap gap-4 justify-between items-center print:block" style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}>
-          <h2 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Owner Dashboard Report</h2>
+          <h2 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Owner Report</h2>
           <div className="flex gap-2 print:hidden">
             {/* <button
               onClick={handleDownloadPDF}
@@ -186,40 +186,13 @@ export default function OwnerReportView() {
               <div>
                 <h3 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>Current Tea Rate</h3>
                 <div className="bg-[#f4fbf9] rounded-lg p-6 border" style={{ borderColor: BORDER_COLOR }}>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center">
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Current Rate</p>
-                      <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Rs. {teaRate.rate}</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600 mb-1">Effective Date</p>
-                      <span className="text-lg font-medium">{teaRate.effectiveDate}</span>
+                      <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Rs. {teaRate && teaRate.rate ? teaRate.rate : "N/A"}</span>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Tea Collections Table */}
-              <div>
-                <h3 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>Today's Tea Collections</h3>
-                <table className="w-full table-auto border-collapse border" style={{ borderColor: BORDER_COLOR }}>
-                  <thead>
-                    <tr style={{ backgroundColor: HEADER_BG }}>
-                      <th className="py-3 px-4 border text-left" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Factory</th>
-                      <th className="py-3 px-4 border text-left" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Date</th>
-                      <th className="py-3 px-4 border text-right" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Amount (kg)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {teaCollections.map((c, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
-                        <td className="py-3 px-4 border" style={{ borderColor: BORDER_COLOR }}>{c.factory}</td>
-                        <td className="py-3 px-4 border" style={{ borderColor: BORDER_COLOR }}>{c.date}</td>
-                        <td className="py-3 px-4 border text-right" style={{ borderColor: BORDER_COLOR }}>{c.amount}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
 
               {/* Factory Growth Table */}
