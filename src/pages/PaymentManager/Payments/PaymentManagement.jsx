@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import PaymentHeader from "./PaymentHeader";
 import PaymentFilters from "./PaymentFilters";
 import PaymentModal from "./PaymentModal";
@@ -203,6 +204,20 @@ export default function PaymentManagement() {
       paymentMethod: "All",
     }); // Reset filters
   };
+
+  // If a routeName query param is present, auto-select that route
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const routeName = params.get("routeName");
+    if (routeName) {
+      const found = routes.find(r => r.routeName === routeName || r.routeNumber === routeName || r.id === routeName);
+      if (found) {
+        viewRoute(found);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
 
   const viewSupplierBill = (supplier) => {
     setSelectedSupplier(supplier);
