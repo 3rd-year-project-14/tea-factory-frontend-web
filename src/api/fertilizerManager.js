@@ -75,6 +75,21 @@ export async function rejectFertilizerRequest(id, rejectReason) {
 // Supplier Fertilizer Requests API
 const supplierBase = '/supplier-fertilizer-requests'; // FIXED: removed extra /api
 
+// Fertilizer Stock Requests API
+const fertilizerStockRequestBase = '/fertilizer-requests/fertilizer-stock-requests';
+
+// Create fertilizer stock request
+export async function createFertilizerStockRequest(payload) {
+  const { data } = await axios.post(fertilizerStockRequestBase, payload);
+  return data;
+}
+
+// Get all fertilizer stock requests
+export async function getAllFertilizerStockRequests() {
+  const { data } = await axios.get(fertilizerStockRequestBase);
+  return data;
+}
+
 // Create supplier fertilizer request
 export async function createSupplierFertilizerRequest(payload) {
   const { data } = await axios.post(supplierBase, payload);
