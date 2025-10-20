@@ -11,7 +11,7 @@ import {
   Settings,
   Truck,
   UserCheck,
-  Users
+  Users,
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -41,7 +41,11 @@ const sidebarLinks = {
     { name: "Drivers", path: "/transportManager/drivers", icon: Users },
     { name: "Vehicle", path: "/transportManager/vehicle", icon: Truck },
     { name: "Route", path: "/transportManager/routeList", icon: Route },
-    { name: "Announcements", path: "/transportManager/announcements", icon: Bell },
+    {
+      name: "Announcements",
+      path: "/transportManager/announcements",
+      icon: Bell,
+    },
     {
       name: "Route Planner",
       path: "/transportManager/routePlan",
@@ -61,31 +65,48 @@ const sidebarLinks = {
       path: "/inventoryManager/empty_bags_weight",
       icon: Package,
     },
-    { name: "Announcements", path: "/inventoryManager/announcements", icon: Bell },
+    {
+      name: "Announcements",
+      path: "/inventoryManager/announcements",
+      icon: Bell,
+    },
     { name: "History", path: "/inventoryManager/history", icon: Award },
-    
   ],
   FERTILIZER_MANAGER: [
     { name: "Dashboard", path: "/fertilizerManager/Dashboard", icon: Home },
     { name: "Stock", path: "/fertilizerManager/stocks", icon: Truck },
     { name: "Request", path: "/fertilizerManager/request", icon: Package },
-    { name: "Announcements", path: "/fertilizerManager/announcements", icon: Bell },
+    {
+      name: "Announcements",
+      path: "/fertilizerManager/announcements",
+      icon: Bell,
+    },
     { name: "Report", path: "/fertilizerManager/report", icon: Users },
   ],
   FACTORY_MANAGER: [
     { name: "Dashboard", path: "/factoryManager/dashboard", icon: Home },
     { name: "Fertilizers", path: "/factoryManager/fertilizers", icon: Package },
     { name: "Suppliers", path: "/factoryManager/suppliers", icon: Users },
-    { name: "Announcements", path: "/factoryManager/announcements", icon: Bell },
+    {
+      name: "Announcements",
+      path: "/factoryManager/announcements",
+      icon: Bell,
+    },
     { name: "Routes", path: "/factoryManager/routes", icon: Route },
     { name: "Inventory", path: "/factoryManager/inventory", icon: Package },
-    { name: "Drivers", path: "/factoryManager/drivers", icon: Users },
+    // { name: "Drivers", path: "/factoryManager/drivers", icon: Users },
+    // { name: "Payments New", path: "/factoryManager/payment/main", icon: Users },
     {
       name: "Payments",
       icon: DollarSign,
       children: [
         {
-          name: "Payments",
+          name: "Payments Proceed",
+          path: "/factoryManager/payment/proceed",
+          icon: DollarSign,
+        },
+        {
+          name: "Payments History",
           path: "/factoryManager/payment/payments",
           icon: DollarSign,
         },
