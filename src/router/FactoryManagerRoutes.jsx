@@ -18,6 +18,11 @@ import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
 import LoanManagement from "../pages/PaymentManager/Loans/LoanManagement";
 import PaymentManagement from "../pages/PaymentManager/Payments/PaymentManagement";
 import ProceedPayment from "../pages/PaymentManager/ProceedPayment/ProceedPayment";
+import PaymentProcessingDashboard from "../pages/PaymentManager/PaymentProceed";
+import MonthlyPaymentProcessing from "../pages/PaymentManager/PaymentProceed/MonthlyPaymentProcessing";
+import PaymentDisbursement from "../pages/PaymentManager/PaymentProceed/PaymentDisbursement";
+import AdhocPaymentProcessing from "../pages/PaymentManager/PaymentProceed/AdhocPaymentProcessing";
+import CashDisbursementTerminal from "../pages/PaymentManager/PaymentProceed/CashDisbursementTerminal";
 import PaymentMain from "../pages/PaymentManager/Payments/PaymentMain";
 import TeaRateAdjustment from "../pages/PaymentManager/TeaRate/TeaRateAdjustment";
 
@@ -77,7 +82,39 @@ const FactoryManagerRoutes = (
       path="/factoryManager/payment/proceed"
       element={
         <Layout>
-          <ProceedPayment />
+          <PaymentProcessingDashboard />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/proceed/monthly"
+      element={
+        <Layout>
+          <MonthlyPaymentProcessing />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/proceed/disbursement"
+      element={
+        <Layout>
+          <PaymentDisbursement />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/proceed/adhoc"
+      element={
+        <Layout>
+          <AdhocPaymentProcessing />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/proceed/cash-terminal"
+      element={
+        <Layout>
+          <CashDisbursementTerminal />
         </Layout>
       }
     />
