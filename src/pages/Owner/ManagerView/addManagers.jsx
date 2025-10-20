@@ -1,10 +1,10 @@
+import axios from "axios";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
-import { auth } from "../../../firebase"; // adjust path if needed
 import { createUserWithEmailAndPassword, getIdToken } from "firebase/auth";
+import { auth } from "../../../firebase"; // adjust path if needed
 
 // Design Tokens
 const ACCENT_COLOR = "#165E52";
@@ -12,6 +12,25 @@ const BTN_COLOR = "#01251F";
 const BORDER_COLOR = "#cfece6";
 const HEADER_BG = "#e1f4ef";
 const INPUT_BG = "#ffffff";
+
+const roles = [
+  { label: 'Factory Manager', value: 'FACTORY_MANAGER' },
+  { label: 'Inventory Manager', value: 'INVENTORY_MANAGER' },
+  { label: 'Fertilizer Manager', value: 'FERTILIZER_MANAGER' },
+  { label: 'Transport Manager', value: 'TRANSPORT_MANAGER' }
+];
+
+const factoryOptions = [
+  { id: "1", name: "Wawlugala Tea Factory" },
+  { id: "2", name: "Miyanawathura Tea Factory" },
+  { id: "3", name: "Andaradeniya Tea Factory" },
+  { id: "4", name: "Batuwangala Tea Factory" },
+  { id: "5", name: "Duli Ella Tea Factory" },
+  { id: "6", name: "Devonia Tea Factory" },
+  { id: "7", name: "Fortune Tea Factory" },
+  { id: "8", name: "Galaxi Tea Factory" },
+  { id: "9", name: "Ruhunu Tea Factory" },
+];
 
 export default function AddManagersInterface() {
   const [formData, setFormData] = useState({
@@ -68,20 +87,22 @@ export default function AddManagersInterface() {
       const user = userCredential.user;
       const token = await getIdToken(user);
 
+      const dataToSend = {
+        firebaseUid: user.uid,
+        name: formData.name,
+        email: formData.email,
+        // password: formData.password,
+        nic: formData.nic,
+        contactNo: formData.mobile,
+        role: formData.role,
+        factoryId: formData.factory,
+        address: formData.address
+      };
+      console.log("Data sent to backend:", dataToSend);
+
       await axios.post(
         "http://localhost:8080/api/users",
-        {
-          firebaseUid: user.uid,
-          name: formData.name,
-          email: formData.email,
-          // password: formData.password,
-          nic: formData.nic,
-          contactNo: formData.mobile,
-          role: formData.role,
-          // factory: formData.factory,
-          // factoryId: selectedFactoryId,
-          address: formData.address
-        },
+        dataToSend,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -96,21 +117,6 @@ export default function AddManagersInterface() {
       console.error("Error creating manager:", error);
     }
   };
-
-  const roles = [
-    { label: 'Factory Manager', value: 'FACTORY_MANAGER' },
-    { label: 'Inventory Manager', value: 'INVENTORY_MANAGER' },
-    { label: 'Fertilizer Manager', value: 'FERTILIZER_MANAGER' },
-    { label: 'Transport Manager', value: 'TRANSPORT_MANAGER' }
-  ];
-
-  const factories = [
-    // { label: '1', value: 'Andaradeniya Tea Factory' },
-    'Andaradeniya Tea Factory', 'Batuwangala Tea Factory', 'Ruhuna Tea Factory',
-    'Duli Ella Tea Factory', 'Fortune Tea Factory', 'Waulugala Tea Factory',
-    'Williegroup Tea Factory', 'Devonia Tea Factory', 'Galaxy Tea Factory',
-    'Nivithigala Tea Factory'
-  ];
 
   return (
     <div className="min-h-screen p-4">
@@ -337,7 +343,7 @@ export default function AddManagersInterface() {
                   <input
                     type="text"
                     readOnly
-                    value={formData.factory}
+                    value={factoryOptions.find(f => f.id === formData.factory)?.name || ""}
                     onClick={() => toggleDropdown('factory')}
                     placeholder="Select Factory"
                     className="w-full rounded-lg px-4 py-3 border h-12 cursor-pointer"
@@ -350,14 +356,14 @@ export default function AddManagersInterface() {
                   <ChevronDown size={20} className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${dropdowns.factory ? 'rotate-180' : ''}`} />
                   {dropdowns.factory && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-green-400 rounded-lg shadow-2xl z-50">
-                      {factories.map((factory) => (
+                      {factoryOptions.map((factory) => (
                         <button
-                          key={factory}
+                          key={factory.id}
                           type="button"
-                          onClick={() => selectOption('factory', factory)}
+                          onClick={() => selectOption('factory', factory.id)}
                           className="w-full px-4 py-3 text-left hover:bg-green-50 focus:bg-green-100 transition-colors"
                         >
-                          {factory}
+                          {factory.name}
                         </button>
                       ))}
                     </div>
