@@ -9,7 +9,6 @@ import SupplierRegister from "../pages/FactoryManager/Suppliers/SupplierRegister
 import FertilizersPage from "../pages/FactoryManager/Fertilizers/FertilizersPage";
 import SupplierDetailsPage from "../pages/FactoryManager/Suppliers/SupplierDetailsPage";
 import RouteManagement from "../pages/FactoryManager/Routes/RouteManagement";
-import InventoryManagement from "../pages/FactoryManager/Inventory/InventoryManagement";
 import InventoryRoutesPage from "../pages/FactoryManager/Inventory/InventoryRoutesPage";
 import InventorySupplierDetailPage from "../pages/FactoryManager/Inventory/InventorySupplierDetailPage";
 import InventorySuppliersPage from "../pages/FactoryManager/Inventory/InventorySuppliersPage";
