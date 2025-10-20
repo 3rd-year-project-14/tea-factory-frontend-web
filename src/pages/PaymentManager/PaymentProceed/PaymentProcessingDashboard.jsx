@@ -1,21 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
+  AlertTriangle,
+  BarChart3,
   Calendar,
   Clock,
-  Wallet,
-  FileText,
-  CheckCircle,
-  AlertTriangle,
-  DollarSign,
-  History,
   Download,
-  BarChart3,
-  ChevronDown,
+  FileText,
+  History,
+  Wallet
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  getDashboardStatistics,
   getCashPaymentsQueue,
+  getDashboardStatistics,
 } from "../../../api/paymentManager";
 
 // Color constants to match existing theme
