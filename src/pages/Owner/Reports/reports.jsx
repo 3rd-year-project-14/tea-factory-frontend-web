@@ -58,15 +58,15 @@ export default function OwnerReportView() {
         setUpcomingRates([]);
       }
 
-      // Tea rates
+      // Tea rates (approved only)
       try {
-        const res = await axios.get("/api/tea_rates");
+        const res = await axios.get("/api/tea_rates/approved");
         const teaRates = Array.isArray(res.data) ? res.data : [];
         // Find the tea rate for the current month
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
-        // Find the latest rate whose effectiveDate is in the current month/year
+        // Find the latest approved rate whose effectiveDate is in the current month/year
         const filtered = teaRates.filter(r => {
           const d = new Date(r.effectiveDate);
           return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
@@ -227,10 +227,10 @@ export default function OwnerReportView() {
                       <p className="text-sm text-gray-600 mb-1">Current Rate</p>
                       <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Rs. {teaRate && teaRate.rate ? teaRate.rate : "N/A"}</span>
                     </div>
-                    <div className="ml-8">
+                    {/* <div className="ml-8">
                       <p className="text-sm text-gray-600 mb-1">Effective Date</p>
                       <span className="text-lg font-medium">{teaRate && teaRate.effectiveDate ? teaRate.effectiveDate : "N/A"}</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

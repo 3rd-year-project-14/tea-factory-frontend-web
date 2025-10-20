@@ -1,21 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
+  AlertTriangle,
+  BarChart3,
   Calendar,
   Clock,
-  Wallet,
-  FileText,
-  CheckCircle,
-  AlertTriangle,
-  DollarSign,
-  History,
   Download,
-  BarChart3,
-  ChevronDown,
+  FileText,
+  History,
+  Wallet
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  getDashboardStatistics,
   getCashPaymentsQueue,
+  getDashboardStatistics,
 } from "../../../api/paymentManager";
 
 // Color constants to match existing theme
@@ -160,29 +157,19 @@ const PaymentProcessingDashboard = () => {
           </div>
         ) : (
           <>
-            {/* Quick Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Quick Stats Cards - Factory Manager dashboard style */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               {quickStats.map((stat, index) => (
                 <div
                   key={index}
-                  className={`bg-white p-6 rounded-lg shadow-md border-l-4 ${getColorClasses(
-                    stat.color
-                  )} transition duration-200 hover:shadow-lg`}
+                  className="bg-white p-6 rounded-lg shadow-md border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600 mb-1">
-                        {stat.title}
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {stat.amount}
-                      </p>
+                      <p className="text-sm font-medium text-black">{stat.title}</p>
+                      <p className="text-2xl font-bold text-black">{stat.amount}</p>
                     </div>
-                    <div
-                      className={`p-3 rounded-full ${
-                        getColorClasses(stat.color).split(" ")[0]
-                      } bg-opacity-20`}
-                    >
+                    <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
                       {stat.icon}
                     </div>
                   </div>
