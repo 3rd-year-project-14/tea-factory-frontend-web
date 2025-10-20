@@ -18,6 +18,8 @@ import AdvanceManagement from "../pages/PaymentManager/Advance/AdvanceManagement
 import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
 import LoanManagement from "../pages/PaymentManager/Loans/LoanManagement";
 import PaymentManagement from "../pages/PaymentManager/Payments/PaymentManagement";
+import ProceedPayment from "../pages/PaymentManager/ProceedPayment/ProceedPayment";
+import PaymentMain from "../pages/PaymentManager/Payments/PaymentMain";
 import TeaRateAdjustment from "../pages/PaymentManager/TeaRate/TeaRateAdjustment";
 
 const FactoryManagerRoutes = (
@@ -67,7 +69,16 @@ const FactoryManagerRoutes = (
       path="/factoryManager/payment/payments"
       element={
         <Layout>
+          {/* <PaymentMain /> */}
           <PaymentManagement />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/proceed"
+      element={
+        <Layout>
+          <ProceedPayment />
         </Layout>
       }
     />
@@ -76,6 +87,14 @@ const FactoryManagerRoutes = (
       element={
         <Layout>
           <TeaRateAdjustment />
+        </Layout>
+      }
+    />
+    <Route
+      path="/factoryManager/payment/main"
+      element={
+        <Layout>
+          <PaymentMain />
         </Layout>
       }
     />
