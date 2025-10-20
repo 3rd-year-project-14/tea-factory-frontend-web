@@ -105,10 +105,33 @@ export default function LoanRates() {
           </form>
         </div>
 
+        {/* Current Month's Loan Rate Display */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4">Current Month's Loan Rate</h2>
+          {(() => {
+            const now = new Date();
+            const current = records.find(r => {
+              if (!r.effective_date) return false;
+              const d = new Date(r.effective_date);
+              return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            });
+            if (current) {
+              return (
+                <div className="p-4 rounded bg-green-100 flex flex-col md:flex-row md:items-center gap-4">
+                  <span className="text-green-700 font-bold text-xl">Rate: {current.rate}%</span>
+                  <span className="text-green-700">Effective Date: {current.effective_date}</span>
+                  <span className="text-green-700">Status: {current.status}</span>
+                </div>
+              );
+            } else {
+              return <div className="p-4 rounded bg-yellow-100 text-yellow-800">No rate found for this month.</div>;
+            }
+          })()}
+        </div>
+
         {/* Loan Rate Records List */}
         <div className="bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-4">Loan Rate Records</h2>
-
           <div className="overflow-auto">
             <table className="w-full table-auto border-collapse">
               <thead>
