@@ -120,14 +120,26 @@ export default function LoanRates() {
                 </tr>
               </thead>
               <tbody>
-                {records.map((r) => (
-                  <tr key={r.rate_id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 pr-4">{r.rate_id}</td>
-                    <td className="py-3 pr-4">{r.effective_date}</td>
-                    <td className="py-3 pr-4">{r.rate}</td>
-                    <td className="py-3 pr-4">{r.status ?? '-'}</td>
-                  </tr>
-                ))}
+                {records.map((r) => {
+                  // Check if effective_date matches current month/year
+                  let isCurrentMonth = false;
+                  if (r.effective_date) {
+                    const d = new Date(r.effective_date);
+                    const now = new Date();
+                    isCurrentMonth = d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                  }
+                  return (
+                    <tr
+                      key={r.rate_id}
+                      className={`border-b hover:bg-gray-50 ${isCurrentMonth ? 'bg-green-100' : ''}`}
+                    >
+                      <td className="py-3 pr-4">{r.rate_id}</td>
+                      <td className={`py-3 pr-4 ${isCurrentMonth ? 'text-green-700 font-bold' : ''}`}>{r.effective_date}</td>
+                      <td className="py-3 pr-4">{r.rate}</td>
+                      <td className="py-3 pr-4">{r.status ?? '-'}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
