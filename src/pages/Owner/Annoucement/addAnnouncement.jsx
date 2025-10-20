@@ -104,7 +104,6 @@ export default function AddAnnouncement() {
   });
 
   try {
-    // Use centralized axios helper which is configured with baseURL and interceptors
     const result = await addAnnouncement(formData);
     console.log("Backend response:", result);
     navigate(-1);

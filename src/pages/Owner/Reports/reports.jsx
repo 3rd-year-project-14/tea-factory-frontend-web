@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import axios from "../../../api/axios";
 import { getLoanRates } from "../../../api/owner";
 // Dynamically load html2pdf.js when needed
 function loadHtml2PdfScript() {
@@ -38,20 +39,16 @@ export default function OwnerReportView() {
   };
 
   useEffect(() => {
-    // Simulate API calls with dummy data
     async function fetchData() {
       try {
+        // Loan rates
         const rates = await getLoanRates();
         const today = new Date().toISOString().slice(0, 10);
-        // Find the current rate (effective today or the latest before today)
         let current = null;
         let futureRates = [];
         if (Array.isArray(rates)) {
-          // Sort by effectiveDate ascending
           const sorted = rates.sort((a, b) => new Date(a.effectiveDate) - new Date(b.effectiveDate));
-          // Find the latest rate whose effectiveDate <= today
           current = sorted.filter(r => new Date(r.effectiveDate) <= new Date(today)).pop();
-          // Find all rates whose effectiveDate > today
           futureRates = sorted.filter(r => new Date(r.effectiveDate) > new Date(today));
         }
         setLoanRate(current || null);
@@ -60,16 +57,47 @@ export default function OwnerReportView() {
         setLoanRate(null);
         setUpcomingRates([]);
       }
-      setTeaRate({ rate: 120.75, effectiveDate: "2025-10-01" });
+
+      // Tea rates
+      try {
+        const res = await axios.get("/api/tea_rates");
+        const teaRates = Array.isArray(res.data) ? res.data : [];
+        // Find the tea rate for the current month
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        // Find the latest rate whose effectiveDate is in the current month/year
+        const filtered = teaRates.filter(r => {
+          const d = new Date(r.effectiveDate);
+          return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        });
+        // If multiple, pick the one with the latest effectiveDate
+        let finalRate = null;
+        if (filtered.length > 0) {
+          finalRate = filtered.reduce((a, b) => new Date(a.effectiveDate) > new Date(b.effectiveDate) ? a : b);
+        }
+        setTeaRate(finalRate || null);
+      } catch (err) {
+        setTeaRate(null);
+      }
+
+      // Dummy data for collections and growth
       setTeaCollections([
         { date: "2025-10-01", factory: "Factory A", amount: 1200 },
         { date: "2025-10-01", factory: "Factory B", amount: 950 },
         { date: "2025-10-01", factory: "Factory C", amount: 1100 },
       ]);
       setFactoryGrowth([
-        { factory: "Factory A", growth: 12.5 },
-        { factory: "Factory B", growth: 8.2 },
-        { factory: "Factory C", growth: 15.1 },
+        { factory: 'Andaradeniya Tea Factory', growth: 11.3 },
+        { factory: 'Batuwangala Tea Factory', growth: 9.7 },
+        { factory: 'Ruhuna Tea Factory', growth: 13.2 },
+        { factory: 'Duli Ella Tea Factory', growth: 7.8 },
+        { factory: 'Fortune Tea Factory', growth: 10.5 },
+        { factory: 'Waulugala Tea Factory', growth: 8.9 },
+        { factory: 'Williegroup Tea Factory', growth: 12.1 },
+        { factory: 'Devonia Tea Factory', growth: 14.4 },
+        { factory: 'Galaxy Tea Factory', growth: 10.9 },
+        { factory: 'Nivithigala Tea Factory', growth: 9.3 },
       ]);
       setLoading(false);
     }
@@ -122,6 +150,14 @@ export default function OwnerReportView() {
           }
           .min-h-screen {
             min-height: auto !important;
+          }
+          /* Hide sidebar and navbar when printing */
+          .sidebar, .Sidebar, .navbar, .Navbar, nav, aside {
+            display: none !important;
+          }
+          /* Optionally, expand report to full width */
+          .max-w-5xl {
+            max-width: 100% !important;
           }
         }
       `}</style>
@@ -190,6 +226,10 @@ export default function OwnerReportView() {
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Current Rate</p>
                       <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Rs. {teaRate && teaRate.rate ? teaRate.rate : "N/A"}</span>
+                    </div>
+                    <div className="ml-8">
+                      <p className="text-sm text-gray-600 mb-1">Effective Date</p>
+                      <span className="text-lg font-medium">{teaRate && teaRate.effectiveDate ? teaRate.effectiveDate : "N/A"}</span>
                     </div>
                   </div>
                 </div>

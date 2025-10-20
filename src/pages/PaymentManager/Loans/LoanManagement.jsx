@@ -1,21 +1,52 @@
-import React, { useState, useMemo } from "react";
-import { Search, Filter, ChevronDown, Eye } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import { fetchLoanRequests, createLoanRequest } from "../../../api/factoryManager";
+import { Search, Filter, ChevronDown, Eye, ExternalLink } from "lucide-react";
 import LoanDetails from "./LoanDetails.jsx";
+import { approveLoanRequest } from "../../../api/loan";
 import { Users, Clock, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // 🎨 Color tokens
 const ACCENT_COLOR = "#165E52";
 const BORDER_COLOR = "#cfece6";
 const BG_LIGHT_GREEN = "#e1f4ef";
 
-const initialLoans = [
-  // ... (your mock loans, unchanged for brevity) ...
-];
 
-// (Insert your initialLoans array here -- unchanged)
 
 export default function LoanManagement() {
-  const [loans] = useState(initialLoans);
+  const navigate = useNavigate();
+  const [loans, setLoans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  // Fetch loans from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchLoanRequests();
+        setLoans(
+          data.map((loan) => ({
+            id: loan.reqId?.toString() || "",
+            supplierName: loan.supplierId ? `Supplier ${loan.supplierId}` : "Unknown",
+            totalLoan: loan.amount,
+            monthlyInstallment: loan.months ? Math.round(Number(loan.amount) / loan.months) : 0,
+            duration: loan.months,
+            status: loan.status?.toLowerCase() || "pending",
+            requestDate: loan.date,
+            remainingBalance: loan.amount, // You may want to update this with actual logic
+            repaymentLog: [], // Add if available from backend
+            route: "", // Add if available from backend
+            startDate: loan.date,
+          }))
+        );
+      } catch (err) {
+        setError("Failed to fetch loan requests");
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
   const [selectedLoan, setSelectedLoan] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -210,9 +241,52 @@ export default function LoanManagement() {
   };
   const handleBackToList = () => { setShowDetails(false); setSelectedLoan(null); };
 
-  // Approval/rejection can stay unchanged
-  const handleApproveLoan = (loanId, data) => {};
-  const handleRejectLoan = (loanId, reason) => {};
+  // Create loan request (example usage)
+  const handleCreateLoan = async (payload) => {
+    try {
+      setLoading(true);
+      await createLoanRequest(payload);
+      // Refresh loan list
+      const data = await fetchLoanRequests();
+      setLoans(
+        data.map((loan) => ({
+          id: loan.reqId?.toString() || "",
+          supplierName: loan.supplierId ? `Supplier ${loan.supplierId}` : "Unknown",
+          totalLoan: loan.amount,
+          monthlyInstallment: loan.months ? Math.round(Number(loan.amount) / loan.months) : 0,
+          duration: loan.months,
+          status: loan.status?.toLowerCase() || "pending",
+          requestDate: loan.date,
+          remainingBalance: loan.amount,
+          repaymentLog: [],
+          route: "",
+          startDate: loan.date,
+        }))
+      );
+    } catch (err) {
+      setError("Failed to create loan request");
+    }
+    setLoading(false);
+  };
+
+  // Approval/rejection handlers (to be implemented)
+  // Approval handler: call backend API and update UI
+  const handleApproveLoan = async (loanId) => {
+    try {
+      await approveLoanRequest(loanId);
+      setLoans((prevLoans) =>
+        prevLoans.map((loan) =>
+          loan.id === loanId ? { ...loan, status: "approved" } : loan
+        )
+      );
+      // Optionally show notification or refresh data
+    } catch (err) {
+      setError("Failed to approve loan: " + err);
+    }
+  };
+  const handleRejectLoan = (loanId, reason) => {
+    // Implement backend call if needed
+  };
 
   if (showDetails && selectedLoan) {
     return (
@@ -225,6 +299,20 @@ export default function LoanManagement() {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-lg text-gray-600">Loading loan requests...</div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-lg text-red-600">{error}</div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -240,6 +328,13 @@ export default function LoanManagement() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <button
+                onClick={() => navigate('/payment-manager/loans/active')}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <ExternalLink className="h-4 w-4" />
+                View Active Loans
+              </button>
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-gray-700">Month:</label>
                 <select
@@ -491,11 +586,10 @@ export default function LoanManagement() {
 <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
   {/* Header Row */}
   <div style={{ backgroundColor: "#01251F", color: "white" }}>
-    <div className="grid grid-cols-6 gap-4 p-4 font-medium text-sm text-center">
+    <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm text-center">
       <div>Loan ID</div>
       <div>Supplier</div>
       <div>Total Loan</div>
-      <div>Installment</div>
       <div>Status</div>
       <div>View</div>
     </div>
@@ -505,7 +599,7 @@ export default function LoanManagement() {
     {filteredLoans.map((loan) => (
       <div
         key={loan.id}
-        className="grid grid-cols-6 gap-4 p-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+        className="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
       >
         <div className="text-center font-semibold text-green-600 text-sm">
           {loan.id}
@@ -515,9 +609,6 @@ export default function LoanManagement() {
         </div>
         <div className="text-sm text-gray-900 font-semibold text-center">
           Rs. {loan.totalLoan.toLocaleString()}
-        </div>
-        <div className="text-sm text-gray-900 text-center">
-          Rs. {loan.monthlyInstallment.toLocaleString()}
         </div>
         <div className="text-sm font-semibold text-center"
           style={{

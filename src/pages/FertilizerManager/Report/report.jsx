@@ -192,7 +192,7 @@ const ReportPage = () => {
             filteredReports.map((report) => (
               <div
                 key={report.id}
-                className="group bg-white rounded-lg border p-6 shadow-sm flex flex-col gap-4 hover:shadow-md transition-all hover:-translate-y-1"
+     className="group bg-white rounded-lg border p-6 shadow-sm flex flex-col gap-4 hover:shadow-md transition-all hover:-translate-y-1"
                 style={{ borderColor: BORDER_COLOR }}
               >
                 <div className="flex items-center gap-3">
