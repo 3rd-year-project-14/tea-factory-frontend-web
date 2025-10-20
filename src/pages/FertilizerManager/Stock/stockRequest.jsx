@@ -4,8 +4,8 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { FileText, Send, Package, Building2, MessageSquare, Loader2 } from "lucide-react";
 import { getAllFertilizerCategories, getCompaniesByFertilizerCategory } from "../../../api/owner";
 import {
-  createFertilizerRequest,
-  getFertilizerRequestsByUser,
+  createFertilizerStockRequest,
+  getAllFertilizerStockRequests,
 } from "../../../api/fertilizerManager";
 
 const ACCENT_COLOR = "#165E52";
@@ -102,13 +102,12 @@ const StockRequest = () => {
     };
   }, [formData.fertilizerType, categories]);
 
-  // Load requests for current user
+  // Load all fertilizer stock requests
   useEffect(() => {
     let mounted = true;
-    if (!userId) return;
     (async () => {
       try {
-        const res = await getFertilizerRequestsByUser(userId);
+        const res = await getAllFertilizerStockRequests();
         if (!mounted) return;
         const mapped = (res || []).map((r) => ({
           id: r.id,
@@ -127,7 +126,7 @@ const StockRequest = () => {
     return () => {
       mounted = false;
     };
-  }, [userId]);
+  }, []);
 
   const selectedCategory = useMemo(
     () => categories.find((c) => c.name === formData.fertilizerType) || null,
@@ -155,9 +154,9 @@ const StockRequest = () => {
         companyId: selectedCompany.id,
         userId,
         quantity: Number(formData.quantity),
-        note: formData.notes?.trim() || null,
+        note: formData.notes?.trim() || "",
       };
-      const created = await createFertilizerRequest(payload);
+      const created = await createFertilizerStockRequest(payload);
       const createdMapped = {
         id: created.id,
         fertilizerType: created.categoryName,
