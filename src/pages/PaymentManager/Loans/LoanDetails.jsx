@@ -463,6 +463,14 @@ export default function LoanDetails({ loan, onBack, onApprove, onReject }) {
                           Rs. {loan.totalLoan.toLocaleString()}
                         </span>
                       </div>
+                       <div className="flex flex-col">
+                         <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                           EXISTING ADVANCE
+                         </span>
+                         <span className="text-base font-bold text-[#0f172a]">
+                           Rs. {loan.advance ? loan.advance.toLocaleString() : "0"}
+                         </span>
+                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
                           DURATION
@@ -471,18 +479,7 @@ export default function LoanDetails({ loan, onBack, onApprove, onReject }) {
                           {loan.duration} months
                         </span>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
-                          MONTHLY INSTALLMENT (1.25% INTEREST)
-                        </span>
-                        <span className="text-base font-bold text-[#10b981]">
-                          Rs.{" "}
-                          {calculateMonthlyInstallment(
-                            loan.totalLoan,
-                            loan.duration
-                          ).toLocaleString()}
-                        </span>
-                      </div>
+                      
                     </div>
 
                     {/* Right Column */}
@@ -514,6 +511,14 @@ export default function LoanDetails({ loan, onBack, onApprove, onReject }) {
                           {loan.specialNotes || "No special notes provided"}
                         </span>
                       </div>
+                       <div className="flex flex-col">
+                         <span className="text-xs font-medium text-[#64748b] uppercase tracking-wide mb-1">
+                           FERTILIZER PAYMENT
+                         </span>
+                         <span className="text-base font-bold text-[#0f172a]">
+                           Rs. {loan.fertilizerPayment ? loan.fertilizerPayment.toLocaleString() : "0"}
+                         </span>
+                       </div>
                     </div>
                   </div>
                 </div>

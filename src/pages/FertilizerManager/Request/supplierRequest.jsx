@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Check,
   X,
@@ -6,68 +6,75 @@ import {
   Package,
   User,
   Calendar,
+  Eye,
 } from "lucide-react";
+import { getAllSupplierFertilizerRequests } from '../../../api/fertilizerManager';
 
 // Theme Constants
 const ACCENT_COLOR = "#165E52";
 
 const FertilizerRequestsPage = () => {
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      supplier: "Pasindu Madushan",
-      fertilizerType: "Nitrogen (NPK 20-10-10)",
-      quantity: 500,
-      unit: "kg",
-      requestDate: "2024-07-01",
-      status: "pending",
-      notes: "Urgent request for upcoming planting season",
-    },
-    {
-      id: 2,
-      supplier: "Tharushi Kavindi",
-      fertilizerType: "Phosphorus (NPK 10-20-10)",
-      quantity: 750,
-      unit: "kg",
-      requestDate: "2024-07-02",
-      status: "pending",
-      notes: "Standard monthly order",
-    },
-    {
-      id: 3,
-      supplier: "Dasun",
-      fertilizerType: "Potassium (NPK 10-10-20)",
-      quantity: 300,
-      unit: "kg",
-      requestDate: "2024-07-03",
-      status: "pending",
-      notes: "Special blend for citrus crops",
-    },
-    {
-      id: 4,
-      supplier: "Mahesh",
-      fertilizerType: "Organic Compost",
-      quantity: 1000,
-      unit: "kg",
-      requestDate: "2024-06-30",
-      status: "approved",
-      notes: "Certified organic for premium crops",
-    },
-    {
-      id: 5,
-      supplier: "Uma",
-      fertilizerType: "Urea (46% N)",
-      quantity: 200,
-      unit: "kg",
-      requestDate: "2024-06-29",
-      status: "rejected",
-      notes: "Quality concerns with previous batch",
-    },
-  ]);
-
+  const [requests, setRequests] = useState([]);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectingId, setRejectingId] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedFertilizers, setSelectedFertilizers] = useState([]);
+
+  useEffect(() => {
+    // Fetch supplier requests from backend
+    const fetchRequests = async () => {
+      try {
+        const data = await getAllSupplierFertilizerRequests();
+        // Map backend response to frontend format
+        const mapped = data.map(req => ({
+          id: req.id,
+          supplierId: req.supplierId,
+          supplier: req.supplierName,
+          fertilizers: req.items?.map(item => ({
+            id: item.id,
+            type: item.productName,
+            quantity: item.quantity,
+            unit: item.unit || 'kg',
+            status: item.status,
+            rejectReason: item.rejectReason,
+          })) || [],
+          requestDate: req.requestDate,
+          status: req.status,
+          notes: req.note,
+          rejectReason: req.rejectReason,
+        }));
+        setRequests(mapped);
+      } catch (err) {
+        setRequests([]);
+      }
+    };
+    fetchRequests();
+  }, []);
+
+  const handleView = (request) => {
+    setSelectedRequest(request);
+    // Initialize with all fertilizer IDs selected
+    setSelectedFertilizers(request.fertilizers.map(f => f.id));
+    setShowViewModal(true);
+  };
+
+  const closeViewModal = () => {
+    setSelectedRequest(null);
+    setSelectedFertilizers([]);
+    setShowViewModal(false);
+  };
+
+  const toggleFertilizerSelection = (fertilizerId) => {
+    setSelectedFertilizers((prev) => {
+      if (prev.includes(fertilizerId)) {
+        return prev.filter((id) => id !== fertilizerId);
+      } else {
+        return [...prev, fertilizerId];
+      }
+    });
+  };
 
   const handleApprove = (id) => {
     setRequests((prev) =>
@@ -205,73 +212,239 @@ const FertilizerRequestsPage = () => {
           ))}
         </div>
 
-        {/* Pending Requests Section */}
+        {/* All Requests Table */}
         <div className="mb-12">
           <h2 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>
-            Pending Requests
+            Fertilizer Requests
           </h2>
-          <div className="bg-white rounded-lg shadow-sm border">
-            {pendingRequests.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            {requests.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <Package className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                No pending requests
+                No requests found
               </div>
             ) : (
-              <div className="divide-y">
-                {pendingRequests.map((r) => (
-                  <div key={r.id} className="p-6 space-y-2">
-                    <div className="flex flex-wrap items-center justify-between text-gray-700 mb-2">
-                      <div className="flex gap-6 text-sm">
-                        <span className="flex items-center gap-1">
-                          <User className="w-4 h-4" />
-                          {r.supplier}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {r.requestDate}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleReject(r.id)}
-                          className="text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-4 py-2 rounded-md text-sm"
-                        >
-                          <X className="w-4 h-4 inline mr-1" />
-                          Reject
-                        </button>
-                        <button
-                          onClick={() => handleApprove(r.id)}
-                          className="bg-[#01251F] text-white hover:bg-[#144d45] px-4 py-2 rounded-md text-sm"
-                        >
-                          <Check className="w-4 h-4 inline mr-1" />
-                          Approve
-                        </button>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 text-sm gap-4">
-                      <div>
-                        <p className="text-gray-500 font-medium">Fertilizer Type</p>
-                        <p>{r.fertilizerType}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500 font-medium">Quantity</p>
-                        <p>
-                          {r.quantity} {r.unit}
-                        </p>
-                      </div>
-                    </div>
-                    {r.notes && (
-                      <div className="text-sm mt-2">
-                        <p className="text-gray-500 font-medium">Notes</p>
-                        <p>{r.notes}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        Supplier ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        Supplier Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        Fertilizers
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        Request Item
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        Request Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {requests.map((r) => (
+                      <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {r.supplierId}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-gray-400" />
+                            {r.supplier}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          <div className="flex flex-col gap-1">
+                            {r.fertilizers.slice(0, 2).map((fert, idx) => (
+                              <span key={idx} className="text-xs">
+                                • {fert.type}
+                              </span>
+                            ))}
+                            {r.fertilizers.length > 2 && (
+                              <span className="text-xs text-gray-500 italic">
+                                +{r.fertilizers.length - 2} more
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          <span className="font-semibold">{r.fertilizers.length}</span> item{r.fertilizers.length !== 1 ? 's' : ''}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-gray-400" />
+                            {r.requestDate}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(r.status)}`}>
+                            {getStatusIcon(r.status)}
+                            {r.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <button
+                            onClick={() => handleView(r)}
+                            className="bg-[#165E52] text-white hover:bg-[#144d45] px-3 py-1.5 rounded-md text-xs font-medium transition-colors inline-flex items-center gap-1"
+                            title="View Request Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
         </div>
+
+        {/* View Request Modal */}
+        {showViewModal && selectedRequest && (
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-2xl w-full shadow-2xl border border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <Package className="w-6 h-6" style={{ color: ACCENT_COLOR }} />
+                  Request Details
+                </h3>
+                <button
+                  onClick={closeViewModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Supplier Name */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <p className="text-xs text-gray-500 font-medium mb-2">Supplier Name</p>
+                  <p className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <User className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
+                    {selectedRequest.supplier}
+                  </p>
+                </div>
+
+                {/* Request ID */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <p className="text-xs text-gray-500 font-medium mb-2">Request ID</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    #{selectedRequest.id.toString().padStart(4, '0')}
+                  </p>
+                </div>
+
+                {/* Requested Fertilizers */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-4">
+                    Requested Fertilizers ({selectedRequest.fertilizers.length})
+                  </p>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {selectedRequest.fertilizers.map((fertilizer) => (
+                      <label 
+                        key={fertilizer.id}
+                        className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors border border-transparent hover:border-[#165E52]"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedFertilizers.includes(fertilizer.id)}
+                          onChange={() => toggleFertilizerSelection(fertilizer.id)}
+                          className="mt-1 w-5 h-5 rounded border-gray-300 text-[#165E52] focus:ring-[#165E52] cursor-pointer"
+                        />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            {fertilizer.type}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Quantity: <span className="font-semibold">{fertilizer.quantity} {fertilizer.unit}</span>
+                          </p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Additional Info */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500 font-medium mb-1">Request Date</p>
+                    <p className="text-sm text-gray-900 flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      {selectedRequest.requestDate}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500 font-medium mb-1">Status</p>
+                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedRequest.status)}`}>
+                      {getStatusIcon(selectedRequest.status)}
+                      {selectedRequest.status.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+
+                {selectedRequest.rejectReason && (
+                  <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                    <p className="text-xs text-red-600 font-medium mb-2">Rejection Reason</p>
+                    <p className="text-sm text-gray-700">
+                      {selectedRequest.rejectReason}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+                {selectedRequest.status === "pending" && (
+                  <>
+                    <button
+                      onClick={() => {
+                        handleReject(selectedRequest.id);
+                        closeViewModal();
+                      }}
+                      className="text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      <X className="w-4 h-4 inline mr-1" />
+                      Reject
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleApprove(selectedRequest.id);
+                        closeViewModal();
+                      }}
+                      disabled={selectedFertilizers.length === 0}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        selectedFertilizers.length === 0
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-[#165E52] text-white hover:bg-[#144d45]"
+                      }`}
+                      title={selectedFertilizers.length === 0 ? "Please select at least one fertilizer" : `Approve ${selectedFertilizers.length} of ${selectedRequest.fertilizers.length} fertilizers`}
+                    >
+                      <Check className="w-4 h-4 inline mr-1" />
+                      Approve Selected ({selectedFertilizers.length})
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={closeViewModal}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm font-medium transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Reject Modal */}
         {showRejectModal && (
@@ -312,49 +485,6 @@ const FertilizerRequestsPage = () => {
             </div>
           </div>
         )}
-
-        {/* Processed Requests */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>
-            Processed Requests
-          </h2>
-          <div className="bg-white rounded-lg shadow-sm border divide-y">
-            {processedRequests.map((r) => (
-              <div key={r.id} className="p-6 space-y-3">
-                <div className="flex flex-wrap justify-between items-center text-sm text-gray-700">
-                  <div className="flex gap-5 items-center">
-                    <span className="flex items-center gap-1">
-                      <User className="w-4 h-4" />{r.supplier}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />{r.requestDate}
-                    </span>
-                    <span className={`flex gap-2 items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(r.status)}`}>
-                      {getStatusIcon(r.status)}
-                      {r.status.toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-500 font-medium">Fertilizer Type</p>
-                    <p>{r.fertilizerType}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500 font-medium">Quantity</p>
-                    <p>{r.quantity} {r.unit}</p>
-                  </div>
-                </div>
-                {r.notes && (
-                  <div>
-                    <p className="text-sm text-gray-500 font-medium">Notes</p>
-                    <p className="text-sm">{r.notes}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
