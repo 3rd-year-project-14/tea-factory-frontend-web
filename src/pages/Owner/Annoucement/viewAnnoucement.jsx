@@ -52,6 +52,7 @@ export default function PureLeafDashboard() {
     let mounted = true;
     async function fetchAnnouncements() {
       try {
+
         const data = await viewAnnouncements();
         if (mounted) setAnnouncements(data);
       } catch (error) {
@@ -80,6 +81,7 @@ export default function PureLeafDashboard() {
 
   const handleDelete = async (id) => {
     try {
+
       await deleteAnnouncement(id);
       setAnnouncements((prev) => prev.filter((ann) => ann.id !== id));
       showNotification("Announcement deleted successfully", "success");

@@ -10,6 +10,7 @@ import TransportManagerRoutes from "./TransportManagerRoutes";
 
 import FactoryManagerRoutes from "./FactoryManagerRoutes";
 import OwnerRoutes from "./OwnerRoutes";
+import PaymentManagerRoutes from "./PaymentManagerRoutes";
 
 //Factory Manager - Now handled by FactoryManagerRoutes.jsx
 
@@ -44,6 +45,10 @@ export default function AppRouter() {
         {user?.role === "OWNER" && OwnerRoutes}
         {user?.role === "FACTORY_MANAGER" && FactoryManagerRoutes}
         {user?.role === "TRANSPORT_MANAGER" && TransportManagerRoutes}
+        {user?.role === "PAYMENT_MANAGER" && PaymentManagerRoutes}
+        
+        {/* Add PaymentManager routes for development/testing - remove in production */}
+        {PaymentManagerRoutes}
         
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<SignupForm />} />

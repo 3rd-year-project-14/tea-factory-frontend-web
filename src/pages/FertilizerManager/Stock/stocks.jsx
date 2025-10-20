@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getAllFertilizerCategories, getCompaniesByFertilizerCategory } from "../../../api/owner";
+import { createFertilizerStock } from "../../../api/fertilizerManager";
+import { getAllFertilizerStocks } from "../../../api/fertilizerManager";
+import { useAuth } from "../../../contexts/AuthContext";
 import {
   Plus,
   Package,
@@ -18,45 +22,45 @@ const BUTTON_COLOR = "#172526";
 const BORDER_COLOR = "#cfece6";
 
 const FertilizerStocks = () => {
+  useEffect(() => {
+    // Fetch all stocks from backend on mount
+    getAllFertilizerStocks().then(setFertilizers).catch((err) => {
+      console.error("Failed to fetch fertilizer stocks", err);
+    });
+  }, []);
+  const { user } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
-  const [fertilizers, setFertilizers] = useState([
-    {
-      id: 1,
-      name: "NPK 20-20-20",
-      company: "GreenGrow Ltd",
-      quantity: 150,
-      weight: "50kg",
-      warehouse: "Warehouse A",
-      dateAdded: "2024-07-01",
-    },
-    {
-      id: 2,
-      name: "Urea",
-      company: "Agro Direct",
-      quantity: 75,
-      weight: "25kg",
-      warehouse: "Warehouse B",
-      dateAdded: "2024-07-05",
-    },
-    {
-      id: 3,
-      name: "Potassium Sulfate",
-      company: "FertilizerMax",
-      quantity: 200,
-      weight: "40kg",
-      warehouse: "Warehouse A",
-      dateAdded: "2024-07-10",
-    },
-  ]);
-
+  const [fertilizers, setFertilizers] = useState([]);
+  //dropdown states
+  // Backend-connected dropdowns
+  const [categories, setCategories] = useState([]);
+  const [companies, setCompanies] = useState([]);
+//
   const [formData, setFormData] = useState({
     name: "",
     company: "",
     quantity: "",
     weight: "",
     warehouse: "",
+    purchasePrice: "",
+    sellPrice: "",
   });
+//dropdown data fetching
+  // Fetch categories on mount
+  useEffect(() => {
+    getAllFertilizerCategories().then(setCategories);
+  }, []);
 
+  // Fetch companies when category changes
+  useEffect(() => {
+    const selectedCategory = categories.find(c => c.name === formData.name);
+    if (selectedCategory) {
+      getCompaniesByFertilizerCategory(selectedCategory.id).then(setCompanies);
+    } else {
+      setCompanies([]);
+    }
+  }, [formData.name, categories]);
+//
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -72,23 +76,39 @@ const FertilizerStocks = () => {
       formData.company &&
       formData.quantity &&
       formData.weight &&
-      formData.warehouse
+      formData.warehouse &&
+      formData.purchasePrice &&
+      formData.sellPrice
     ) {
-      const newFertilizer = {
-        id: fertilizers.length + 1,
-        ...formData,
+      const selectedCategory = categories.find(c => c.name === formData.name);
+      const selectedCompany = companies.find(c => c.name === formData.company);
+      const payload = {
+        userId: user?.userId,
+        categoryId: selectedCategory?.id,
+        companyId: selectedCompany?.id,
+        weightPerQuantity: parseFloat(formData.weight),
+        purchasePrice: parseFloat(formData.purchasePrice),
+        sellPrice: parseFloat(formData.sellPrice),
+        warehouse: formData.warehouse,
         quantity: parseInt(formData.quantity),
-        dateAdded: new Date().toISOString().split("T")[0],
       };
-      setFertilizers((prev) => [...prev, newFertilizer]);
-      setFormData({
-        name: "",
-        company: "",
-        quantity: "",
-        weight: "",
-        warehouse: "",
-      });
-      setShowAddForm(false);
+      createFertilizerStock(payload)
+        .then((newStock) => {
+          setFertilizers((prev) => [...prev, newStock]);
+          setFormData({
+            name: "",
+            company: "",
+            quantity: "",
+            weight: "",
+            warehouse: "",
+            purchasePrice: "",
+            sellPrice: "",
+          });
+          setShowAddForm(false);
+        })
+        .catch((err) => {
+          console.error("Failed to add fertilizer stock", err);
+        });
     }
   };
 
@@ -103,9 +123,8 @@ const FertilizerStocks = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
+
+      <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Fertilizer Stock Management
           </h1>
@@ -113,6 +132,47 @@ const FertilizerStocks = () => {
             Manage your fertilizer inventory and stock levels
           </p>
         </div>
+        <div className="max-w-7xl mx-auto">
+        {/* Summary cards */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 mb-6">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Package className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Total Fertilizers</p>
+                <p className="text-2xl font-semibold text-gray-900">{fertilizers.length}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Building2 className="h-8 w-8 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Total Companies</p>
+                <p className="text-2xl font-semibold text-gray-900">{new Set(fertilizers.map((f) => f.companyName || f.company)).size}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Warehouse className="h-8 w-8 text-purple-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Warehouses Used</p>
+                <p className="text-2xl font-semibold text-gray-900">{new Set(fertilizers.map((f) => f.warehouse)).size}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Header */}
+        
 
         {/* Action Buttons */}
         <div className="mb-6 flex gap-4">
@@ -150,39 +210,46 @@ const FertilizerStocks = () => {
               </div>
 
               <form onSubmit={handleAddFertilizer} className="space-y-4">
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fertilizer Name
+                    Fertilizer Category
                   </label>
                   <div className="relative">
                     <Package className="absolute left-3 top-3 text-gray-400" size={18} />
-                    <input
-                      type="text"
+                    <select
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
                       className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter fertilizer name"
                       required
-                    />
+                    >
+                      <option value="">Select Fertilizer Category</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.name}>{cat.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Name
+                    Company
                   </label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-3 text-gray-400" size={18} />
-                    <input
-                      type="text"
+                    <select
                       name="company"
                       value={formData.company}
                       onChange={handleInputChange}
                       className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter company name"
                       required
-                    />
+                    >
+                      <option value="">Select Company</option>
+                      {companies.map((comp) => (
+                        <option key={comp.id} value={comp.name}>{comp.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -239,7 +306,42 @@ const FertilizerStocks = () => {
                       <option value="Warehouse C">Warehouse C</option>
                     </select>
                   </div>
+                  
                 </div>
+                                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Purchase Price
+                  </label>
+                  <input
+                    type="number"
+                    name="purchasePrice"
+                    value={formData.purchasePrice}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter purchase price"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Sell Price
+                  </label>
+                  <input
+                    type="number"
+                    name="sellPrice"
+                    value={formData.sellPrice}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter sell price"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+
 
                 <div className="flex gap-3 pt-4">
                   <button
@@ -290,54 +392,34 @@ const FertilizerStocks = () => {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Fertilizer Details
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Company
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Quantity
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Weight
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Warehouse
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date Added
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight/Unit</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchase Price</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sell Price</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warehouse</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {fertilizers.map((fertilizer) => (
-                    <tr
-                      key={fertilizer.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
+                    <tr key={fertilizer.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                            <Package className="text-green-600" size={20} />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {fertilizer.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              ID: {fertilizer.id}
-                            </div>
-                          </div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {fertilizer.categoryName && fertilizer.companyName
+                            ? `${fertilizer.categoryName} - ${fertilizer.companyName}`
+                            : (fertilizer.productName || fertilizer.name || '-')}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {fertilizer.company}
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{fertilizer.categoryName}</div>
+                        <div className="text-xs text-gray-500">ID: {fertilizer.id}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{fertilizer.companyName}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -345,9 +427,13 @@ const FertilizerStocks = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {fertilizer.weight}
-                        </div>
+                        <div className="text-sm text-gray-900">{fertilizer.weightPerQuantity}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">Rs. {fertilizer.purchasePrice}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">Rs. {fertilizer.sellPrice}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
@@ -356,28 +442,18 @@ const FertilizerStocks = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">
-                          {fertilizer.dateAdded}
+                          {fertilizer.createdAt ? new Date(fertilizer.createdAt).toLocaleDateString() : "-"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex gap-2">
-                          <button
-                            className="text-blue-600 hover:text-blue-900"
-                            title="View Details"
-                          >
+                          <button className="text-blue-600 hover:text-blue-900" title="View Details">
                             <Eye size={18} />
                           </button>
-                          <button
-                            className="text-green-600 hover:text-green-900"
-                            title="Edit"
-                          >
+                          <button className="text-green-600 hover:text-green-900" title="Edit">
                             <Edit size={18} />
                           </button>
-                          <button
-                            onClick={() => handleDeleteFertilizer(fertilizer.id)}
-                            className="text-red-600 hover:text-red-900"
-                            title="Delete"
-                          >
+                          <button onClick={() => handleDeleteFertilizer(fertilizer.id)} className="text-red-600 hover:text-red-900" title="Delete">
                             <Trash2 size={18} />
                           </button>
                         </div>

@@ -105,3 +105,16 @@ export const deleteAnnouncement = async (id) => {
   const res = await axios.delete(`/announcements/${id}`);
   return res.data;
 };
+
+// Get all fertilizer categories
+export const getAllFertilizerCategories = async () => {
+  const res = await axios.get("/fertilizer-categories");
+  return res.data; // [{id, name}]
+};
+
+// Get companies that provide a specific fertilizer category
+export const getCompaniesByFertilizerCategory = async (categoryId) => {
+  if (!categoryId) return [];
+  const res = await axios.get(`/fertilizer-categories/${categoryId}/companies`);
+  return res.data; // [{id, name}]
+};
