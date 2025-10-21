@@ -5,6 +5,7 @@ import LoanDetails from "./LoanDetails.jsx";
 import { approveLoanRequest } from "../../../api/loan";
 import { Users, Clock, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getLoanStats, getFilteredLoans } from "../../../api/paymentManager";
 
 // 🎨 Color tokens
 const ACCENT_COLOR = "#165E52";
@@ -18,39 +19,19 @@ export default function LoanManagement() {
   const [loans, setLoans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // Fetch loans from backend
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchLoanRequests();
-        setLoans(
-          data.map((loan) => ({
-            id: loan.reqId?.toString() || "",
-            supplierName: loan.supplierId ? `Supplier ${loan.supplierId}` : "Unknown",
-            totalLoan: loan.amount,
-            monthlyInstallment: loan.months ? Math.round(Number(loan.amount) / loan.months) : 0,
-            duration: loan.months,
-            status: loan.status?.toLowerCase() || "pending",
-            requestDate: loan.date,
-            remainingBalance: loan.amount, // You may want to update this with actual logic
-            repaymentLog: [], // Add if available from backend
-            route: "", // Add if available from backend
-            startDate: loan.date,
-          }))
-        );
-      } catch (err) {
-        setError("Failed to fetch loan requests");
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, []);
+  const [apiLoanStats, setApiLoanStats] = useState({
+    completedLoanCount: 0,
+    completedLoanTotal: 0,
+    approvedLoanCount: 0,
+    approvedLoanTotal: 0,
+    pendingLoanRequestCount: 0,
+    pendingLoanRequestTotal: 0
+  });
   const [selectedLoan, setSelectedLoan] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  // Default view is active to match the API call with REMAINING status
   const [currentView, setCurrentView] = useState("active");
   const [filters, setFilters] = useState({
     search: "",
@@ -59,6 +40,66 @@ export default function LoanManagement() {
     year: "",
     route: "",
   });
+
+  // Fetch loans from backend based on current view
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Get current month and year
+        const date = new Date();
+        const currentMonth = date.getMonth() + 1; // JavaScript months are 0-based
+        const currentYear = date.getFullYear();
+        
+        if (currentView === "active") {
+          // Call the API with REMAINING status to get active loans
+          const activeLoans = await getFilteredLoans(1, "REMAINING", currentMonth, currentYear);
+          
+          // Format the data to match the expected structure
+          const formattedLoans = activeLoans.map(loan => ({
+            id: loan.loanId.toString(),
+            supplierName: loan.supplierName,
+            totalLoan: loan.loanAmount,
+            monthlyInstallment: loan.monthlyInstalment,
+            duration: loan.months,
+            status: "active", // Set status to active for these loans
+            requestDate: loan.date,
+            remainingBalance: loan.loanAmount, // Assuming the full amount is remaining
+            repaymentLog: [],
+            route: "",
+            startDate: loan.date,
+          }));
+          
+          setLoans(formattedLoans);
+        } else if (currentView === "pending") {
+          // For pending loans, use fetchLoanRequests
+          const data = await fetchLoanRequests();
+          
+          // Format the data
+          const allLoans = data.map((loan) => ({
+            id: loan.reqId?.toString() || "",
+            supplierName: loan.supplierId ? `Supplier ${loan.supplierId}` : "Unknown",
+            totalLoan: loan.amount,
+            monthlyInstallment: loan.months ? Math.round(Number(loan.amount) / loan.months) : 0,
+            duration: loan.months,
+            status: loan.status?.toLowerCase() || "pending",
+            requestDate: loan.date,
+            remainingBalance: loan.amount,
+            repaymentLog: [],
+            route: "",
+            startDate: loan.date,
+          }));
+          
+          setLoans(allLoans);
+        }
+      } catch (err) {
+        setError("Failed to fetch loan requests: " + err.message);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, [currentView]); // Now depends on currentView to reload data when view changes
 
   // Date selection state
   const currentDate = new Date();
@@ -76,6 +117,19 @@ export default function LoanManagement() {
     { length: 10 },
     (_, i) => currentDate.getFullYear() - i
   );
+  
+  // Fetch loan stats from API
+  useEffect(() => {
+    const fetchLoanStats = async () => {
+      try {
+        const statsData = await getLoanStats(1, selectedMonth + 1, selectedYear);
+        setApiLoanStats(statsData);
+      } catch (err) {
+        console.error("Failed to fetch loan stats:", err);
+      }
+    };
+    fetchLoanStats();
+  }, [selectedMonth, selectedYear]);
 
   // Generate available months based on selected year
   const getAvailableMonths = (year) => {
@@ -107,11 +161,11 @@ export default function LoanManagement() {
     setSearchTerm("");
   };
 
-  // Film by view and by selected month/year
+  // Filter by view and by selected month/year
   const filterByView = (loans, view) => {
     switch (view) {
       case "pending": return loans.filter((loan) => loan.status === "pending");
-      case "active": return loans.filter((loan) => loan.status === "active");
+      case "active": return loans.filter((loan) => loan.status === "active"); // These are loans with "REMAINING" status from API
       case "completed": return loans.filter((loan) => loan.status === "completed");
       case "overdue": return loans.filter((loan) => loan.status === "overdue");
       case "defaulted": return loans.filter((loan) => loan.status === "defaulted");
@@ -302,7 +356,7 @@ export default function LoanManagement() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-lg text-gray-600">Loading loan requests...</div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#165E52]"></div>
       </div>
     );
   }
@@ -328,13 +382,6 @@ export default function LoanManagement() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <button
-                onClick={() => navigate('/payment-manager/loans/active')}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <ExternalLink className="h-4 w-4" />
-                View Active Loans
-              </button>
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-gray-700">Month:</label>
                 <select
@@ -373,13 +420,13 @@ export default function LoanManagement() {
 
       {/* Summary Cards */}
       <div className="max-w-7xl mx-auto px-6 pt-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
   {[
     {
       type: "active",
       label: "Active Loans",
-      value: loanStats.activeLoanAmount,
-      count: loanStats.activeLoans,
+      value: apiLoanStats.approvedLoanTotal,
+      count: apiLoanStats.approvedLoanCount,
       icon: <Users size={30} color="black" />,
       borderColor: "#165E52",
       ringColor: "ring-[#165E52]/30",
@@ -387,8 +434,8 @@ export default function LoanManagement() {
     {
       type: "pending",
       label: "Pending Loans",
-      value: loanStats.pendingLoanAmount,
-      count: loanStats.pendingLoans,
+      value: apiLoanStats.pendingLoanRequestTotal,
+      count: apiLoanStats.pendingLoanRequestCount,
       icon: <Clock size={30} color="black" />,
       borderColor: "#f59e0b",
       ringColor: "ring-[#f59e0b]/30",
@@ -396,34 +443,81 @@ export default function LoanManagement() {
     {
       type: "completed",
       label: "Completed Loans",
-      value: loanStats.completedLoanAmount,
-      count: loanStats.completedLoans,
+      value: apiLoanStats.completedLoanTotal,
+      count: apiLoanStats.completedLoanCount,
       icon: <Users size={30} color="black" />,
       borderColor: "#1d4ed8", // blue-700
       ringColor: "ring-[#1d4ed8]/30",
     },
-    {
-      type: "overdue",
-      label: "Overdue Loans",
-      value: loanStats.overdueLoanAmount,
-      count: loanStats.overdueLoans,
-      icon: <Clock size={30} color="#000000" />, // yellow
-      borderColor: "#eab308",
-      ringColor: "ring-[#eab308]/30",
-    },
-    {
-      type: "defaulted",
-      label: "Defaulted Loans",
-      value: loanStats.defaultedLoanAmount,
-      count: loanStats.defaultedLoans,
-      icon: <X size={30} color="#ef4444" />,
-      borderColor: "#ef4444",
-      ringColor: "ring-[#ef4444]/30",
-    },
   ].map((card) => (
     <div
       key={card.type}
-      onClick={() => setCurrentView(card.type)}
+      onClick={async () => {
+        setCurrentView(card.type);
+        
+        // Call the API to fetch loans based on card type
+        if (card.type === "active") {
+          try {
+            setLoading(true);
+            // Get current month and year
+            const date = new Date();
+            const currentMonth = date.getMonth() + 1; // JavaScript months are 0-based
+            const currentYear = date.getFullYear();
+            
+            // Call the API with REMAINING status for active loans
+            const activeLoans = await getFilteredLoans(1, "REMAINING", currentMonth, currentYear);
+            
+            // Format the data to match the expected structure
+            const formattedLoans = activeLoans.map(loan => ({
+              id: loan.loanId.toString(),
+              supplierName: loan.supplierName,
+              totalLoan: loan.loanAmount,
+              monthlyInstallment: loan.monthlyInstalment,
+              duration: loan.months,
+              status: "active", // Set status to active for these loans
+              requestDate: loan.date,
+              remainingBalance: loan.loanAmount, // Assuming the full amount is remaining
+              repaymentLog: [],
+              route: "",
+              startDate: loan.date,
+            }));
+            
+            setLoans(formattedLoans);
+          } catch (err) {
+            setError("Failed to fetch active loans: " + err.message);
+          } finally {
+            setLoading(false);
+          }
+        } else if (card.type === "pending") {
+          try {
+            setLoading(true);
+            // For pending loans, we need to use fetchLoanRequests which includes pending loans
+            const data = await fetchLoanRequests();
+            
+            // Format the data and filter only the pending loans
+            const allLoans = data.map((loan) => ({
+              id: loan.reqId?.toString() || "",
+              supplierName: loan.supplierId ? `Supplier ${loan.supplierId}` : "Unknown",
+              totalLoan: loan.amount,
+              monthlyInstallment: loan.months ? Math.round(Number(loan.amount) / loan.months) : 0,
+              duration: loan.months,
+              status: loan.status?.toLowerCase() || "pending",
+              requestDate: loan.date,
+              remainingBalance: loan.amount,
+              repaymentLog: [],
+              route: "",
+              startDate: loan.date,
+            }));
+            
+            // Use all loans for display, the view filter will handle showing only pending ones
+            setLoans(allLoans);
+          } catch (err) {
+            setError("Failed to fetch pending loans: " + err.message);
+          } finally {
+            setLoading(false);
+          }
+        }
+      }}
       className={`bg-white p-6 rounded-lg shadow-md cursor-pointer transition-transform hover:scale-[1.02] ${
         currentView === card.type ? `${card.ringColor} ring-2` : ""
       }`}
@@ -434,10 +528,10 @@ export default function LoanManagement() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-black">{card.label}</p>
-          <p className="text-2xl font-bold text-black">
-            Rs. {card.value.toLocaleString()}
+          <p className="text-3xl font-bold text-black">
+            {card.count}
           </p>
-          <p className="text-xs text-gray-600">{card.count} records</p>
+          <p className="text-xs text-gray-600">Rs. {card.value.toLocaleString()}</p>
         </div>
         <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
           {card.icon}
