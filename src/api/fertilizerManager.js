@@ -15,7 +15,7 @@ export async function createFertilizerStock(payload) {
 // Uses shared axios instance that already sets Authorization header
 import axios from "./axios";
 
-const base = "/api/fertilizer-requests"; // Matches the @RequestMapping in the backend controller
+const base = "/fertilizer-requests"; // Matches the @RequestMapping in the backend controller
 
 // Create single request
 export async function createFertilizerRequest(payload) {

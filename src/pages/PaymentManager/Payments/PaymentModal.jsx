@@ -71,23 +71,13 @@ export default function PaymentModal({
                     <DollarSign size={30} color="black" />
                   </div>
                   <p className="text-sm font-medium text-black text-center w-full mb-3">
-                    Submitted Tea Rate
+                    Submitted Tea Rate : 233.00 Rs/Kg
                   </p>
                 </div>
                 <p className="text-sm text-black mb-2 text-center">
                   <span className="font-medium">Submission Date:</span> {teaRate.submittedDate}
                 </p>
-                <div className="flex flex-col md:flex-row md:justify-center md:items-center gap-2 md:gap-6 text-sm text-black">
-                  <p>
-                    <span className="font-medium">Grade A:</span> Rs. {teaRate.rates.gradeA}/kg
-                  </p>
-                  <p>
-                    <span className="font-medium">Grade B:</span> Rs. {teaRate.rates.gradeB}/kg
-                  </p>
-                  <p>
-                    <span className="font-medium">Grade C:</span> Rs. {teaRate.rates.gradeC}/kg
-                  </p>
-                </div>
+                
               </div>
 
               {/* Payment Summary Cards */}
@@ -113,7 +103,7 @@ export default function PaymentModal({
                   style={{ border: "1.5px solid black" }}
                 >
                   <div className="flex items-center justify-between pb-3">
-                    <p className="text-sm font-medium text-black">Bank Payments</p>
+                    <p className="text-sm font-medium text-black">Advance Payments</p>
                     <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
                       <Banknote size={30} color="black" />
                     </div>
@@ -132,7 +122,7 @@ export default function PaymentModal({
                   style={{ border: "1.5px solid black" }}
                 >
                   <div className="flex items-center justify-between pb-3">
-                    <p className="text-sm font-medium text-black">Cash Payments</p>
+                    <p className="text-sm font-medium text-black">Loan Payments</p>
                     <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
                       <HandCoins size={30} color="black" />
                     </div>

@@ -405,7 +405,7 @@ const FertilizerRequestsPage = () => {
               </div>
 
               <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
-                {selectedRequest.status === "pending" && (
+                {selectedRequest.status?.toLowerCase() === "pending" && (
                   <>
                     <button
                       onClick={() => {
@@ -422,16 +422,10 @@ const FertilizerRequestsPage = () => {
                         handleApprove(selectedRequest.id);
                         closeViewModal();
                       }}
-                      disabled={selectedFertilizers.length === 0}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                        selectedFertilizers.length === 0
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-[#165E52] text-white hover:bg-[#144d45]"
-                      }`}
-                      title={selectedFertilizers.length === 0 ? "Please select at least one fertilizer" : `Approve ${selectedFertilizers.length} of ${selectedRequest.fertilizers.length} fertilizers`}
+                      className="px-4 py-2 rounded-md text-sm font-medium bg-[#165E52] text-white hover:bg-[#144d45] transition-colors"
                     >
                       <Check className="w-4 h-4 inline mr-1" />
-                      Approve Selected ({selectedFertilizers.length})
+                      Approve
                     </button>
                   </>
                 )}

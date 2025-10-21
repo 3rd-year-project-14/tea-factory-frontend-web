@@ -186,3 +186,19 @@ export const getSupplierDeductionsTotal = async (supplierId) => {
   );
   return res.data;
 };
+
+// 25. Get Loan Statistics
+export const getLoanStats = async (factoryId, month, year) => {
+  const res = await axios.get(`/loans/stats`, {
+    params: { factoryId, month, year }
+  });
+  return res.data;
+};
+
+// 26. Get Filtered Loans by Status
+export const getFilteredLoans = async (factoryId, status, month, year) => {
+  const res = await axios.get(`/loans/filter`, {
+    params: { factoryId, status, month, year }
+  });
+  return res.data;
+};
