@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Users2, Truck, Leaf,
   AlertCircle, Clock, TriangleAlert, MoveRight, Megaphone
 } from "lucide-react";
 import TeaSupplyChart from "../../components/charts/TeaSupplyChart";
+import { useAuth } from "../../contexts/AuthContext";
+import { getSupplierCounts, getSupplierRequestsByStatus } from "../../api/supplier";
+import { fetchTeaRateRecords } from "../../api/factoryManager";
 
 
 const ACCENT_COLOR = "#165e52";
@@ -11,27 +14,99 @@ const BUTTON_COLOR = "#172526";
 
 
 export default function FactoryManagerDashboard() {
-  const [selectedPeriod, setSelectedPeriod] = useState("daily");
+  const { user } = useAuth();
+  const [dashboardData, setDashboardData] = useState({
+    supplierRequests: 0,
+    activeSuppliers: 0,
+    driversTotal: 48,
+    fertilizerStock: "85%",
+  });
 
+  useEffect(() => {
+    const fetchCounts = async () => {
+      const factoryId = user?.factoryId;
+      if (!factoryId) return;
+      try {
+        const counts = await getSupplierCounts(factoryId);
+        if (counts?.status === 404 && counts?.message) {
+          setDashboardData((prev) => ({
+            ...prev,
+            activeSuppliers: 0,
+            supplierRequests: 0,
+          }));
+        } else {
+          // Prefer counts returned by the counts API
+          let pendingCount = counts?.pendingRequestCount ?? 0;
+          // Fallback: if pendingRequestCount not provided, call requests-by-status
+          if (pendingCount === 0) {
+            try {
+              const pending = await getSupplierRequestsByStatus(factoryId, "pending");
+              pendingCount = Array.isArray(pending) ? pending.length : (pending?.total || 0);
+            } catch (e) {
+              pendingCount = 0;
+            }
+          }
 
-  const handlePeriodChange = (period) => setSelectedPeriod(period);
+          setDashboardData((prev) => ({
+            ...prev,
+            activeSuppliers: counts?.activeSupplierCount ?? counts?.approved ?? counts?.total ?? 0,
+            supplierRequests: pendingCount,
+          }));
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.debug('Failed to load supplier counts', err);
+      }
+    };
+    fetchCounts();
+  }, [user]);
 
+  // Tea rate chart data
+  const [teaRateChartData, setTeaRateChartData] = useState(null);
+  useEffect(() => {
+    const fetchTeaRates = async () => {
+      const factoryUserId = user?.id || user?.userId || user?.uid || null;
+      if (!factoryUserId) return;
+      try {
+            const resp = await fetchTeaRateRecords(user?.uid);
+            const records = resp?.data || resp || [];
 
-  const getDashboardData = () => {
-    switch (selectedPeriod) {
-      case "daily":
-        return { totalTea: "3,480", activeSuppliers: "81", driversOnDuty: "6", fertilizerStock: "85%", period: "Today's" };
-      case "monthly":
-        return { totalTea: "78,520", activeSuppliers: "345", driversOnDuty: "25", fertilizerStock: "78%", period: "This Month's" };
-      case "yearly":
-        return { totalTea: "1,250,000", activeSuppliers: "1,284", driversOnDuty: "48", fertilizerStock: "92%", period: "This Year's" };
-      default:
-        return getDashboardData("daily");
-    }
-  };
+            // Map to time-series of rate per kg. Use finalRatePerKg if available, else fallback to monthlyRate or rate
+            const sorted = records
+              .slice()
+              .sort((a, b) => new Date(a.createdAt || a.date || a.month) - new Date(b.createdAt || b.date || b.month));
 
+            const labels = sorted.map((r) => {
+              const d = new Date(r.createdAt || r.date || r.month || null);
+              if (!isNaN(d)) return d.toLocaleDateString();
+              // fallback to month label if present
+              return r.monthLabel || r.month || "-";
+            });
 
-  const dashboardData = getDashboardData();
+            const dataPoints = sorted.map((r) => {
+              const rate = r.finalRatePerKg ?? r.monthlyRate ?? r.rate ?? null;
+              return rate != null ? Number(rate) : null;
+            });
+
+            setTeaRateChartData({
+              labels,
+              datasets: [
+                {
+                  label: "Tea Rate",
+                  data: dataPoints,
+                  borderColor: "#10B981",
+                  backgroundColor: "rgba(16,185,129,0.2)",
+                  tension: 0.3,
+                },
+              ],
+            });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.debug("Failed to load tea rate records", err);
+      }
+    };
+    fetchTeaRates();
+  }, [user]);
 
 
   return (
@@ -41,37 +116,9 @@ export default function FactoryManagerDashboard() {
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold  mb-1" style={{ color: ACCENT_COLOR }}>Dashboard Home</h1>
             <a href="/factoryManager/payment/proceed" className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-white" style={{ backgroundColor: BUTTON_COLOR }}>Proceed Payment</a>
-            <a href="/factoryManager/payment/main" className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-white" style={{ backgroundColor: BUTTON_COLOR }}>View Main</a>
+            <a href="/factoryManager/payment/main" className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-white" style={{ backgroundColor: BUTTON_COLOR }}>Payments</a>
           </div>
-          <div className="filter-section float-right -mt-11 flex items-center gap-4">
-            <div className="period-filter flex bg-white border rounded-lg overflow-hidden shadow-sm" style={{ borderColor: ACCENT_COLOR }}>
-              {["daily", "monthly", "yearly"].map((period, index) => (
-                <button
-                  key={period}
-                  onClick={() => handlePeriodChange(period)}
-                  className={`px-4 py-2 font-medium text-sm min-w-[80px] transition duration-300 ${selectedPeriod === period ? "text-white" : "hover:bg-[#ecf7f4]"}`}
-                  style={{
-                    backgroundColor: selectedPeriod === period ? BUTTON_COLOR : "#fff",
-                    color: selectedPeriod === period ? "#fff" : BUTTON_COLOR,
-                    borderRight: index < 2 ? "1px solid #cfece6" : "none",
-                  }}>
-                  {period.charAt(0).toUpperCase() + period.slice(1)}
-                </button>
-              ))}
-            </div>
-            <div className="date-filter flex items-center">
-              <span className="text-sm font-medium mr-2" style={{ color: ACCENT_COLOR }}>Date:</span>
-              <input
-                type="date"
-                defaultValue="2025-07-04"
-                className="p-2 rounded-md text-sm min-w-[140px] text-gray-900 bg-white focus:outline-none"
-                style={{
-                  border: `1px solid ${ACCENT_COLOR}`,
-                  boxShadow: `0 0 0 1px ${ACCENT_COLOR}`,
-                }}
-              />
-            </div>
-          </div>
+          {/* filters removed intentionally - show static dashboard */}
         </div>
       </div>
 
@@ -81,33 +128,30 @@ export default function FactoryManagerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           {[
             {
-              label: `${dashboardData.period} Total Tea Collected (kg)`,
-              value: dashboardData.totalTea,
+              label: `Supplier Requests`,
+              value: dashboardData.supplierRequests,
               icon: <Leaf size={28} color="black" />,
             },
             {
-              label: `Active Suppliers ${
-                selectedPeriod === "daily"
-                  ? "Today"
-                  : selectedPeriod === "monthly"
-                  ? "This Month"
-                  : "This Year"
-              }`,
+              label: `Active Suppliers `,
               value: dashboardData.activeSuppliers,
+             
               icon: <Users2 size={28} color="black" />,
             },
             {
-              label: "Drivers on Duty",
-              value: dashboardData.driversOnDuty,
+              label: "Total Drivers",
+              value: dashboardData.driversTotal,
+             
               icon: <Truck size={28} color="black" />,
             }
           ].map((card, index) => (
             <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-black">{card.label}</p>
-                  <p className="text-2xl font-bold text-black">{card.value}</p>
-                </div>
+                  <div>
+                    <p className="text-sm font-medium text-black">{card.label}</p>
+                    {card.subtitle && <p className="text-xs text-gray-500">{card.subtitle}</p>}
+                    <p className="text-2xl font-bold text-black">{card.value}</p>
+                  </div>
                 <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
                   {card.icon}
                 </div>
@@ -121,22 +165,67 @@ export default function FactoryManagerDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Charts Section */}
           <div className="bg-white p-6 rounded-lg shadow-md border border-black col-span-2 flex flex-col">
-            <h3 className="text-lg font-semibold text-black mb-5">
-              Tea Collection Trends -{" "}
-              {selectedPeriod === "daily"
-                ? "Last 7 Days"
-                : selectedPeriod === "monthly"
-                ? "Last 12 Months"
-                : "Last 6 Years"}
-            </h3>
+            
             <div className="flex-1 min-h-[350px] flex items-center justify-center">
               <div className="w-full h-full">
-                <TeaSupplyChart period={selectedPeriod} height={320} primaryColor={ACCENT_COLOR} />
+                <TeaSupplyChart data={teaRateChartData} period={"daily"} height={320} primaryColor={ACCENT_COLOR} />
               </div>
             </div>
           </div>
 
 
+          {/* Quick Actions */}
+          <div className="bg-white p-6 rounded-lg shadow-md border border-black">
+            <h3 className="text-lg font-semibold text-black mb-5">Quick Actions</h3>
+            {/* Make buttons constrained inside the panel; allow scroll if overflow */}
+            <div className="h-[220px] overflow-auto">
+              <div className="flex flex-col gap-2">
+                  {[
+                    { label: "Add New Route", icon: <Leaf size={14} color="white" /> },
+                    { label: "Manage Drivers", icon: <Users2 size={14} color="white" /> },
+                    { label: "Update Inventory", icon: <Truck size={14} color="white" /> }
+                  ].map((action, i) => (
+                    <button
+                      key={i}
+                      className="w-full flex-1 p-2 rounded-md text-white text-sm font-medium flex items-center gap-2 justify-start transition-colors"
+                      style={{
+                        backgroundColor: BUTTON_COLOR,
+                        border: "none",
+                      }}
+                    >
+                      <span className="inline-flex items-center justify-center w-5">{action.icon}</span>
+                      <span className="flex-1 text-left">{action.label}</span>
+                    </button>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        {/* Bottom Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          {/* Pending Approvals Summary */}
+          <div className="bg-white p-6 rounded-lg shadow-md border border-black">
+            <h3 className="text-lg font-semibold text-black mb-5">Pending Approvals Summary</h3>
+            <div className="space-y-2">
+              {[
+                { label: "New Supplier Registrations", count: 5 },
+                { label: "Fertilizer Requests", count: 3 },
+                { label: "Advance Requests", count: 2 },
+                { label: "Routes Without Driver", count: 1 },
+                { label: "System Notifications", count: 4 }
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between py-2 px-3 hover:bg-gray-50 transition-colors"
+                >
+                  <span className="font-medium text-gray-800 text-xs">{item.label}</span>
+                  <span className="font-bold text-sm" style={{ color: ACCENT_COLOR }}>{item.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           {/* Alerts & Notifications */}
           <div className="bg-white p-6 rounded-lg shadow-md border border-black">
             <h3 className="text-lg font-semibold text-black mb-5">Alerts & Notifications</h3>
@@ -201,55 +290,6 @@ export default function FactoryManagerDashboard() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-
-        {/* Bottom Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Pending Approvals Summary */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-black">
-            <h3 className="text-lg font-semibold text-black mb-5">Pending Approvals Summary</h3>
-            <div className="space-y-2">
-              {[
-                { label: "New Supplier Registrations", count: 5 },
-                { label: "Fertilizer Requests", count: 3 },
-                { label: "Advance Requests", count: 2 },
-                { label: "Routes Without Driver", count: 1 },
-                { label: "System Notifications", count: 4 }
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between py-2 px-3 hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-medium text-gray-800 text-xs">{item.label}</span>
-                  <span className="font-bold text-sm" style={{ color: ACCENT_COLOR }}>{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Quick Actions */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-black">
-            <h3 className="text-lg font-semibold text-black mb-5">Quick Actions</h3>
-            <div className="space-y-3">
-              {[
-                { label: "Add New Route", icon: <Leaf size={16} color="white" /> },
-                { label: "Manage Drivers", icon: <Users2 size={16} color="white" /> },
-                { label: "Update Inventory", icon: <Truck size={16} color="white" /> },
-                { label: "Send Announcement", icon: <Megaphone size={16} color="white" /> }
-              ].map((action, i) => (
-                <button
-                  key={i}
-                  className="w-full p-3 rounded-lg text-white text-sm font-medium flex items-center gap-2 transition-colors"
-                  style={{
-                    backgroundColor: BUTTON_COLOR,
-                    border: "none",
-                  }}
-                >
-                  {action.icon} {action.label}
-                </button>
-              ))}
             </div>
           </div>
           {/* Recent Activity */}

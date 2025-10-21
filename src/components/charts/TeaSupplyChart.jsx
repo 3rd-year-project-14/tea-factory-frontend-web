@@ -1,10 +1,11 @@
 import React, { useRef } from "react";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+    LineElement,
+    PointElement,
   Title,
   Tooltip,
   Legend,
@@ -15,7 +16,8 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
   Legend,
@@ -41,12 +43,9 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
               label: "Tea Supply (kg)",
               data: [450, 520, 380, 600, 490, 670, 430],
               backgroundColor: ACCENT_COLOR,
-              hoverBackgroundColor: "#165E52", // Custom hover color
-        hoverBorderColor: "#165E52",
               borderColor: ACCENT_COLOR,
-              borderWidth: 1,
-              borderRadius: 8,
-              borderSkipped: false,
+              borderWidth: 2,
+              tension: 0.3,
             },
           ],
         };
@@ -75,9 +74,8 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
               ],
               backgroundColor: ACCENT_COLOR,
               borderColor: ACCENT_COLOR,
-              borderWidth: 1,
-              borderRadius: 8,
-              borderSkipped: false,
+              borderWidth: 2,
+              tension: 0.3,
             },
           ],
         };
@@ -90,9 +88,8 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
               data: [185000, 198000, 210000, 195000, 220000, 180000],
               backgroundColor: ACCENT_COLOR,
               borderColor: ACCENT_COLOR,
-              borderWidth: 1,
-              borderRadius: 8,
-              borderSkipped: false,
+              borderWidth: 2,
+              tension: 0.3,
             },
           ],
         };
@@ -110,9 +107,9 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
       legend: { display: false },
       title: {
         display: true,
-        text: `${
-          period.charAt(0).toUpperCase() + period.slice(1)
-        } Tea Collection`,
+        text: data && data.datasets && data.datasets[0] && data.datasets[0].label
+          ? `${data.datasets[0].label} over time`
+          : `${period.charAt(0).toUpperCase() + period.slice(1)} Tea Collection`,
         font: { size: 18 },
         color: "#1e293b",
         padding: { top: 10, bottom: 20 },
@@ -123,12 +120,21 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
         align: "top",
         color: "#1e293b",
         font: { weight: "bold", size: 11 },
-        formatter: (value) => value + " kg",
+        formatter: (value, ctx) => {
+          const label = ctx.dataset && ctx.dataset.label ? ctx.dataset.label.toLowerCase() : '';
+          if (label.includes('rate')) return `Rs. ${Number(value).toFixed(2)}`;
+          if (label.includes('weight') || label.includes('kg')) return `${value} kg`;
+          return value;
+        },
       },
       tooltip: {
         callbacks: {
           label: (context) => {
-            return `${context.dataset.label}: ${context.parsed.y} kg`;
+            const label = context.dataset.label || '';
+            if (label.toLowerCase().includes('rate')) {
+              return `${label}: Rs. ${context.parsed.y}`;
+            }
+            return `${label}: ${context.parsed.y} kg`;
           },
         },
         backgroundColor: "rgba(0, 0, 0, 0.8)",
@@ -149,7 +155,7 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
         beginAtZero: true,
         title: {
           display: true,
-          text: "Tea Supply (kg)",
+          text: data && data.datasets && data.datasets[0] && data.datasets[0].label && data.datasets[0].label.toLowerCase().includes('rate') ? 'Rate (Rs.)' : 'Tea Supply (kg)',
           color: "#1e293b",
           font: { weight: "bold" },
         },
@@ -182,7 +188,7 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
 
   return (
     <div className="w-full h-full">
-      <Bar
+      <Line
         ref={chartRef}
         data={chartData}
         options={options}
