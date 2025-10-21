@@ -18,7 +18,7 @@ export default function FactoryManagerDashboard() {
   const [dashboardData, setDashboardData] = useState({
     supplierRequests: 0,
     activeSuppliers: 0,
-    driversTotal: 4git ,
+    driversTotal: 4 ,
     fertilizerStock: "85%",
   });
 
