@@ -92,7 +92,7 @@ const sidebarLinks = {
       path: "/factoryManager/announcements",
       icon: Bell,
     },
-    { name: "Routes", path: "/factoryManager/routes", icon: Route },
+    // { name: "Routes", path: "/factoryManager/routes", icon: Route },
     { name: "Inventory", path: "/factoryManager/inventory", icon: Package },
     // { name: "Drivers", path: "/factoryManager/drivers", icon: Users },
     // { name: "Payments New", path: "/factoryManager/payment/main", icon: Users },
@@ -100,13 +100,13 @@ const sidebarLinks = {
       name: "Payments",
       icon: DollarSign,
       children: [
+        // {
+        //   name: "Payments Proceed",
+        //   path: "/factoryManager/payment/proceed",
+        //   icon: DollarSign,
+        // },
         {
-          name: "Payments Proceed",
-          path: "/factoryManager/payment/proceed",
-          icon: DollarSign,
-        },
-        {
-          name: "Payments History",
+          name: "Payments",
           path: "/factoryManager/payment/payments",
           icon: DollarSign,
         },
