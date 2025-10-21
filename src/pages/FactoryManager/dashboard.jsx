@@ -18,7 +18,7 @@ export default function FactoryManagerDashboard() {
   const [dashboardData, setDashboardData] = useState({
     supplierRequests: 0,
     activeSuppliers: 0,
-    driversTotal: 48,
+    driversTotal: 4git ,
     fertilizerStock: "85%",
   });
 
@@ -115,8 +115,7 @@ export default function FactoryManagerDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-6 flex items-start justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold  mb-1" style={{ color: ACCENT_COLOR }}>Dashboard Home</h1>
-            <a href="/factoryManager/payment/proceed" className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-white" style={{ backgroundColor: BUTTON_COLOR }}>Proceed Payment</a>
-            <a href="/factoryManager/payment/main" className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-white" style={{ backgroundColor: BUTTON_COLOR }}>Payments</a>
+            {/* moved payment buttons to Quick Actions below */}
           </div>
           {/* filters removed intentionally - show static dashboard */}
         </div>
@@ -178,24 +177,27 @@ export default function FactoryManagerDashboard() {
           <div className="bg-white p-6 rounded-lg shadow-md border border-black">
             <h3 className="text-lg font-semibold text-black mb-5">Quick Actions</h3>
             {/* Make buttons constrained inside the panel; allow scroll if overflow */}
-            <div className="h-[220px] overflow-auto">
-              <div className="flex flex-col gap-2">
+            <div className="h-[220px]">
+              <div className="flex flex-col gap-3 h-full">
                   {[
-                    { label: "Add New Route", icon: <Leaf size={14} color="white" /> },
-                    { label: "Manage Drivers", icon: <Users2 size={14} color="white" /> },
-                    { label: "Update Inventory", icon: <Truck size={14} color="white" /> }
+                    { label: "Proceed Payment", href: "/factoryManager/payment/proceed", icon: <Megaphone size={20} color="white" /> },
+                    { label: "Payments", href: "/factoryManager/payment/main", icon: <Leaf size={20} color="white" /> },
+                    { label: "Suppliers", href: "/factoryManager/suppliers", icon: <Users2 size={20} color="white" /> }
                   ].map((action, i) => (
-                    <button
+                    <a
                       key={i}
-                      className="w-full flex-1 p-2 rounded-md text-white text-sm font-medium flex items-center gap-2 justify-start transition-colors"
+                      href={action.href}
+                      className="w-full flex-1 p-4 rounded-md text-white text-base font-semibold flex items-center gap-3 justify-start transition-colors"
                       style={{
                         backgroundColor: BUTTON_COLOR,
                         border: "none",
+                        display: 'flex',
+                        alignItems: 'center'
                       }}
                     >
-                      <span className="inline-flex items-center justify-center w-5">{action.icon}</span>
+                      <span className="inline-flex items-center justify-center w-6">{action.icon}</span>
                       <span className="flex-1 text-left">{action.label}</span>
-                    </button>
+                    </a>
                   ))}
               </div>
             </div>
@@ -203,119 +205,7 @@ export default function FactoryManagerDashboard() {
         </div>
 
 
-        {/* Bottom Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Pending Approvals Summary */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-black">
-            <h3 className="text-lg font-semibold text-black mb-5">Pending Approvals Summary</h3>
-            <div className="space-y-2">
-              {[
-                { label: "New Supplier Registrations", count: 5 },
-                { label: "Fertilizer Requests", count: 3 },
-                { label: "Advance Requests", count: 2 },
-                { label: "Routes Without Driver", count: 1 },
-                { label: "System Notifications", count: 4 }
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between py-2 px-3 hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-medium text-gray-800 text-xs">{item.label}</span>
-                  <span className="font-bold text-sm" style={{ color: ACCENT_COLOR }}>{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Alerts & Notifications */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-black">
-            <h3 className="text-lg font-semibold text-black mb-5">Alerts & Notifications</h3>
-            <div className="space-y-3">
-              {/* Emergency – Blinking Red */}
-              <div className="p-3 bg-[#fceaea] border-l-4 border-red-600 rounded animate-pulse-slow">
-                <div className="flex items-start gap-2">
-                  <span className="mt-0.5">
-                    <AlertCircle size={22} color="#dc2626" />
-                  </span>
-                  <div>
-                    <div className="text-sm font-medium text-red-700">Driver Emergency</div>
-                    <div className="text-xs text-gray-600 mt-1">
-                      Vehicle breakdown reported by Driver Pasindu
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">2 min ago</div>
-                  </div>
-                </div>
-              </div>
-              {/* Late Supplier – Normal red */}
-              <div className="p-3 bg-[#fff3f3] border-l-4 border-red-400 rounded">
-                <div className="flex items-start gap-2">
-                  <span className="mt-0.5">
-                    <Clock size={22} color="#dc2626" />
-                  </span>
-                  <div>
-                    <div className="text-sm font-medium text-red-700">Late Supplier Warning</div>
-                    <div className="text-xs text-gray-600 mt-1">
-                      5 suppliers didn't mark supply before 4PM
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">15 min ago</div>
-                  </div>
-                </div>
-              </div>
-              {/* Low Stock – Orange */}
-              <div className="p-3 bg-[#fff7ed] border-l-4 border-orange-400 rounded">
-                <div className="flex items-start gap-2">
-                  <span className="mt-0.5">
-                    <TriangleAlert size={22} color="#ea580c" />
-                  </span>
-                  <div>
-                    <div className="text-sm font-medium text-orange-700">Low Fertilizer Stock</div>
-                    <div className="text-xs text-gray-600 mt-1">
-                      Urea stock below minimum threshold
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">1 hour ago</div>
-                  </div>
-                </div>
-              </div>
-              {/* Delay – Normal red */}
-              <div className="p-3 bg-[#fff3f3] border-l-4 border-red-400 rounded">
-                <div className="flex items-start gap-2">
-                  <span className="mt-0.5">
-                    <MoveRight size={22} color="#dc2626" />
-                  </span>
-                  <div>
-                    <div className="text-sm font-medium text-red-700">Route Delay</div>
-                    <div className="text-xs text-gray-600 mt-1">
-                      Route TR-05 delayed due to weather conditions
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">2 hours ago</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Recent Activity */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-black">
-            <h3 className="text-lg font-semibold text-black mb-5">Recent Activity</h3>
-            <div className="space-y-3">
-              {[
-                { time: "4:15 PM", text: "Supplier SP-045 marked 3 bags collected" },
-                { time: "4:10 PM", text: "Driver D-03 started Route TR-02" },
-                { time: "3:45 PM", text: "Driver assigned to new route TR-05" },
-                { time: "3:30 PM", text: "Route TR-01 completed successfully" },
-                { time: "3:15 PM", text: "New supplier SP-087 registered" }
-              ].map((activity, i) => (
-                <div
-                  key={i}
-                  className={`flex gap-3 ${i < 4 ? "pb-3 border-b border-gray-200" : ""}`}
-                >
-                  <div className="text-xs text-gray-600 min-w-[50px] pt-1">{activity.time}</div>
-                  <div className="flex-1">
-                    <div className="text-sm text-gray-900">{activity.text}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+  {/* Bottom Section removed */}
       </div>
 
 
