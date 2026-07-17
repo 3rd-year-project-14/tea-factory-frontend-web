@@ -1,9 +1,11 @@
-import { useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+
 import InventoryHeader from "./InventoryHeader";
 import InventoryFilters from "./InventoryFilters";
 import SummaryCards from "./SummaryCards";
 import MainContent from "./MainContent";
+
 import {
   routes,
   suppliers,
@@ -11,26 +13,35 @@ import {
   availableYears,
   getAvailableMonths,
 } from "./inventoryData";
+
 import { getUnifiedSummary } from "./inventoryUtils";
+import { useAuth } from "../../../contexts/AuthContext";
+import {
+  getInventorySummary,
+  getInventoryRouteSuppliers,
+} from "../../../api/factoryManagerDashboard";
+
+const ACCENT_COLOR = "#01251F";
 
 export default function InventorySuppliersPage() {
   const { routeId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
 
-  // Find the selected route
-  const selectedRoute = routes.find((route) => route.id === routeId);
+  const selectedRoute =
+    location.state?.route || routes.find((route) => route.id === routeId);
 
-  // View mode state - daily or monthly
-  const [viewMode, setViewMode] = useState("daily");
-
-  // Date selection state
+  const [viewMode, setViewMode] = useState(location.state?.viewMode || "daily");
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
+    location.state?.selectedDate || new Date().toISOString().split("T")[0]
   );
-
-  // Month/Year selection state for monthly view
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(
+    location.state?.selectedMonth ?? new Date().getMonth()
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    location.state?.selectedYear ?? new Date().getFullYear()
+  );
 
   const [filters, setFilters] = useState({
     search: "",
@@ -39,112 +50,134 @@ export default function InventorySuppliersPage() {
     storageType: "All",
   });
 
-  // Filter suppliers data for this route
-  const filteredData = useMemo(() => {
-    if (!selectedRoute) return [];
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    let data = suppliers.filter(
-      (supplier) => supplier.routeId === selectedRoute.id
-    );
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(filters.search), 500);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
 
-    // Filter by date/month based on view mode
-    if (viewMode === "daily") {
-      // Daily view: filter by selected date
-      data = data.filter((supplier) => {
-        const receivedDate = new Date(supplier.receivedDate);
-        const expiryDate = new Date(supplier.expiryDate);
-        const filterDate = new Date(selectedDate);
+  const [summary, setSummary] = useState({});
 
-        // Include inventory if the selected date is between received and expiry dates
-        return filterDate >= receivedDate && filterDate <= expiryDate;
-      });
-    } else if (viewMode === "monthly") {
-      // Monthly view: filter by selected month/year
-      data = data.filter((supplier) => {
-        const receivedDate = new Date(supplier.receivedDate);
-        const lastDeliveryDate = new Date(supplier.lastDelivery);
+  const [suppliersData, setSuppliersData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-        // Include if received or had delivery in the selected month
-        return (
-          (receivedDate.getMonth() === selectedMonth &&
-            receivedDate.getFullYear() === selectedYear) ||
-          (lastDeliveryDate.getMonth() === selectedMonth &&
-            lastDeliveryDate.getFullYear() === selectedYear)
+  // Fetch summary data
+  useEffect(() => {
+    const fetchSummary = async () => {
+      if (!user?.factoryId || !routeId) return;
+
+      try {
+        const params =
+          viewMode === "daily"
+            ? { date: selectedDate, routeId }
+            : { month: selectedMonth + 1, year: selectedYear, routeId };
+        const data = await getInventorySummary(
+          user.factoryId,
+          viewMode,
+          params
         );
-      });
-    }
+        console.log("Fetched Inventory Summary Data for Route:", data);
+        // Transform API data to match component expectations
+        const transformedData = {
+          totalWeight: data.totalGrossWeight || 0,
+          totalBags: data.totalBags || 0,
+          netWeight: data.totalNetWeight || 0,
+        };
+        setSummary(transformedData);
+      } catch (error) {
+        console.error("Failed to fetch inventory summary for route:", error);
+        // Fallback to dummy data calculation
+        const dummyData = suppliers.filter((s) => s.routeId === routeId);
+        setSummary(getUnifiedSummary(dummyData));
+      }
+    };
 
-    // Apply search filters
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      data = data.filter(
-        (item) =>
-          item.supplierName.toLowerCase().includes(searchLower) ||
-          item.id.toLowerCase().includes(searchLower)
-      );
-    }
+    fetchSummary();
+  }, [user, routeId, viewMode, selectedDate, selectedMonth, selectedYear]);
 
-    // Apply status filter
-    if (filters.status !== "All") {
-      data = data.filter((item) => item.inventoryStatus === filters.status);
-    }
+  // Fetch suppliers data
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      if (!user?.factoryId || !routeId) return;
 
-    // Apply storage type filter
-    if (filters.storageType !== "All") {
-      data = data.filter((item) => item.storageType === filters.storageType);
-    }
+      setLoading(true);
+      try {
+        const params = {
+          page,
+          size: 10,
+          search: debouncedSearch,
+          sortDir: filters.sortOrder === "asc" ? "asc" : "desc",
+        };
+        if (viewMode === "daily") {
+          params.date = selectedDate;
+        } else if (viewMode === "monthly") {
+          params.month = selectedMonth + 1;
+          params.year = selectedYear;
+        }
+        const data = await getInventoryRouteSuppliers(
+          routeId,
+          viewMode,
+          params
+        );
+        const mappedData = data.content.map((supplier) => ({
+          id: supplier.supplierId,
+          supplierName: supplier.supplierName,
+          totalWeight: supplier.totalWeight,
+          totalBags: supplier.totalBags,
+          totalNetWeight: supplier.totalNetWeight,
+        }));
+        setSuppliersData(mappedData);
+        setTotalPages(data.totalPages);
+        setTotalElements(data.totalElements);
+      } catch (error) {
+        console.error("Failed to fetch suppliers data:", error);
+        setSuppliersData([]);
+        setTotalPages(0);
+        setTotalElements(0);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Apply sorting
-    if (filters.sortOrder) {
-      data = [...data].sort((a, b) => {
-        const aValue = a.totalWeight || 0;
-        const bValue = b.totalWeight || 0;
-        return filters.sortOrder === "asc" ? aValue - bValue : bValue - aValue;
-      });
-    }
-
-    return data;
+    fetchSuppliers();
   }, [
-    selectedRoute,
-    filters,
-    selectedDate,
+    user,
+    routeId,
     viewMode,
+    selectedDate,
     selectedMonth,
     selectedYear,
+    page,
+    debouncedSearch,
+    filters.sortOrder,
   ]);
 
-  // Calculate summary data
-  const summary = useMemo(() => {
-    return getUnifiedSummary(filteredData);
-  }, [filteredData]);
-
   const handleViewSupplierDetail = (supplier) => {
-    navigate(`/factoryManager/inventory/routes/${routeId}/${supplier.id}`);
+    navigate(`/factoryManager/inventory/routes/${routeId}/${supplier.id}`, {
+      state: { viewMode, selectedDate, selectedMonth, selectedYear },
+    });
   };
 
   const handleBackToRoutes = () => {
-    navigate("/factoryManager/inventory");
-  };
-
-  const handleDownloadCSV = () => {
-    const data = suppliers.filter((supplier) => supplier.routeId === routeId);
-    const csvContent = generateCSV(data, "suppliers");
-    downloadCSV(
-      csvContent,
-      `inventory_suppliers_route_${routeId}_${Date.now()}.csv`
-    );
+    navigate("/factoryManager/inventory", {
+      state: { viewMode, selectedDate, selectedMonth, selectedYear },
+    });
   };
 
   if (!selectedRoute) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-full flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mb-4">
             Route Not Found
           </h2>
           <button
             onClick={handleBackToRoutes}
-            className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700"
+            className="bg-tea-700 text-white px-4 py-2 rounded-lg hover:bg-tea-800 transition-colors"
           >
             Back to Routes
           </button>
@@ -154,7 +187,7 @@ export default function InventorySuppliersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       <InventoryHeader
         currentView="suppliers"
         selectedRoute={selectedRoute}
@@ -171,64 +204,27 @@ export default function InventorySuppliersPage() {
         getAvailableMonths={getAvailableMonths}
         onBackToRoutes={handleBackToRoutes}
       />
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <SummaryCards summary={summary} currentView="suppliers" />
 
-        <InventoryFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          currentView="suppliers"
-        />
+      <SummaryCards summary={summary} currentView="suppliers" />
 
-        <MainContent
-          currentView="suppliers"
-          filteredData={filteredData}
-          summary={summary}
-          getCurrentData={() =>
-            suppliers.filter((supplier) => supplier.routeId === routeId)
-          }
-          onViewSupplierDetail={handleViewSupplierDetail}
-          onDownloadCSV={handleDownloadCSV}
-          selectedRoute={selectedRoute}
-          viewMode={viewMode}
-          selectedDate={selectedDate}
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-          monthNames={monthNames}
-        />
-      </div>
+      <InventoryFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+        currentView="suppliers"
+      />
+
+      <MainContent
+        currentView="suppliers"
+        suppliersData={suppliersData}
+        filteredData={suppliersData}
+        summary={summary}
+        onViewSupplierDetail={handleViewSupplierDetail}
+        page={page}
+        totalPages={totalPages}
+        totalElements={totalElements}
+        setPage={setPage}
+        loading={loading}
+      />
     </div>
   );
-}
-
-// Helper functions for CSV generation and download
-function generateCSV(data, viewType) {
-  if (viewType === "suppliers") {
-    const headers = [
-      "Supplier ID",
-      "Supplier Name",
-      "Total Weight",
-      "Storage Type",
-      "Status",
-    ];
-    const rows = data.map((supplier) => [
-      supplier.id,
-      supplier.supplierName,
-      supplier.totalWeight,
-      supplier.storageType,
-      supplier.inventoryStatus,
-    ]);
-    return [headers, ...rows].map((row) => row.join(",")).join("\n");
-  }
-  return "";
-}
-
-function downloadCSV(content, filename) {
-  const blob = new Blob([content], { type: "text/csv" });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  window.URL.revokeObjectURL(url);
 }

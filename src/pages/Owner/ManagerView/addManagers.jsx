@@ -1,362 +1,304 @@
+import axios from "axios";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-import { auth } from '../../../firebase'; // adjust path if needed
 import { createUserWithEmailAndPassword, getIdToken } from "firebase/auth";
+import { auth } from "../../../firebase";
+import Button from "../../../components/ui/Button";
 
+const inputClass =
+  "w-full rounded-lg px-4 py-3 border border-tea-100 dark:border-card-border-dark h-12 bg-surface dark:bg-white/5 text-tea-700 dark:text-tea-200 placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40";
+
+const roles = [
+  { label: 'Factory Manager', value: 'FACTORY_MANAGER' },
+  { label: 'Inventory Manager', value: 'INVENTORY_MANAGER' },
+  { label: 'Fertilizer Manager', value: 'FERTILIZER_MANAGER' },
+  { label: 'Transport Manager', value: 'TRANSPORT_MANAGER' }
+];
+
+const factoryOptions = [
+  { id: "1", name: "Wawlugala Tea Factory" },
+  { id: "2", name: "Miyanawathura Tea Factory" },
+  { id: "3", name: "Andaradeniya Tea Factory" },
+  { id: "4", name: "Batuwangala Tea Factory" },
+  { id: "5", name: "Duli Ella Tea Factory" },
+  { id: "6", name: "Devonia Tea Factory" },
+  { id: "7", name: "Fortune Tea Factory" },
+  { id: "8", name: "Galaxi Tea Factory" },
+  { id: "9", name: "Ruhunu Tea Factory" },
+];
 
 export default function AddManagersInterface() {
   const [formData, setFormData] = useState({
-    name: '',
-    password: '',
-    email: '',
-    nic: '',
-    mobile: '',
-    role: '',
-    factory: ''
+    name: "",
+    password: "",
+    email: "",
+    nic: "",
+    mobile: "",
+    role: "",
+    factory: "",
+    address: ""
   });
 
   const [dropdowns, setDropdowns] = useState({
     role: false,
-    factory: false
+    factory: false,
   });
+
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const toggleDropdown = (dropdown) => {
     setDropdowns({
       ...dropdowns,
-      [dropdown]: !dropdowns[dropdown]
+      [dropdown]: !dropdowns[dropdown],
     });
   };
 
   const selectOption = (field, value) => {
     setFormData({
       ...formData,
-      [field]: value
+      [field]: value,
     });
     setDropdowns({
       ...dropdowns,
-      [field]: false
+      [field]: false,
     });
   };
 
-  const navigate = useNavigate();
-  // const handleSave = () => {
-  //   navigate('/owner/managerview/giveaccess', { state: { manager: formData } });
-  // };
+  const handleSave = async () => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
 
-//   const handleSave = async () => {
-//   console.log('Saving manager data:', formData);
+      const user = userCredential.user;
+      const token = await getIdToken(user);
 
-//   // try {
-//   //   const response = await axios.post(
-//   //     'https://tea-factory-project-902e0-default-rtdb.asia-southeast1.firebasedatabase.app/userData.json',
-//   //     { ...formData }
-//   //   );
-//   //   console.log('Data saved:', response.data);
-
-//   //   // After successfully saving, navigate to the next page
-//   //   navigate('/owner/managerview/giveaccess', { state: { manager: formData } });
-//   // } catch (err) {
-//   //   console.error('Error saving data:', err);
-//   //   // Optionally show error to user here
-//   // }
-
-//   try {
-//     // 1. Get Firebase ID token of the created user
-//     // const user = firebase.auth().currentUser;
-//     // const token = await user.getIdToken();
-//     const user = auth.currentUser;
-// if (!user) {
-//   console.error("No user is currently logged in.");
-//   return;
-// }
-
-// const token = await getIdToken(user);
-
-
-//     // 2. Send to backend
-//     const response = await axios.post(
-//       'http://localhost:8080/api/users',  // your Spring Boot endpoint
-//       { ...formData },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       }
-//     );
-
-//     console.log('Data saved:', response.data);
-
-//     // Navigate after success
-//     navigate('/owner/managerview/giveaccess', { state: { manager: formData } });
-//   } catch (err) {
-//     console.error('Error saving data:', err);
-//     // Optionally display an error message in UI
-//   }
-
-// };
-
-const handleSave = async () => {
-  try {
-    // Firebase Auth එකෙන් Manager account එකක් create කරයි
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      formData.email,
-      formData.password
-    );
-
-    const user = userCredential.user;
-    const firebaseUid = user.uid;
-
-
-    // Firebase ID Token එක ලබා ගනී
-    const token = await getIdToken(user);
-
-    // Backend එකට data + token යවයි
-    const response = await axios.post(
-      "http://localhost:8080/api/users",
-      {
-        firebaseUid: firebaseUid,
+      const dataToSend = {
+        firebaseUid: user.uid,
         name: formData.name,
         email: formData.email,
-        password: formData.password,
         nic: formData.nic,
         contactNo: formData.mobile,
         role: formData.role,
-        factory: formData.factory,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+        factoryId: formData.factory,
+        address: formData.address
+      };
+      console.log("Data sent to backend:", dataToSend);
 
-    console.log("Saved:", response.data);
-    navigate("/owner/managerview/giveaccess", { state: { manager: formData } });
-  } catch (error) {
-    console.error("Error creating manager:", error);
-  }
-};
+      await axios.post(
+        "http://localhost:8080/api/users",
+        dataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-
-  const roles = ['Factory Manager', 'Inventory Manager', 'Fertilizer Manager', 'Transport Manager'];
-  const factories = ['Factory A', 'Factory B', 'Factory C', 'Factory D'];
+      navigate("/owner/managerview/giveaccess", {
+        state: { manager: formData },
+      });
+    } catch (error) {
+      console.error("Error creating manager:", error);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Add Manager</h1>
-              <p className="text-gray-600 mt-1">Owner Dashboard - Add a New Manager</p>
-            </div>
+    <div className="min-h-full">
+      <div className="max-w-6xl mx-auto rounded-2xl border border-tea-100 dark:border-card-border-dark shadow-card overflow-hidden bg-card dark:bg-card-dark">
+        {/* Header */}
+        <div className="px-8 py-6 border-b border-tea-100 dark:border-card-border-dark bg-tea-50 dark:bg-tea-900/20">
+          <div className="flex justify-between items-center flex-wrap gap-4">
+            <h2 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
+              Add Manager
+            </h2>
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate(-1)}
-                className="flex items-center text-gray-500 hover:text-gray-700 text-lg font-medium px-4 py-2 rounded-lg border border-gray-300 bg-white transition-colors"
-              >
+              <Button variant="outline" onClick={() => navigate(-1)} type="button">
                 <span className="mr-2">&#8592;</span> Back
-              </button>
-              <button
-                onClick={handleSave}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow"
-              >
-                Save &amp; Give Access
-              </button>
+              </Button>
+              <Button variant="primary" onClick={handleSave} type="button">
+                Save & Give Access
+              </Button>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm">
-          {/* Form Section */}
-          <div className="p-8">
-            <div className="grid grid-cols-2 gap-8">
-              {/* Left Column - Personal Information */}
-              <div className="space-y-6">
-                <div className="border-b border-gray-100 pb-4 mb-6">
-                  <h3 className="text-lg font-semibold text-gray-700">Personal Information</h3>
-                </div>
-                
-                {/* Name Field */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Name :
-                  </label>
+        {/* Form Section */}
+        <div className="px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left Column */}
+            <div className="space-y-6">
+              <div className="border-b border-tea-100 dark:border-card-border-dark pb-4 mb-6">
+                <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
+                  Personal Information
+                </h3>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
+                  Name :
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className={inputClass}
+                  placeholder="Enter manager name"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
+                  Address :
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className={inputClass}
+                  placeholder="Enter manager address"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
+                  NIC :
+                </label>
+                <input
+                  type="text"
+                  name="nic"
+                  value={formData.nic}
+                  onChange={handleInputChange}
+                  className={inputClass}
+                  placeholder="Enter NIC number"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
+                  Mobile Number :
+                </label>
+                <input
+                  type="tel"
+                  name="mobile"
+                  value={formData.mobile}
+                  onChange={handleInputChange}
+                  className={inputClass}
+                  placeholder="Enter mobile number"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
+                  E-mail :
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className={inputClass}
+                  placeholder="Enter email address"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
+                  Password :
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className={inputClass}
+                  placeholder="Enter password"
+                />
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+              <div className="border-b border-tea-100 dark:border-card-border-dark pb-4 mb-6">
+                <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
+                  Role & Assignment
+                </h3>
+              </div>
+
+              {/* Role Dropdown */}
+              <div>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
+                  Role :
+                </label>
+                <div className="relative">
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-gray-900 placeholder-gray-400"
-                    placeholder="Enter manager name"
+                    readOnly
+                    value={roles.find(r => r.value === formData.role)?.label || ""}
+                    onClick={() => toggleDropdown('role')}
+                    placeholder="Select Role"
+                    className={`${inputClass} cursor-pointer`}
                   />
-                </div>
-
-                {/* NIC Field */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    NIC :
-                  </label>
-                  <input
-                    type="text"
-                    name="nic"
-                    value={formData.nic}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-gray-900 placeholder-gray-400"
-                    placeholder="Enter NIC number"
-                  />
-                </div>
-
-                {/* Mobile Number Field */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Mobile Number :
-                  </label>
-                  <input
-                    type="tel"
-                    name="mobile"
-                    value={formData.mobile}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-gray-900 placeholder-gray-400"
-                    placeholder="Enter mobile number"
-                  />
-                </div>
-
-                {/* Manager ID Field */}
-                {/* <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Manager ID :
-                  </label>
-                  <input
-                    type="text"
-                    name="managerId"
-                    value={formData.managerId}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-gray-900 placeholder-gray-400"
-                    placeholder="Enter manager ID"
-                  />
-                </div> */}
-
-                {/* Email Field */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    E-mail :
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-gray-900 placeholder-gray-400"
-                    placeholder="Enter email address"
-                  />
-                </div>
-
-                {/* Password Field */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Password :
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-gray-900 placeholder-gray-400"
-                    placeholder="Enter password"
-                  />
+                  <ChevronDown size={20} className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink/40 dark:text-muted-dark ${dropdowns.role ? 'rotate-180' : ''}`} />
+                  {dropdowns.role && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card dark:bg-card-dark border border-tea-500 rounded-lg shadow-card z-50">
+                      {roles.map((role) => (
+                        <button
+                          key={role.value}
+                          type="button"
+                          onClick={() => selectOption('role', role.value)}
+                          className="w-full px-4 py-3 text-left text-ink dark:text-ink-dark hover:bg-tea-50 dark:hover:bg-white/10 focus:bg-tea-100 dark:focus:bg-white/20 transition-colors"
+                        >
+                          {role.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Right Column - Role & Assignment */}
-              <div className="space-y-6">
-                <div className="border-b border-gray-100 pb-4 mb-6">
-                  <h3 className="text-lg font-semibold text-gray-700">Role & Assignment</h3>
-                </div>
-
-                {/* Role Dropdown */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Role :
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      readOnly
-                      value={formData.role}
-                      onClick={() => toggleDropdown('role')}
-                      placeholder="Select Role"
-                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-left text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all cursor-pointer"
-                    />
-                    <ChevronDown
-                      size={20}
-                      className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 ${dropdowns.role ? 'rotate-180' : ''}`}
-                    />
-                    {dropdowns.role && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-green-400 rounded-lg shadow-2xl z-50">
-                        {roles.map((role) => (
-                          <button
-                            key={role}
-                            type="button"
-                            onClick={() => selectOption('role', role)}
-                            className="w-full px-4 py-3 text-left hover:bg-green-50 focus:bg-green-100 first:rounded-t-lg last:rounded-b-lg transition-colors text-gray-900 font-medium"
-                          >
-                            {role}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Factory Dropdown */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Factory :
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      readOnly
-                      value={formData.factory}
-                      onClick={() => toggleDropdown('factory')}
-                      placeholder="Select Factory"
-                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-left text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all cursor-pointer"
-                    />
-                    <ChevronDown
-                      size={20}
-                      className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 ${dropdowns.factory ? 'rotate-180' : ''}`}
-                    />
-                    {dropdowns.factory && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-green-400 rounded-lg shadow-2xl z-50">
-                        {factories.map((factory) => (
-                          <button
-                            key={factory}
-                            type="button"
-                            onClick={() => selectOption('factory', factory)}
-                            className="w-full px-4 py-3 text-left hover:bg-green-50 focus:bg-green-100 first:rounded-t-lg last:rounded-b-lg transition-colors text-gray-900 font-medium"
-                          >
-                            {factory}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+              {/* Factory Dropdown */}
+              <div>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
+                  Factory :
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    readOnly
+                    value={factoryOptions.find(f => f.id === formData.factory)?.name || ""}
+                    onClick={() => toggleDropdown('factory')}
+                    placeholder="Select Factory"
+                    className={`${inputClass} cursor-pointer`}
+                  />
+                  <ChevronDown size={20} className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink/40 dark:text-muted-dark ${dropdowns.factory ? 'rotate-180' : ''}`} />
+                  {dropdowns.factory && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card dark:bg-card-dark border border-tea-500 rounded-lg shadow-card z-50">
+                      {factoryOptions.map((factory) => (
+                        <button
+                          key={factory.id}
+                          type="button"
+                          onClick={() => selectOption('factory', factory.id)}
+                          className="w-full px-4 py-3 text-left text-ink dark:text-ink-dark hover:bg-tea-50 dark:hover:bg-white/10 focus:bg-tea-100 dark:focus:bg-white/20 transition-colors"
+                        >
+                          {factory.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,13 +1,22 @@
 import React from "react";
 import { Building } from "lucide-react";
 
+
+const ACCENT_COLOR = "#165e52";
+
+
 export default function BankingInfoCard({ supplier }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-emerald-300 overflow-hidden">
-      <div className="px-6 py-4 border-b border-emerald-300 bg-emerald-50">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div
+        className="px-6 py-4"
+        style={{
+          backgroundColor: "#e1f4ef",
+        }}
+      >
         <div className="flex items-center space-x-2">
-          <Building className="w-5 h-5 text-emerald-600" />
-          <h2 className="text-lg font-semibold text-gray-900">
+          <Building className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
+          <h2 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
             Banking Information
           </h2>
         </div>
@@ -34,7 +43,9 @@ export default function BankingInfoCard({ supplier }) {
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               Account Number
             </label>
-            <p className="mt-1 text-sm font-medium text-gray-900">8001234567</p>
+            <p className="mt-1 text-sm font-medium text-gray-900">
+              8001234567
+            </p>
           </div>
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
@@ -49,3 +60,6 @@ export default function BankingInfoCard({ supplier }) {
     </div>
   );
 }
+
+
+

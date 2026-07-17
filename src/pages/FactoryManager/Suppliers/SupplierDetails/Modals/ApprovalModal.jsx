@@ -1,7 +1,13 @@
-import React, { useEffect } from "react";
-import { Check, X } from "lucide-react";
-import { useRoutes } from "../../../../../data/useRoutes";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Check } from "lucide-react";
+import { useAuth } from "../../../../../contexts/AuthContext";
+import { getRoutesDetails } from "../../../../../api/supplier";
+
+// Design Colors
+const ACCENT_COLOR = "#165E52";
+const BTN_COLOR = "#01251F";
+const BORDER_COLOR = "#cfece6";
+const HEADER_BG = "#e1f4ef";
 
 export default function ApprovalModal({
   show,
@@ -11,14 +17,25 @@ export default function ApprovalModal({
   setApprovalData,
   onApproveSupplierRequest,
 }) {
-  const { routes, loading, error } = useRoutes();
-  useEffect(() => {
-    if (show) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+  const { user } = useAuth();
+  const factoryId = user?.factoryId;
+  const [routes, setRoutes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [approveLoading, setApproveLoading] = useState(false);
 
+  useEffect(() => {
+    if (!show || !factoryId) return;
+    setLoading(true);
+    setError(null);
+    getRoutesDetails(factoryId)
+      .then((data) => setRoutes(data))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [show, factoryId]);
+
+  useEffect(() => {
+    document.body.style.overflow = show ? "hidden" : "unset";
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -34,64 +51,80 @@ export default function ApprovalModal({
       Number(approvalData.bagLimit) <= 0
     )
       return;
+
+    setApproveLoading(true);
     const bagLimitNum = Number(approvalData.bagLimit);
+    console.log("Sending to backend:", {
+      supplierId: supplier.id,
+      routeId: approvalData.route,
+      initialBagCount: bagLimitNum,
+    });
+
     try {
-      const params = { routeId: approvalData.route };
-      if (bagLimitNum > 0) {
-        params.initialBagCount = bagLimitNum;
-      }
-      await axios.post(
-        `http://localhost:8080/api/supplier-requests/${supplier.id}/approve`,
-        null,
-        { params }
-      );
-      // Optionally call onApproveSupplierRequest for local state update
       if (onApproveSupplierRequest) {
-        onApproveSupplierRequest(supplier.id, approvalData.route, bagLimitNum);
+        await onApproveSupplierRequest(
+          supplier.id,
+          approvalData.route,
+          bagLimitNum
+        );
       }
-      // Close modal and go back to pending suppliers
       if (onClose) onClose();
       if (window.history && window.history.length > 1) {
         window.history.back();
       }
-    } catch (error) {
-      console.error("Error approving supplier request:", error);
+    } finally {
+      setApproveLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/30 overflow-hidden">
-      <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl border border-emerald-300">
-        <div className="p-6 border-b border-emerald-300 bg-emerald-50">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-              <Check className="w-5 h-5 text-emerald-600" />
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Approve Supplier Registration
-            </h2>
+      <div
+        className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl border"
+        style={{ borderColor: BORDER_COLOR }}
+      >
+        {/* Header */}
+        <div
+          className="p-6 border-b flex items-center space-x-3"
+          style={{ borderColor: BORDER_COLOR, backgroundColor: HEADER_BG }}
+        >
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: "#e1f4ef" }}
+          >
+            <Check className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
           </div>
+          <h2 className="text-xl font-semibold" style={{ color: ACCENT_COLOR }}>
+            Approve Supplier Registration
+          </h2>
         </div>
+
+        {/* Body */}
         <div className="p-6">
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-6">
-            <h3 className="font-medium text-emerald-900 mb-2">
+          <div
+            className="border rounded-lg p-4 mb-6"
+            style={{ backgroundColor: "#f0faf7", borderColor: BORDER_COLOR }}
+          >
+            <h3 className="font-medium mb-2" style={{ color: ACCENT_COLOR }}>
               Supplier Information
             </h3>
-            <p className="text-sm text-emerald-700">
-              {supplier.user.name} - {supplier.user.address}
+            <p className="text-sm text-gray-700">
+              {supplier.supplierName} - {supplier.address}
             </p>
-            <p className="text-sm text-emerald-700">
+            <p className="text-sm text-gray-700">
               Expected Supply: {supplier.monthlySupply} Kg
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {/* Route Selector */}
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-700 mb-2">
-                Assign Route *
+                Assign Route <span className="text-red-500">*</span>
               </label>
               <select
-                className="border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+                style={{ borderColor: BORDER_COLOR }}
                 value={approvalData.route}
                 onChange={(e) =>
                   setApprovalData({
@@ -110,53 +143,88 @@ export default function ApprovalModal({
                       key={route.routeId || route._id || route.name}
                       value={route.routeId || route._id || route.name}
                     >
-                      {route.name}
+                      {route.routeCode} - {route.name}
                     </option>
                   ))}
               </select>
             </div>
 
+            {/* Bag Limit */}
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-700 mb-2">
-                Initial Bag Limit *
+                Initial Bag Limit <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
                 min={1}
-                className="border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 placeholder="e.g., 50"
-                value={approvalData.bagLimit > 0 ? approvalData.bagLimit : ""}
+                className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+                style={{ borderColor: BORDER_COLOR }}
+                value={
+                  approvalData.bagLimit !== "" ? approvalData.bagLimit : ""
+                }
                 onChange={(e) => {
                   const val = e.target.value;
-                  // Only set if valid number and > 0
                   setApprovalData({
                     ...approvalData,
-                    bagLimit: val !== "" && Number(val) > 0 ? Number(val) : "",
+                    bagLimit: val === "" ? "" : Number(val),
                   });
                 }}
               />
             </div>
-
-            
           </div>
         </div>
-        <div className="flex gap-3 justify-end p-6 border-t border-emerald-300 bg-emerald-50">
+
+        {/* Footer Buttons */}
+        <div
+          className="flex gap-3 justify-end p-6 border-t"
+          style={{ borderColor: BORDER_COLOR, backgroundColor: HEADER_BG }}
+        >
           <button
-            className="px-6 py-2 border-2 border-emerald-300 rounded-lg text-emerald-700 bg-emerald-50 font-medium hover:bg-emerald-100 hover:border-emerald-400 transition-colors"
+            className="px-6 py-2 rounded-lg text-sm font-medium transition"
             onClick={onClose}
+            style={{
+              backgroundColor: "transparent",
+              color: ACCENT_COLOR,
+              border: `2px solid ${BORDER_COLOR}`,
+            }}
           >
             Cancel
           </button>
+
           <button
-            className="px-6 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 rounded-lg text-sm font-medium text-white transition flex items-center justify-center"
+            style={{
+              backgroundColor: BTN_COLOR,
+              opacity:
+                !approvalData.route ||
+                !approvalData.bagLimit ||
+                approvalData.bagLimit <= 0 ||
+                isNaN(approvalData.bagLimit) ||
+                approveLoading
+                  ? 0.5
+                  : 1,
+              cursor:
+                !approvalData.route ||
+                !approvalData.bagLimit ||
+                approvalData.bagLimit <= 0 ||
+                isNaN(approvalData.bagLimit) ||
+                approveLoading
+                  ? "not-allowed"
+                  : "pointer",
+            }}
             onClick={handleConfirm}
             disabled={
               !approvalData.route ||
               !approvalData.bagLimit ||
               approvalData.bagLimit <= 0 ||
-              isNaN(approvalData.bagLimit)
+              isNaN(approvalData.bagLimit) ||
+              approveLoading
             }
           >
+            {approveLoading && (
+              <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-white border-solid mr-2"></span>
+            )}
             Confirm Approval
           </button>
         </div>

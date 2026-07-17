@@ -1,197 +1,199 @@
+import React from "react";
 import {
-  Bell,
-  Calculator,
-  Calendar,
-  DollarSign,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import zoomPlugin from "chartjs-plugin-zoom";
+import { Line } from "react-chartjs-2";
+import {
   Leaf,
-  MapPin,
-  TrendingUp,
   Truck,
-  Users
-} from 'lucide-react';
+  Users,
+  DollarSign,
+  TrendingUp,
+  Calculator,
+  MapPin,
+  Calendar,
+} from "lucide-react";
+import Card from "../../components/ui/Card";
+import { useTheme } from "../../contexts/ThemeContext";
 
-const Dashboard = () => {
-  const suppliers = [
-    { name: 'Supplier - A', weight: '485 kg' },
-    { name: 'Supplier - B', weight: '412 kg' },
-    { name: 'Supplier - C', weight: '387 kg' },
-    { name: 'Supplier - D', weight: '342 kg' },
-    { name: 'Supplier - E', weight: '298 kg' }
-  ];
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  zoomPlugin
+);
+
+const suppliers = [
+  { name: "Supplier - A", weight: "485 kg" },
+  { name: "Supplier - B", weight: "412 kg" },
+  { name: "Supplier - C", weight: "387 kg" },
+  { name: "Supplier - D", weight: "342 kg" },
+  { name: "Supplier - E", weight: "298 kg" },
+];
+
+const monthlySupplyLabels = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+const monthlySupplyValues = [
+  12000, 15000, 14000, 16000, 17000, 15500, 16500, 18000, 17500, 19000, 20000, 21000,
+];
+
+const quickLinks = [
+  { title: "Fertilizer Requests", description: "Manage fertilizer distribution requests", icon: Leaf },
+  { title: "Vehicle Management", description: "Track and manage transport vehicles", icon: Truck },
+  { title: "Price Calculator", description: "Calculate tea prices and payments", icon: Calculator },
+  { title: "Route Planning", description: "Optimize collection routes", icon: MapPin },
+  { title: "Schedule Manager", description: "Manage collection schedules", icon: Calendar },
+  { title: "Payment System", description: "Process supplier payments", icon: DollarSign },
+];
+
+export default function Dashboard() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const lineColor = isDark ? "#4ADE9E" : "#165e52";
+  const fillColor = isDark ? "rgba(74, 222, 158, 0.15)" : "rgba(22, 94, 82, 0.3)";
+  const axisColor = isDark ? "#A0ABA3" : "#172526";
+  const gridColor = isDark ? "rgba(160, 171, 163, 0.15)" : "#cfece6";
+
+  const monthlySupplyData = {
+    labels: monthlySupplyLabels,
+    datasets: [
+      {
+        label: "Tea Collected (kg)",
+        data: monthlySupplyValues,
+        borderColor: lineColor,
+        backgroundColor: fillColor,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 5,
+        pointHoverRadius: 8,
+      },
+    ],
+  };
+
+  const monthlySupplyOptions = {
+    responsive: true,
+    interaction: { mode: "nearest", intersect: false },
+    plugins: {
+      legend: { display: true, labels: { color: axisColor } },
+      tooltip: {
+        enabled: true,
+        mode: "index",
+        intersect: false,
+        backgroundColor: lineColor,
+        titleColor: "#fff",
+        bodyColor: "#fff",
+      },
+      zoom: {
+        pan: { enabled: true, mode: "x", modifierKey: "ctrl" },
+        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" },
+      },
+    },
+    scales: {
+      x: { ticks: { color: axisColor }, grid: { color: gridColor } },
+      y: { beginAtZero: true, ticks: { color: axisColor }, grid: { color: gridColor } },
+    },
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+    <div className="min-h-full">
+      {/* Header */}
+      <Card className="mb-6">
+        <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300 mb-1">
+          Dashboard
+        </h1>
+        <p className="text-sm text-ink/60 dark:text-muted-dark">
+          Comprehensive reporting system for all your tea factories
+        </p>
+      </Card>
+
+      {/* Stats Cards */}
+      <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {[
+          { label: "Total Tea Collected", value: "2,834", icon: TrendingUp },
+          { label: "Drivers on Duty", value: "31", icon: Users },
+          { label: "Total Payable Amount", value: "1,500,234", icon: DollarSign },
+          { label: "Avg Rate Change", value: "+5.2%", icon: TrendingUp },
+        ].map((card, idx) => (
+          <Card key={idx} hoverable className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Owner Dashboard</h1>
-              <p className="text-gray-600 mt-1">Comprehensive reporting system for all your tea factories</p>
+              <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">{card.label}</p>
+              <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">{card.value}</p>
             </div>
-            <div className="flex items-center gap-4">
-              <button className="bg-green-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                <Bell className="w-4 h-4" />
-                Notifications
-              </button>
+            <div className="h-12 w-12 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+              <card.icon size={24} className="text-tea-700 dark:text-tea-300" />
             </div>
-          </div>
-        </div>
-      </div>
+          </Card>
+        ))}
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Tea Collected</p>
-                <p className="text-3xl font-bold text-green-600">2,834</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-green-600" />
-            </div>
+      {/* Charts & Top Suppliers */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card className="flex flex-col">
+          <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300 mb-5">
+            Monthly Supply Chart
+          </h3>
+          <div className="flex-1 min-h-[320px]">
+            <Line data={monthlySupplyData} options={monthlySupplyOptions} />
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Drivers on Duty</p>
-                <p className="text-3xl font-bold text-yellow-600">31</p>
-              </div>
-              <Users className="w-8 h-8 text-yellow-600" />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Payable Amount</p>
-                <p className="text-3xl font-bold text-blue-600">1,500,234</p>
-              </div>
-              <DollarSign className="w-8 h-8 text-blue-600" />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Avg Rate Change</p>
-                <p className="text-3xl font-bold text-purple-600">+5.2%</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-purple-600" />
-            </div>
-          </div>
-        </div>
+        </Card>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Monthly Supply Chart */}
-          <div className="bg-white rounded-lg p-6 shadow-md border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Monthly Supply Chart</h3>
-            <div className="bg-green-50 rounded-lg p-6 h-64 flex items-center justify-center border-2 border-dashed border-green-200">
-              <svg className="w-full h-full" viewBox="0 0 300 200">
-                <polyline
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="3"
-                  points="20,160 60,120 100,140 140,100 180,110 220,90 260,120"
-                />
-                <circle cx="20" cy="160" r="4" fill="#10b981" />
-                <circle cx="60" cy="120" r="4" fill="#10b981" />
-                <circle cx="100" cy="140" r="4" fill="#10b981" />
-                <circle cx="140" cy="100" r="4" fill="#10b981" />
-                <circle cx="180" cy="110" r="4" fill="#10b981" />
-                <circle cx="220" cy="90" r="4" fill="#10b981" />
-                <circle cx="260" cy="120" r="4" fill="#10b981" />
-              </svg>
-            </div>
+        <Card>
+          <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300 mb-5">
+            Top 5 Factory (by tea collecting weight)
+          </h3>
+          <div className="space-y-4">
+            {suppliers.map((supplier, i) => (
+              <div
+                key={i}
+                className="flex justify-between items-center py-2 border-b border-tea-100 dark:border-card-border-dark last:border-b-0"
+              >
+                <span className="font-medium text-ink/80 dark:text-ink-dark/80">
+                  {supplier.name}
+                </span>
+                <span className="font-bold text-tea-700 dark:text-tea-300">
+                  {supplier.weight}
+                </span>
+              </div>
+            ))}
           </div>
+        </Card>
+      </section>
 
-          {/* Top 5 Suppliers */}
-          <div className="bg-white rounded-lg p-6 shadow-md border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Top 5 Factory  (by tea collecting weight)</h3>
-            <div className="space-y-4">
-              {suppliers.map((supplier, index) => (
-                <div key={index} className="flex justify-between items-center py-2">
-                  <span className="text-gray-700 font-medium">{supplier.name}</span>
-                  <span className="text-green-600 font-bold">{supplier.weight}</span>
-                </div>
-              ))}
+      {/* Quick Links Section */}
+      <Card>
+        <h3 className="text-lg font-heading font-semibold text-ink dark:text-ink-dark mb-5">
+          Quick Links
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {quickLinks.map(({ title, description, icon: Icon }) => (
+            <div
+              key={title}
+              className="rounded-lg p-5 border border-tea-100 dark:border-card-border-dark hover:shadow-soft transition-shadow cursor-pointer bg-tea-50/50 dark:bg-tea-900/10 flex items-center space-x-4"
+            >
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-tea-50 dark:bg-tea-900/30 shrink-0">
+                <Icon className="w-6 h-6 text-tea-700 dark:text-tea-300" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-ink dark:text-ink-dark">{title}</h4>
+                <p className="text-sm text-ink/60 dark:text-muted-dark">{description}</p>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-
-        {/* Quick Links */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Links</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Leaf className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-800">Fertilizer Requests</h4>
-                  <p className="text-sm text-gray-600">Manage fertilizer distribution requests</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Truck className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-800">Vehicle Management</h4>
-                  <p className="text-sm text-gray-600">Track and manage transport vehicles</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Calculator className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-800">Price Calculator</h4>
-                  <p className="text-sm text-gray-600">Calculate tea prices and payments</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-orange-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-800">Route Planning</h4>
-                  <p className="text-sm text-gray-600">Optimize collection routes</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-red-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-800">Schedule Manager</h4>
-                  <p className="text-sm text-gray-600">Manage collection schedules</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-yellow-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-800">Payment System</h4>
-                  <p className="text-sm text-gray-600">Process supplier payments</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </Card>
     </div>
   );
-};
-
-export default Dashboard;
+}

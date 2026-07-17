@@ -1,48 +1,50 @@
-import { Eye } from "lucide-react";
+import { Eye, Truck } from "lucide-react";
+import Card from "../../../components/ui/Card";
+import EmptyState from "../../../components/ui/EmptyState";
 
-export default function RoutesView({
-  filteredData,
-  getCurrentData,
-  onViewRoute,
-}) {
+export default function RoutesView({ filteredData, getCurrentData, onViewRoute }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-      <div className="bg-green-600 text-white">
-        <div className="grid grid-cols-6 gap-4 p-4 font-medium text-sm">
+    <Card className="!p-0 overflow-hidden">
+      {/* Table Header */}
+      <div className="bg-tea-900">
+        <div className="grid grid-cols-6 gap-4 p-4 font-medium text-sm text-center text-white">
           <div className="text-left">Route Number</div>
           <div className="text-left">Route Name</div>
-          <div className="text-center">Suppliers</div>
-          <div className="text-right">Total Weight (kg)</div>
-          <div className="text-right">Total Amount</div>
-          <div className="text-center">View Details</div>
+          <div>Suppliers</div>
+          <div>Total Weight (kg)</div>
+          <div>Total Amount</div>
+          <div>View</div>
         </div>
       </div>
 
-      <div className="divide-y divide-gray-200">
+      {/* Table Rows */}
+      <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
         {filteredData.map((route) => (
           <div
             key={route.id}
-            className="grid grid-cols-6 gap-4 p-3 items-center hover:bg-gray-50 transition-colors"
+            className="grid grid-cols-6 gap-4 px-4 py-3 items-center hover:bg-tea-50 dark:hover:bg-white/5 transition-colors"
           >
-            <div className="font-semibold text-green-600 text-sm bg-green-50 px-3 py-1 rounded-full inline-block w-fit">
-              {route.routeNumber}
+            <div className="text-sm font-medium">
+              <span className="px-3 py-1 border border-tea-600 dark:border-tea-500 bg-tea-50 dark:bg-tea-900/30 text-tea-700 dark:text-tea-200 rounded-full text-xs inline-block">
+                {route.routeNumber}
+              </span>
             </div>
-            <div className="font-medium text-gray-900 text-sm">
+            <div className="text-sm font-semibold text-ink dark:text-ink-dark text-left">
               {route.routeName}
             </div>
-            <div className="text-sm text-gray-900 text-center">
+            <div className="text-sm text-ink/80 dark:text-ink-dark/80 font-medium text-center">
               {route.supplierCount}
             </div>
-            <div className="text-sm font-bold text-gray-900 text-right">
+            <div className="text-sm text-ink dark:text-ink-dark font-semibold text-center">
               {route.totalWeight.toFixed(1)}
             </div>
-            <div className="text-sm font-bold text-gray-900 text-right">
+            <div className="text-sm text-ink dark:text-ink-dark font-semibold text-right">
               Rs. {route.totalAmount.toLocaleString()}
             </div>
             <div className="flex justify-center">
               <button
                 onClick={() => onViewRoute(route)}
-                className="text-green-600 hover:text-green-800 hover:bg-green-50 p-2 rounded-full transition-colors"
+                className="p-2 rounded-full border border-tea-700 text-tea-700 hover:bg-tea-50 dark:border-tea-400 dark:text-tea-300 dark:hover:bg-tea-900/30 transition-colors"
                 title="View Details"
               >
                 <Eye className="h-4 w-4" />
@@ -51,27 +53,23 @@ export default function RoutesView({
           </div>
         ))}
 
+        {/* Empty State */}
         {filteredData.length === 0 && (
-          <div className="p-8 text-center text-gray-500">
-            <div className="h-12 w-12 text-gray-400 mx-auto mb-4 text-4xl">
-              🚛
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No routes found
-            </h3>
-            <p className="text-gray-600">
-              Try adjusting your search or filter criteria
-            </p>
-          </div>
+          <EmptyState
+            icon={Truck}
+            title="No routes found"
+            description="Try adjusting your search or filter criteria"
+          />
         )}
       </div>
 
-      {/* Results count at bottom */}
-      <div className="mt-6 flex items-center justify-between text-sm text-gray-600 p-4 border-t border-gray-200">
-        <div>
-          Showing {filteredData.length} of {getCurrentData().length} results
-        </div>
+      {/* Results Count (Bottom Footer) */}
+      <div className="bg-surface dark:bg-white/5 px-4 py-3 border-t border-tea-100 dark:border-card-border-dark text-sm text-ink/60 dark:text-muted-dark flex justify-between">
+        <span>
+          Showing <strong className="text-ink dark:text-ink-dark">{filteredData.length}</strong> of{" "}
+          <strong className="text-ink dark:text-ink-dark">{getCurrentData().length}</strong> results
+        </span>
       </div>
-    </div>
+    </Card>
   );
 }

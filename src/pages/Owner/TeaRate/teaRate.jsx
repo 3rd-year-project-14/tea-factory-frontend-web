@@ -16,159 +16,150 @@ import {
   TrendingUp,
   User,
   X,
-  XCircle
-} from 'lucide-react';
-import { useState } from 'react';
+  XCircle,
+} from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import {
+  getPendingTeaRates,
+  getApprovedTeaRates,
+  approveTeaRate,
+  adjustTeaRate,
+  exportTeaRateReport,
+} from "../../../api/owner";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
 
 const OwnerDashboard = () => {
-  const [activeTab, setActiveTab] = useState('pending');
-  const [selectedFactory, setSelectedFactory] = useState('all');
-  const [selectedMonth, setSelectedMonth] = useState('all');
+  const [activeTab, setActiveTab] = useState("pending");
+  const [selectedFactory, setSelectedFactory] = useState("all");
+  const [selectedMonth, setSelectedMonth] = useState("all");
   const [editingRate, setEditingRate] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showExportModal, setShowExportModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [exportConfig, setExportConfig] = useState({
-    format: 'pdf',
-    reportType: 'summary',
-    dateRange: 'current_month',
+    format: "pdf",
+    reportType: "summary",
+    dateRange: "current_month",
     includeCharts: true,
     includePending: true,
     includeApproved: true,
     includeRejected: true,
-    factories: 'all'
+    factories: "all",
   });
 
-  // State for pending and processed rates
-  const [pendingRates, setPendingRates] = useState([
-    {
-      id: 1,
-      factoryName: 'TeaFactory - Kandy',
-      manager: 'Dasun Perera',
-      submittedDate: '2025-07-03',
-      month: 'July 2025',
-      currentRate: 21.5,
-      proposedRate: 23.0,
-      nsa: 850.00,
-      gsa: 920.00,
-      totalWeight: 15420,
-      totalPayout: 354860,
-      status: 'pending',
-      urgent: true
-    },
-    {
-      id: 2,
-      factoryName: 'Highland Tea Co.',
-      manager: 'Priya Fernando',
-      submittedDate: '2025-07-02',
-      month: 'July 2025',
-      currentRate: 20.0,
-      proposedRate: 22.5,
-      nsa: 780.00,
-      gsa: 890.00,
-      totalWeight: 12800,
-      totalPayout: 288000,
-      status: 'pending',
-      urgent: false
-    },
-    {
-      id: 3,
-      factoryName: 'Valley Green Tea',
-      manager: 'Rajesh Silva',
-      submittedDate: '2025-07-01',
-      month: 'July 2025',
-      currentRate: 19.5,
-      proposedRate: 21.0,
-      nsa: 720.00,
-      gsa: 810.00,
-      totalWeight: 11200,
-      totalPayout: 235200,
-      status: 'pending',
-      urgent: false
+  // State for pending and processed rates - will be populated from API
+  const [pendingRates, setPendingRates] = useState([]);
+  const [processedRates, setProcessedRates] = useState([]);
+  const [approvedRates, setApprovedRates] = useState([]);
+  const [factories, setFactories] = useState([]);
+
+  // Function to fetch tea rates (pending) and approved rates from the backend
+  const fetchTeaRates = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Fetch pending rates
+      const data = await getPendingTeaRates();
+      // Fetch approved rates
+      const approvedData = await getApprovedTeaRates();
+
+      // Transform the backend data to match frontend structure
+      const transformedPending = data
+        .filter(
+          (item) => !item.status || item.status.toLowerCase() === "pending"
+        )
+        .map((item) => ({
+          id: item.teaRateId,
+          factoryName: item.factoryName,
+          manager: item.userName,
+          submittedDate: item.createdAt,
+          month: item.month,
+          currentRate: parseFloat(item.finalRatePerKg),
+          proposedRate: parseFloat(item.monthlyRate),
+          finalRate: parseFloat(item.finalRatePerKg),
+          nsa: parseFloat(item.nsa),
+          gsa: parseFloat(item.gsa),
+          totalWeight: parseFloat(item.totalWeight),
+          totalPayout: parseFloat(item.totalPayout),
+          status: item.status ? item.status.toLowerCase() : "pending",
+          urgent: false,
+          adjustedRate: item.adjustedRate,
+          adjustmentReason: item.adjustmentReason,
+        }));
+
+      const transformedApproved = approvedData.map((item) => ({
+        id: item.teaRateId,
+        factoryName: item.factoryName,
+        manager: item.userName,
+        submittedDate: item.createdAt,
+        month: item.month,
+        currentRate: parseFloat(item.finalRatePerKg),
+        proposedRate: parseFloat(item.monthlyRate),
+        finalRate: parseFloat(item.finalRatePerKg),
+        nsa: parseFloat(item.nsa),
+        gsa: parseFloat(item.gsa),
+        totalWeight: parseFloat(item.totalWeight),
+        totalPayout: parseFloat(item.totalPayout),
+        status: item.status ? item.status.toLowerCase() : "approved",
+        urgent: false,
+        adjustedRate: item.adjustedRate,
+        adjustmentReason: item.adjustmentReason,
+      }));
+
+      setPendingRates(transformedPending);
+      setApprovedRates(transformedApproved);
+
+      // Extract unique factories for filter dropdown
+      const uniqueFactories = [
+        ...new Set([...data, ...approvedData].map((item) => item.factoryName)),
+      ];
+      setFactories(uniqueFactories);
+    } catch (err) {
+      setError(`Failed to fetch tea rates: ${err.message}`);
+      console.error("Error fetching tea rates:", err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  }, []);
 
-  const [processedRates, setProcessedRates] = useState([
-    {
-      id: 4,
-      factoryName: 'TeaFactory - Kandy',
-      manager: 'Dasun Perera',
-      submittedDate: '2025-06-28',
-      processedDate: '2025-06-29',
-      month: 'June 2025',
-      originalRate: 20.5,
-      finalRate: 21.5,
-      adjustedBy: 'Owner',
-      status: 'approved',
-      totalPayout: 332400
-    },
-    {
-      id: 5,
-      factoryName: 'Highland Tea Co.',
-      manager: 'Priya Fernando',
-      submittedDate: '2025-06-25',
-      processedDate: '2025-06-26',
-      month: 'June 2025',
-      originalRate: 19.0,
-      finalRate: 19.0,
-      adjustedBy: null,
-      status: 'approved',
-      totalPayout: 243200
-    },
-    {
-      id: 6,
-      factoryName: 'Mountain Peak Tea',
-      manager: 'Sunil Kumar',
-      submittedDate: '2025-06-20',
-      processedDate: '2025-06-21',
-      month: 'June 2025',
-      originalRate: 22.0,
-      finalRate: 20.5,
-      adjustedBy: 'Owner',
-      status: 'rejected',
-      reason: 'Rate too high for current market conditions',
-      totalPayout: 0
-    }
-  ]);
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchTeaRates();
+  }, [fetchTeaRates]);
 
-  const factories = ['TeaFactory - Kandy', 'Highland Tea Co.', 'Valley Green Tea', 'Mountain Peak Tea'];
-
-  const handleApprove = (rateId, adjustedRate = null) => {
-    // Find the rate in pendingRates
-    const rateIndex = pendingRates.findIndex(r => r.id === rateId);
-    if (rateIndex === -1) return;
-
-    // Remove from pendingRates and add to processedRates as approved
-    const approvedRate = { ...pendingRates[rateIndex] };
-    if (adjustedRate !== null) {
-      approvedRate.finalRate = adjustedRate;
-      approvedRate.adjustedBy = 'Owner';
-    } else {
-      approvedRate.finalRate = approvedRate.proposedRate;
-      approvedRate.adjustedBy = null;
-    }
-    approvedRate.status = 'approved';
-    approvedRate.processedDate = new Date().toISOString().split('T')[0];
-
-    // Remove from pending and add to processed
-    setPendingRates(prev => prev.filter(r => r.id !== rateId));
-    setProcessedRates(prev => [approvedRate, ...prev]);
-    setEditingRate(null);
+  // Refresh data function
+  const refreshData = () => {
+    fetchTeaRates();
   };
 
-  const handleReject = (rateId, reason) => {
-    // Find the rate in pendingRates
-    const rateIndex = pendingRates.findIndex(r => r.id === rateId);
-    if (rateIndex === -1) return;
-
-    // Remove from pendingRates and add to processedRates as rejected
-    const rejectedRate = { ...pendingRates[rateIndex] };
-    rejectedRate.status = 'rejected';
-    rejectedRate.reason = reason || 'No reason provided';
-    rejectedRate.processedDate = new Date().toISOString().split('T')[0];
-
-    setPendingRates(prev => prev.filter(r => r.id !== rateId));
-    setProcessedRates(prev => [rejectedRate, ...prev]);
-    setEditingRate(null);
+  // Approve or adjust tea rate by calling backend
+  const handleApprove = async (rateId, adjustedRate = null, reason = "") => {
+    setLoading(true);
+    setError(null);
+    try {
+      let updatedRate;
+      if (adjustedRate !== null) {
+        updatedRate = await adjustTeaRate(rateId, adjustedRate, reason);
+      } else {
+        updatedRate = await approveTeaRate(rateId);
+        if (!updatedRate.adjustedRate) {
+          const orig = pendingRates.find((r) => r.id === rateId);
+          if (orig) {
+            updatedRate.adjustedRate = orig.proposedRate;
+          }
+        }
+      }
+      setPendingRates((prev) => prev.filter((r) => r.id !== rateId));
+      setApprovedRates((prev) => [updatedRate, ...prev]);
+      setProcessedRates((prev) => [updatedRate, ...prev]);
+      setEditingRate(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const generateReport = () => {
@@ -177,24 +168,38 @@ const OwnerDashboard = () => {
       config: exportConfig,
       data: {
         pending: exportConfig.includePending ? filteredRates(pendingRates) : [],
-        processed: [...(exportConfig.includeApproved ? processedRates.filter(r => r.status === 'approved') : []),
-                   ...(exportConfig.includeRejected ? processedRates.filter(r => r.status === 'rejected') : [])]
+        approved: exportConfig.includeApproved
+          ? filteredRates(approvedRates)
+          : [],
+        processed: [
+          ...(exportConfig.includeApproved
+            ? processedRates.filter((r) => r.status === "approved")
+            : []),
+          ...(exportConfig.includeRejected
+            ? processedRates.filter((r) => r.status === "rejected")
+            : []),
+        ],
       },
       summary: {
         totalPendingRates: pendingRates.length,
-        totalApprovedRates: processedRates.filter(r => r.status === 'approved').length,
-        totalRejectedRates: processedRates.filter(r => r.status === 'rejected').length,
+        totalApprovedRates: approvedRates.length,
+        totalRejectedRates: processedRates.filter(
+          (r) => r.status === "rejected"
+        ).length,
         totalFactories: factories.length,
         avgRateIncrease: 5.2,
-        totalPayouts: processedRates.reduce((sum, rate) => sum + (rate.totalPayout || 0), 0)
-      }
+        totalPayouts: [...approvedRates, ...processedRates].reduce(
+          (sum, rate) => sum + (rate.totalPayout || 0),
+          0
+        ),
+      },
     };
 
-    if (exportConfig.format === 'pdf') {
+    if (exportConfig.format === "pdf") {
       generatePDFReport(reportData);
-    } else if (exportConfig.format === 'excel') {
+    } else if (exportConfig.format === "excel") {
       generateExcelReport(reportData);
-    } else if (exportConfig.format === 'csv') {
+    } else if (exportConfig.format === "csv") {
       generateCSVReport(reportData);
     }
 
@@ -202,7 +207,6 @@ const OwnerDashboard = () => {
   };
 
   const generatePDFReport = (data) => {
-    // In a real application, you would use a PDF generation library like jsPDF
     const reportContent = `
 Tea Rate Management Report
 Generated on: ${new Date(data.generatedAt).toLocaleString()}
@@ -216,37 +220,45 @@ SUMMARY:
 - Total Payouts: Rs. ${data.summary.totalPayouts.toLocaleString()}
 
 PENDING RATES:
-${data.data.pending.map(rate => 
-  `Factory: ${rate.factoryName}
+${data.data.pending
+  .map(
+    (rate) =>
+      `Factory: ${rate.factoryName}
    Manager: ${rate.manager}
    Month: ${rate.month}
    Current Rate: Rs. ${rate.currentRate}
    Proposed Rate: Rs. ${rate.proposedRate}
    Total Weight: ${rate.totalWeight} kg
    Total Payout: Rs. ${rate.totalPayout.toLocaleString()}
-   Status: ${rate.urgent ? 'URGENT' : 'Normal'}
+   Status: ${rate.urgent ? "URGENT" : "Normal"}
    ---`
-).join('\n')}
+  )
+  .join("\n")}
 
 PROCESSED RATES:
-${data.data.processed.map(rate => 
-  `Factory: ${rate.factoryName}
+${data.data.processed
+  .map(
+    (rate) =>
+      `Factory: ${rate.factoryName}
    Manager: ${rate.manager}
    Month: ${rate.month}
    Original Rate: Rs. ${rate.originalRate}
    Final Rate: Rs. ${rate.finalRate}
    Status: ${rate.status.toUpperCase()}
-   ${rate.adjustedBy ? `Adjusted by: ${rate.adjustedBy}` : ''}
-   ${rate.reason ? `Reason: ${rate.reason}` : ''}
+   ${rate.adjustedBy ? `Adjusted by: ${rate.adjustedBy}` : ""}
+   ${rate.reason ? `Reason: ${rate.reason}` : ""}
    ---`
-).join('\n')}
+  )
+  .join("\n")}
     `;
 
-    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const blob = new Blob([reportContent], { type: "text/plain" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `tea-rate-report-${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `tea-rate-report-${
+      new Date().toISOString().split("T")[0]
+    }.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -254,16 +266,22 @@ ${data.data.processed.map(rate =>
   };
 
   const generateExcelReport = (data) => {
-    // Create CSV format that can be opened in Excel
     const headers = [
-      'Factory Name', 'Manager', 'Month', 'Submission Date', 'Current Rate', 
-      'Proposed/Final Rate', 'Total Weight (kg)', 'Total Payout (Rs.)', 'Status', 'Notes'
+      "Factory Name",
+      "Manager",
+      "Month",
+      "Submission Date",
+      "Current Rate",
+      "Proposed/Final Rate",
+      "Total Weight (kg)",
+      "Total Payout (Rs.)",
+      "Status",
+      "Notes",
     ];
-    
+
     const rows = [];
-    
-    // Add pending rates
-    data.data.pending.forEach(rate => {
+
+    data.data.pending.forEach((rate) => {
       rows.push([
         rate.factoryName,
         rate.manager,
@@ -273,13 +291,12 @@ ${data.data.processed.map(rate =>
         rate.proposedRate,
         rate.totalWeight,
         rate.totalPayout,
-        rate.urgent ? 'PENDING (URGENT)' : 'PENDING',
-        rate.urgent ? 'Requires immediate attention' : ''
+        rate.urgent ? "PENDING (URGENT)" : "PENDING",
+        rate.urgent ? "Requires immediate attention" : "",
       ]);
     });
 
-    // Add processed rates
-    data.data.processed.forEach(rate => {
+    data.data.processed.forEach((rate) => {
       rows.push([
         rate.factoryName,
         rate.manager,
@@ -287,22 +304,25 @@ ${data.data.processed.map(rate =>
         rate.submittedDate,
         rate.originalRate,
         rate.finalRate,
-        '', // weight not available in processed data
+        "", // weight not available in processed data
         rate.totalPayout || 0,
         rate.status.toUpperCase(),
-        rate.reason || (rate.adjustedBy ? `Adjusted by ${rate.adjustedBy}` : '')
+        rate.reason ||
+          (rate.adjustedBy ? `Adjusted by ${rate.adjustedBy}` : ""),
       ]);
     });
 
     const csvContent = [headers, ...rows]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
-      .join('\n');
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `tea-rate-report-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `tea-rate-report-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -310,82 +330,107 @@ ${data.data.processed.map(rate =>
   };
 
   const generateCSVReport = (data) => {
-    generateExcelReport(data); // Same implementation for CSV
+    generateExcelReport(data);
   };
 
   const ExportModal = () => (
-    <div className="fixed inset-0 backdrop-blur-[2px] bg-white/60 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">Export Report</h2>
+    <div className="fixed inset-0 backdrop-blur-[2px] bg-card dark:bg-card-dark/60 flex items-center justify-center z-50">
+      <div className="bg-card dark:bg-card-dark rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-tea-100 dark:border-card-border-dark">
+        <div className="flex justify-between items-center p-6 border-b border-tea-100 dark:border-card-border-dark">
+          <h2 className="text-xl font-semibold text-tea-700 dark:text-tea-300">
+            Export Report
+          </h2>
           <button
             onClick={() => setShowExportModal(false)}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-tea-700 dark:text-tea-300 opacity-80 hover:opacity-100"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
-        
+
         <div className="p-6 space-y-6">
           {/* Report Format */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Report Format</label>
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
+              Report Format
+            </label>
             <div className="grid grid-cols-3 gap-3">
               <button
-                onClick={() => setExportConfig({...exportConfig, format: 'pdf'})}
+                onClick={() =>
+                  setExportConfig({ ...exportConfig, format: "pdf" })
+                }
                 className={`p-4 rounded-lg border-2 transition-all ${
-                  exportConfig.format === 'pdf' 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-300 hover:border-gray-400'
+                  exportConfig.format === "pdf"
+                    ? "border-tea-700 dark:border-tea-400 bg-tea-50 dark:bg-tea-900/20"
+                    : "border-tea-100 dark:border-card-border-dark hover:border-tea-700 dark:hover:border-tea-400"
                 }`}
               >
-                <FileText className="w-8 h-8 mx-auto mb-2 text-red-600" />
-                <div className="text-sm font-medium">PDF Report</div>
-                <div className="text-xs text-gray-500">Formatted document</div>
+                <FileText className="w-8 h-8 mx-auto mb-2 text-red-600 dark:text-red-400" />
+                <div className="text-sm font-medium text-ink dark:text-ink-dark">PDF Report</div>
+                <div className="text-xs text-tea-700 dark:text-tea-300 opacity-80">
+                  Formatted document
+                </div>
               </button>
               <button
-                onClick={() => setExportConfig({...exportConfig, format: 'excel'})}
+                onClick={() =>
+                  setExportConfig({ ...exportConfig, format: "excel" })
+                }
                 className={`p-4 rounded-lg border-2 transition-all ${
-                  exportConfig.format === 'excel' 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-300 hover:border-gray-400'
+                  exportConfig.format === "excel"
+                    ? "border-tea-700 dark:border-tea-400 bg-tea-50 dark:bg-tea-900/20"
+                    : "border-tea-100 dark:border-card-border-dark hover:border-tea-700 dark:hover:border-tea-400"
                 }`}
               >
-                <FileSpreadsheet className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                <div className="text-sm font-medium">Excel</div>
-                <div className="text-xs text-gray-500">Spreadsheet format</div>
+                <FileSpreadsheet className="w-8 h-8 mx-auto mb-2 text-green-600 dark:text-green-400" />
+                <div className="text-sm font-medium text-ink dark:text-ink-dark">Excel</div>
+                <div className="text-xs text-tea-700 dark:text-tea-300 opacity-80">
+                  Spreadsheet format
+                </div>
               </button>
               <button
-                onClick={() => setExportConfig({...exportConfig, format: 'csv'})}
+                onClick={() =>
+                  setExportConfig({ ...exportConfig, format: "csv" })
+                }
                 className={`p-4 rounded-lg border-2 transition-all ${
-                  exportConfig.format === 'csv' 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-300 hover:border-gray-400'
+                  exportConfig.format === "csv"
+                    ? "border-tea-700 dark:border-tea-400 bg-tea-50 dark:bg-tea-900/20"
+                    : "border-tea-100 dark:border-card-border-dark hover:border-tea-700 dark:hover:border-tea-400"
                 }`}
               >
                 <FileText className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                <div className="text-sm font-medium">CSV</div>
-                <div className="text-xs text-gray-500">Raw data</div>
+                <div className="text-sm font-medium text-ink dark:text-ink-dark">CSV</div>
+                <div className="text-xs text-tea-700 dark:text-tea-300 opacity-80">
+                  Raw data
+                </div>
               </button>
             </div>
           </div>
 
           {/* Report Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Report Type</label>
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
+              Report Type
+            </label>
             <div className="space-y-2">
               <label className="flex items-center">
                 <input
                   type="radio"
                   name="reportType"
                   value="summary"
-                  checked={exportConfig.reportType === 'summary'}
-                  onChange={(e) => setExportConfig({...exportConfig, reportType: e.target.value})}
-                  className="mr-3"
+                  checked={exportConfig.reportType === "summary"}
+                  onChange={(e) =>
+                    setExportConfig({
+                      ...exportConfig,
+                      reportType: e.target.value,
+                    })
+                  }
+                  className="mr-3 accent-tea-700"
                 />
                 <div>
-                  <div className="font-medium">Summary Report</div>
-                  <div className="text-sm text-gray-500">Key metrics and overview</div>
+                  <div className="font-medium text-ink dark:text-ink-dark">Summary Report</div>
+                  <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
+                    Key metrics and overview
+                  </div>
                 </div>
               </label>
               <label className="flex items-center">
@@ -393,13 +438,20 @@ ${data.data.processed.map(rate =>
                   type="radio"
                   name="reportType"
                   value="detailed"
-                  checked={exportConfig.reportType === 'detailed'}
-                  onChange={(e) => setExportConfig({...exportConfig, reportType: e.target.value})}
-                  className="mr-3"
+                  checked={exportConfig.reportType === "detailed"}
+                  onChange={(e) =>
+                    setExportConfig({
+                      ...exportConfig,
+                      reportType: e.target.value,
+                    })
+                  }
+                  className="mr-3 accent-tea-700"
                 />
                 <div>
-                  <div className="font-medium">Detailed Report</div>
-                  <div className="text-sm text-gray-500">Complete data with all fields</div>
+                  <div className="font-medium text-ink dark:text-ink-dark">Detailed Report</div>
+                  <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
+                    Complete data with all fields
+                  </div>
                 </div>
               </label>
             </div>
@@ -407,12 +459,19 @@ ${data.data.processed.map(rate =>
 
           {/* Date Range */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Date Range</label>
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
+              Date Range
+            </label>
             <div className="min-w-64 w-64">
               <select
                 value={exportConfig.dateRange}
-                onChange={(e) => setExportConfig({...exportConfig, dateRange: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none shadow-sm"
+                onChange={(e) =>
+                  setExportConfig({
+                    ...exportConfig,
+                    dateRange: e.target.value,
+                  })
+                }
+                className="w-full px-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 appearance-none shadow-sm"
               >
                 <option value="current_month">Current Month</option>
                 <option value="last_month">Last Month</option>
@@ -426,35 +485,63 @@ ${data.data.processed.map(rate =>
 
           {/* Include Data Types */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Include Data</label>
-            <div className="min-w-64 w-64 bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
+              Include Data
+            </label>
+            <div className="min-w-64 w-64 bg-card dark:bg-card-dark rounded-lg p-4 border border-tea-100 dark:border-card-border-dark shadow-sm">
               <div className="space-y-2">
                 <label className="flex items-center">
                   <input
                     type="checkbox"
                     checked={exportConfig.includePending}
-                    onChange={(e) => setExportConfig({...exportConfig, includePending: e.target.checked})}
-                    className="mr-3 accent-blue-600"
+                    onChange={(e) =>
+                      setExportConfig({
+                        ...exportConfig,
+                        includePending: e.target.checked,
+                      })
+                    }
+                    className="mr-3 accent-tea-700"
                   />
-                  <span className="text-gray-900">Pending Rates ({pendingRates.length})</span>
+                  <span className="text-ink dark:text-ink-dark">
+                    Pending Rates ({pendingRates.length})
+                  </span>
                 </label>
                 <label className="flex items-center">
                   <input
                     type="checkbox"
                     checked={exportConfig.includeApproved}
-                    onChange={(e) => setExportConfig({...exportConfig, includeApproved: e.target.checked})}
+                    onChange={(e) =>
+                      setExportConfig({
+                        ...exportConfig,
+                        includeApproved: e.target.checked,
+                      })
+                    }
                     className="mr-3 accent-green-600"
                   />
-                  <span className="text-gray-900">Approved Rates ({processedRates.filter(r => r.status === 'approved').length})</span>
+                  <span className="text-ink dark:text-ink-dark">
+                    Approved Rates ({approvedRates.length})
+                  </span>
                 </label>
                 <label className="flex items-center">
                   <input
                     type="checkbox"
                     checked={exportConfig.includeRejected}
-                    onChange={(e) => setExportConfig({...exportConfig, includeRejected: e.target.checked})}
+                    onChange={(e) =>
+                      setExportConfig({
+                        ...exportConfig,
+                        includeRejected: e.target.checked,
+                      })
+                    }
                     className="mr-3 accent-red-600"
                   />
-                  <span className="text-gray-900">Rejected Rates ({processedRates.filter(r => r.status === 'rejected').length})</span>
+                  <span className="text-ink dark:text-ink-dark">
+                    Rejected Rates (
+                    {
+                      processedRates.filter((r) => r.status === "rejected")
+                        .length
+                    }
+                    )
+                  </span>
                 </label>
               </div>
             </div>
@@ -462,48 +549,68 @@ ${data.data.processed.map(rate =>
 
           {/* Factory Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Factories</label>
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
+              Factories
+            </label>
             <div className="min-w-64 w-64">
               <select
                 value={exportConfig.factories}
-                onChange={(e) => setExportConfig({...exportConfig, factories: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none shadow-sm"
+                onChange={(e) =>
+                  setExportConfig({
+                    ...exportConfig,
+                    factories: e.target.value,
+                  })
+                }
+                className="w-full px-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 appearance-none shadow-sm"
               >
                 <option value="all">All Factories</option>
-                {factories.map(factory => (
-                  <option key={factory} value={factory} className="bg-white text-gray-900">{factory}</option>
+                {factories.map((factory) => (
+                  <option
+                    key={factory}
+                    value={factory}
+                    className="bg-card dark:bg-card-dark text-ink dark:text-ink-dark"
+                  >
+                    {factory}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
 
           {/* Additional Options */}
-          {exportConfig.format === 'pdf' && (
-            <div className="min-w-64 w-64 bg-white rounded-lg p-4 border border-gray-200 shadow-sm mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-3">Additional Options</label>
+          {exportConfig.format === "pdf" && (
+            <div className="min-w-64 w-64 bg-card dark:bg-card-dark rounded-lg p-4 border border-tea-100 dark:border-card-border-dark shadow-sm mt-4">
+              <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
+                Additional Options
+              </label>
               <label className="flex items-center">
                 <input
                   type="checkbox"
                   checked={exportConfig.includeCharts}
-                  onChange={(e) => setExportConfig({...exportConfig, includeCharts: e.target.checked})}
+                  onChange={(e) =>
+                    setExportConfig({
+                      ...exportConfig,
+                      includeCharts: e.target.checked,
+                    })
+                  }
                   className="mr-3 accent-purple-600"
                 />
-                <span className="text-gray-900">Include Charts and Graphs</span>
+                <span className="text-ink dark:text-ink-dark">Include Charts and Graphs</span>
               </label>
             </div>
           )}
         </div>
 
-        <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
+        <div className="flex justify-end gap-3 p-6 border-t border-tea-100 dark:border-card-border-dark bg-surface dark:bg-surface-dark">
           <button
             onClick={() => setShowExportModal(false)}
-            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-4 py-2 text-tea-700 dark:text-tea-300 bg-card dark:bg-card-dark border border-tea-100 dark:border-card-border-dark rounded-lg hover:bg-tea-50 dark:bg-tea-900/20"
           >
             Cancel
           </button>
           <button
             onClick={generateReport}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            className="px-6 py-2 bg-tea-900 text-white rounded-lg hover:bg-tea-900 flex items-center gap-2"
           >
             <Download className="w-4 h-4" />
             Generate Report
@@ -513,16 +620,15 @@ ${data.data.processed.map(rate =>
     </div>
   );
 
-  // Adjustment form as a separate component with local state for input fields
   const AdjustRateForm = ({ rate, onApprove, onCancel }) => {
     const [adjustedRate, setAdjustedRate] = useState(rate.proposedRate);
-    const [reason, setReason] = useState('');
+    const [reason, setReason] = useState("");
     return (
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-blue-200 shadow">
-        <h4 className="font-semibold mb-3">Adjust Rate</h4>
+      <div className="mt-4 p-4 bg-tea-50 dark:bg-tea-900/20 rounded-lg border border-tea-100 dark:border-card-border-dark shadow-sm">
+        <h4 className="font-semibold mb-3 text-tea-700 dark:text-tea-300">Adjust Rate</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-1">
               Adjusted Rate (Rs.)
             </label>
             <input
@@ -530,20 +636,20 @@ ${data.data.processed.map(rate =>
               step="0.1"
               min="0"
               value={adjustedRate}
-              onChange={e => setAdjustedRate(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+              onChange={(e) => setAdjustedRate(e.target.value)}
+              className="w-full p-2 border border-tea-100 dark:border-card-border-dark rounded-lg focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 bg-card dark:bg-card-dark text-ink dark:text-ink-dark"
               placeholder="Enter adjusted rate"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-1">
               Adjustment Reason
             </label>
             <input
               type="text"
               value={reason}
-              onChange={e => setReason(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+              onChange={(e) => setReason(e.target.value)}
+              className="w-full p-2 border border-tea-100 dark:border-card-border-dark rounded-lg focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 bg-card dark:bg-card-dark text-ink dark:text-ink-dark"
               placeholder="Reason for adjustment"
             />
           </div>
@@ -557,7 +663,7 @@ ${data.data.processed.map(rate =>
           </button>
           <button
             onClick={onCancel}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
+            className="bg-tea-900 hover:bg-tea-900 text-white px-4 py-2 rounded-lg"
           >
             Cancel
           </button>
@@ -566,25 +672,35 @@ ${data.data.processed.map(rate =>
     );
   };
 
-  const RateCard = ({ rate, type = 'pending' }) => (
-    <div className={`bg-white rounded-lg shadow-md border-l-4 ${
-      rate.urgent && type === 'pending' ? 'border-red-500' : 
-      rate.status === 'approved' ? 'border-green-500' : 
-      rate.status === 'rejected' ? 'border-red-500' : 'border-blue-500'
-    } p-6 mb-4`}>
+  const RateCard = ({ rate, type = "pending" }) => (
+    <div
+      className={`bg-card dark:bg-card-dark rounded-lg shadow-sm border-l-4 ${
+        rate.urgent && type === "pending"
+          ? "border-red-500"
+          : type === "approved"
+          ? "border-green-500"
+          : rate.status === "approved"
+          ? "border-green-500"
+          : rate.status === "rejected"
+          ? "border-red-500"
+          : "border-tea-700 dark:border-tea-400"
+      } border border-tea-100 dark:border-card-border-dark p-6 mb-4`}
+    >
       <div className="flex justify-between items-start mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <Factory className="w-5 h-5 text-gray-600" />
-            <h3 className="text-lg font-semibold text-gray-800">{rate.factoryName}</h3>
-            {rate.urgent && type === 'pending' && (
-              <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+            <Factory className="w-5 h-5 text-tea-700 dark:text-tea-300" />
+            <h3 className="text-lg font-semibold text-ink dark:text-ink-dark">
+              {rate.factoryName}
+            </h3>
+            {rate.urgent && type === "pending" && (
+              <span className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs px-2 py-1 rounded-full flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
                 Urgent
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+          <div className="flex items-center gap-2 text-sm text-tea-700 dark:text-tea-300 opacity-80 mt-1">
             <User className="w-4 h-4" />
             <span>Manager: {rate.manager}</span>
             <span className="mx-2">•</span>
@@ -593,101 +709,111 @@ ${data.data.processed.map(rate =>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-sm text-gray-500">
-            Submitted: {new Date(rate.submittedDate).toLocaleDateString()}
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
+            Submitted: {new Date(rate.submittedDate).toLocaleString()}
           </div>
           {rate.processedDate && (
-            <div className="text-sm text-gray-500">
-              Processed: {new Date(rate.processedDate).toLocaleDateString()}
+            <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
+              Processed: {new Date(rate.processedDate).toLocaleString()}
             </div>
           )}
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <div className="bg-gray-50 p-3 rounded">
-          <div className="text-sm text-gray-600">Current Rate</div>
-          <div className="text-lg font-semibold">Rs. {(rate.currentRate || rate.originalRate || 0).toFixed(2)}</div>
-        </div>
-        <div className="bg-blue-50 p-3 rounded">
-          <div className="text-sm text-gray-600">
-            {type === 'pending' ? 'Proposed Rate' : 'Final Rate'}
+        <div className="bg-surface dark:bg-surface-dark p-3 rounded border border-tea-100 dark:border-card-border-dark">
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
+            Final Rate Per Kg
           </div>
-          <div className="text-lg font-semibold text-blue-600">
-            Rs. {(rate.proposedRate || rate.finalRate || 0).toFixed(2)}
+          <div className="text-lg font-semibold text-ink dark:text-ink-dark">
+            Rs. {(rate.currentRate || rate.originalRate || 0).toFixed(2)}
           </div>
         </div>
-        <div className="bg-green-50 p-3 rounded">
-          <div className="text-sm text-gray-600">Total Weight</div>
-          <div className="text-lg font-semibold text-green-600">
+        <div className="bg-surface dark:bg-surface-dark p-3 rounded border border-tea-100 dark:border-card-border-dark">
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
+            {type === "approved" ? "Adjusted Rate (%)" : "Monthly Rate (%)"}
+          </div>
+          <div className="text-lg font-semibold text-ink dark:text-ink-dark">
+            {type === "approved"
+              ? (rate.adjustedRate || 0).toFixed(2)
+              : (rate.proposedRate || 0).toFixed(2)}
+            %
+          </div>
+        </div>
+        <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded border border-tea-100 dark:border-card-border-dark">
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">Total Weight</div>
+          <div className="text-lg font-semibold text-green-600 dark:text-green-400">
             {(rate.totalWeight || 0).toLocaleString()} kg
           </div>
         </div>
-        <div className="bg-yellow-50 p-3 rounded">
-          <div className="text-sm text-gray-600">Total Payout</div>
-          <div className="text-lg font-semibold text-yellow-600">
+        <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded border border-tea-100 dark:border-card-border-dark">
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">Total Payout</div>
+          <div className="text-lg font-semibold text-amber-600 dark:text-amber-400">
             Rs. {(rate.totalPayout || 0).toLocaleString()}
           </div>
         </div>
       </div>
 
-      {type === 'pending' && rate.nsa && rate.gsa && (
+      {type === "pending" && rate.nsa && rate.gsa && (
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-gray-50 p-3 rounded">
-            <div className="text-sm text-gray-600">N.S.A (Net Sale Average)</div>
-            <div className="text-lg font-semibold">Rs. {rate.nsa.toFixed(2)}</div>
+          <div className="bg-surface dark:bg-surface-dark p-3 rounded border border-tea-100 dark:border-card-border-dark">
+            <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
+              N.S.A (Net Sale Average)
+            </div>
+            <div className="text-lg font-semibold text-ink dark:text-ink-dark">
+              Rs. {rate.nsa.toFixed(2)}
+            </div>
           </div>
-          <div className="bg-gray-50 p-3 rounded">
-            <div className="text-sm text-gray-600">G.S.A (Gross Sale Average)</div>
-            <div className="text-lg font-semibold">Rs. {rate.gsa.toFixed(2)}</div>
+          <div className="bg-surface dark:bg-surface-dark p-3 rounded border border-tea-100 dark:border-card-border-dark">
+            <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
+              G.S.A (Gross Sale Average)
+            </div>
+            <div className="text-lg font-semibold text-ink dark:text-ink-dark">
+              Rs. {rate.gsa.toFixed(2)}
+            </div>
           </div>
         </div>
       )}
 
-      {type === 'processed' && rate.status === 'rejected' && rate.reason && (
-        <div className="bg-red-50 border border-red-200 p-3 rounded mb-4">
-          <div className="text-sm text-red-800">
+      {/* Removed status banner for approved RateCard */}
+
+      {type === "processed" && rate.status === "rejected" && rate.reason && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 p-3 rounded mb-4">
+          <div className="text-sm text-red-800 dark:text-red-200">
             <strong>Rejection Reason:</strong> {rate.reason}
           </div>
         </div>
       )}
 
-      {type === 'processed' && rate.adjustedBy && (
-        <div className="bg-blue-50 border border-blue-200 p-3 rounded mb-4">
-          <div className="text-sm text-blue-800">
-            <strong>Rate adjusted by:</strong> {rate.adjustedBy} 
+      {type === "processed" && rate.adjustedBy && (
+        <div className="bg-tea-50 dark:bg-tea-900/20 border border-tea-100 dark:border-card-border-dark p-3 rounded mb-4">
+          <div className="text-sm text-tea-700 dark:text-tea-300">
+            <strong>Rate adjusted by:</strong> {rate.adjustedBy}
             (from Rs. {rate.originalRate} to Rs. {rate.finalRate})
           </div>
         </div>
       )}
 
-      {type === 'pending' && (
+      {type === "pending" && (
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => handleApprove(rate.id)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <CheckCircle className="w-4 h-4" />
             Approve
           </button>
           <button
             onClick={() => setEditingRate(rate.id)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-tea-900 hover:bg-tea-900 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Edit3 className="w-4 h-4" />
             Adjust & Approve
           </button>
-          <button
-            onClick={() => handleReject(rate.id, 'Rate adjustment required')}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <XCircle className="w-4 h-4" />
-            Reject
-          </button>
-          <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+          {/* <button className="bg-tea-700 hover:bg-tea-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
             <Eye className="w-4 h-4" />
             View Details
-          </button>
+          </button> */}
         </div>
       )}
 
@@ -695,8 +821,7 @@ ${data.data.processed.map(rate =>
         <AdjustRateForm
           rate={rate}
           onApprove={(adjustedRate, reason) => {
-            handleApprove(rate.id, adjustedRate);
-            // Optionally, you can store the reason somewhere if needed
+            handleApprove(rate.id, adjustedRate, reason);
             setEditingRate(null);
           }}
           onCancel={() => setEditingRate(null)}
@@ -706,216 +831,298 @@ ${data.data.processed.map(rate =>
   );
 
   const filteredRates = (rates) => {
-    return rates.filter(rate => {
-      const matchesFactory = selectedFactory === 'all' || rate.factoryName === selectedFactory;
-      const matchesMonth = selectedMonth === 'all' || rate.month.includes(selectedMonth);
-      const matchesSearch = rate.factoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           rate.manager.toLowerCase().includes(searchTerm.toLowerCase());
+    // Defensive guards to avoid calling string methods on null/undefined values
+    if (!Array.isArray(rates)) return [];
+    const search = (searchTerm || "").toLowerCase();
+    return rates.filter((rate) => {
+      const factoryName = (rate?.factoryName ?? "").toString();
+      const managerName = (rate?.manager ?? "").toString();
+      const monthVal = rate?.month;
+
+      const matchesFactory =
+        selectedFactory === "all" || factoryName === selectedFactory;
+      const matchesMonth =
+        selectedMonth === "all" || (typeof monthVal === "string" && monthVal.includes(selectedMonth));
+      const factoryMatch = factoryName.toLowerCase().includes(search);
+      const managerMatch = managerName.toLowerCase().includes(search);
+      const matchesSearch = search === "" || factoryMatch || managerMatch;
       return matchesFactory && matchesMonth && matchesSearch;
     });
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-full">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Tea Rate Management</h1>
-              <p className="text-gray-600 mt-1">Owner Dashboard - Rate Approval & Management</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setShowExportModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Export Report
-              </button>
-              <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                <RefreshCw className="w-4 h-4" />
-                Refresh
-              </button>
-              <div className="relative">
-                <Bell className="w-6 h-6 text-gray-600" />
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  3
-                </span>
-              </div>
-            </div>
+      <Card className="mb-6">
+        <div className="flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
+              Tea Rate Management
+            </h1>
+            <p className="text-sm text-ink/60 dark:text-muted-dark mt-1">
+              Owner Dashboard - Rate Approval & Management
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              icon={RefreshCw}
+              onClick={refreshData}
+              disabled={loading}
+              className={loading ? "[&_svg]:animate-spin" : ""}
+            >
+              {loading ? "Loading..." : "Refresh"}
+            </Button>
+            <Button variant="primary" icon={Download} onClick={() => setShowExportModal(true)}>
+              Export Report
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Pending Approvals</p>
-                <p className="text-3xl font-bold text-orange-600">3</p>
-              </div>
-              <Clock className="w-8 h-8 text-orange-600" />
-            </div>
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <span className="text-red-800 dark:text-red-200 font-medium">Error</span>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Approved This Month</p>
-                <p className="text-3xl font-bold text-green-600">12</p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Factories</p>
-                <p className="text-3xl font-bold text-blue-600">8</p>
-              </div>
-              <Factory className="w-8 h-8 text-blue-600" />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Avg Rate Change</p>
-                <p className="text-3xl font-bold text-purple-600">+5.2%</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-purple-600" />
-            </div>
-          </div>
+          <p className="text-red-700 dark:text-red-300 mt-1">{error}</p>
+          <button
+            onClick={refreshData}
+            className="mt-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 underline"
+          >
+            Try again
+          </button>
         </div>
+      )}
 
-        {/* Filters */}
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg shadow-md mb-6">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex-1 min-w-64">
-              <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search factories or managers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-            <div className="min-w-64 w-64">
-              <select
-                value={selectedFactory}
-                onChange={(e) => setSelectedFactory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none shadow-sm"
-              >
-                <option value="all">All Factories</option>
-                {factories.map(factory => (
-                  <option key={factory} value={factory} className="bg-white text-gray-900">{factory}</option>
-                ))}
-              </select>
-            </div>
-            <div className="min-w-64 w-64">
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none shadow-sm"
-              >
-                <option value="all">All Months</option>
-                <option value="July">July 2025</option>
-                <option value="June">June 2025</option>
-                <option value="May">May 2025</option>
-              </select>
-            </div>
-          </div>
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-8">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto text-tea-700 dark:text-tea-300" />
+          <p className="text-tea-700 dark:text-tea-300 mt-2">Loading tea rates...</p>
         </div>
+      )}
 
-        {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
-              <button
-                onClick={() => setActiveTab('pending')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'pending'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Pending Approvals
-                  <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
-                    {filteredRates(pendingRates).length}
-                  </span>
-                </div>
-              </button>
-              <button
-                onClick={() => setActiveTab('history')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'history'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <History className="w-4 h-4" />
-                  Rate History
-                </div>
-              </button>
-            </nav>
-          </div>
-
-          <div className="p-6">
-            {activeTab === 'pending' && (
-              <div>
-                {filteredRates(pendingRates).length === 0 ? (
-                  <div className="text-center py-12">
-                    <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending Rates</h3>
-                    <p className="text-gray-600">All rate submissions have been processed.</p>
-                  </div>
-                ) : (
+      {!loading && (
+        <div>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {[
+              { label: "Pending Approvals", value: pendingRates.length, icon: Clock },
+              { label: "Approved Rates", value: approvedRates.length, icon: CheckCircle },
+              { label: "Total Factories", value: factories.length, icon: Factory },
+              { label: "Total Submissions", value: pendingRates.length + processedRates.length, icon: TrendingUp },
+            ].map((card) => (
+              <Card key={card.label} hoverable>
+                <div className="flex items-center justify-between">
                   <div>
-                    <div className="mb-4 flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">
-                        Pending Rate Approvals ({filteredRates(pendingRates).length})
-                      </h3>
-                    </div>
-                    {filteredRates(pendingRates).map(rate => (
-                      <RateCard key={rate.id} rate={rate} type="pending" />
-                    ))}
+                    <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">
+                      {card.label}
+                    </p>
+                    <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">
+                      {card.value}
+                    </p>
                   </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'history' && (
-              <div>
-                {filteredRates(processedRates).length === 0 ? (
-                  <div className="text-center py-12">
-                    <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Rate History</h3>
-                    <p className="text-gray-600">No processed rates found for the selected filters.</p>
+                  <div className="h-12 w-12 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+                    <card.icon className="w-6 h-6 text-tea-700 dark:text-tea-300" />
                   </div>
-                ) : (
-                  <div>
-                    <div className="mb-4 flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">
-                        Rate Processing History ({filteredRates(processedRates).length})
-                      </h3>
-                    </div>
-                    {filteredRates(processedRates).map(rate => (
-                      <RateCard key={rate.id} rate={rate} type="processed" />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                </div>
+              </Card>
+            ))}
           </div>
+
+          {/* Filters */}
+          <Card className="mb-6">
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex-1 min-w-64">
+                <div className="relative">
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-tea-700 dark:text-tea-300 opacity-80" />
+                  <input
+                    type="text"
+                    placeholder="Search factories or managers..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400"
+                  />
+                </div>
+              </div>
+              <div className="min-w-64 w-64">
+                <select
+                  value={selectedFactory}
+                  onChange={(e) => setSelectedFactory(e.target.value)}
+                  className="w-full px-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 appearance-none shadow-sm"
+                >
+                  <option value="all">All Factories</option>
+                  {factories.map((factory) => (
+                    <option
+                      key={factory}
+                      value={factory}
+                      className="bg-card dark:bg-card-dark text-ink dark:text-ink-dark"
+                    >
+                      {factory}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="min-w-64 w-64">
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="w-full px-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 appearance-none shadow-sm"
+                >
+                  <option value="all">All Months</option>
+                  <option value="July">July 2025</option>
+                  <option value="June">June 2025</option>
+                  <option value="May">May 2025</option>
+                </select>
+              </div>
+            </div>
+          </Card>
+
+          {/* Tabs */}
+          <Card className="!p-0">
+            <div className="border-b border-tea-100 dark:border-card-border-dark">
+              <nav className="flex space-x-8 px-6">
+                <button
+                  onClick={() => setActiveTab("pending")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === "pending"
+                      ? "border-tea-700 dark:border-tea-400 text-tea-700 dark:text-tea-300"
+                      : "border-transparent text-tea-700 dark:text-tea-300 opacity-80 hover:opacity-100 hover:border-tea-700 dark:hover:border-tea-400"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Pending Approvals
+                    <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 text-xs px-2 py-1 rounded-full">
+                      {filteredRates(pendingRates).length}
+                    </span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab("approved")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === "approved"
+                      ? "border-tea-700 dark:border-tea-400 text-tea-700 dark:text-tea-300"
+                      : "border-transparent text-tea-700 dark:text-tea-300 opacity-80 hover:opacity-100 hover:border-tea-700 dark:hover:border-tea-400"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    Approved Rates
+                    <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded-full">
+                      {filteredRates(approvedRates).length}
+                    </span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab("history")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === "history"
+                      ? "border-tea-700 dark:border-tea-400 text-tea-700 dark:text-tea-300"
+                      : "border-transparent text-tea-700 dark:text-tea-300 opacity-80 hover:opacity-100 hover:border-tea-700 dark:hover:border-tea-400"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <History className="w-4 h-4" />
+                    Rate History
+                  </div>
+                </button>
+              </nav>
+            </div>
+
+            <div className="p-6">
+              {activeTab === "pending" && (
+                <div>
+                  {filteredRates(pendingRates).length === 0 ? (
+                    <div className="text-center py-12">
+                      <Clock className="w-12 h-12 text-tea-300 dark:text-tea-700 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-tea-700 dark:text-tea-300 mb-2">
+                        No Pending Rates
+                      </h3>
+                      <p className="text-tea-700 dark:text-tea-300 opacity-80">
+                        All rate submissions have been processed.
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="mb-4 flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-tea-700 dark:text-tea-300">
+                          Pending Rate Approvals (
+                          {filteredRates(pendingRates).length})
+                        </h3>
+                      </div>
+                      {filteredRates(pendingRates).map((rate) => (
+                        <RateCard key={rate.id} rate={rate} type="pending" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "approved" && (
+                <div>
+                  {filteredRates(approvedRates).length === 0 ? (
+                    <div className="text-center py-12">
+                      <CheckCircle className="w-12 h-12 text-tea-300 dark:text-tea-700 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-tea-700 dark:text-tea-300 mb-2">
+                        No Approved Rates
+                      </h3>
+                      <p className="text-tea-700 dark:text-tea-300 opacity-80">
+                        No rates have been approved yet.
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="mb-4 flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-tea-700 dark:text-tea-300">
+                          Recently Approved Rates (
+                          {filteredRates(approvedRates).length})
+                        </h3>
+                      </div>
+                      {filteredRates(approvedRates).map((rate) => (
+                        <div key={rate.id} className="mb-4">
+                          <RateCard rate={rate} type="approved" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "history" && (
+                <div>
+                  {filteredRates(processedRates).length === 0 ? (
+                    <div className="text-center py-12">
+                      <History className="w-12 h-12 text-tea-300 dark:text-tea-700 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-tea-700 dark:text-tea-300 mb-2">
+                        No Rate History
+                      </h3>
+                      <p className="text-tea-700 dark:text-tea-300 opacity-80">
+                        No processed rates found for the selected filters.
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="mb-4 flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-tea-700 dark:text-tea-300">
+                          Rate Processing History (
+                          {filteredRates(processedRates).length})
+                        </h3>
+                      </div>
+                      {filteredRates(processedRates).map((rate) => (
+                        <RateCard key={rate.id} rate={rate} type="processed" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </Card>
         </div>
-      </div>
+      )}
 
       {/* Export Modal */}
       {showExportModal && <ExportModal />}

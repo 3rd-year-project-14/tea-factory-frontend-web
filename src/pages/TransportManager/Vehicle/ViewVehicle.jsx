@@ -1,21 +1,21 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Card from "../../../components/ui/Card";
 
 export default function ViewVehicle({ vehicles }) {
   const { vehicleNumber } = useParams();
   const navigate = useNavigate();
 
-  // Find vehicle by vehicleNumber
   const vehicle = vehicles.find((v) => v.vehicleNumber === vehicleNumber);
 
   if (!vehicle)
-    return <div className="p-8 text-center">Vehicle not found.</div>;
+    return <div className="p-8 text-center text-ink/60 dark:text-muted-dark">Vehicle not found.</div>;
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow space-y-6">
+    <Card className="max-w-2xl mx-auto space-y-6">
       <button
         onClick={() => navigate(-1)}
-        className="text-blue-600 mb-4 hover:underline"
+        className="text-tea-700 dark:text-tea-300 mb-4 hover:underline"
       >
         &larr; Back
       </button>
@@ -30,27 +30,27 @@ export default function ViewVehicle({ vehicles }) {
                 : URL.createObjectURL(vehicle.vehicleImage)
             }
             alt="Vehicle"
-            className="w-32 h-32 object-cover rounded-lg border"
+            className="w-32 h-32 object-cover rounded-lg border border-tea-100 dark:border-card-border-dark"
           />
         ) : (
-          <div className="w-32 h-32 bg-gray-200 flex items-center justify-center rounded-lg border text-gray-400">
+          <div className="w-32 h-32 bg-tea-50 dark:bg-white/10 flex items-center justify-center rounded-lg border border-tea-100 dark:border-card-border-dark text-ink/40 dark:text-muted-dark">
             No Image
           </div>
         )}
 
         <div>
-          <h2 className="text-2xl font-bold mb-2">
+          <h2 className="text-2xl font-heading font-bold mb-2 text-ink dark:text-ink-dark">
             {vehicle.vehicleType}{" "}
-            <span className="text-gray-500">({vehicle.vehicleNumber})</span>
+            <span className="text-ink/50 dark:text-muted-dark">({vehicle.vehicleNumber})</span>
           </h2>
-          <div className="mt-2">
-            <span className="font-semibold">Capacity:</span> {vehicle.capacity}
+          <div className="mt-2 text-ink/80 dark:text-ink-dark/80">
+            <span className="font-semibold text-ink dark:text-ink-dark">Capacity:</span> {vehicle.capacity}
           </div>
-          <div>
-            <span className="font-semibold">Status:</span> {vehicle.status}
+          <div className="text-ink/80 dark:text-ink-dark/80">
+            <span className="font-semibold text-ink dark:text-ink-dark">Status:</span> {vehicle.status}
           </div>
-          <div>
-            <span className="font-semibold">Last Service:</span>{" "}
+          <div className="text-ink/80 dark:text-ink-dark/80">
+            <span className="font-semibold text-ink dark:text-ink-dark">Last Service:</span>{" "}
             {vehicle.lastServiceDate}
           </div>
         </div>
@@ -58,17 +58,17 @@ export default function ViewVehicle({ vehicles }) {
 
       {/* Driver Info Section */}
       <div>
-        <h3 className="font-semibold mb-2">Assigned Driver</h3>
+        <h3 className="font-semibold mb-2 text-tea-700 dark:text-tea-300">Assigned Driver</h3>
         {vehicle.assignedDriver ? (
           <div className="flex items-center gap-4">
             {vehicle.driverImage ? (
               <img
                 src={vehicle.driverImage}
                 alt={vehicle.assignedDriver}
-                className="w-16 h-16 rounded-full border object-cover"
+                className="w-16 h-16 rounded-full border border-tea-100 dark:border-card-border-dark object-cover"
               />
             ) : (
-              <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center text-gray-600">
+              <div className="w-16 h-16 bg-tea-50 dark:bg-white/10 rounded-full flex items-center justify-center text-tea-700 dark:text-tea-300">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8"
@@ -90,12 +90,12 @@ export default function ViewVehicle({ vehicles }) {
                 </svg>
               </div>
             )}
-            <span className="text-lg">{vehicle.assignedDriver}</span>
+            <span className="text-lg text-ink dark:text-ink-dark">{vehicle.assignedDriver}</span>
           </div>
         ) : (
-          <div className="text-gray-500">No driver assigned</div>
+          <div className="text-ink/50 dark:text-muted-dark">No driver assigned</div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

@@ -1,182 +1,294 @@
 import React, { useState } from "react";
+import {
+  AlertTriangle,
+  PackageSearch,
+  UserPlus,
+  Eye,
+  ClipboardList,
+  PackageCheck,
+  X,
+  Truck,
+  Package,
+  Clock,
+} from "lucide-react";
+import Card, { CardHeader } from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import EmptyState from "../../components/ui/EmptyState";
 
-export default function Dashboard() {
-  const [bags] = useState([
-    { id: "TN-B5", pastWeight: 24, condition: "Good", newWeight: 24 },
-    { id: "TN-B6", pastWeight: 25, condition: "Good", newWeight: 25 },
-    { id: "TN-B7", pastWeight: 14, condition: "Wet", newWeight: 12 },
-  ]);
+export default function FertilizerManagerDashboard() {
+  const [search, setSearch] = useState("");
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [currentView, setCurrentView] = useState("approved");
 
-  const totalWeight = bags.reduce((sum, bag) => sum + bag.newWeight, 0);
+  // Sample Data
+  const totalFertilizers = 12;
+  const pendingRequestCount = 4;
+  const lowStocks = [
+    { id: 1, name: "NPK 20-20-20", stock: 20 },
+    { id: 2, name: "Urea", stock: 12 },
+  ];
+  const requests = [
+    {
+      id: 1,
+      supplier: "GreenGrow Ltd",
+      route: "R-2",
+      driver: "Samuel",
+      total: 2,
+      items: [
+        { type: "MOP", quantity: "5" },
+        { type: "Urea", quantity: "3" },
+      ],
+    },
+    {
+      id: 2,
+      supplier: "Agro Direct",
+      route: "R-5",
+      driver: "Michael",
+      total: 3,
+      items: [
+        { type: "NPK", quantity: "40kg" },
+        { type: "TSP", quantity: "25kg" },
+        { type: "Urea", quantity: "18kg" },
+      ],
+    },
+  ];
+
+  const filtered = requests.filter((r) =>
+    r.route.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const summaryCards = [
+    {
+      type: "approved",
+      label: "Total Fertilizers",
+      value: totalFertilizers,
+      icon: Package,
+      iconClass: "text-tea-700 dark:text-tea-300",
+      borderClass: "border-tea-600 dark:border-tea-500",
+    },
+    {
+      type: "pending",
+      label: "Pending Requests",
+      value: pendingRequestCount,
+      icon: Clock,
+      iconClass: "text-amber-600 dark:text-amber-400",
+      borderClass: "border-amber-500 dark:border-amber-500",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-6xl mx-auto space-y-4">
-        {/* Top Statistics Cards - styled like AdvanceManagement.jsx */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-green-500"
-            type="button"
+    <div className="min-h-full space-y-6">
+      {/* Header */}
+      <Card>
+        <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
+          Dashboard
+        </h1>
+      </Card>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {summaryCards.map(({ type, label, value, icon: Icon, iconClass, borderClass }) => (
+          <Card
+            key={type}
+            hoverable
+            onClick={() => setCurrentView(type)}
+            className={`!border cursor-pointer transition-all duration-200 ${borderClass} ${
+              currentView === type ? "ring-2 ring-tea-500 scale-[1.02] shadow-card" : ""
+            }`}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
-                  No of Suppliers
-                </p>
-                <p className="text-2xl font-bold text-green-600">12</p>
-                <p className="text-xs text-gray-500">Active</p>
+                <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">{label}</p>
+                <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">{value}</p>
               </div>
-              <div className="h-8 w-8 text-green-600 text-2xl">👤</div>
-            </div>
-          </button>
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-blue-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">No of Bags</p>
-                <p className="text-2xl font-bold text-blue-600">12</p>
-                <p className="text-xs text-gray-500">Tracked</p>
-              </div>
-              <div className="h-8 w-8 text-blue-600 text-2xl">👜</div>
-            </div>
-          </button>
-          <button
-            className="bg-white p-4 rounded-lg shadow-sm border transition-colors hover:bg-gray-50 ring-2 ring-yellow-500"
-            type="button"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Total Weight
-                </p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {totalWeight} Kg
-                </p>
-                <p className="text-xs text-gray-500">Current</p>
-              </div>
-              <div className="h-8 w-8 text-yellow-600 text-2xl">⚖️</div>
-            </div>
-          </button>
-        </div>
-
-        {/* Supplier Input Section */}
-        <div className="bg-white rounded-lg shadow-sm border p-4">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3 items-end">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Supplier No
-              </label>
-              <input
-                type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Supplier Name
-              </label>
-              <input
-                type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Weight
-              </label>
-              <input
-                type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Condition
-              </label>
-              <input
-                type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                New Weight
-              </label>
-              <input
-                type="text"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <button className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 text-sm rounded-md transition-colors duration-200">
-                Enter
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Bags Table */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-          <div className="bg-green-600 text-white">
-            <div className="grid grid-cols-4 gap-4 p-3 font-medium text-sm">
-              <div>Bag No</div>
-              <div>Past Weight</div>
-              <div>Condition</div>
-              <div>New Weight</div>
-            </div>
-          </div>
-
-          <div className="divide-y divide-gray-200">
-            {bags.map((bag) => (
-              <div
-                key={bag.id}
-                className="grid grid-cols-4 gap-4 p-3 items-center hover:bg-gray-50"
-              >
-                <div className="font-medium text-gray-900 text-sm">
-                  {bag.id}
-                </div>
-                <div className="text-gray-600 text-sm">{bag.pastWeight} Kg</div>
-                <div>
-                  <span
-                    className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                      bag.condition === "Good"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-blue-100 text-blue-800"
-                    }`}
-                  >
-                    {bag.condition}
-                  </span>
-                </div>
-                <div className="text-gray-900 font-medium text-sm">
-                  {bag.newWeight} Kg
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Total Weight Footer */}
-          <div className="bg-gray-50 border-t">
-            <div className="grid grid-cols-4 gap-4 p-3">
-              <div className="col-span-3"></div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-700 text-sm">
-                  Total Weight
-                </span>
-                <span className="bg-green-500 text-white px-3 py-1 rounded-full font-medium text-sm">
-                  {totalWeight} Kg
-                </span>
+              <div className="h-12 w-12 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+                <Icon size={24} className={iconClass} />
               </div>
             </div>
-          </div>
-        </div>
+          </Card>
+        ))}
       </div>
+
+      {/* Top Cards Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Low Stock */}
+        <Card>
+          <CardHeader
+            title="Low Fertilizer Stock"
+            action={<AlertTriangle className="w-5 h-5 text-tea-700 dark:text-tea-300" />}
+          />
+          {lowStocks.length === 0 ? (
+            <EmptyState icon={UserPlus} title="No low stock alerts" description="" />
+          ) : (
+            <div className="space-y-3">
+              {lowStocks.map(({ id, name, stock }) => (
+                <div
+                  key={id}
+                  className="flex items-center justify-between p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-500/30"
+                >
+                  <div>
+                    <span className="font-semibold text-ink dark:text-ink-dark">{name}</span>
+                    <span className="ml-2 text-ink/60 dark:text-muted-dark text-xs">
+                      {stock} Kg left
+                    </span>
+                  </div>
+                  <PackageCheck className="w-5 h-5 text-tea-700 dark:text-tea-300" />
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Incoming Requests */}
+        <Card>
+          <CardHeader
+            title="Incoming Fertilizer Orders"
+            action={<PackageSearch className="w-5 h-5 text-tea-700 dark:text-tea-300" />}
+          />
+
+          {requests.length === 0 ? (
+            <EmptyState icon={ClipboardList} title="No incoming requests" description="" />
+          ) : (
+            <div className="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
+              {requests.map((r) => (
+                <div
+                  key={r.id}
+                  className="flex justify-between p-3 border border-tea-100 dark:border-card-border-dark rounded-lg items-center"
+                >
+                  <div>
+                    <span className="font-semibold text-ink dark:text-ink-dark">{r.supplier}</span>
+                    <span className="ml-2 text-xs text-ink/60 dark:text-muted-dark">
+                      Route {r.route}, Driver {r.driver}
+                    </span>
+                  </div>
+                  <ClipboardList
+                    className="w-5 h-5 cursor-pointer text-tea-700 dark:text-tea-300"
+                    onClick={() => setSelectedRequest(r)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Bottom: Release Queue Table */}
+      <Card>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-heading font-semibold text-ink dark:text-ink-dark flex items-center gap-2">
+            <Truck className="w-5 h-5" /> Release Queue
+          </h3>
+          <input
+            placeholder="Search by route"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="px-3 py-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
+          />
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-tea-900 text-white">
+                <th className="p-3 text-left rounded-tl-lg">Route</th>
+                <th className="p-3 text-left">Driver</th>
+                <th className="p-3 text-left">Total Count</th>
+                <th className="p-3 text-left rounded-tr-lg">View</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={4}>
+                    <EmptyState icon={UserPlus} title="No requests found" description="" />
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((req) => (
+                  <tr
+                    key={req.id}
+                    className="border-b border-tea-100 dark:border-card-border-dark last:border-0"
+                  >
+                    <td className="p-3 font-medium text-ink dark:text-ink-dark">
+                      {req.route}
+                    </td>
+                    <td className="p-3 text-ink dark:text-ink-dark">{req.driver}</td>
+                    <td className="p-3 text-ink dark:text-ink-dark">{req.total}</td>
+                    <td className="p-3">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        icon={Eye}
+                        onClick={() => setSelectedRequest(req)}
+                        aria-label={`View details for route ${req.route}`}
+                      >
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* Modal */}
+      {selectedRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30">
+          <div className="bg-card dark:bg-card-dark w-full max-w-lg rounded-2xl shadow-card p-6 border border-tea-100 dark:border-card-border-dark relative">
+            <button
+              className="absolute top-4 right-4 rounded-lg p-1 hover:bg-tea-50 dark:hover:bg-white/10 transition-colors"
+              onClick={() => setSelectedRequest(null)}
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5 text-tea-700 dark:text-tea-300" />
+            </button>
+            <h3 className="text-xl font-heading font-bold mb-4 flex items-center gap-2 text-tea-700 dark:text-tea-300">
+              <Truck className="w-5 h-5" />
+              Release Order Details
+            </h3>
+            <div className="space-y-2 mb-4">
+              <div>
+                <span className="font-semibold text-ink dark:text-ink-dark">Driver: </span>
+                <span className="text-ink/70 dark:text-ink-dark/70">{selectedRequest.driver}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-ink dark:text-ink-dark">Route: </span>
+                <span className="text-ink/70 dark:text-ink-dark/70">{selectedRequest.route}</span>
+              </div>
+            </div>
+            <div className="border border-tea-100 dark:border-card-border-dark rounded-lg overflow-hidden">
+              <div className="grid grid-cols-2 bg-surface dark:bg-white/5 p-2 font-semibold text-ink dark:text-ink-dark">
+                <div>Fertilizer Type</div>
+                <div>Quantity</div>
+              </div>
+              {selectedRequest.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="grid grid-cols-2 p-2 border-t border-tea-100 dark:border-card-border-dark text-sm text-ink dark:text-ink-dark"
+                >
+                  <div>{item.type}</div>
+                  <div>{item.quantity}</div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <Button variant="ghost" className="!bg-gray-200 dark:!bg-white/10" onClick={() => setSelectedRequest(null)}>
+                Close
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  console.log("Released:", selectedRequest);
+                  setSelectedRequest(null);
+                }}
+              >
+                Release
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

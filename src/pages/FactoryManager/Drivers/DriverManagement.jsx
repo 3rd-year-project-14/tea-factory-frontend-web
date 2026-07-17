@@ -26,6 +26,8 @@ import {
   generateDriverId,
 } from "./driverUtils";
 
+const ACCENT_COLOR = "#01251F";
+
 const DriverManagement = () => {
   const [currentView, setCurrentView] = useState("list"); // 'list', 'profile', 'assign'
   const [selectedDriver, setSelectedDriver] = useState(null);
@@ -86,14 +88,12 @@ const DriverManagement = () => {
 
   const handleDriverSubmit = (driverData) => {
     if (editingDriver) {
-      // Update existing driver
       setDrivers((prev) =>
         prev.map((d) =>
           d.id === editingDriver.id ? { ...d, ...driverData } : d
         )
       );
     } else {
-      // Add new driver
       const newDriver = {
         ...driverData,
         id: generateDriverId(drivers),
@@ -115,7 +115,6 @@ const DriverManagement = () => {
   };
 
   const handleAssignRoute = (assignmentData) => {
-    // Update driver with new route assignment
     setDrivers((prev) =>
       prev.map((d) =>
         d.id === assignmentData.driverId
@@ -141,14 +140,12 @@ const DriverManagement = () => {
     );
   };
 
-  // Get available drivers for assignments
   const availableDrivers = drivers.filter(
     (d) => d.availabilityToday && d.status === "active"
   );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <DriverHeader
         currentView={currentView}
         selectedDriver={selectedDriver}
@@ -158,8 +155,6 @@ const DriverManagement = () => {
       />
 
       <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Navigation Tabs */}
-        
 
         {/* Summary Cards */}
         <DriverSummaryCards currentView={currentView} summary={summary} />
@@ -173,39 +168,45 @@ const DriverManagement = () => {
         {currentView === "list" && (
           <div className="space-y-6">
             {/* Drivers Table */}
-            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-              <div className="bg-green-600 text-white">
-                <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm">
-                  <div className="text-left">ID</div>
-                  <div className="text-left">Name</div>
-                  <div className="text-left">Vehicle Number</div>
-                  <div className="text-left">Route</div>
-                  <div className="text-center">Action</div>
+            <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+              <div style={{ backgroundColor: ACCENT_COLOR, color: "#fff" }}>
+                <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm text-center">
+                  <div>ID</div>
+                  <div>Name</div>
+                  <div>Vehicle Number</div>
+                  <div>Route</div>
+                  <div>View Details</div>
                 </div>
               </div>
-
               <div className="divide-y divide-gray-200">
                 {filteredAndSortedDrivers.map((driver) => (
                   <div
                     key={driver.id}
-                    className="grid grid-cols-5 gap-4 p-3 items-center hover:bg-gray-50 transition-colors"
+                    className="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 text-center"
                   >
-                    <div className="font-semibold text-green-600 text-sm bg-green-50 px-3 py-1 rounded-full inline-block w-fit">
-                      {driver.id}
+                    <div>
+                      <span
+                        className="font-semibold text-sm px-3 py-1 rounded-full border"
+                        style={{
+                          backgroundColor: "#e1f4ef",
+                          color: "#165e52",
+                          borderColor: "#165e52",
+                        }}
+                      >
+                        {driver.id}
+                      </span>
                     </div>
-                    <div className="font-medium text-gray-900 text-sm">
+                    <div className="font-medium text-black text-sm">
                       {driver.name}
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-black font-medium">
                       {driver.assignedVehicle}
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-black font-medium">
                       {driver.assignedRoutes.length > 0 ? (
-                        driver.assignedRoutes
-                          .slice(0, 1)
-                          .map((route, index) => (
-                            <span key={index}>{route}</span>
-                          ))
+                        driver.assignedRoutes.slice(0, 1).map((route, i) => (
+                          <span key={i}>{route}</span>
+                        ))
                       ) : (
                         <span className="text-gray-400 italic">
                           Not assigned
@@ -215,7 +216,11 @@ const DriverManagement = () => {
                     <div className="flex justify-center">
                       <button
                         onClick={() => handleViewDriver(driver)}
-                        className="text-green-600 hover:text-green-800 hover:bg-green-50 p-2 rounded-full transition-colors"
+                        className="p-2 rounded-full transition-colors border"
+                        style={{
+                          border: `1.5px solid ${ACCENT_COLOR}`,
+                          color: ACCENT_COLOR,
+                        }}
                         title="View Details"
                       >
                         <Eye className="h-4 w-4" />
@@ -223,11 +228,10 @@ const DriverManagement = () => {
                     </div>
                   </div>
                 ))}
-
                 {filteredAndSortedDrivers.length === 0 && (
-                  <div className="p-8 text-center text-gray-500">
-                    <div className="h-12 w-12 text-gray-400 mx-auto mb-4 text-4xl">
-                      �
+                  <div className="p-12 text-center text-gray-500">
+                    <div className="bg-gray-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                      <User className="h-10 w-10 text-gray-400" />
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
                       No drivers found
@@ -238,14 +242,25 @@ const DriverManagement = () => {
                   </div>
                 )}
               </div>
-
-              {/* Results count at bottom */}
-              <div className="mt-6 flex items-center justify-between text-sm text-gray-600 p-4 border-t border-gray-200">
-                <div>
-                  Showing {filteredAndSortedDrivers.length} of {drivers.length}{" "}
-                  results
+              {filteredAndSortedDrivers.length > 0 && (
+                <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-gray-700">
+                      <span>
+                        Showing <span className="font-medium">1</span> to{" "}
+                        <span className="font-medium">
+                          {filteredAndSortedDrivers.length}
+                        </span>{" "}
+                        of{" "}
+                        <span className="font-medium">
+                          {drivers.length}
+                        </span>{" "}
+                        drivers
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}

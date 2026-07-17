@@ -10,9 +10,9 @@ import TransportManagerRoutes from "./TransportManagerRoutes";
 
 import FactoryManagerRoutes from "./FactoryManagerRoutes";
 import OwnerRoutes from "./OwnerRoutes";
+import PaymentManagerRoutes from "./PaymentManagerRoutes";
 
 //Factory Manager - Now handled by FactoryManagerRoutes.jsx
-
 
 //Payment Manager
 import PaymentManagerDashboard from "../pages/PaymentManager/dashboard";
@@ -41,78 +41,15 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
         {user?.role === "INVENTORY_MANAGER" && inventoryManagerRoutes}
-
         {user?.role === "FERTILIZER_MANAGER" && fertilizerManagerRoutes}
-
         {user?.role === "OWNER" && OwnerRoutes}
-
         {user?.role === "FACTORY_MANAGER" && FactoryManagerRoutes}
-
         {user?.role === "TRANSPORT_MANAGER" && TransportManagerRoutes}
-
+        {user?.role === "PAYMENT_MANAGER" && PaymentManagerRoutes}
         
-
-        {user?.role === "PAYMENT_MANAGER" && (
-          <>
-            <Route
-              path="/paymentManager/dashboard"
-              element={
-                <Layout>
-                  <PaymentManagerDashboard />
-                </Layout>
-              }
-            />
-            <Route
-              path="/paymentManager/advance"
-              element={
-                <Layout>
-                  <AdvanceManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/paymentManager/loans"
-              element={
-                <Layout>
-                  <LoanManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/paymentManager/payments"
-              element={
-                <Layout>
-                  <PaymentManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/paymentManager/teaRate"
-              element={
-                <Layout>
-                  <TeaRateAdjustment />
-                </Layout>
-              }
-            />
-          </>
-        )}
-
-        {/* {user?.role === "OWNER" && (
-          <>
-
-          <Route path="/owner/dashboard" element={<Layout>{" "}<OwnerDashboard />{" "}</Layout>}/>
-          <Route path="/owner/teaRate" element={<Layout>{" "}<OwnerTeaRate />{" "}</Layout>}/>
-          <Route path="/owner/managers" element={<Layout>{" "}<OwnerManagers />{" "}</Layout>}/>
-          <Route path="/owner/annoucement" element={<Layout>{" "}<OwnerAnnoucement />{" "}</Layout>}/>
-          <Route path="/owner/reports" element={<Layout>{" "}<OwnerReports />{" "}</Layout>}/>
-          <Route path="/owner/payments" element={<Layout>{" "}<OwnerPaymnets />{" "}</Layout>}/>
-          <Route path="/Owner/ManagerView/addManagers" element={<Layout>{" "}<AddManagers />{"  "}</Layout>}/>
-          <Route path="/Owner/ManagerView/giveaccess" element={<Layout>{" "}<GiveAccess />{" "}</Layout>}/>
-
-            
-          </>
-        )} */}
-
+        {/* Add PaymentManager routes for development/testing - remove in production */}
+        {PaymentManagerRoutes}
+        
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -124,10 +61,8 @@ export default function AppRouter() {
             </Layout>
           }
         />
-
         <Route path="/landing" element={<Landing />} />
         <Route path="" element={<Navigate to="/landing" />} />
-
         {/* <Route path="" element={<Navigate to="/login" />} /> */}
       </Routes>
     </BrowserRouter>

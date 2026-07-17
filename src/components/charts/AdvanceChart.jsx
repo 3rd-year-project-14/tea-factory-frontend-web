@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -9,6 +9,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+
 
 ChartJS.register(
   CategoryScale,
@@ -16,109 +18,176 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ChartDataLabels
 );
 
+
+const ACCENT_COLOR = "#b4e4dcff";
+const BTN_COLOR = "#01251F";
+
+
+// Helper function to calculate suitable max for Y-axis with 10% margin
+function computeMax(dataArray) {
+  if (!dataArray || !dataArray.length) return undefined;
+  const max = Math.max(...dataArray);
+  if (max > 1000) return Math.ceil(max * 1.1 / 100) * 100;
+  if (max > 100) return Math.ceil(max * 1.1 / 10) * 10;
+  return Math.ceil(max * 1.1);
+}
+
+
 const AdvanceChart = ({ data, selectedMonth, selectedYear }) => {
-  // Internal toggle state - default to daily view
+  const chartRef = useRef(null);
   const [viewType, setViewType] = useState("daily");
   const currentDate = new Date();
 
-  // Generate chart data based on view type
+
+  // Generate chart data based on selected view type
   const getChartData = () => {
     if (viewType === "daily") {
-      // Generate daily data for the selected month (or current month if not specified)
-      const monthToUse =
-        selectedMonth !== undefined ? selectedMonth : currentDate.getMonth();
-      const yearToUse =
-        selectedYear !== undefined ? selectedYear : currentDate.getFullYear();
-
+      const monthToUse = selectedMonth ?? currentDate.getMonth();
+      const yearToUse = selectedYear ?? currentDate.getFullYear();
       const daysInMonth = new Date(yearToUse, monthToUse + 1, 0).getDate();
-      const monthName = new Date(yearToUse, monthToUse).toLocaleDateString(
-        "en-US",
-        {
-          month: "long",
-          year: "numeric",
-        }
-      );
-
-      const dailyLabels = Array.from(
-        { length: daysInMonth },
-        (_, i) => `${i + 1}`
-      );
+      const dailyLabels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
       const dailyData = Array.from(
-        { length: daysInMonth },
-        () => Math.floor(Math.random() * 50) + 20 // Random daily tea supply between 20-70 kg
+        { length: daysInMonth }, () => Math.floor(Math.random() * 50) + 20
       );
-
       return {
         labels: dailyLabels,
         datasets: [
           {
-            label: `Daily Tea Supply (kg) - ${monthName}`,
+            label: "Tea Supply (kg)",
             data: dailyData,
-            backgroundColor: "#10b981",
+            backgroundColor: ACCENT_COLOR,
+            hoverBackgroundColor: "#165E52",
+            hoverBorderColor: "#165E52",
+            borderColor: ACCENT_COLOR,
+            borderWidth: 1,
+            borderRadius: 8,
+            borderSkipped: false,
           },
         ],
       };
-    } else {
-      // Monthly totals view
-      return (
-        data || {
-          labels: [
-            "Jun 2024",
-            "Jul 2024",
-            "Aug 2024",
-            "Sep 2024",
-            "Oct 2024",
-            "Nov 2024",
-            "Dec 2024",
-            "Jan 2025",
-            "Feb 2025",
-            "Mar 2025",
-            "Apr 2025",
-            "May 2025",
-          ],
-          datasets: [
-            {
-              label: "Monthly Tea Supply (kg)",
-              data: [
-                13000, 12000, 15000, 10000, 17000, 14000, 16500, 11800, 13500,
-                12200, 16800, 15200,
-              ],
-              backgroundColor: "#10b981",
-            },
-          ],
-        }
-      );
     }
+    // Monthly view data fallback or provided data
+    return (
+      data || {
+        labels: [
+          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ],
+        datasets: [
+          {
+            label: "Tea Supply (kg)",
+            data: [
+              12000, 14500, 13200, 15800, 16200, 17500,
+              18200, 16800, 15200, 13800, 12500, 11200,
+            ],
+            backgroundColor: ACCENT_COLOR,
+            borderColor: ACCENT_COLOR,
+            hoverBackgroundColor: "#165E52",
+            hoverBorderColor: "#165E52",
+            borderWidth: 1,
+            borderRadius: 8,
+            borderSkipped: false,
+          },
+        ],
+      }
+    );
   };
 
+
   const chartData = getChartData();
+  const yMax = computeMax(chartData.datasets?.[0]?.data);
+
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      title: { display: false },
+      title: {
+        display: true,
+        text: viewType === "daily" ? "Daily Tea Collection" : "Monthly Tea Collection",
+        font: { size: 18 },
+        color: "#1e293b",
+        padding: { top: 10, bottom: 20 },
+      },
+      datalabels: {
+        display: false,
+        anchor: "center",
+        align: "center",
+        color: "#1e293b",
+        font: { weight: "bold", size: 11 },
+        formatter: (value) => value + " kg",
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.dataset.label}: ${context.parsed.y} kg`,
+        },
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        borderColor: "#3b82f6",
+        borderWidth: 1,
+        displayColors: false,
+        titleFont: { size: 14 },
+        bodyFont: { size: 12 },
+        cornerRadius: 8,
+        caretPadding: 10,
+        padding: 12,
+      },
     },
     scales: {
-      y: { beginAtZero: true },
+      y: {
+        beginAtZero: true,
+        max: yMax,
+        title: {
+          display: true,
+          text: "Tea Supply (kg)",
+          color: "#1e293b",
+          font: { weight: "bold" },
+        },
+        grid: { color: "rgba(0,0,0,0.1)" },
+        ticks: { color: "#1e293b", font: { size: 11 } },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Time Period",
+          color: "#1e293b",
+          font: { weight: "bold" },
+        },
+        grid: { display: false },
+        ticks: { color: "#1e293b", font: { size: 11 } },
+      },
     },
   };
 
+
   return (
-    <div className="w-full">
-      {/* Toggle for all chart types */}
+    <div className="w-full h-96">
       <div className="flex items-center justify-center mb-4">
-        <div className="bg-emerald-50 rounded-lg p-1 flex border-2 border-emerald-300">
+        <div
+          className="rounded-lg p-1 flex"
+          style={{
+            background: "#e1f4ef",
+            border: `2px solid #cfece6`,
+          }}
+        >
           <button
             onClick={() => setViewType("daily")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               viewType === "daily"
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "text-emerald-700 hover:bg-emerald-100"
+                ? "text-white shadow-sm"
+                : "hover:bg-[#e1f4ef]"
             }`}
+            style={{
+              backgroundColor: viewType === "daily" ? BTN_COLOR : "transparent",
+              color: viewType === "daily" ? "#fff" : BTN_COLOR,
+              border: "none",
+            }}
           >
             Daily View
           </button>
@@ -126,17 +195,31 @@ const AdvanceChart = ({ data, selectedMonth, selectedYear }) => {
             onClick={() => setViewType("monthly")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               viewType === "monthly"
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "text-emerald-700 hover:bg-emerald-100"
+                ? "text-white shadow-sm"
+                : "hover:bg-[#e1f4ef]"
             }`}
+            style={{
+              backgroundColor: viewType === "monthly" ? BTN_COLOR : "transparent",
+              color: viewType === "monthly" ? "#fff" : BTN_COLOR,
+              border: "none",
+            }}
           >
             Monthly View
           </button>
         </div>
       </div>
-      <Bar data={chartData} options={options} />
+      <Bar
+        ref={chartRef}
+        data={chartData}
+        options={options}
+        plugins={[ChartDataLabels]}
+      />
     </div>
   );
 };
 
+
 export default AdvanceChart;
+
+
+

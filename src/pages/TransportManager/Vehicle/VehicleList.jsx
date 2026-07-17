@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Truck,
@@ -8,79 +8,88 @@ import {
   Edit,
   Trash2,
   UserCircle,
+  Plus,
 } from "lucide-react";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import EmptyState from "../../../components/ui/EmptyState";
 
 const initialVehicles = [
-  {
-    id: "TRK-001",
-    type: "Lorry",
-    model: "Tata Ace",
-    status: "Available",
-    driver: null,
-    lastService: "2024-03-15",
-    capacity: "200kg",
-  },
-  {
-    id: "TRK-002",
-    type: "Lorry",
-    model: "Tata Ace",
-    status: "In Use",
-    driver: "Mr.Perera",
-    lastService: "2024-06-15",
-    capacity: "500kg",
-  },
-  {
-    id: "TRK-003",
-    type: "Pickup Truck",
-    model: "Tata Ace",
-    status: "Maintenance",
-    driver: null,
-    lastService: "2023-06-15",
-    capacity: "500kg",
-  },
-  {
-    id: "TRK-004",
-    type: "Lorry",
-    model: "Tata Ace",
-    status: "In Use",
-    driver: "Mr.Perera",
-    lastService: "2024-06-15",
-    capacity: "500kg",
-  },
+  { id: "TRK-001", model: "Tata Ace", status: "Available", driver: null, lastService: "2024-03-15", capacity: "200kg" },
+  { id: "TRK-002", model: "Tata Ace", status: "In Use", driver: "Mr.Perera", lastService: "2024-06-15", capacity: "500kg" },
+  { id: "TRK-003", model: "Tata Ace", status: "Maintenance", driver: null, lastService: "2023-06-15", capacity: "500kg" },
+  { id: "TRK-004", model: "Tata Ace", status: "In Use", driver: "Mr.Perera", lastService: "2024-06-15", capacity: "500kg" },
 ];
 
-const statusConfig = {
-  Available: { color: "text-green-700" },
-  "In Use": { color: "text-yellow-700" },
-  Maintenance: { color: "text-red-700" },
+const statusColors = {
+  Available: "bg-tea-50 dark:bg-tea-900/30 text-tea-700 dark:text-tea-200",
+  "In Use": "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200",
+  Maintenance: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300",
 };
+
+function VehicleHeader({ onAddVehicle }) {
+  return (
+    <Card className="mb-6">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+        <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
+          Vehicle Management
+        </h1>
+        <Button variant="primary" icon={Plus} onClick={onAddVehicle}>
+          New Vehicle
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function VehicleSummaryCards({ summary }) {
+  const cards = [
+    { label: "Total Vehicles", value: summary.total || 0, sub: `${summary.available || 0} available`, icon: Truck },
+    { label: "Available", value: summary.available || 0, sub: "Ready to use", icon: CheckCircle2 },
+    { label: "Maintenance", value: summary.maintenance || 0, sub: "Under repair", icon: Wrench },
+  ];
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      {cards.map((card) => (
+        <Card key={card.label} hoverable>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">{card.label}</p>
+              <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">{card.value}</p>
+              <p className="text-xs text-ink/40 dark:text-muted-dark mt-1">{card.sub}</p>
+            </div>
+            <div className="h-12 w-12 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+              <card.icon className="w-6 h-6 text-tea-700 dark:text-tea-300" />
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 export default function Vehicle() {
   const [vehicles, setVehicles] = useState(initialVehicles);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("All Status");
+  const [filterStatus, setFilterStatus] = useState("All");
   const [filteredVehicles, setFilteredVehicles] = useState(initialVehicles);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  React.useEffect(() => {
     let filtered = vehicles;
-
-    if (filterStatus !== "All Status") {
+    if (filterStatus !== "All") {
       filtered = filtered.filter((v) => v.status === filterStatus);
     }
-
     if (searchTerm.trim() !== "") {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (v) =>
           v.id.toLowerCase().includes(term) ||
-          v.model.toLowerCase().includes(term) ||
-          v.type.toLowerCase().includes(term)
+          v.model.toLowerCase().includes(term)
       );
     }
-
     setFilteredVehicles(filtered);
   }, [searchTerm, filterStatus, vehicles]);
 
@@ -95,198 +104,153 @@ export default function Vehicle() {
     setVehicleToDelete(null);
   };
 
+  const vehicleStats = {
+    total: vehicles.length,
+    available: vehicles.filter((v) => v.status === "Available").length,
+    inUse: vehicles.filter((v) => v.status === "In Use").length,
+    maintenance: vehicles.filter((v) => v.status === "Maintenance").length,
+  };
+
   return (
-    <div className="md:p-4 p-2 bg-[#f9fafb] overflow-hidden">
-      {/* Stats Cards - DO NOT TOUCH */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div className="flex items-center bg-white rounded-xl shadow-md p-4 gap-4">
-          <div className="bg-orange-100 p-3 rounded-full">
-            <Truck className="text-orange-600" size={28} />
-          </div>
-          <div>
-            <div className="text-gray-500 text-sm">Total Vehicle</div>
-            <div className="text-2xl font-bold text-gray-900">24</div>
-          </div>
-        </div>
-        <div className="flex items-center bg-white rounded-xl shadow-md p-4 gap-4">
-          <div className="bg-green-100 p-3 rounded-full">
-            <CheckCircle2 className="text-green-700" size={28} />
-          </div>
-          <div>
-            <div className="text-gray-500 text-sm">Available</div>
-            <div className="text-2xl font-bold text-green-700">8</div>
-          </div>
-        </div>
-        <div className="flex items-center bg-white rounded-xl shadow-md p-4 gap-4">
-          <div className="bg-yellow-100 p-3 rounded-full">
-            <Truck className="text-yellow-700" size={28} />
-          </div>
-          <div>
-            <div className="text-gray-500 text-sm">In Use</div>
-            <div className="text-2xl font-bold text-yellow-700">15</div>
-          </div>
-        </div>
-        <div className="flex items-center bg-white rounded-xl shadow-md p-4 gap-4">
-          <div className="bg-red-100 p-3 rounded-full">
-            <Wrench className="text-red-700" size={28} />
-          </div>
-          <div>
-            <div className="text-gray-500 text-sm">Maintenance</div>
-            <div className="text-2xl font-bold text-red-700">1</div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-full">
+      <VehicleHeader onAddVehicle={() => navigate("/transportManager/Vehicle/add")} />
 
-      {/* Top Bar */}
-      <div className="flex justify-end mb-6">
-        <button
-          onClick={() => navigate("/transportManager/Vehicle/add")}
-          className="bg-green-700 px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-800 transition"
-        >
-          + New Vehicle
-        </button>
-      </div>
+      <VehicleSummaryCards
+        summary={{
+          total: vehicleStats.total,
+          available: vehicleStats.available,
+          maintenance: vehicleStats.maintenance,
+        }}
+      />
 
-      {/* Search and Filter */}
-      <div className="bg-white rounded-xl shadow-md flex flex-col md:flex-row gap-4 items-center p-4 mb-6">
-        <input
-          type="text"
-          placeholder="🔍 Search Vehicles...."
-          className="flex-grow px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <select
-          className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300"
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option>All Status</option>
-          <option>Available</option>
-          <option>In Use</option>
-          <option>Maintenance</option>
-        </select>
-      </div>
+      {/* Search & Filter */}
+      <Card className="mb-6">
+        <div className="flex flex-col md:flex-row justify-between gap-4">
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full md:w-56 pl-4 pr-10 py-2 text-sm rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-tea-700 dark:text-tea-200 placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
+          />
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="w-full md:w-auto px-4 py-2 text-sm rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-tea-700 dark:text-tea-200 focus:outline-none focus:ring-2 focus:ring-tea-500/40"
+          >
+            <option>All</option>
+            <option>Available</option>
+            <option>In Use</option>
+            <option>Maintenance</option>
+          </select>
+        </div>
+      </Card>
 
-      {/* Vehicle Table */}
-      <div className="bg-white rounded-xl shadow-lg overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="bg-green-900 text-white">
-              <th className="py-3 px-4 text-left">Vehicle</th>
-              <th className="py-3 px-4 text-left">Type</th>
-              <th className="py-3 px-4 text-left">Status</th>
-              <th className="py-3 px-4 text-left">Driver</th>
-              <th className="py-3 px-4 text-left">Capacity</th>
-              <th className="py-3 px-4 text-left">Last Service</th>
-              <th className="py-3 px-4 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredVehicles.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-center py-6 text-gray-500">
-                  No vehicles found.
-                </td>
-              </tr>
-            ) : (
-              filteredVehicles.map((v, idx) => (
-                <tr
-                  key={v.id}
-                  className={`border-b ${
-                    idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-green-50 transition`}
-                >
-                  <td className="py-3 px-4 flex items-center gap-3">
-                    <Truck
-                      className="text-orange-600 bg-orange-100 rounded-full p-1"
-                      size={32}
-                    />
-                    <div>
-                      <div className="font-semibold">{v.id}</div>
-                      <div className="text-xs text-gray-400">{v.model}</div>
+      {/* Vehicles Table */}
+      <Card className="!p-0 overflow-x-auto">
+        <div className="bg-tea-900 text-white">
+          <div className="grid grid-cols-7 gap-4 p-4 font-medium text-center text-sm">
+            <div>Vehicle</div>
+            <div>Status</div>
+            <div>Driver</div>
+            <div>Capacity</div>
+            <div>Last Service</div>
+            <div className="col-span-2">Actions</div>
+          </div>
+        </div>
+
+        <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
+          {filteredVehicles.length === 0 ? (
+            <EmptyState title="No vehicles found" description="" />
+          ) : (
+            filteredVehicles.map((v, idx) => (
+              <div
+                key={v.id}
+                className={`grid grid-cols-7 gap-4 p-4 items-center ${
+                  idx % 2 === 0 ? "bg-card dark:bg-card-dark" : "bg-surface dark:bg-white/5"
+                } hover:bg-tea-50 dark:hover:bg-white/10 transition-colors`}
+              >
+                <div className="flex items-center gap-2 justify-center text-tea-700 dark:text-tea-300 font-semibold text-lg">
+                  <div>
+                    <div>{v.id}</div>
+                    <div className="text-xs text-ink/50 dark:text-muted-dark">
+                      {v.model}
                     </div>
-                  </td>
-                  <td className="py-3 px-4">{v.type}</td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`font-semibold ${
-                        statusConfig[v.status]?.color
-                      }`}
-                    >
-                      {v.status}
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <span className={`font-semibold text-sm rounded-full px-3 py-1 ${statusColors[v.status] || "text-ink/50 dark:text-muted-dark"}`}>
+                    {v.status}
+                  </span>
+                </div>
+
+                <div className="text-ink/80 dark:text-ink-dark/80 text-center">
+                  {v.driver ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <UserCircle size={20} />
+                      {v.driver}
                     </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    {v.driver ? (
-                      <span className="flex items-center gap-2">
-                        <UserCircle className="text-gray-400" size={22} />
-                        {v.driver}
-                      </span>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td className="py-3 px-4">{v.capacity}</td>
-                  <td className="py-3 px-4">{v.lastService}</td>
-                  <td className="py-3 px-4">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() =>
-                          navigate(`/transportManager/Vehicle/view/${v.id}`)
-                        }
-                        className="p-1 rounded hover:bg-blue-100 hover:text-blue-700"
-                      >
-                        <Eye size={18} />
-                      </button>
-                      <button
-                        onClick={() =>
-                          navigate(`/transportManager/vehicle/edit/${v.id}`)
-                        }
-                        className="p-1 rounded hover:bg-yellow-100 hover:text-yellow-700"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setVehicleToDelete(v.id);
-                          setConfirmModalOpen(true);
-                        }}
-                        className="p-1 rounded hover:bg-red-100 hover:text-red-700"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                  ) : (
+                    <span className="italic text-ink/40 dark:text-muted-dark">-</span>
+                  )}
+                </div>
+
+                <div className="text-ink/80 dark:text-ink-dark/80 text-center">{v.capacity}</div>
+                <div className="text-ink/80 dark:text-ink-dark/80 text-center">
+                  {v.lastService}
+                </div>
+
+                <div className="flex justify-center gap-3 col-span-2">
+                  <button
+                    onClick={() => navigate(`/transportManager/Vehicle/view/${v.id}`)}
+                    className="p-2 rounded-full text-tea-700 dark:text-tea-300 hover:bg-tea-50 dark:hover:bg-white/10 transition-colors"
+                    title="View"
+                  >
+                    <Eye size={18} />
+                  </button>
+                  <button
+                    onClick={() => navigate(`/transportManager/vehicle/edit/${v.id}`)}
+                    className="p-2 rounded-full text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                    title="Edit"
+                  >
+                    <Edit size={18} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setVehicleToDelete(v.id);
+                      setConfirmModalOpen(true);
+                    }}
+                    className="p-2 rounded-full text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </Card>
 
       {/* Delete Confirmation Modal */}
       {confirmModalOpen && (
-        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-green-200 p-6 rounded-lg shadow-xl border border-gray-300 z-50 max-w-sm w-full text-center">
-          <h3 className="text-lg font-semibold mb-4 text-gray-800">
-            Confirm Deletion
-          </h3>
-          <p className="text-gray-700 mb-6">
-            Are you sure you want to remove this vehicle?
-          </p>
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={cancelDelete}
-              className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded hover:bg-gray-200"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={confirmDelete}
-              className="px-4 py-2 bg-red-600 rounded hover:bg-red-700"
-            >
-              Delete
-            </button>
+        <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-card dark:bg-card-dark rounded-2xl shadow-card border border-tea-100 dark:border-card-border-dark max-w-sm w-full p-6 text-center">
+            <h3 className="text-xl font-heading font-semibold mb-4 text-tea-700 dark:text-tea-300">
+              Confirm Deletion
+            </h3>
+            <p className="mb-6 text-ink/70 dark:text-ink-dark/70">
+              Are you sure you want to remove this vehicle?
+            </p>
+            <div className="flex justify-center gap-4">
+              <Button variant="outline" onClick={cancelDelete}>
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={confirmDelete}>
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       )}

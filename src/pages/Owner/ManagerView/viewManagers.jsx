@@ -1,193 +1,236 @@
-import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { Search, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { getManagers, getManagersByFactory } from "../../../api/manager";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import EmptyState from "../../../components/ui/EmptyState";
 
 export default function ManagerDashboard() {
-  const [selectedRole, setSelectedRole] = useState('');
-  const [selectedFactory, setSelectedFactory] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedFactory, setSelectedFactory] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [managers, setManagers] = useState([]);
 
-  const [managers, setManagers] = useState([
-    {
-      id: 'MG_A_001',
-      name: 'Gayan sadamal',
-      email: 'gayan@gmail.com',
-      role: 'Manager',
-      status: 'Active',
-      factory: 'A'
-    },
-    {
-      id: 'MG_A_011',
-      name: 'Gayan sadamal',
-      email: 'gayan@gmail.com',
-      role: 'Manager',
-      status: 'Suspended',
-      factory: 'A'
-    },
-    {
-      id: 'MG_A_023',
-      name: 'Gayan sadamal',
-      email: 'gayan@gmail.com',
-      role: 'Manager',
-      status: 'Active',
-      factory: 'A'
-    },
-    {
-      id: 'MG_B_001',
-      name: 'John Smith',
-      email: 'john@gmail.com',
-      role: 'Supervisor',
-      status: 'Active',
-      factory: 'B'
-    },
-    {
-      id: 'MG_C_111',
-      name: 'Sarah Wilson',
-      email: 'sarah@gmail.com',
-      role: 'Admin',
-      status: 'Active',
-      factory: 'C'
-    },
-    {
-      id: 'MG_B_001',
-      name: 'Mike Johnson',
-      email: 'mike@gmail.com',
-      role: 'Manager',
-      status: 'Suspended',
-      factory: 'B'
-    }
-  ]);
+  const factoryOptions = [
+    { id: "1", name: "Wawlugala Tea Factory" },
+    { id: "2", name: "Miyanawathura Tea Factory" },
+    { id: "3", name: "Andaradeniya Tea Factory" },
+    { id: "4", name: "Andaradeniya Tea Factory" },
+    { id: "5", name: "Duli Ella Tea Factory" },
+    { id: "6", name: "Devonia Tea Factory" },
+    { id: "7", name: "Fortune Tea Factory" },
+    { id: "8", name: "Galaxi Tea Factory" },
+    { id: "9", name: "Ruhunu Tea Factory" },
+  ];
 
-  // Filter managers based on selected criteria
-  const filteredManagers = managers.filter(manager => {
-    const matchesRole = !selectedRole || manager.role.toLowerCase() === selectedRole.toLowerCase();
-    const matchesFactory = !selectedFactory || manager.factory === selectedFactory;
-    const matchesSearch = !searchTerm ||
-      manager.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      manager.id.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesRole && matchesFactory && matchesSearch;
-  });
+  useEffect(() => {
+    let mounted = true;
+    const fetchManagers = async () => {
+      try {
+        let data;
+        if (selectedFactory) {
+          data = await getManagersByFactory(Number(selectedFactory));
+        } else {
+          data = await getManagers();
+        }
+        if (!mounted) return;
+        const mapped = (data || []).map((m) => {
+          const found = factoryOptions.find((f) => String(f.id) === String(m.factoryId));
+          return {
+            id: m.id ? String(m.id) : "",
+            name: m.name || m.email || "",
+            email: m.email || "",
+            role: m.role || "",
+            status: m.status || "Active",
+            factory: found ? found.name : (m.factoryId ? String(m.factoryId) : "-"),
+            factoryId: m.factoryId,
+          };
+        });
+        setManagers(mapped);
+      } catch (err) {
+        console.error("Failed to load managers:", err);
+      }
+    };
+    fetchManagers();
+    return () => {
+      mounted = false;
+    };
+  }, [selectedFactory]);
+
+  const filteredManagers = useMemo(() => {
+    return managers.filter((manager) => {
+      const matchesRole =
+        !selectedRole ||
+        manager.role.toLowerCase() === selectedRole.toLowerCase();
+      const matchesFactory =
+        !selectedFactory || String(manager.factoryId) === String(selectedFactory);
+      const matchesSearch =
+        !searchTerm ||
+        manager.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        manager.id.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesRole && matchesFactory && matchesSearch;
+    });
+  }, [managers, selectedRole, selectedFactory, searchTerm]);
 
   const handleStatusToggle = (id) => {
-    setManagers(prevManagers => 
-      prevManagers.map(manager => 
-        manager.id === id 
-          ? { ...manager, status: manager.status === 'Active' ? 'Suspended' : 'Active' }
+    setManagers((prev) =>
+      prev.map((manager) =>
+        manager.id === id
+          ? {
+              ...manager,
+              status: manager.status === "Active" ? "Suspended" : "Active",
+            }
           : manager
       )
     );
   };
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Managers</h1>
-              <p className="text-gray-600 mt-1">Owner Dashboard - Manager Overview & Control</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow"
-                onClick={() => window.location.href = '/Owner/ManagerView/addManagers'}
-              >
-                <span className="font-semibold text-base">+ Add Manager</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+  const getStatusBadge = (status) => {
+    const statusStyles = {
+      Active: "bg-tea-100 text-tea-800 dark:bg-tea-900/30 dark:text-tea-200",
+      Suspended: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200",
+    };
+    const label = status === "Active" ? "Active" : "Suspended";
+    return (
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${
+          statusStyles[status] || "bg-gray-100 text-gray-800 dark:bg-white/10 dark:text-ink-dark"
+        }`}
+      >
+        {label}
+      </span>
+    );
+  };
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  return (
+    <div className="min-h-full">
+      {/* Header */}
+      <Card className="mb-6">
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">Managers</h1>
+            <p className="text-ink/60 dark:text-muted-dark mt-1 text-sm">
+              Owner Dashboard - Manager Overview & Control
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            onClick={() => (window.location.href = "/Owner/ManagerView/addManagers")}
+          >
+            + Add Manager
+          </Button>
+        </div>
+      </Card>
+
+      <div className="space-y-6">
         {/* Filters */}
-        <div className="bg-white/80 backdrop-blur p-6 rounded-lg shadow-md mb-6">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="min-w-48">
-              <select 
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none shadow-sm"
-              >
-                <option value="">All Roles</option>
-                <option value="Manager">Manager</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="Admin">Admin</option>
-              </select>
-            </div>
-            <div className="min-w-48">
-              <select 
-                value={selectedFactory}
-                onChange={(e) => setSelectedFactory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none shadow-sm"
-              >
-                <option value="">All Factories</option>
-                <option value="A">Factory A</option>
-                <option value="B">Factory B</option>
-                <option value="C">Factory C</option>
-              </select>
-            </div>
-            <div className="flex-1 min-w-64">
-              <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search managers ..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
+        <Card>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-tea-700 dark:text-tea-200 focus:outline-none focus:ring-2 focus:ring-tea-500/40 appearance-none"
+              aria-label="Filter by Role"
+            >
+              <option value="">All Roles</option>
+              <option value="Manager">Manager</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Admin">Admin</option>
+            </select>
+
+            <select
+              value={selectedFactory}
+              onChange={(e) => setSelectedFactory(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-tea-700 dark:text-tea-200 focus:outline-none focus:ring-2 focus:ring-tea-500/40 appearance-none"
+              aria-label="Filter by Factory"
+            >
+              <option value="">All Factories</option>
+              {factoryOptions.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+
+            <div className="relative w-full col-span-2 md:col-span-1">
+              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-ink/40 dark:text-muted-dark" />
+              <input
+                type="text"
+                placeholder="Search managers ..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-tea-700 dark:text-tea-200 placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
+                aria-label="Search managers"
+              />
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-green-600 text-white">
-              <tr>
-                <th className="px-6 py-4 text-left font-semibold">Manager ID</th>
-                <th className="px-6 py-4 text-left font-semibold">Name</th>
-                <th className="px-6 py-4 text-left font-semibold">Role</th>
-                <th className="px-6 py-4 text-left font-semibold">Status</th>
-                <th className="px-6 py-4 text-left font-semibold">Factory</th>
-                <th className="px-6 py-4 text-left font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredManagers.map((manager) => (
-                <tr key={manager.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-gray-900">{manager.id}</td>
-                  <td className="px-6 py-4 text-gray-900">{manager.name}</td>
-                  <td className="px-6 py-4 text-gray-900">{manager.role}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      manager.status === 'Active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {manager.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-900">{manager.factory}</td>
-                  <td className="px-6 py-4">
+        <Card className="!p-0 overflow-hidden">
+          <div className="bg-tea-900 text-white">
+            <div className="grid grid-cols-6 gap-4 p-4 font-medium text-sm">
+              <div className="text-left">Manager ID</div>
+              <div className="text-left">Name</div>
+              <div className="text-left">Role</div>
+              <div className="text-center">Status</div>
+              <div className="text-center">Factory</div>
+              <div className="text-center">Action</div>
+            </div>
+          </div>
+
+          <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
+            {filteredManagers.length > 0 ? (
+              filteredManagers.map((manager) => (
+                <div
+                  key={`${manager.id}-${manager.status}`}
+                  className="grid grid-cols-6 gap-4 p-3 items-center hover:bg-tea-50 dark:hover:bg-white/5 transition-colors text-tea-700 dark:text-tea-200"
+                >
+                  <div className="font-mono text-sm">{manager.id}</div>
+                  <div>
+                    <p className="font-semibold">{manager.name}</p>
+                    <p className="text-xs text-ink/50 dark:text-muted-dark">{manager.email}</p>
+                  </div>
+                  <div>{manager.role}</div>
+                  <div className="flex justify-center">
+                    {getStatusBadge(manager.status)}
+                  </div>
+                  <div className="text-center">{manager.factory}</div>
+                  <div className="flex justify-center">
                     <button
                       onClick={() => handleStatusToggle(manager.id)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        manager.status === 'Active'
-                          ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                          : 'bg-green-100 text-green-700 hover:bg-green-200'
+                      className={`px-3 py-1 rounded-lg font-medium text-xs transition-colors ${
+                        manager.status === "Active"
+                          ? "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                          : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
                       }`}
+                      aria-label={
+                        manager.status === "Active"
+                          ? "Suspend manager"
+                          : "Activate manager"
+                      }
                     >
-                      {manager.status === 'Active' ? 'Suspend' : 'Active'}
+                      {manager.status === "Active" ? "Suspend" : "Activate"}
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <EmptyState
+                icon={Users}
+                title="No managers found"
+                description="Try adjusting your filters or add a new manager."
+              />
+            )}
+          </div>
+
+          {/* Footer info */}
+          <div className="flex items-center justify-between text-sm text-ink/60 dark:text-muted-dark p-4 border-t border-tea-100 dark:border-card-border-dark">
+            <div>
+              Showing {filteredManagers.length} of {managers.length} managers
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   );

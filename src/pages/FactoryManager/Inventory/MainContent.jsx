@@ -4,12 +4,18 @@ import SupplierDetailView from "./SupplierDetailView";
 
 export default function MainContent({
   currentView,
+  suppliersData,
   filteredData,
   summary,
   onViewRoute,
   onViewSupplierDetail,
   selectedSupplier,
   selectedRoute,
+  page,
+  totalPages,
+  totalElements,
+  setPage,
+  loading,
 }) {
   if (currentView === "routes") {
     return (
@@ -17,15 +23,21 @@ export default function MainContent({
         filteredData={filteredData}
         summary={summary}
         onViewRoute={onViewRoute}
+        loading={loading}
       />
     );
   } else if (currentView === "suppliers") {
     return (
       <SuppliersView
-        filteredData={filteredData}
+        suppliersData={suppliersData}
         summary={summary}
         onViewSupplierDetail={onViewSupplierDetail}
         selectedRoute={selectedRoute}
+        page={page}
+        totalPages={totalPages}
+        totalElements={totalElements}
+        setPage={setPage}
+        loading={loading}
       />
     );
   } else if (currentView === "detail") {

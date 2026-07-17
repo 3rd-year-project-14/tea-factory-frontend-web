@@ -1,3 +1,6 @@
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+
 export default function InventoryHeader({
   currentView,
   selectedRoute,
@@ -17,9 +20,9 @@ export default function InventoryHeader({
 }) {
   const getTitle = () => {
     if (currentView === "routes") return "Inventory Management";
-    if (currentView === "suppliers") return `${selectedRoute?.routeName}`;
+    if (currentView === "suppliers") return selectedRoute?.routeName || "Route";
     if (currentView === "detail") return "Inventory Details";
-    return "Inventory Management";
+    return "Inventory";
   };
 
   const handleGoBack = () => {
@@ -30,99 +33,93 @@ export default function InventoryHeader({
     }
   };
 
-  // Show enhanced header with date selection for routes and suppliers views
-  if (currentView === "routes" || currentView === "suppliers") {
-    return (
-      <div className="bg-white shadow-md border-b border-emerald-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-            <div>
-              <p className="text-3xl font-bold text-emerald-800 mb-1">
-                {getTitle()}
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              {currentView === "suppliers" && (
-                <button
-                  onClick={handleGoBack}
-                  className="px-6 py-3 rounded-lg text-sm font-semibold bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200 transition-colors duration-200"
-                >
-                  ← Back
-                </button>
-              )}
+  return (
+    <Card className="mb-6">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+        {/* Title */}
+        <div>
+          <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300 mb-1">
+            {getTitle()}
+          </h1>
+        </div>
 
-              {/* View Mode Toggle Buttons */}
+        {/* Right Controls */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          {(currentView === "suppliers" || currentView === "detail") && (
+            <Button variant="outline" size="sm" onClick={handleGoBack}>
+              ← Back
+            </Button>
+          )}
+
+          {/* View Mode Buttons (Only for routes/suppliers) */}
+          {(currentView === "routes" || currentView === "suppliers") && (
+            <>
+              {/* View Toggle */}
               <div className="flex gap-2">
-                <button
-                  onClick={() => onViewModeChange("daily")}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 min-w-[90px] ${
-                    viewMode === "daily"
-                      ? "text-emerald-700 bg-emerald-100 border border-emerald-300 hover:bg-emerald-200"
-                      : "text-emerald-600 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100"
-                  }`}
-                >
-                  Daily
-                </button>
-                <button
-                  onClick={() => onViewModeChange("monthly")}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 min-w-[90px] ${
-                    viewMode === "monthly"
-                      ? "text-emerald-700 bg-emerald-100 border border-emerald-300 hover:bg-emerald-200"
-                      : "text-emerald-600 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100"
-                  }`}
-                >
-                  Monthly
-                </button>
+                {["daily", "monthly"].map((mode) => (
+                  <Button
+                    key={mode}
+                    size="sm"
+                    variant={viewMode === mode ? "primary" : "outline"}
+                    onClick={() => onViewModeChange(mode)}
+                    className="min-w-[90px]"
+                  >
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </Button>
+                ))}
               </div>
 
-              {/* Conditional Controls based on view mode */}
-              {viewMode === "daily" ? (
+              {/* Controls for Daily View */}
+              {viewMode === "daily" && (
                 <>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="min-w-[90px] !bg-tea-50 !text-tea-700 dark:!bg-tea-900/30 dark:!text-tea-200"
                     onClick={() => {
                       const today = new Date();
-                      const todayString = today.toISOString().split("T")[0];
+                      const todayStr = today.toISOString().split("T")[0];
 
-                      if (selectedDate === todayString) {
-                        // If today is selected, go to yesterday
-                        const yesterday = new Date();
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        onDateChange(yesterday.toISOString().split("T")[0]);
-                      } else {
-                        // If any other date is selected, go to today
-                        onDateChange(todayString);
-                      }
+                      const yesterday = new Date();
+                      yesterday.setDate(today.getDate() - 1);
+                      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+                      onDateChange(
+                        selectedDate === todayStr ? yesterdayStr : todayStr
+                      );
                     }}
-                    className="px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors duration-200 min-w-[90px]"
                   >
                     {(() => {
                       const today = new Date().toISOString().split("T")[0];
                       return selectedDate === today ? "Yesterday" : "Today";
                     })()}
-                  </button>
+                  </Button>
 
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-emerald-700">
+                    <label className="text-sm font-medium text-tea-700 dark:text-tea-300">
                       Date:
                     </label>
                     <input
                       type="date"
                       value={selectedDate}
                       onChange={(e) => onDateChange(e.target.value)}
-                      className="px-3 py-2 border-0 bg-emerald-50 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-emerald-800 font-medium outline-none"
+                      className="px-3 py-2 rounded-lg font-medium outline-none bg-tea-50 dark:bg-tea-900/30 text-tea-700 dark:text-tea-200 border border-tea-100 dark:border-card-border-dark"
                     />
                   </div>
                 </>
-              ) : (
+              )}
+
+              {/* Controls for Monthly View */}
+              {viewMode === "monthly" && (
                 <>
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-emerald-700">
+                    <label className="text-sm font-medium text-tea-700 dark:text-tea-300">
                       Month:
                     </label>
                     <select
                       value={selectedMonth}
                       onChange={(e) => onMonthChange(parseInt(e.target.value))}
-                      className="px-3 py-2 border-0 bg-emerald-50 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-emerald-800 font-medium outline-none"
+                      className="px-3 py-2 rounded-lg font-medium bg-tea-50 dark:bg-tea-900/30 text-tea-700 dark:text-tea-200 border border-tea-100 dark:border-card-border-dark"
                     >
                       {getAvailableMonths(selectedYear).map((monthIndex) => (
                         <option key={monthIndex} value={monthIndex}>
@@ -133,7 +130,7 @@ export default function InventoryHeader({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-emerald-700">
+                    <label className="text-sm font-medium text-tea-700 dark:text-tea-300">
                       Year:
                     </label>
                     <select
@@ -141,15 +138,12 @@ export default function InventoryHeader({
                       onChange={(e) => {
                         const newYear = parseInt(e.target.value);
                         onYearChange(newYear);
-                        // Reset month if current month is not available for new year
                         const availableMonths = getAvailableMonths(newYear);
                         if (!availableMonths.includes(selectedMonth)) {
-                          onMonthChange(
-                            availableMonths[availableMonths.length - 1]
-                          );
+                          onMonthChange(availableMonths[availableMonths.length - 1]);
                         }
                       }}
-                      className="px-3 py-2 border-0 bg-emerald-50 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-emerald-800 font-medium outline-none"
+                      className="px-3 py-2 rounded-lg font-medium bg-tea-50 dark:bg-tea-900/30 text-tea-700 dark:text-tea-200 border border-tea-100 dark:border-card-border-dark"
                     >
                       {availableYears.map((year) => (
                         <option key={year} value={year}>
@@ -160,38 +154,10 @@ export default function InventoryHeader({
                   </div>
                 </>
               )}
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
-    );
-  }
-
-  // Enhanced header for detail view with date selection
-  if (currentView === "detail") {
-    return (
-      <div className="bg-white shadow-md border-b border-emerald-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-            <div>
-              <p className="text-3xl font-bold text-emerald-800 mb-1">
-                {getTitle()}
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <button
-                onClick={handleGoBack}
-                className="px-6 py-3 rounded-lg text-sm font-semibold bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200 transition-colors duration-200"
-              >
-                ← Back
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // This should not be reached now
-  return null;
+    </Card>
+  );
 }

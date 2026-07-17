@@ -1,223 +1,206 @@
 import React, { useState } from "react";
-import { MapPin, Clock, FileText, Route } from "lucide-react";
+import { X } from "lucide-react";
+import Button from "../../../components/ui/Button";
 
-export default function CreateRoute() {
-  const [form, setForm] = useState({
+const inputClass =
+  "w-full rounded-lg px-4 py-2 text-sm border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40";
+
+// Dummy driver list (REPLACE with prop if needed)
+const drivers = [
+  { id: "1", name: "Nimal Perera", phone: "0711234567", type: "inhouse-driver" },
+  { id: "2", name: "Kamal Silva", phone: "0779876543", type: "inhouse-driver" },
+];
+
+export default function CreateRoutePage({ onCancel }) {
+  const [formData, setFormData] = useState({
     routeName: "",
-    routeCode: "",
     startLocation: "",
     endLocation: "",
-    estimatedDuration: "",
     distance: "",
-    description: "",
+    estimatedTime: "",
+    driverType: "inhouse",
+    assignedDriver: "",
+    assignedVehicle: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("Route created successfully!\n" + JSON.stringify(form, null, 2));
-    // onAdd(form);
-    // navigate("/transportManager/routes");
+    setFormData((prev) => {
+      const cleared =
+        name === "driverType"
+          ? { assignedDriver: "", assignedVehicle: "" }
+          : {};
+      return { ...prev, [name]: value, ...cleared };
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-100 w-full">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-800">
-          <Route className="text-green-700" size={28} />
+    <div className="flex flex-col w-[540px] max-w-[95vw] rounded-2xl border border-tea-100 dark:border-card-border-dark shadow-card overflow-hidden mx-auto mt-10 mb-0 bg-card dark:bg-card-dark">
+      {/* Header */}
+      <div className="p-5 flex justify-between items-center border-b border-tea-100 dark:border-card-border-dark bg-tea-50 dark:bg-tea-900/20">
+        <h2 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
           Create New Route
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Route Name */}
-          <div>
-            <label
-              className="block mb-1 font-semibold text-gray-700"
-              htmlFor="routeName"
-            >
-              Route Name
-            </label>
-            <div className="relative">
-              <FileText
-                className="absolute left-3 top-3 text-blue-500"
-                size={18}
-              />
-              <input
-                type="text"
-                id="routeName"
-                name="routeName"
-                placeholder="e.g., Galle to Neluwa Express"
-                value={form.routeName}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
-              />
-            </div>
-          </div>
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="p-1 rounded text-tea-700 dark:text-tea-300 hover:bg-tea-100 dark:hover:bg-white/10"
+            aria-label="Close"
+            type="button"
+          >
+            <X size={20} />
+          </button>
+        )}
+      </div>
 
-          {/* Route Code */}
-          <div>
-            <label
-              className="block mb-1 font-semibold text-gray-700"
-              htmlFor="routeCode"
-            >
-              Route Code
-            </label>
-            <div className="relative">
-              <Route
-                className="absolute left-3 top-3 text-purple-500"
-                size={18}
-              />
-              <input
-                type="text"
-                id="routeCode"
-                name="routeCode"
-                placeholder="e.g., RT-001"
-                value={form.routeCode}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
-              />
-            </div>
-          </div>
+      {/* Form content with tighter vertical spacing */}
+      <form className="p-6 space-y-3">
+        <div>
+          <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
+            Route Name
+          </label>
+          <input
+            type="text"
+            name="routeName"
+            value={formData.routeName}
+            onChange={handleChange}
+            placeholder="e.g., Colombo - Kandy"
+            className={inputClass}
+          />
+        </div>
 
-          {/* Start Location */}
+        {/* Row 1: Start Location & End Location */}
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label
-              className="block mb-1 font-semibold text-gray-700"
-              htmlFor="startLocation"
-            >
+            <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
               Start Location
             </label>
-            <div className="relative">
-              <MapPin
-                className="absolute left-3 top-3 text-green-500"
-                size={18}
-              />
-              <input
-                type="text"
-                id="startLocation"
-                name="startLocation"
-                placeholder="e.g., Galle"
-                value={form.startLocation}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {/* End Location */}
-          <div>
-            <label
-              className="block mb-1 font-semibold text-gray-700"
-              htmlFor="endLocation"
-            >
-              End Location
-            </label>
-            <div className="relative">
-              <MapPin
-                className="absolute left-3 top-3 text-red-500"
-                size={18}
-              />
-              <input
-                type="text"
-                id="endLocation"
-                name="endLocation"
-                placeholder="e.g., Neluwa"
-                value={form.endLocation}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Distance */}
-          <div>
-            <label
-              className="block mb-1 font-semibold text-gray-700"
-              htmlFor="distance"
-            >
-              Distance (km)
-            </label>
-            <div className="relative">
-              <Route
-                className="absolute left-3 top-3 text-indigo-500"
-                size={18}
-              />
-              <input
-                type="number"
-                id="distance"
-                name="distance"
-                placeholder="e.g., 45"
-                value={form.distance}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Estimated Duration */}
-          <div>
-            <label
-              className="block mb-1 font-semibold text-gray-700"
-              htmlFor="estimatedDuration"
-            >
-              Estimated Duration (hours)
-            </label>
-            <div className="relative">
-              <Clock
-                className="absolute left-3 top-3 text-gray-500"
-                size={18}
-              />
-              <input
-                type="number"
-                step="0.5"
-                id="estimatedDuration"
-                name="estimatedDuration"
-                placeholder="e.g., 2.5"
-                value={form.estimatedDuration}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label
-              className="block mb-1 font-semibold text-gray-700"
-              htmlFor="description"
-            >
-              Description (Optional)
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              placeholder="Additional route details..."
-              value={form.description}
+            <input
+              type="text"
+              name="startLocation"
+              value={formData.startLocation}
               onChange={handleChange}
-              rows={3}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-200 focus:outline-none resize-none"
+              placeholder="e.g., Colombo"
+              className={inputClass}
             />
           </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-lg font-bold text-lg shadow-md transition-colors duration-200 flex items-center justify-center gap-2"
+          <div>
+            <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
+              End Location
+            </label>
+            <input
+              type="text"
+              name="endLocation"
+              value={formData.endLocation}
+              onChange={handleChange}
+              placeholder="e.g., Kandy"
+              className={inputClass}
+            />
+          </div>
+        </div>
+
+        {/* Row 2: Distance & Estimated Time */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
+              Distance (km)
+            </label>
+            <input
+              type="number"
+              name="distance"
+              value={formData.distance}
+              onChange={handleChange}
+              placeholder="e.g., 120"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
+              Estimated Time
+            </label>
+            <input
+              type="text"
+              name="estimatedTime"
+              value={formData.estimatedTime}
+              onChange={handleChange}
+              placeholder="e.g., 3.5 hours"
+              className={inputClass}
+            />
+          </div>
+        </div>
+
+        {/* Driver Type */}
+        <div>
+          <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
+            Driver Type
+          </label>
+          <select
+            name="driverType"
+            value={formData.driverType}
+            onChange={handleChange}
+            className={inputClass}
           >
-            <Route size={20} />
-            Create Route
-          </button>
-        </form>
+            <option value="inhouse">Inhouse Driver</option>
+            <option value="private">Private Driver</option>
+          </select>
+        </div>
+
+        {/* Only Visible When Driver Type is Inhouse */}
+        {formData.driverType === "inhouse" && (
+          <>
+            <div>
+              <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
+                Assigned Inhouse Driver
+              </label>
+              <select
+                name="assignedDriver"
+                value={formData.assignedDriver}
+                onChange={handleChange}
+                className={inputClass}
+              >
+                <option value="">Select Driver</option>
+                {drivers.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name} - {d.phone}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
+                Assigned Inhouse Vehicle
+              </label>
+              <input
+                type="text"
+                name="assignedVehicle"
+                value={formData.assignedVehicle}
+                onChange={handleChange}
+                placeholder="e.g., AB-1234"
+                className={inputClass}
+              />
+            </div>
+          </>
+        )}
+      </form>
+
+      {/* Footer */}
+      <div className="p-4 flex justify-end gap-3 border-t border-tea-100 dark:border-card-border-dark bg-tea-50 dark:bg-tea-900/20">
+        <Button variant="outline" onClick={onCancel} type="button">
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          onClick={() => {
+            console.log("Form submitted:", formData);
+          }}
+          type="button"
+        >
+          Submit
+        </Button>
       </div>
     </div>
   );
