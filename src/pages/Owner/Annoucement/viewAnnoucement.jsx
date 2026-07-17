@@ -10,9 +10,8 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteAnnouncement, viewAnnouncements } from "../../../api/owner";
-
-const ACCENT_COLOR = "#165e52";
-const BUTTON_COLOR = "#172526";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
 
 export default function PureLeafDashboard() {
   const navigate = useNavigate();
@@ -47,12 +46,10 @@ export default function PureLeafDashboard() {
 
   const [notification, setNotification] = useState(null);
 
-  // Fetch announcements from backend on mount (use centralized API helper)
   useEffect(() => {
     let mounted = true;
     async function fetchAnnouncements() {
       try {
-
         const data = await viewAnnouncements();
         if (mounted) setAnnouncements(data);
       } catch (error) {
@@ -65,7 +62,6 @@ export default function PureLeafDashboard() {
     };
   }, []);
 
-  // Auto-hide notification after 3 seconds
   useEffect(() => {
     if (notification) {
       const timer = setTimeout(() => {
@@ -81,7 +77,6 @@ export default function PureLeafDashboard() {
 
   const handleDelete = async (id) => {
     try {
-
       await deleteAnnouncement(id);
       setAnnouncements((prev) => prev.filter((ann) => ann.id !== id));
       showNotification("Announcement deleted successfully", "success");
@@ -94,29 +89,6 @@ export default function PureLeafDashboard() {
   const handleUpdate = async (id) => {
     const announcement = announcements.find((ann) => ann.id === id);
     if (announcement) {
-      // Example: navigate to update page, or send update to backend
-      // Here, you can POST/PATCH to backend, or just navigate
-      // For demonstration, let's navigate and also show how to call backend
-      // Uncomment below to send update to backend
-      // try {
-      //   const apiUrl =
-      //     process.env.NODE_ENV === "development"
-      //       ? `http://localhost:8080/api/announcements/${id}`
-      //       : `/api/announcements/${id}`;
-      //   const response = await fetch(apiUrl, {
-      //     method: "PATCH", // or "PUT"
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify(announcement),
-      //   });
-      //   if (response.ok) {
-      //     showNotification("Announcement updated successfully", "success");
-      //   } else {
-      //     showNotification("Failed to update announcement", "error");
-      //   }
-      // } catch (error) {
-      //   showNotification("Error updating announcement", "error");
-      //   console.error("Error updating announcement:", error);
-      // }
       navigate("/owner/annoucement/update", { state: { announcement } });
     }
   };
@@ -162,7 +134,7 @@ export default function PureLeafDashboard() {
     return (
       <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
         <div
-          className={`flex items-center space-x-3 px-6 py-4 rounded-lg shadow-lg ${getNotificationStyle(
+          className={`flex items-center space-x-3 px-6 py-4 rounded-lg shadow-card ${getNotificationStyle(
             notification.type
           )}`}
         >
@@ -181,152 +153,100 @@ export default function PureLeafDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fdfc]">
+    <div className="min-h-full">
       <NotificationComponent />
-      <div className="bg-white shadow-md border-b">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+      <Card className="mb-6">
+        <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
-            <h1
-              className="text-3xl font-bold mb-1 text-gray-900"
-              // style={{ color: ACCENT_COLOR }}
-            >
+            <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
               Announcements
             </h1>
-            <p className="text-[#000000] opacity-80 max-w-2xl">
+            <p className="text-ink/60 dark:text-muted-dark mt-1 text-sm">
               Owner Dashboard - Announcement Center
             </p>
           </div>
-          <button
-            onClick={handleAddNew}
-            className="flex items-center gap-2 px-6 py-2 rounded-lg font-medium shadow transition-colors"
-            style={{ backgroundColor: BUTTON_COLOR, color: "white" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = ACCENT_COLOR)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = BUTTON_COLOR)
-            }
-          >
-            <Plus className="w-5 h-5" />
+          <Button variant="primary" icon={Plus} onClick={handleAddNew}>
             Add New
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {announcements.map((announcement) => (
-            <div
-              key={announcement.id}
-              className="bg-white p-6 rounded-lg shadow-md border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <span
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-2 border-[#165e52] bg-[#f0f9f8] text-[#165e52] font-semibold text-base shadow-sm"
-                    style={{
-                      minWidth: "90px",
-                      textAlign: "center",
-                      letterSpacing: "0.01em",
-                      fontFamily: "inherit",
-                      lineHeight: "1.5",
-                      marginRight: "0.5rem",
-                      boxShadow: "0 1px 4px 0 rgba(59,130,246,0.10)",
-                    }}
-                  >
-                    <span className="w-2 h-2 rounded-full bg-[#165e52] inline-block"></span>
-                    {formatTopic(announcement.topic)}
-                  </span>
-                  <span className="text-xs text-gray-500 italic">
-                    # {announcement.factories
-                        .map(fid => {
-                          const found = factoryOptions.find(f => f.id === fid || f.id === Number(fid));
-                          return found ? found.name : fid;
-                        })
-                        .join(", ")}
-                  </span>
-                </div>
-                <div className="mb-2">
-                  <span className="block text-lg font-semibold text-black">
-                    {announcement.subject || (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </span>
-                </div>
-                <div className="mb-4">
-                  <span className="block text-gray-800 text-base">
-                    {announcement.content || (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </span>
-                </div>
-                {announcement.attachments &&
-                  announcement.attachments.length > 0 && (
-                    <div className="mb-4">
-                      <div className="font-medium text-gray-800 mb-1">
-                        Attachments
-                      </div>
-                      <div className="space-y-2">
-                        {announcement.attachments.map((attachment) => (
-                          <div
-                            key={attachment.id}
-                            className="flex items-center justify-between p-3 border border-gray-300 rounded bg-gray-50"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <Paperclip className="w-4 h-4 text-gray-600" />
-                              <span className="text-sm text-gray-800">
-                                {attachment.name}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                ({attachment.size})
-                              </span>
-                            </div>
-                            <button
-                              onClick={() =>
-                                handleDownloadAttachment(attachment)
-                              }
-                              className="p-1 text-green-700 hover:text-green-900 transition-colors"
-                              aria-label={`Download ${attachment.name}`}
-                            >
-                              <Download className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {announcements.map((announcement) => (
+          <Card key={announcement.id} hoverable className="flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-2 border-tea-600 dark:border-tea-500 bg-tea-50 dark:bg-tea-900/20 text-tea-700 dark:text-tea-300 font-semibold text-sm">
+                  <span className="w-2 h-2 rounded-full bg-tea-600 dark:bg-tea-300 inline-block"></span>
+                  {formatTopic(announcement.topic)}
+                </span>
+                <span className="text-xs text-ink/50 dark:text-muted-dark italic">
+                  # {announcement.factories
+                      .map(fid => {
+                        const found = factoryOptions.find(f => f.id === fid || f.id === Number(fid));
+                        return found ? found.name : fid;
+                      })
+                      .join(", ")}
+                </span>
+              </div>
+              <div className="mb-2">
+                <span className="block text-lg font-heading font-semibold text-ink dark:text-ink-dark">
+                  {announcement.subject || (
+                    <span className="text-ink/40 dark:text-muted-dark">-</span>
                   )}
+                </span>
               </div>
-              <div className="flex space-x-3 justify-end mt-4">
-                <button
-                  onClick={() => handleUpdate(announcement.id)}
-                  className="px-6 py-2 rounded font-medium transition-colors text-white"
-                  style={{ backgroundColor: BUTTON_COLOR }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = ACCENT_COLOR)
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = BUTTON_COLOR)
-                  }
-                >
-                  UPDATE
-                </button>
-                <button
-                  onClick={() => handleDelete(announcement.id)}
-                  className="px-6 py-2 rounded font-medium transition-colors text-white"
-                  style={{ backgroundColor: "#dc2626" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#b91c1c")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#dc2626")
-                  }
-                >
-                  DELETE
-                </button>
+              <div className="mb-4">
+                <span className="block text-ink/80 dark:text-ink-dark/80 text-sm">
+                  {announcement.content || (
+                    <span className="text-ink/40 dark:text-muted-dark">-</span>
+                  )}
+                </span>
               </div>
+              {announcement.attachments &&
+                announcement.attachments.length > 0 && (
+                  <div className="mb-4">
+                    <div className="font-medium text-ink dark:text-ink-dark mb-1 text-sm">
+                      Attachments
+                    </div>
+                    <div className="space-y-2">
+                      {announcement.attachments.map((attachment) => (
+                        <div
+                          key={attachment.id}
+                          className="flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-white/5 border border-tea-100 dark:border-card-border-dark"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <Paperclip className="w-4 h-4 text-ink/60 dark:text-muted-dark" />
+                            <span className="text-sm text-ink dark:text-ink-dark">
+                              {attachment.name}
+                            </span>
+                            <span className="text-xs text-ink/50 dark:text-muted-dark">
+                              ({attachment.size})
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => handleDownloadAttachment(attachment)}
+                            className="p-1 text-tea-700 dark:text-tea-300 hover:text-tea-800 dark:hover:text-tea-200 transition-colors"
+                            aria-label={`Download ${attachment.name}`}
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
             </div>
-          ))}
-        </div>
+            <div className="flex space-x-3 justify-end mt-4">
+              <Button variant="primary" size="sm" onClick={() => handleUpdate(announcement.id)}>
+                UPDATE
+              </Button>
+              <Button variant="danger" size="sm" onClick={() => handleDelete(announcement.id)}>
+                DELETE
+              </Button>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import SupplierSummaryCards from "./SupplierSummaryCards.jsx";
 import SupplierFilters from "./SupplierFilters.jsx";
 import SupplierTable from "./SupplierTable.jsx";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
+import { CardSkeleton } from "../../../components/ui/Skeleton";
 
 const ACCENT_COLOR = "#165E52";
 
@@ -221,49 +222,45 @@ export default function SupplierRegister() {
     setFilters({ search: "", status: "all", route: "" });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       <SupplierHeader />
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <SupplierSummaryCards
-          metrics={metrics}
-          currentView={currentView}
-          setCurrentView={handleViewChange}
-        />
+      <SupplierSummaryCards
+        metrics={metrics}
+        currentView={currentView}
+        setCurrentView={handleViewChange}
+      />
 
-        <SupplierFilters
-          filters={filters}
-          handleFilterChange={handleFilterChange}
-          clearFilters={clearFilters}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-          routes={routes}
-          showRouteFilter={currentView === "approved"}
-          currentView={currentView}
-        />
+      <SupplierFilters
+        filters={filters}
+        handleFilterChange={handleFilterChange}
+        clearFilters={clearFilters}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        routes={routes}
+        showRouteFilter={currentView === "approved"}
+        currentView={currentView}
+      />
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#165E52] border-solid"></div>
-            <span className="ml-4 text-[#165E52] font-semibold">
-              Loading suppliers...
-            </span>
-          </div>
-        ) : (
-          <SupplierTable
-            filteredSuppliers={suppliers}
-            currentView={currentView}
-            page={page}
-            size={pageSize}
-            totalElements={totalElements}
-            first={isFirstPage}
-            last={isLastPage}
-            onPageChange={setPage}
-            onApproveSupplierRequest={handleApproveSupplierRequest}
-            onRejectSupplierRequest={handleRejectSupplierRequest}
-          />
-        )}
-      </div>
+      {loading ? (
+        <div className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      ) : (
+        <SupplierTable
+          filteredSuppliers={suppliers}
+          currentView={currentView}
+          page={page}
+          size={pageSize}
+          totalElements={totalElements}
+          first={isFirstPage}
+          last={isLastPage}
+          onPageChange={setPage}
+          onApproveSupplierRequest={handleApproveSupplierRequest}
+          onRejectSupplierRequest={handleRejectSupplierRequest}
+        />
+      )}
     </div>
   );
 }

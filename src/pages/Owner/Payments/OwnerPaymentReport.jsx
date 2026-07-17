@@ -11,10 +11,6 @@ import {
 } from "recharts";
 import { routes, suppliers } from "../../PaymentManager/Payments/paymentData";
 
-const ACCENT_COLOR = "#165E52";
-const BORDER_COLOR = "#cfece6";
-const HEADER_BG = "#e1f4ef";
-
 const factoryOptions = Array.from(
   new Set(suppliers.map((s) => s.factory))
 ).filter(Boolean);
@@ -79,53 +75,27 @@ export default function OwnerPaymentReport() {
   });
 
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
   ];
   const years = [2024, 2025];
 
   return (
-    <div
-      className="bg-white rounded-xl shadow-xl w-full min-h-[600px] mx-auto p-8 flex flex-col justify-start overflow-auto"
-      style={{
-        borderColor: BORDER_COLOR,
-        borderWidth: 1,
-        borderStyle: "solid",
-      }}
-    >
+    <div className="bg-card dark:bg-card-dark rounded-2xl shadow-card w-full min-h-[600px] mx-auto p-8 flex flex-col justify-start overflow-auto border border-tea-100 dark:border-card-border-dark">
       {/* Header */}
-      <div
-        className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 border-b pb-4 gap-4"
-        style={{ borderColor: BORDER_COLOR }}
-      >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 border-b border-tea-100 dark:border-card-border-dark pb-4 gap-4">
         <div>
-          <h2
-            className="text-xl font-bold flex items-center gap-4"
-            style={{ color: ACCENT_COLOR }}
-          >
+          <h2 className="text-xl font-heading font-bold flex items-center gap-4 text-tea-700 dark:text-tea-300">
             Owner Payment Report
           </h2>
-          <p
-            className="text-gray-600 mt-1 text-base max-w-lg"
-            style={{ color: ACCENT_COLOR }}
-          >
+          <p className="text-ink/60 dark:text-muted-dark mt-1 text-base max-w-lg">
             Summary of all supplier payments, advances, and deductions by route
             for the selected month and factory.
           </p>
         </div>
         <div className="flex gap-2 items-center flex-wrap">
           <select
-            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
+            className="rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 px-3 py-2 text-ink dark:text-ink-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
             aria-label="Select month"
@@ -137,7 +107,7 @@ export default function OwnerPaymentReport() {
             ))}
           </select>
           <select
-            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
+            className="rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 px-3 py-2 text-ink dark:text-ink-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
             value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
             aria-label="Select year"
@@ -149,7 +119,7 @@ export default function OwnerPaymentReport() {
             ))}
           </select>
           <select
-            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] capitalize"
+            className="rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 px-3 py-2 text-ink dark:text-ink-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40 capitalize"
             value={selectedFactory}
             onChange={(e) => setSelectedFactory(e.target.value)}
             aria-label="Select factory"
@@ -165,28 +135,28 @@ export default function OwnerPaymentReport() {
       </div>
 
       {/* Totals Cards Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className=" border border-[#165E52] rounded-lg p-6 flex flex-col gap-2">
-          <span className="text-[#165E52] font-medium select-none">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="border border-tea-100 dark:border-card-border-dark rounded-lg p-6 flex flex-col gap-2 bg-surface dark:bg-white/5">
+          <span className="text-tea-700 dark:text-tea-300 font-medium select-none">
             Total Weight
           </span>
-          <span className="text-2xl font-bold text-[#165E52] select-text">
+          <span className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300 select-text">
             {totalWeight.toLocaleString()} kg
           </span>
         </div>
-        <div className="border border-[#165E52] rounded-lg p-6 flex flex-col gap-2">
-          <span className="text-[#165E52] font-medium select-none">
+        <div className="border border-tea-100 dark:border-card-border-dark rounded-lg p-6 flex flex-col gap-2 bg-surface dark:bg-white/5">
+          <span className="text-tea-700 dark:text-tea-300 font-medium select-none">
             Total Amount
           </span>
-          <span className="text-2xl font-bold text-[#165E52] select-text">
+          <span className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300 select-text">
             LKR {totalAmount.toLocaleString()}
           </span>
         </div>
-        <div className="border border-[#165E52] rounded-lg p-6 flex flex-col gap-2">
-          <span className="text-[#165E52] font-medium select-none">
+        <div className="border border-tea-100 dark:border-card-border-dark rounded-lg p-6 flex flex-col gap-2 bg-surface dark:bg-white/5">
+          <span className="text-tea-700 dark:text-tea-300 font-medium select-none">
             Total Advances
           </span>
-          <span className="text-2xl font-bold text-[#165E52] select-text">
+          <span className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300 select-text">
             LKR {totalAdvances.toLocaleString()}
           </span>
         </div>
@@ -195,65 +165,32 @@ export default function OwnerPaymentReport() {
       {/* Bar Chart */}
       <div className="mb-8 flex-1">
         <ResponsiveContainer width="100%" height={320}>
-          <BarChart
-            data={chartData}
-            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke={BORDER_COLOR} />
-            <XAxis
-              dataKey="route"
-              tick={{ fontSize: 14, fill: ACCENT_COLOR }}
-            />
-            <YAxis tick={{ fontSize: 14, fill: ACCENT_COLOR }} />
+          <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#cfece6" />
+            <XAxis dataKey="route" tick={{ fontSize: 14, fill: "#165E52" }} />
+            <YAxis tick={{ fontSize: 14, fill: "#165E52" }} />
             <Tooltip
               formatter={(v) => `LKR ${v.toLocaleString()}`}
-              contentStyle={{ borderRadius: 6, borderColor: ACCENT_COLOR }}
+              contentStyle={{ borderRadius: 6, borderColor: "#165E52" }}
             />
-            <Legend wrapperStyle={{ color: ACCENT_COLOR }} />
-            <Bar
-              dataKey="totalAmount"
-              fill="#165E52"
-              name="Total Amount"
-              radius={[8, 8, 0, 0]}
-            />
-            <Bar
-              dataKey="totalAdvances"
-              fill="#4C8D7E"
-              name="Advances"
-              radius={[8, 8, 0, 0]}
-            />
-            <Bar
-              dataKey="totalFertilizer"
-              fill="#82BCAA"
-              name="Fertilizer"
-              radius={[8, 8, 0, 0]}
-            />
-            <Bar
-              dataKey="totalTransport"
-              fill="#CFECE6"
-              name="Transport"
-              radius={[8, 8, 0, 0]}
-            />
+            <Legend wrapperStyle={{ color: "#165E52" }} />
+            <Bar dataKey="totalAmount" fill="#165E52" name="Total Amount" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="totalAdvances" fill="#4C8D7E" name="Advances" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="totalFertilizer" fill="#82BCAA" name="Fertilizer" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="totalTransport" fill="#CFECE6" name="Transport" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* Data Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 rounded-lg shadow-sm border border-gray-300">
-          <thead className="bg-gray-50">
+        <table className="min-w-full rounded-lg overflow-hidden border border-tea-100 dark:border-card-border-dark">
+          <thead className="bg-tea-900">
             <tr>
-              {[
-                "Route",
-                "Total Weight",
-                "Total Amount",
-                "Advances",
-                "Fertilizer",
-                "Transport",
-              ].map((head) => (
+              {["Route", "Total Weight", "Total Amount", "Advances", "Fertilizer", "Transport"].map((head) => (
                 <th
                   key={head}
-                  className="px-6 py-3 text-left text-xs font-medium text-[#165E52] uppercase tracking-wider select-none"
+                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider select-none"
                   scope="col"
                 >
                   {head}
@@ -261,30 +198,30 @@ export default function OwnerPaymentReport() {
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-tea-100 dark:divide-card-border-dark">
             {chartData.map((row) => (
               <tr
                 key={row.route}
-                className="hover:bg-[#d9f0e7] cursor-pointer"
+                className="hover:bg-tea-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
                 tabIndex={0}
                 aria-label={`Details for route ${row.route}`}
               >
-                <td className="px-6 py-4 whitespace-nowrap text-[#165E52] font-medium select-text">
+                <td className="px-6 py-4 whitespace-nowrap text-tea-700 dark:text-tea-300 font-medium select-text">
                   {row.route}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-[#165E52] font-bold select-text">
+                <td className="px-6 py-4 whitespace-nowrap text-tea-700 dark:text-tea-300 font-bold select-text">
                   {row.totalWeight.toLocaleString()} kg
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-[#165E52] font-bold select-text">
+                <td className="px-6 py-4 whitespace-nowrap text-tea-700 dark:text-tea-300 font-bold select-text">
                   LKR {row.totalAmount.toLocaleString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-[#15803d] font-bold select-text">
+                <td className="px-6 py-4 whitespace-nowrap text-green-700 dark:text-green-300 font-bold select-text">
                   LKR {row.totalAdvances.toLocaleString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-[#134e4a] font-bold select-text">
+                <td className="px-6 py-4 whitespace-nowrap text-teal-800 dark:text-teal-300 font-bold select-text">
                   LKR {row.totalFertilizer.toLocaleString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-[#166534] font-bold select-text">
+                <td className="px-6 py-4 whitespace-nowrap text-green-800 dark:text-green-300 font-bold select-text">
                   LKR {row.totalTransport.toLocaleString()}
                 </td>
               </tr>

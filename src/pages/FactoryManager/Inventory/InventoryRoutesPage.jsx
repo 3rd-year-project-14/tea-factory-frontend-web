@@ -162,7 +162,7 @@ export default function InventoryRoutesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       <InventoryHeader
         currentView="routes"
         viewMode={viewMode}
@@ -177,37 +177,36 @@ export default function InventoryRoutesPage() {
         availableYears={availableYears}
         getAvailableMonths={getAvailableMonths}
       />
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <SummaryCards summary={summary} currentView="routes" />
 
-        <InventoryFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          currentView="routes"
-        />
+      <SummaryCards summary={summary} currentView="routes" />
 
-        <MainContent
-          currentView="routes"
-          filteredData={routesData}
-          summary={summary}
-          getCurrentData={() => routesData}
-          onViewRoute={handleViewRoute}
-          onDownloadCSV={handleDownloadCSV}
-          viewMode={viewMode}
-          selectedDate={selectedDate}
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-          monthNames={monthNames}
-          loading={loading}
-        />
+      <InventoryFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+        currentView="routes"
+      />
 
-        <PaginationControls
-          page={page}
-          totalPages={totalPages}
-          totalElements={totalElements}
-          setPage={setPage}
-        />
-      </div>
+      <MainContent
+        currentView="routes"
+        filteredData={routesData}
+        summary={summary}
+        getCurrentData={() => routesData}
+        onViewRoute={handleViewRoute}
+        onDownloadCSV={handleDownloadCSV}
+        viewMode={viewMode}
+        selectedDate={selectedDate}
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+        monthNames={monthNames}
+        loading={loading}
+      />
+
+      <PaginationControls
+        page={page}
+        totalPages={totalPages}
+        totalElements={totalElements}
+        setPage={setPage}
+      />
     </div>
   );
 }

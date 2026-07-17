@@ -4,6 +4,9 @@ import { useNavigate, Outlet, useMatch, useLocation, useParams } from "react-rou
 import { useAuth } from "../../../contexts/AuthContext";
 import PaginationControls from "../../../components/ui/PaginationControls";
 import { getTripDetails, getPaginatedBagsForTrip, getBagWeightsBySession, createWeighingSession, getTripSummary, getTripWeighingSummary } from "../../../api/inventoryManager/leafWeight";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import EmptyState from "../../../components/ui/EmptyState";
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -39,7 +42,6 @@ export default function DriverRoute() {
 
       try {
         const summaryData = await getTripSummary(tripId);
-        console.log("Trip summary data:", summaryData);
         if (!mounted) return;
         setCardStats(summaryData || null);
         setSessionId(summaryData?.sessionId || null);
@@ -142,7 +144,6 @@ export default function DriverRoute() {
   }, [tripDetails, sessionId, tripId, view, page, searchTerm]);
 
   // Summary cards: use bags for arrived, supplierSummary for completed
-  // Use API-provided cardStats when available, otherwise compute from local arrays
   const computedTotalSuppliers =
     view === "arrived"
       ? [...new Set(bags.map((b) => b.supplierId))].length
@@ -180,105 +181,72 @@ export default function DriverRoute() {
       ? Number(cardStats.totalGrossWeight || cardStats.totalWeight || 0)
       : computedTotalWeight;
 
-  // Bags are already filtered by searchTerm from API
   const filteredBags = bags;
-  // supplierSummary is already paginated and filtered by search from API
   const filteredSuppliers = supplierSummary;
 
   const isBase = useMatch("/inventoryManager/leaf_weight/route/:routeId");
 
   return (
-    <div className="h-full bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-5">
+    <div className="h-full">
+      <div className="space-y-5">
         {isBase && (
           <>
             {/* Header */}
-            <div className="bg-white p-4 shadow-sm ">
-              <h1 className="text-2xl font-bold" style={{ color: "#165E52" }}>
+            <Card>
+              <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
                 Route Details
               </h1>
-            </div>
+            </Card>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                {
-                  label: "No of Suppliers",
-                  value: totalSuppliers,
-                  icon: <Users className="text-[#000000] w-5 h-5" />,
-                },
-                {
-                  label: "No of Bags",
-                  value: totalBags,
-                  icon: <Package className="text-[#000000] w-5 h-5" />,
-                },
-                {
-                  label: "Total Weight",
-                  value: `${totalWeight} Kg`,
-                  icon: <Scale className="text-[#000000]w-5 h-5" />,
-                },
+                { label: "No of Suppliers", value: totalSuppliers, icon: Users },
+                { label: "No of Bags", value: totalBags, icon: Package },
+                { label: "Total Weight", value: `${totalWeight} Kg`, icon: Scale },
               ].map((card, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg"
-                  style={{ borderColor: "#000000" }}
-                >
+                <Card key={idx} hoverable>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p
-                        className="text-sm font-medium"
-                        style={{ color: "#000000" }}
-                      >
+                      <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">
                         {card.label}
                       </p>
-                      <p className="text-2xl font-bold text-[#000000]">
+                      <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">
                         {card.value}
                       </p>
                     </div>
-                    <div className="h-10 w-10 bg-[#f3f4f6] rounded-full flex items-center justify-center text-lg">
-                      {card.icon}
+                    <div className="h-10 w-10 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+                      <card.icon className="text-tea-700 dark:text-tea-300 w-5 h-5" />
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
 
             {/* Route Info + Search */}
-            <div
-              className="bg-white rounded-lg shadow-sm p-4 border"
-              style={{ borderColor: "#cfece6" }}
-            >
+            <Card>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
-                  <label
-                    className="text-sm font-semibold mb-1 block"
-                    style={{ color: "#165E52" }}
-                  >
+                  <label className="text-sm font-semibold mb-1 block text-tea-700 dark:text-tea-300">
                     Route No
                   </label>
-                  <div className="text-lg font-bold text-[#01251F]">
+                  <div className="text-lg font-bold text-ink dark:text-ink-dark">
                     {routeId || "Route ID Not Available"}
                   </div>
                 </div>
                 <div>
-                  <label
-                    className="text-sm font-semibold mb-1 block"
-                    style={{ color: "#165E52" }}
-                  >
+                  <label className="text-sm font-semibold mb-1 block text-tea-700 dark:text-tea-300">
                     Route Name
                   </label>
-                  <div className="text-lg font-bold text-gray-800">
+                  <div className="text-lg font-bold text-ink dark:text-ink-dark">
                     {routeName || "Route Name Not Available"}
                   </div>
                 </div>
                 <div>
-                  <label
-                    className="text-sm font-semibold mb-1 block"
-                    style={{ color: "#165E52" }}
-                  >
+                  <label className="text-sm font-semibold mb-1 block text-tea-700 dark:text-tea-300">
                     Driver Name
                   </label>
-                  <div className="text-lg font-bold text-gray-800">
+                  <div className="text-lg font-bold text-ink dark:text-ink-dark">
                     {driverName || "Driver Name Not Available"}
                   </div>
                 </div>
@@ -288,58 +256,44 @@ export default function DriverRoute() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search"
-                    className="w-full px-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50
-                     focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent"
+                    className="w-full px-4 pr-10 py-2 text-sm rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
                   />
-                  <Search className="absolute text-gray-400 h-4 w-4 right-3 top-3" />
+                  <Search className="absolute text-ink/40 dark:text-muted-dark h-4 w-4 right-3 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
-            </div>
+            </Card>
 
             {/* Supplier Action Bar */}
-            <div
-              className="bg-white rounded-lg shadow-sm p-4 border"
-              style={{ borderColor: "#cfece6" }}
-            >
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <h2
-                    className="text-lg font-semibold"
-                    style={{ color: "#165E52" }}
-                  >
-                    Supplier Bags
-                  </h2>
-                </div>
-              </div>
-            </div>
+            <Card>
+              <h2 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
+                Supplier Bags
+              </h2>
+            </Card>
 
             {/* Table: Arrived = bag list, Completed = supplier summary */}
-            <div
-              className="bg-white rounded-lg border overflow-hidden"
-              style={{ borderColor: "#cfece6" }}
-            >
+            <Card className="!p-0 overflow-hidden">
               {view === "arrived" ? (
                 <>
-                  <div className="bg-[#01251F] text-white">
-                    <div className="grid grid-cols-3 gap-4 p-3 text-sm font-semibold text-center">
+                  <div className="bg-tea-900">
+                    <div className="grid grid-cols-3 gap-4 p-3 text-sm font-semibold text-center text-white">
                       <div>Bag No</div>
                       <div>Weight</div>
                       <div>Quality</div>
                     </div>
                   </div>
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
                     {filteredBags.map((bag, index) => {
                       let quality = "Good";
-                      let qualityColor = "#165E52";
+                      let qualityClass = "text-tea-700 dark:text-tea-300";
                       if (bag.wet && bag.coarse) {
                         quality = "Wet, Coarse";
-                        qualityColor = "#ff8400ff";
+                        qualityClass = "text-orange-600 dark:text-orange-400";
                       } else if (bag.wet) {
                         quality = "Wet";
-                        qualityColor = "#f59e42";
+                        qualityClass = "text-amber-600 dark:text-amber-400";
                       } else if (bag.coarse) {
                         quality = "Coarse";
-                        qualityColor = "#f59e42";
+                        qualityClass = "text-amber-600 dark:text-amber-400";
                       }
                       const handleBagClick = () => {
                         const supplyRequestId = bag.supplyRequestId ?? null;
@@ -362,21 +316,15 @@ export default function DriverRoute() {
                         <div
                           key={index}
                           onClick={handleBagClick}
-                          className="grid grid-cols-3 gap-4 p-4 text-center hover:bg-gray-200 cursor-pointer transition"
+                          className="grid grid-cols-3 gap-4 p-4 text-center hover:bg-tea-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
                         >
-                          <div className="font-medium text-[#01251F]">
+                          <div className="font-medium text-ink dark:text-ink-dark">
                             {bag.bagNo || bag.bagNumber}
                           </div>
-                          <div className="font-medium text-[#165E52]">
+                          <div className="font-medium text-tea-700 dark:text-tea-300">
                             {bag.weight || bag.driverWeight}
                           </div>
-                          <div
-                            className="font-medium"
-                            style={{
-                              color:
-                                quality === "Good" ? "#165E52" : qualityColor,
-                            }}
-                          >
+                          <div className={`font-medium ${qualityClass}`}>
                             {quality}
                           </div>
                         </div>
@@ -384,9 +332,7 @@ export default function DriverRoute() {
                     })}
                     {filteredBags.length === 0 &&
                       tripDetails?.status !== "weighed" && (
-                        <div className="p-8 text-center text-gray-500">
-                          No bags found
-                        </div>
+                        <EmptyState icon={Package} title="No bags found" description="" />
                       )}
                   </div>
                   {/* Pagination Controls for current view (arrived) */}
@@ -401,23 +347,20 @@ export default function DriverRoute() {
                   {/* Show 'All bags weighed' only in arrived view and if status is weighed */}
                   {tripDetails?.status === "weighed" && (
                     <div className="flex flex-col items-center justify-center py-12">
-                      <div className="text-green-600 font-semibold text-lg mb-4">
+                      <div className="text-green-600 dark:text-green-400 font-semibold text-lg mb-4">
                         All bags weighed
                       </div>
-                      <button
-                        onClick={() => navigate(-1)}
-                        className="px-6 py-2 rounded-lg font-medium bg-[#165E52] text-white hover:bg-[#11453f] transition"
-                      >
+                      <Button variant="primary" onClick={() => navigate(-1)}>
                         Go Back
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </>
               ) : (
                 // Completed view: supplier summary table
                 <>
-                  <div className="bg-[#01251F] text-white">
-                    <div className="grid grid-cols-5 gap-4 p-3 text-sm font-semibold text-center">
+                  <div className="bg-tea-900">
+                    <div className="grid grid-cols-5 gap-4 p-3 text-sm font-semibold text-center text-white">
                       <div>Supplier ID</div>
                       <div>Supplier Name</div>
                       <div>Total Bags</div>
@@ -425,21 +368,21 @@ export default function DriverRoute() {
                       <div>Deductions</div>
                     </div>
                   </div>
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
                     {filteredSuppliers.map((s, idx) => (
                       <div
                         key={idx}
                         className="grid grid-cols-5 gap-4 p-4 text-center"
                       >
-                        <div className="font-medium text-[#01251F]">
+                        <div className="font-medium text-ink dark:text-ink-dark">
                           {s.supplierId}
                         </div>
-                        <div className="font-medium text-[#165E52]">
+                        <div className="font-medium text-tea-700 dark:text-tea-300">
                           {s.supplierName}
                         </div>
-                        <div className="font-medium">{s.bagTotal}</div>
-                        <div className="font-medium">{s.grossWeight} Kg</div>
-                        <div className="font-medium">
+                        <div className="font-medium text-ink/80 dark:text-ink-dark/80">{s.bagTotal}</div>
+                        <div className="font-medium text-ink/80 dark:text-ink-dark/80">{s.grossWeight} Kg</div>
+                        <div className="font-medium text-ink/80 dark:text-ink-dark/80">
                           {(s.water || 0) +
                             (s.coarse || 0) +
                             (s.otherWeight || 0)}
@@ -447,9 +390,7 @@ export default function DriverRoute() {
                       </div>
                     ))}
                     {filteredSuppliers.length === 0 && (
-                      <div className="p-8 text-center text-gray-500">
-                        No suppliers found
-                      </div>
+                      <EmptyState icon={Users} title="No suppliers found" description="" />
                     )}
                   </div>
                   {/* Pagination Controls for completed view */}
@@ -463,7 +404,7 @@ export default function DriverRoute() {
                   )}
                 </>
               )}
-            </div>
+            </Card>
           </>
         )}
         <Outlet />
@@ -471,28 +412,23 @@ export default function DriverRoute() {
 
       {confirmPopup.open && (
         <div className="fixed inset-0 flex items-center justify-center z-[1000] backdrop-blur-sm bg-black/30">
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 border relative"
-            style={{ borderColor: "#cfece6" }}
-          >
+          <div className="bg-card dark:bg-card-dark rounded-2xl shadow-card max-w-md w-full mx-4 border border-tea-100 dark:border-card-border-dark relative">
             <div className="p-6 text-center">
               {confirmPopup.open === true && (
                 <>
-                  <h3
-                    className="text-xl font-semibold mb-4"
-                    style={{ color: "#165E52" }}
-                  >
+                  <h3 className="text-xl font-heading font-semibold mb-4 text-tea-700 dark:text-tea-300">
                     Start Weighing?
                   </h3>
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-ink/70 dark:text-ink-dark/70 mb-6">
                     Do you want to start weighing for{" "}
-                    <span className="font-semibold text-[#165E52]">
+                    <span className="font-semibold text-tea-700 dark:text-tea-300">
                       {routeName}
                     </span>
                     ?
                   </p>
                   <div className="flex justify-center gap-4">
-                    <button
+                    <Button
+                      variant="primary"
                       onClick={async () => {
                         setConfirmPopup({ open: false });
                         let newSessionId = null;
@@ -515,44 +451,27 @@ export default function DriverRoute() {
                           },
                         });
                       }}
-                      className="px-6 py-2 rounded-lg text-white font-medium transition"
-                      style={{ backgroundColor: "#165E52" }}
                     >
                       Yes, Start
-                    </button>
-                    <button
-                      onClick={() => setConfirmPopup({ open: false })}
-                      className="px-6 py-2 rounded-lg font-medium"
-                      style={{
-                        border: "2px solid #cfece6",
-                        backgroundColor: "transparent",
-                        color: "#165E52",
-                      }}
-                    >
+                    </Button>
+                    <Button variant="outline" onClick={() => setConfirmPopup({ open: false })}>
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 </>
               )}
               {confirmPopup.open === "session" && (
                 <>
-                  <h3
-                    className="text-xl font-semibold mb-4"
-                    style={{ color: "#165E52" }}
-                  >
+                  <h3 className="text-xl font-heading font-semibold mb-4 text-tea-700 dark:text-tea-300">
                     Session In Progress
                   </h3>
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-ink/70 dark:text-ink-dark/70 mb-6">
                     Weighing session is in progress by another user.
                   </p>
                   <div className="flex justify-center gap-4">
-                    <button
-                      onClick={() => setConfirmPopup({ open: false })}
-                      className="px-6 py-2 rounded-lg font-medium transition-colors bg-transparent text-[#165E52] hover:bg-[#165E52] hover:text-white border-2"
-                      style={{ borderColor: "#3ec5aaff" }}
-                    >
+                    <Button variant="outline" onClick={() => setConfirmPopup({ open: false })}>
                       OK
-                    </button>
+                    </Button>
                   </div>
                 </>
               )}

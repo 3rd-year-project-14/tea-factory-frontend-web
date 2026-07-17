@@ -12,6 +12,7 @@ import {
     Pie,
     Cell
 } from 'recharts';
+import Card from '../../../components/ui/Card';
 
 const factoryData = [
     { factory: 'Factory A', teaPayment: 500000, loan: 120000, advance: 70000 },
@@ -20,7 +21,7 @@ const factoryData = [
     { factory: 'Factory D', teaPayment: 150000, loan: 60000, advance: 20000 },
 ];
 
-const COLORS = ['#22c55e', '#2563eb', '#eab308'];
+const COLORS = ['#7CB342', '#3b82f6', '#eab308'];
 
 export default function FactoryDetails({ onClose }) {
     const [search, setSearch] = useState('');
@@ -43,23 +44,23 @@ export default function FactoryDetails({ onClose }) {
 
     return (
         <div className="fixed inset-0 backdrop-blur-[2px] bg-black/30 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative p-6">
+            <div className="bg-card dark:bg-card-dark rounded-2xl shadow-card max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar relative p-6">
                 {/* Close Button */}
                 <button
                     onClick={onClose ? onClose : () => window.history.back()}
-                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold z-10"
+                    className="absolute top-3 right-3 text-ink/40 dark:text-muted-dark hover:text-ink dark:hover:text-ink-dark text-2xl font-bold z-10"
                     aria-label="Close"
                 >
                     &times;
                 </button>
 
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 border-b pb-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 border-b border-tea-100 dark:border-card-border-dark pb-4">
                     <div>
-                        <h2 className="text-2xl font-bold text-blue-700">
+                        <h2 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
                             Factory Payment Details
                         </h2>
-                        <p className="text-gray-500 mt-1 text-sm">
+                        <p className="text-ink/60 dark:text-muted-dark mt-1 text-sm">
                             Visual breakdown of tea payment, loan, and advance by factory.
                         </p>
                     </div>
@@ -68,31 +69,30 @@ export default function FactoryDetails({ onClose }) {
                         placeholder="Search factory..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="border rounded px-3 py-2 mt-4 md:mt-0 w-full md:w-1/3"
+                        className="rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark px-3 py-2 mt-4 md:mt-0 w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-tea-500/40"
                     />
                 </div>
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-green-100 p-4 rounded-lg shadow">
-                        <p className="text-green-800 font-semibold">Total Tea Payment</p>
-                        <p className="text-2xl font-bold text-green-700">LKR {totalTea.toLocaleString()}</p>
+                    <div className="bg-tea-50 dark:bg-tea-900/20 p-4 rounded-lg">
+                        <p className="text-tea-800 dark:text-tea-200 font-semibold">Total Tea Payment</p>
+                        <p className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">LKR {totalTea.toLocaleString()}</p>
                     </div>
-                    <div className="bg-blue-100 p-4 rounded-lg shadow">
-                        <p className="text-blue-800 font-semibold">Total Loans</p>
-                        <p className="text-2xl font-bold text-blue-700">LKR {totalLoan.toLocaleString()}</p>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                        <p className="text-blue-800 dark:text-blue-200 font-semibold">Total Loans</p>
+                        <p className="text-2xl font-heading font-bold text-blue-700 dark:text-blue-300">LKR {totalLoan.toLocaleString()}</p>
                     </div>
-                    <div className="bg-yellow-100 p-4 rounded-lg shadow">
-                        <p className="text-yellow-800 font-semibold">Total Advances</p>
-                        <p className="text-2xl font-bold text-yellow-700">LKR {totalAdvance.toLocaleString()}</p>
+                    <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg">
+                        <p className="text-amber-800 dark:text-amber-200 font-semibold">Total Advances</p>
+                        <p className="text-2xl font-heading font-bold text-amber-700 dark:text-amber-300">LKR {totalAdvance.toLocaleString()}</p>
                     </div>
                 </div>
 
                 {/* Charts */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    {/* Bar Chart */}
-                    <div className="bg-white rounded-lg shadow p-4">
-                        <h3 className="text-lg font-semibold text-blue-700 mb-2">Factory Comparison</h3>
+                    <Card>
+                        <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300 mb-2">Factory Comparison</h3>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={filtered}>
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -100,16 +100,15 @@ export default function FactoryDetails({ onClose }) {
                                 <YAxis />
                                 <Tooltip formatter={v => `LKR ${v.toLocaleString()}`} />
                                 <Legend />
-                                <Bar dataKey="teaPayment" fill="#22c55e" name="Tea Payment" />
-                                <Bar dataKey="loan" fill="#2563eb" name="Loan" />
+                                <Bar dataKey="teaPayment" fill="#7CB342" name="Tea Payment" />
+                                <Bar dataKey="loan" fill="#3b82f6" name="Loan" />
                                 <Bar dataKey="advance" fill="#eab308" name="Advance" />
                             </BarChart>
                         </ResponsiveContainer>
-                    </div>
+                    </Card>
 
-                    {/* Pie Chart */}
-                    <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center">
-                        <h3 className="text-lg font-semibold text-blue-700 mb-2">Summary Distribution</h3>
+                    <Card className="flex flex-col items-center justify-center">
+                        <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300 mb-2">Summary Distribution</h3>
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie
@@ -130,27 +129,27 @@ export default function FactoryDetails({ onClose }) {
                                 <Tooltip formatter={v => `LKR ${v.toLocaleString()}`} />
                             </PieChart>
                         </ResponsiveContainer>
-                    </div>
+                    </Card>
                 </div>
 
                 {/* Table */}
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead className="bg-gray-100">
+                    <table className="min-w-full text-sm">
+                        <thead className="bg-tea-900">
                             <tr>
-                                <th className="px-6 py-3 text-left font-medium text-gray-600">Factory</th>
-                                <th className="px-6 py-3 text-left font-medium text-gray-600">Tea Payment</th>
-                                <th className="px-6 py-3 text-left font-medium text-gray-600">Loan</th>
-                                <th className="px-6 py-3 text-left font-medium text-gray-600">Advance</th>
+                                <th className="px-6 py-3 text-left font-medium text-white">Factory</th>
+                                <th className="px-6 py-3 text-left font-medium text-white">Tea Payment</th>
+                                <th className="px-6 py-3 text-left font-medium text-white">Loan</th>
+                                <th className="px-6 py-3 text-left font-medium text-white">Advance</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="divide-y divide-tea-100 dark:divide-card-border-dark">
                             {filtered.map(fp => (
-                                <tr key={fp.factory}>
-                                    <td className="px-6 py-4 text-gray-700">{fp.factory}</td>
-                                    <td className="px-6 py-4 text-green-700 font-semibold">LKR {fp.teaPayment.toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-blue-700 font-semibold">LKR {fp.loan.toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-yellow-700 font-semibold">LKR {fp.advance.toLocaleString()}</td>
+                                <tr key={fp.factory} className="hover:bg-tea-50 dark:hover:bg-white/5 transition-colors">
+                                    <td className="px-6 py-4 text-ink dark:text-ink-dark">{fp.factory}</td>
+                                    <td className="px-6 py-4 text-tea-700 dark:text-tea-300 font-semibold">LKR {fp.teaPayment.toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-blue-700 dark:text-blue-300 font-semibold">LKR {fp.loan.toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-amber-700 dark:text-amber-300 font-semibold">LKR {fp.advance.toLocaleString()}</td>
                                 </tr>
                             ))}
                         </tbody>

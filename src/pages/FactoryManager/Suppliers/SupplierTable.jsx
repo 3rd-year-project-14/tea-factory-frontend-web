@@ -1,8 +1,16 @@
 import { Eye, Users, ChevronLeft, ChevronRight } from "lucide-react";
-// ...existing code...
 import { useNavigate } from "react-router-dom";
+import Card from "../../../components/ui/Card";
+import EmptyState from "../../../components/ui/EmptyState";
 
-const ACCENT_COLOR = "#01251F";
+const BADGE_STYLES = {
+  approved:
+    "bg-tea-50 text-tea-700 border-tea-600 dark:bg-tea-900/30 dark:text-tea-200 dark:border-tea-500",
+  pending:
+    "bg-amber-50 text-amber-700 border-amber-500 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-500",
+  rejected:
+    "bg-red-50 text-red-700 border-red-500 dark:bg-red-900/20 dark:text-red-300 dark:border-red-500",
+};
 
 export default function SupplierTable({
   filteredSuppliers,
@@ -20,7 +28,6 @@ export default function SupplierTable({
   const currentSuppliers = filteredSuppliers;
 
   const goToPage = (uiPage) => {
-    // uiPage is 1-based, backend expects 0-based
     if (onPageChange) onPageChange(uiPage - 1);
   };
 
@@ -30,50 +37,22 @@ export default function SupplierTable({
     });
   };
 
-  // ✅ Unified green header for all views
-  const getHeaderColor = () => ({
-    backgroundColor: ACCENT_COLOR,
-    color: "#ffffff",
-  });
-
-  const getBadgeColor = () => {
-    if (currentView === "approved")
-      return {
-        backgroundColor: "#e1f4ef",
-        color: "#165e52",
-        borderColor: "#165e52",
-      };
-    if (currentView === "pending")
-      return {
-        backgroundColor: "#fffbeb",
-        color: "#b45309",
-        borderColor: "#f59e0b",
-      };
-    if (currentView === "rejected")
-      return {
-        backgroundColor: "#fee2e2",
-        color: "#b91c1c",
-        borderColor: "#ef4444",
-      };
-    return {};
-  };
-
   const getActionButton = (supplier) => (
     <button
       onClick={() => handleViewDetails(supplier)}
-      className="p-2 rounded-full transition-colors"
-      title="View Details"
-      style={
+      className={`p-2 rounded-full border transition-colors ${
         currentView === "rejected"
-          ? { border: "1.5px solid #dc2626", color: "#dc2626" }
-          : { border: `1.5px solid ${ACCENT_COLOR}`, color: ACCENT_COLOR }
-      }
+          ? "border-red-500 text-red-600 hover:bg-red-50 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20"
+          : "border-tea-700 text-tea-700 hover:bg-tea-50 dark:border-tea-400 dark:text-tea-300 dark:hover:bg-tea-900/30"
+      }`}
+      title="View Details"
     >
       <Eye className="h-4 w-4" />
     </button>
   );
 
-  // Column definitions based on view
+  const badgeClass = BADGE_STYLES[currentView] || BADGE_STYLES.approved;
+
   const columns =
     currentView === "approved"
       ? [
@@ -81,10 +60,7 @@ export default function SupplierTable({
             key: "id",
             label: "Supplier ID",
             render: (s) => (
-              <span
-                className="font-semibold text-sm px-3 py-1 rounded-full border"
-                style={getBadgeColor()}
-              >
+              <span className={`font-semibold text-sm px-3 py-1 rounded-full border ${badgeClass}`}>
                 SUP-{String(s.id).padStart(4, "0")}
               </span>
             ),
@@ -111,10 +87,7 @@ export default function SupplierTable({
             key: "id",
             label: "Request ID",
             render: (s) => (
-              <span
-                className="font-semibold text-sm px-3 py-1 rounded-full border"
-                style={getBadgeColor()}
-              >
+              <span className={`font-semibold text-sm px-3 py-1 rounded-full border ${badgeClass}`}>
                 REQ-{String(s.id).padStart(4, "0")}
               </span>
             ),
@@ -141,10 +114,10 @@ export default function SupplierTable({
         ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-      <div style={getHeaderColor()}>
+    <Card className="!p-0 overflow-hidden">
+      <div className="bg-tea-900">
         <div
-          className={`grid grid-cols-${columns.length} gap-4 p-4 font-medium text-sm text-center`}
+          className={`grid grid-cols-${columns.length} gap-4 p-4 font-medium text-sm text-center text-white`}
         >
           {columns.map((col) => (
             <div key={col.key}>{col.label}</div>
@@ -152,14 +125,14 @@ export default function SupplierTable({
         </div>
       </div>
 
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
         {currentSuppliers.map((supplier) => (
           <div
             key={supplier.id}
-            className={`grid grid-cols-${columns.length} gap-4 p-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0`}
+            className={`grid grid-cols-${columns.length} gap-4 p-4 items-center hover:bg-tea-50 dark:hover:bg-white/5 transition-colors`}
           >
             {columns.map((col) => (
-              <div key={col.key} className="text-sm text-gray-900 text-center">
+              <div key={col.key} className="text-sm text-ink dark:text-ink-dark text-center">
                 {col.render(supplier)}
               </div>
             ))}
@@ -167,32 +140,21 @@ export default function SupplierTable({
         ))}
 
         {filteredSuppliers.length === 0 && (
-          <div className="p-12 text-center text-gray-500">
-            <div className="bg-gray-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-              <Users className="h-10 w-10 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No suppliers found
-            </h3>
-          </div>
+          <EmptyState icon={Users} title="No suppliers found" description="" />
         )}
       </div>
 
       {totalElements > 0 && (
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+        <div className="bg-surface dark:bg-white/5 px-6 py-4 border-t border-tea-100 dark:border-card-border-dark">
           <div className="flex items-center justify-between">
-            <div className="flex items-center text-sm text-gray-700">
+            <div className="flex items-center text-sm text-ink/70 dark:text-muted-dark">
               <span>
-                Showing <span className="font-medium">{page * size + 1}</span>{" "}
+                Showing <span className="font-medium text-ink dark:text-ink-dark">{page * size + 1}</span>{" "}
                 to{" "}
-                <span className="font-medium">
-                  {Math.min(
-                    page * size + currentSuppliers.length,
-                    totalElements
-                  )}
+                <span className="font-medium text-ink dark:text-ink-dark">
+                  {Math.min(page * size + currentSuppliers.length, totalElements)}
                 </span>{" "}
-                of <span className="font-medium">{totalElements}</span>{" "}
-                suppliers
+                of <span className="font-medium text-ink dark:text-ink-dark">{totalElements}</span> suppliers
               </span>
             </div>
             {totalPages > 1 && (
@@ -200,11 +162,11 @@ export default function SupplierTable({
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={first}
-                  className={`p-2 rounded-md ${
+                  className={`p-2 rounded-lg border transition-colors ${
                     first
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-600 hover:text-black hover:bg-gray-100"
-                  } transition-colors`}
+                      ? "bg-tea-50 dark:bg-white/5 text-ink/30 dark:text-muted-dark/50 border-tea-100 dark:border-card-border-dark cursor-not-allowed"
+                      : "bg-card dark:bg-card-dark text-ink dark:text-ink-dark border-tea-100 dark:border-card-border-dark hover:bg-tea-50 dark:hover:bg-white/10"
+                  }`}
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
@@ -218,20 +180,19 @@ export default function SupplierTable({
                       );
                     })
                     .map((p, index, array) => {
-                      const showEllipsis =
-                        index > 0 && p - array[index - 1] > 1;
+                      const showEllipsis = index > 0 && p - array[index - 1] > 1;
                       return (
                         <div key={p} className="flex items-center">
                           {showEllipsis && (
-                            <span className="px-3 py-2 text-gray-500">...</span>
+                            <span className="px-3 py-2 text-ink/40 dark:text-muted-dark">...</span>
                           )}
                           <button
                             onClick={() => goToPage(p)}
-                            className={`px-3 py-2 text-sm rounded-md border ${
+                            className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
                               currentPage === p
-                                ? "border-gray-400 bg-[#165e52] text-white"
-                                : "border-gray-200 text-black hover:bg-gray-100"
-                            } transition-colors`}
+                                ? "border-tea-700 bg-tea-700 text-white"
+                                : "border-tea-100 dark:border-card-border-dark text-ink dark:text-ink-dark hover:bg-tea-50 dark:hover:bg-white/10"
+                            }`}
                           >
                             {p}
                           </button>
@@ -242,11 +203,11 @@ export default function SupplierTable({
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={last}
-                  className={`p-2 rounded-md ${
+                  className={`p-2 rounded-lg border transition-colors ${
                     last
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-600 hover:text-black hover:bg-gray-100"
-                  } transition-colors`}
+                      ? "bg-tea-50 dark:bg-white/5 text-ink/30 dark:text-muted-dark/50 border-tea-100 dark:border-card-border-dark cursor-not-allowed"
+                      : "bg-card dark:bg-card-dark text-ink dark:text-ink-dark border-tea-100 dark:border-card-border-dark hover:bg-tea-50 dark:hover:bg-white/10"
+                  }`}
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
@@ -255,6 +216,6 @@ export default function SupplierTable({
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

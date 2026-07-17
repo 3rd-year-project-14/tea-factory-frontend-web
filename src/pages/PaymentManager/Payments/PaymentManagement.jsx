@@ -292,7 +292,7 @@ export default function PaymentManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       <PaymentHeader
         currentView={currentView}
         selectedRoute={selectedRoute}
@@ -307,65 +307,64 @@ export default function PaymentManagement() {
         availableYears={availableYears}
         getAvailableMonths={getAvailableMonths}
       />
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Summary Cards - show before filters for routes and suppliers views */}
-        {currentView !== "bill" && (
-          <SummaryCards currentView={currentView} summary={summary} />
-        )}
 
-        {/* Filters - show after summary cards */}
-        {currentView !== "bill" && (
-          <PaymentFilters
-            filters={filters}
-            setFilters={setFilters}
-            currentView={currentView}
-            filteredData={filteredData}
-            getCurrentData={getCurrentData}
-            onClearFilters={clearFilters}
-          />
-        )}
+      {/* Summary Cards - show before filters for routes and suppliers views */}
+      {currentView !== "bill" && (
+        <SummaryCards currentView={currentView} summary={summary} />
+      )}
 
-        {/* Main Content */}
-        <MainContent
+      {/* Filters - show after summary cards */}
+      {currentView !== "bill" && (
+        <PaymentFilters
+          filters={filters}
+          setFilters={setFilters}
           currentView={currentView}
           filteredData={filteredData}
-          summary={summary}
           getCurrentData={getCurrentData}
-          onViewRoute={viewRoute}
-          onViewSupplierBill={viewSupplierBill}
-          onDownloadCSV={downloadCSV}
-          selectedSupplier={selectedSupplier}
-          selectedRoute={selectedRoute}
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-          monthNames={monthNames}
+          onClearFilters={clearFilters}
         />
+      )}
 
-        {/* Payment Modal - always render this at the end */}
-        <PaymentModal
-          showPaymentModal={showPaymentModal}
-          closePaymentModal={closePaymentModal}
-          paymentView="summary"
-          showConfirmation={showConfirmation}
-          showConfirmDialog={showConfirmDialog}
-          showDownloadDialog={showDownloadDialog}
-          handleConfirmPayments={handleConfirmPayments}
-          handleConfirmYes={handleConfirmYes}
-          handleConfirmNo={handleConfirmNo}
-          handleDownloadCSV={handleDownloadCSV}
-          handleDownloadConfirmYes={handleDownloadConfirmYes}
-          handleDownloadConfirmNo={handleDownloadConfirmNo}
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-          monthNames={monthNames}
-          stats={getPaymentStatistics(
-            suppliers,
-            routes,
-            selectedMonth,
-            selectedYear
-          )}
-        />
-      </div>
+      {/* Main Content */}
+      <MainContent
+        currentView={currentView}
+        filteredData={filteredData}
+        summary={summary}
+        getCurrentData={getCurrentData}
+        onViewRoute={viewRoute}
+        onViewSupplierBill={viewSupplierBill}
+        onDownloadCSV={downloadCSV}
+        selectedSupplier={selectedSupplier}
+        selectedRoute={selectedRoute}
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+        monthNames={monthNames}
+      />
+
+      {/* Payment Modal - always render this at the end */}
+      <PaymentModal
+        showPaymentModal={showPaymentModal}
+        closePaymentModal={closePaymentModal}
+        paymentView="summary"
+        showConfirmation={showConfirmation}
+        showConfirmDialog={showConfirmDialog}
+        showDownloadDialog={showDownloadDialog}
+        handleConfirmPayments={handleConfirmPayments}
+        handleConfirmYes={handleConfirmYes}
+        handleConfirmNo={handleConfirmNo}
+        handleDownloadCSV={handleDownloadCSV}
+        handleDownloadConfirmYes={handleDownloadConfirmYes}
+        handleDownloadConfirmNo={handleDownloadConfirmNo}
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+        monthNames={monthNames}
+        stats={getPaymentStatistics(
+          suppliers,
+          routes,
+          selectedMonth,
+          selectedYear
+        )}
+      />
     </div>
   );
 }

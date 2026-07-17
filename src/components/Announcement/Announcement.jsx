@@ -1,14 +1,14 @@
 import {
     Download,
+    Megaphone,
     Paperclip,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { viewAnnouncements } from "../../api/owner";
 import { useAuth } from "../../contexts/AuthContext";
-
-const BUTTON_COLOR = "#172526";
-const ACCENT_COLOR = "#165e52";
+import Card from "../ui/Card";
+import EmptyState from "../ui/EmptyState";
 
 export default function AnnouncementComponent() {
   const navigate = useNavigate();
@@ -95,78 +95,90 @@ export default function AnnouncementComponent() {
     if (!notification) return null;
     const style = notification.type === "success" ? "bg-green-600" : "bg-red-600";
     return (
-      <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded text-white ${style}`}>
+      <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg text-white shadow-card ${style}`}>
         {notification.message}
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen overflow-auto bg-[#f8fdfc]">
+    <div className="min-h-full">
       <Notification />
 
       {/* Header */}
-      <div className="bg-white shadow-md border-b">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-1" style={{ color: ACCENT_COLOR }}>Announcements</h1>
-            {/* <h1 className="text-3xl font-bold mb-1 text-gray-900">Announcements</h1> */}
-            {/* <p className="text-[#000000] opacity-80 max-w-2xl">Owner Dashboard - Announcement Center</p> */}
-          </div>
-          {/* Add New removed */}
-        </div>
-      </div>
+      <Card className="mb-6">
+        <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300 mb-1">
+          Announcements
+        </h1>
+        <p className="text-ink/60 dark:text-muted-dark text-sm">
+          Stay updated with factory-wide notices
+        </p>
+      </Card>
 
       {/* Content */}
-  <div className="max-w-7xl mx-auto px-6 py-8">
-  <div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            {visibleAnnouncements.map((announcement) => (
-              <div key={announcement.id} className="bg-white p-6 rounded-lg shadow-md border transition hover:shadow-lg">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-2 border-[#165e52] bg-[#f0f9f8] text-[#165e52] font-semibold text-base shadow-sm">
-                      <span className="w-2 h-2 rounded-full bg-[#165e52] inline-block" />
-                      {announcement.topic}
-                    </span>
-                    <span className="text-xs text-gray-500 italic"># {formatFactories(announcement.factories)}</span>
-                  </div>
-
-                  <div className="mb-2">
-                    <span className="block text-lg font-semibold text-black">{announcement.subject || <span className="text-gray-400">-</span>}</span>
-                  </div>
-
-                  <div className="mb-4">
-                    <span className="block text-gray-800 text-base">{announcement.content || <span className="text-gray-400">-</span>}</span>
-                  </div>
-
-                  {announcement.attachments && announcement.attachments.length > 0 && (
-                    <div className="mb-4">
-                      <div className="font-medium text-gray-800 mb-1">Attachments</div>
-                      <div className="space-y-2">
-                        {announcement.attachments.map((attachment) => (
-                          <div key={attachment.id} className="flex items-center justify-between p-3 border border-gray-300 rounded bg-gray-50">
-                            <div className="flex items-center space-x-3">
-                              <Paperclip className="w-4 h-4 text-gray-600" />
-                              <span className="text-sm text-gray-800">{attachment.name}</span>
-                              <span className="text-xs text-gray-500">({attachment.size})</span>
-                            </div>
-                            <button onClick={() => console.log("download", attachment)} className="p-1 text-green-700 hover:text-green-900"><Download className="w-4 h-4" /></button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* view-only: actions removed */}
+      {visibleAnnouncements.length === 0 ? (
+        <Card className="!p-0 overflow-hidden">
+          <EmptyState
+            icon={Megaphone}
+            title="No announcements yet"
+            description="Announcements relevant to your factory will show up here."
+          />
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          {visibleAnnouncements.map((announcement) => (
+            <Card key={announcement.id} hoverable>
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-tea-600 bg-tea-50 dark:bg-tea-900/30 dark:border-tea-500 text-tea-700 dark:text-tea-200 font-semibold text-sm">
+                  <span className="w-2 h-2 rounded-full bg-tea-600 dark:bg-tea-300 inline-block" />
+                  {announcement.topic}
+                </span>
+                <span className="text-xs text-ink/50 dark:text-muted-dark italic">
+                  # {formatFactories(announcement.factories)}
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
 
-      </div>
+              <div className="mb-2">
+                <span className="block text-lg font-heading font-semibold text-ink dark:text-ink-dark">
+                  {announcement.subject || <span className="text-ink/40 dark:text-muted-dark">-</span>}
+                </span>
+              </div>
+
+              <div className="mb-4">
+                <span className="block text-ink/80 dark:text-ink-dark/80 text-sm">
+                  {announcement.content || <span className="text-ink/40 dark:text-muted-dark">-</span>}
+                </span>
+              </div>
+
+              {announcement.attachments && announcement.attachments.length > 0 && (
+                <div className="mb-1">
+                  <div className="font-medium text-ink dark:text-ink-dark mb-1 text-sm">Attachments</div>
+                  <div className="space-y-2">
+                    {announcement.attachments.map((attachment) => (
+                      <div
+                        key={attachment.id}
+                        className="flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-white/5 border border-tea-100 dark:border-card-border-dark"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Paperclip className="w-4 h-4 text-ink/60 dark:text-muted-dark" />
+                          <span className="text-sm text-ink dark:text-ink-dark">{attachment.name}</span>
+                          <span className="text-xs text-ink/50 dark:text-muted-dark">({attachment.size})</span>
+                        </div>
+                        <button
+                          onClick={() => console.log("download", attachment)}
+                          className="p-1 text-tea-700 dark:text-tea-300 hover:text-tea-800 dark:hover:text-tea-200 transition-colors"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-

@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "../../../api/axios";
 import { getLoanRates } from "../../../api/owner";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+
 // Dynamically load html2pdf.js when needed
 function loadHtml2PdfScript() {
   return new Promise((resolve, reject) => {
@@ -19,12 +22,7 @@ function loadHtml2PdfScript() {
   });
 }
 
-const ACCENT_COLOR = "#165E52";
-const BORDER_COLOR = "#cfece6";
-const HEADER_BG = "#e1f4ef";
-
 export default function OwnerReportView() {
-  // Dummy/placeholder data for demonstration
   const [loanRate, setLoanRate] = useState(null);
   const [upcomingRates, setUpcomingRates] = useState([]);
   const [teaRate, setTeaRate] = useState(null);
@@ -33,7 +31,6 @@ export default function OwnerReportView() {
   const [loading, setLoading] = useState(true);
   const reportRef = useRef();
 
-  // Fix: define handlePrint before usage
   const handlePrint = () => {
     window.print();
   };
@@ -41,7 +38,6 @@ export default function OwnerReportView() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Loan rates
         const rates = await getLoanRates();
         const today = new Date().toISOString().slice(0, 10);
         let current = null;
@@ -58,20 +54,16 @@ export default function OwnerReportView() {
         setUpcomingRates([]);
       }
 
-      // Tea rates (approved only)
       try {
         const res = await axios.get("/api/tea_rates/approved");
         const teaRates = Array.isArray(res.data) ? res.data : [];
-        // Find the tea rate for the current month
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
-        // Find the latest approved rate whose effectiveDate is in the current month/year
         const filtered = teaRates.filter(r => {
           const d = new Date(r.effectiveDate);
           return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
         });
-        // If multiple, pick the one with the latest effectiveDate
         let finalRate = null;
         if (filtered.length > 0) {
           finalRate = filtered.reduce((a, b) => new Date(a.effectiveDate) > new Date(b.effectiveDate) ? a : b);
@@ -81,7 +73,6 @@ export default function OwnerReportView() {
         setTeaRate(null);
       }
 
-      // Dummy data for collections and growth
       setTeaCollections([
         { date: "2025-10-01", factory: "Factory A", amount: 1200 },
         { date: "2025-10-01", factory: "Factory B", amount: 950 },
@@ -131,85 +122,80 @@ export default function OwnerReportView() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-full">
       {/* Print styles */}
       <style>{`
         @media print {
           body { background: white !important; }
           .print\\:hidden { display: none !important; }
           .print\\:block { display: block !important; }
-          .shadow, .shadow-2xl, .rounded-2xl, .rounded-lg, .border { 
-            box-shadow: none !important; 
-            border: none !important; 
+          .shadow, .shadow-2xl, .rounded-2xl, .rounded-lg, .border {
+            box-shadow: none !important;
+            border: none !important;
           }
-          .bg-white, .bg-gray-100, .bg-\\[\\#f4fbf9\\] { 
-            background: white !important; 
+          .bg-white, .bg-gray-100, .bg-\\[\\#f4fbf9\\] {
+            background: white !important;
           }
-          .px-8, .py-8, .py-6, .px-4, .py-2 { 
-            padding: 0 !important; 
+          .px-8, .py-8, .py-6, .px-4, .py-2 {
+            padding: 0 !important;
           }
           .min-h-screen {
             min-height: auto !important;
           }
-          /* Hide sidebar and navbar when printing */
           .sidebar, .Sidebar, .navbar, .Navbar, nav, aside {
             display: none !important;
           }
-          /* Optionally, expand report to full width */
           .max-w-5xl {
             max-width: 100% !important;
           }
         }
       `}</style>
 
-      <div className="max-w-5xl mx-auto rounded-2xl border shadow-2xl bg-white" style={{ borderColor: BORDER_COLOR }}>
-        <div className="px-8 py-6 border-b flex flex-wrap gap-4 justify-between items-center print:block" style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}>
-          <h2 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Owner Report</h2>
+      <div className="max-w-5xl mx-auto rounded-2xl border border-tea-100 dark:border-card-border-dark shadow-card bg-card dark:bg-card-dark">
+        <div className="px-8 py-6 border-b border-tea-100 dark:border-card-border-dark flex flex-wrap gap-4 justify-between items-center print:block bg-tea-50 dark:bg-tea-900/20 rounded-t-2xl">
+          <h2 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">Owner Report</h2>
           <div className="flex gap-2 print:hidden">
-            {/* <button
-              onClick={handleDownloadPDF}
-              className="px-6 py-2 rounded-lg text-white font-medium shadow transition-colors"
-              style={{ backgroundColor: '#01251F' }}
-            >
-              Download PDF
-            </button> */}
-            <button
-              onClick={handlePrint}
-              className="px-6 py-2 rounded-lg text-white font-medium shadow transition-colors"
-              style={{ backgroundColor: '#165E52' }}
-            >
+            <Button variant="primary" onClick={handlePrint}>
               Print
-            </button>
+            </Button>
           </div>
         </div>
 
         <div ref={reportRef} className="px-8 py-8 space-y-10">
           {loading ? (
-            <div>Loading...</div>
+            <div className="text-ink/60 dark:text-muted-dark">Loading...</div>
           ) : (
             <>
               {/* Current Loan Rate */}
               <div>
-                <h3 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>Current Loan Rate</h3>
-                <div className="bg-[#f4fbf9] rounded-lg p-6 border" style={{ borderColor: BORDER_COLOR }}>
+                <h3 className="text-xl font-heading font-semibold mb-4 text-tea-700 dark:text-tea-300">
+                  Current Loan Rate
+                </h3>
+                <div className="bg-surface dark:bg-white/5 rounded-lg p-6 border border-tea-100 dark:border-card-border-dark">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Current Rate</p>
-                      <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>{loanRate ? loanRate.rate + "%" : "N/A"}</span>
+                      <p className="text-sm text-ink/60 dark:text-muted-dark mb-1">Current Rate</p>
+                      <span className="text-3xl font-heading font-bold text-tea-700 dark:text-tea-300">
+                        {loanRate ? loanRate.rate + "%" : "N/A"}
+                      </span>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-600 mb-1">Effective Date</p>
-                      <span className="text-lg font-medium">{loanRate ? loanRate.effectiveDate : "N/A"}</span>
+                      <p className="text-sm text-ink/60 dark:text-muted-dark mb-1">Effective Date</p>
+                      <span className="text-lg font-medium text-ink dark:text-ink-dark">
+                        {loanRate ? loanRate.effectiveDate : "N/A"}
+                      </span>
                     </div>
                   </div>
                   {upcomingRates.length > 0 && (
                     <div className="mt-6">
-                      <h4 className="text-md font-semibold mb-2" style={{ color: ACCENT_COLOR }}>Upcoming Loan Rates</h4>
+                      <h4 className="text-md font-semibold mb-2 text-tea-700 dark:text-tea-300">
+                        Upcoming Loan Rates
+                      </h4>
                       <ul className="space-y-2">
                         {upcomingRates.map((r, i) => (
                           <li key={i} className="flex justify-between items-center">
-                            <span className="font-medium text-gray-700">{r.rate}%</span>
-                            <span className="text-sm text-gray-600">Effective: {r.effectiveDate}</span>
+                            <span className="font-medium text-ink/80 dark:text-ink-dark/80">{r.rate}%</span>
+                            <span className="text-sm text-ink/60 dark:text-muted-dark">Effective: {r.effectiveDate}</span>
                           </li>
                         ))}
                       </ul>
@@ -220,36 +206,46 @@ export default function OwnerReportView() {
 
               {/* Current Tea Rate */}
               <div>
-                <h3 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>Current Tea Rate</h3>
-                <div className="bg-[#f4fbf9] rounded-lg p-6 border" style={{ borderColor: BORDER_COLOR }}>
+                <h3 className="text-xl font-heading font-semibold mb-4 text-tea-700 dark:text-tea-300">
+                  Current Tea Rate
+                </h3>
+                <div className="bg-surface dark:bg-white/5 rounded-lg p-6 border border-tea-100 dark:border-card-border-dark">
                   <div className="flex items-center">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Current Rate</p>
-                      <span className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>Rs. {teaRate && teaRate.rate ? teaRate.rate : "N/A"}</span>
+                      <p className="text-sm text-ink/60 dark:text-muted-dark mb-1">Current Rate</p>
+                      <span className="text-3xl font-heading font-bold text-tea-700 dark:text-tea-300">
+                        Rs. {teaRate && teaRate.rate ? teaRate.rate : "N/A"}
+                      </span>
                     </div>
-                    {/* <div className="ml-8">
-                      <p className="text-sm text-gray-600 mb-1">Effective Date</p>
-                      <span className="text-lg font-medium">{teaRate && teaRate.effectiveDate ? teaRate.effectiveDate : "N/A"}</span>
-                    </div> */}
                   </div>
                 </div>
               </div>
 
               {/* Factory Growth Table */}
               <div>
-                <h3 className="text-xl font-semibold mb-4" style={{ color: ACCENT_COLOR }}>Factory Growth (%)</h3>
-                <table className="w-full table-auto border-collapse border" style={{ borderColor: BORDER_COLOR }}>
+                <h3 className="text-xl font-heading font-semibold mb-4 text-tea-700 dark:text-tea-300">
+                  Factory Growth (%)
+                </h3>
+                <table className="w-full table-auto border-collapse border border-tea-100 dark:border-card-border-dark">
                   <thead>
-                    <tr style={{ backgroundColor: HEADER_BG }}>
-                      <th className="py-3 px-4 border text-left" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Factory</th>
-                      <th className="py-3 px-4 border text-right" style={{ color: ACCENT_COLOR, borderColor: BORDER_COLOR }}>Growth (%)</th>
+                    <tr className="bg-tea-50 dark:bg-tea-900/20">
+                      <th className="py-3 px-4 border border-tea-100 dark:border-card-border-dark text-left text-tea-700 dark:text-tea-300">
+                        Factory
+                      </th>
+                      <th className="py-3 px-4 border border-tea-100 dark:border-card-border-dark text-right text-tea-700 dark:text-tea-300">
+                        Growth (%)
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {factoryGrowth.map((f, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
-                        <td className="py-3 px-4 border" style={{ borderColor: BORDER_COLOR }}>{f.factory}</td>
-                        <td className="py-3 px-4 border text-right" style={{ borderColor: BORDER_COLOR }}>{f.growth}</td>
+                      <tr key={idx} className="hover:bg-tea-50 dark:hover:bg-white/5 transition-colors">
+                        <td className="py-3 px-4 border border-tea-100 dark:border-card-border-dark text-ink dark:text-ink-dark">
+                          {f.factory}
+                        </td>
+                        <td className="py-3 px-4 border border-tea-100 dark:border-card-border-dark text-right text-ink dark:text-ink-dark">
+                          {f.growth}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

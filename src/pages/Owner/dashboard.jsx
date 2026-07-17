@@ -21,6 +21,8 @@ import {
   MapPin,
   Calendar,
 } from "lucide-react";
+import Card from "../../components/ui/Card";
+import { useTheme } from "../../contexts/ThemeContext";
 
 ChartJS.register(
   CategoryScale,
@@ -33,12 +35,6 @@ ChartJS.register(
   zoomPlugin
 );
 
-const ACCENT_COLOR = "#165e52";
-const BLACK = "#000000";
-const BUTTON_COLOR = "#172526";
-const BORDER_COLOR = "#cfece6";
-const CARD_BG = "#fff";
-
 const suppliers = [
   { name: "Supplier - A", weight: "485 kg" },
   { name: "Supplier - B", weight: "412 kg" },
@@ -47,257 +43,157 @@ const suppliers = [
   { name: "Supplier - E", weight: "298 kg" },
 ];
 
-const monthlySupplyData = {
-  labels: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ],
-  datasets: [
-    {
-      label: "Tea Collected (kg)",
-      data: [
-        12000, 15000, 14000, 16000, 17000, 15500, 16500, 18000, 17500, 19000,
-        20000, 21000,
-      ],
-      borderColor: ACCENT_COLOR,
-      backgroundColor: "rgba(22, 94, 82, 0.3)",
-      fill: true,
-      tension: 0.3,
-      pointRadius: 5,
-      pointHoverRadius: 8,
-    },
-  ],
-};
+const monthlySupplyLabels = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+const monthlySupplyValues = [
+  12000, 15000, 14000, 16000, 17000, 15500, 16500, 18000, 17500, 19000, 20000, 21000,
+];
 
-const monthlySupplyOptions = {
-  responsive: true,
-  interaction: {
-    mode: "nearest",
-    intersect: false,
-  },
-  plugins: {
-    legend: {
-      display: true,
-      labels: { color: BUTTON_COLOR },
-    },
-    tooltip: {
-      enabled: true,
-      mode: "index",
-      intersect: false,
-      backgroundColor: ACCENT_COLOR,
-      titleColor: "#fff",
-      bodyColor: "#fff",
-    },
-    zoom: {
-      pan: {
-        enabled: true,
-        mode: "x",
-        modifierKey: "ctrl",
-      },
-      zoom: {
-        wheel: { enabled: true },
-        pinch: { enabled: true },
-        mode: "x",
-      },
-    },
-  },
-  scales: {
-    x: {
-      ticks: { color: BUTTON_COLOR },
-      grid: { color: BORDER_COLOR },
-    },
-    y: {
-      beginAtZero: true,
-      ticks: { color: BUTTON_COLOR },
-      grid: { color: BORDER_COLOR },
-    },
-  },
-};
+const quickLinks = [
+  { title: "Fertilizer Requests", description: "Manage fertilizer distribution requests", icon: Leaf },
+  { title: "Vehicle Management", description: "Track and manage transport vehicles", icon: Truck },
+  { title: "Price Calculator", description: "Calculate tea prices and payments", icon: Calculator },
+  { title: "Route Planning", description: "Optimize collection routes", icon: MapPin },
+  { title: "Schedule Manager", description: "Manage collection schedules", icon: Calendar },
+  { title: "Payment System", description: "Process supplier payments", icon: DollarSign },
+];
 
 export default function Dashboard() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const lineColor = isDark ? "#4ADE9E" : "#165e52";
+  const fillColor = isDark ? "rgba(74, 222, 158, 0.15)" : "rgba(22, 94, 82, 0.3)";
+  const axisColor = isDark ? "#A0ABA3" : "#172526";
+  const gridColor = isDark ? "rgba(160, 171, 163, 0.15)" : "#cfece6";
+
+  const monthlySupplyData = {
+    labels: monthlySupplyLabels,
+    datasets: [
+      {
+        label: "Tea Collected (kg)",
+        data: monthlySupplyValues,
+        borderColor: lineColor,
+        backgroundColor: fillColor,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 5,
+        pointHoverRadius: 8,
+      },
+    ],
+  };
+
+  const monthlySupplyOptions = {
+    responsive: true,
+    interaction: { mode: "nearest", intersect: false },
+    plugins: {
+      legend: { display: true, labels: { color: axisColor } },
+      tooltip: {
+        enabled: true,
+        mode: "index",
+        intersect: false,
+        backgroundColor: lineColor,
+        titleColor: "#fff",
+        bodyColor: "#fff",
+      },
+      zoom: {
+        pan: { enabled: true, mode: "x", modifierKey: "ctrl" },
+        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" },
+      },
+    },
+    scales: {
+      x: { ticks: { color: axisColor }, grid: { color: gridColor } },
+      y: { beginAtZero: true, ticks: { color: axisColor }, grid: { color: gridColor } },
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       {/* Header */}
-      <div className="bg-white shadow-md border-b">
-        <div className="max-w-7xl mx-auto px-6 py-6 ">
-          <h1
-            className="text-3xl font-bold mb-1 text-gray-900"
-            // style={{ color: ACCENT_COLOR }}
-          >
-            Dashboard
-          </h1>
-          <p className="mt-1 text-base text-gray-600 max-w-2xl">
-            Comprehensive reporting system for all your tea factories
-          </p>
-        </div>
-      </div>
+      <Card className="mb-6">
+        <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300 mb-1">
+          Dashboard
+        </h1>
+        <p className="text-sm text-ink/60 dark:text-muted-dark">
+          Comprehensive reporting system for all your tea factories
+        </p>
+      </Card>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-        {/* Stats Cards */}
-        <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          {[
-            {
-              label: "Total Tea Collected",
-              value: "2,834",
-              icon: <TrendingUp size={28} color="black" />,
-            },
-            {
-              label: "Drivers on Duty",
-              value: "31",
-              icon: <Users size={28} color="black" />,
-            },
-            {
-              label: "Total Payable Amount",
-              value: "1,500,234",
-              icon: <DollarSign size={28} color="black" />,
-            },
-            {
-              label: "Avg Rate Change",
-              value: "+5.2%",
-              icon: <TrendingUp size={28} color="black" />,
-            },
-          ].map((card, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-6 rounded-lg shadow-md border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] flex items-center justify-between"
-            >
-              <div>
-                <p className="text-sm font-medium text-black">{card.label}</p>
-                <p className="text-2xl font-bold text-black">{card.value}</p>
-              </div>
-              <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
-                {card.icon}
-              </div>
+      {/* Stats Cards */}
+      <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {[
+          { label: "Total Tea Collected", value: "2,834", icon: TrendingUp },
+          { label: "Drivers on Duty", value: "31", icon: Users },
+          { label: "Total Payable Amount", value: "1,500,234", icon: DollarSign },
+          { label: "Avg Rate Change", value: "+5.2%", icon: TrendingUp },
+        ].map((card, idx) => (
+          <Card key={idx} hoverable className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">{card.label}</p>
+              <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">{card.value}</p>
             </div>
-          ))}
-        </section>
-
-        {/* Charts & Top Suppliers */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* Monthly Supply Chart with zoom & pan */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-black flex flex-col">
-            <h3
-              className="text-lg font-semibold text-black mb-5"
-              style={{ color: ACCENT_COLOR }}
-            >
-              Monthly Supply Chart
-            </h3>
-            <div className="flex-1 min-h-[320px]">
-              <Line data={monthlySupplyData} options={monthlySupplyOptions} />
+            <div className="h-12 w-12 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+              <card.icon size={24} className="text-tea-700 dark:text-tea-300" />
             </div>
-          </div>
+          </Card>
+        ))}
+      </section>
 
-          {/* Top 5 Suppliers */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-black">
-            <h3
-              className="text-lg font-semibold text-black mb-5"
-              style={{ color: ACCENT_COLOR }}
-            >
-              Top 5 Factory (by tea collecting weight)
-            </h3>
-            <div className="space-y-4">
-              {suppliers.map((supplier, i) => (
-                <div
-                  key={i}
-                  className="flex justify-between items-center py-2 border-b last:border-b-0"
-                  style={{ borderColor: BORDER_COLOR }}
-                >
-                  <span className="font-medium text-gray-700">
-                    {supplier.name}
-                  </span>
-                  <span className="font-bold" style={{ color: ACCENT_COLOR }}>
-                    {supplier.weight}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Quick Links Section */}
-        <section className="bg-white rounded-lg shadow-md p-6 ">
-          <h3
-            className="text-lg font-semibold text-black mb-5"
-            style={{ color: BLACK}}
-          >
-            Quick Links
+      {/* Charts & Top Suppliers */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card className="flex flex-col">
+          <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300 mb-5">
+            Monthly Supply Chart
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Fertilizer Requests",
-                description: "Manage fertilizer distribution requests",
-                icon: Leaf,
-                
-              },
-              {
-                title: "Vehicle Management",
-                description: "Track and manage transport vehicles",
-                icon: Truck,
-                
-              },
-              {
-                title: "Price Calculator",
-                description: "Calculate tea prices and payments",
-                icon: Calculator,
-              
-              },
-              {
-                title: "Route Planning",
-                description: "Optimize collection routes",
-                icon: MapPin,
-                
-              },
-              {
-                title: "Schedule Manager",
-                description: "Manage collection schedules",
-                icon: Calendar,
-                
-              },
-              {
-                title: "Payment System",
-                description: "Process supplier payments",
-                icon: DollarSign,
-                
-              },
-            ].map(({ title, description, icon: Icon, iconBg }, i) => (
+          <div className="flex-1 min-h-[320px]">
+            <Line data={monthlySupplyData} options={monthlySupplyOptions} />
+          </div>
+        </Card>
+
+        <Card>
+          <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300 mb-5">
+            Top 5 Factory (by tea collecting weight)
+          </h3>
+          <div className="space-y-4">
+            {suppliers.map((supplier, i) => (
               <div
-                key={title}
-                className={`rounded-lg p-5 border ${iconBg} hover:shadow-lg transition-shadow cursor-pointer bg-gray-50 flex items-center space-x-4`}
-                style={{
-                  borderColor: BORDER_COLOR,
-                  backgroundColor: "#F0FDF4",
-                }}
+                key={i}
+                className="flex justify-between items-center py-2 border-b border-tea-100 dark:border-card-border-dark last:border-b-0"
               >
-                <div
-                  className={`w-12 h-12 rounded-lg flex items-center justify-center ${iconBg}`}
-                >
-                  <Icon className="w-6 h-6" style={{ color:BLACK }} />
-                </div>
-                <div>
-                  <h4
-                    className="font-semibold text-gray-800"
-                    style={{ color: BLACK }}
-                  >
-                    {title}
-                  </h4>
-                  <p className="text-sm text-gray-600">{description}</p>
-                </div>
+                <span className="font-medium text-ink/80 dark:text-ink-dark/80">
+                  {supplier.name}
+                </span>
+                <span className="font-bold text-tea-700 dark:text-tea-300">
+                  {supplier.weight}
+                </span>
               </div>
             ))}
           </div>
-        </section>
-      </main>
+        </Card>
+      </section>
+
+      {/* Quick Links Section */}
+      <Card>
+        <h3 className="text-lg font-heading font-semibold text-ink dark:text-ink-dark mb-5">
+          Quick Links
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {quickLinks.map(({ title, description, icon: Icon }) => (
+            <div
+              key={title}
+              className="rounded-lg p-5 border border-tea-100 dark:border-card-border-dark hover:shadow-soft transition-shadow cursor-pointer bg-tea-50/50 dark:bg-tea-900/10 flex items-center space-x-4"
+            >
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-tea-50 dark:bg-tea-900/30 shrink-0">
+                <Icon className="w-6 h-6 text-tea-700 dark:text-tea-300" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-ink dark:text-ink-dark">{title}</h4>
+                <p className="text-sm text-ink/60 dark:text-muted-dark">{description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }

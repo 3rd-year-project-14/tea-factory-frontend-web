@@ -6,11 +6,9 @@ import { approveLoanRequest } from "../../../api/loan";
 import { Users, Clock, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getLoanStats, getFilteredLoans } from "../../../api/paymentManager";
-
-// 🎨 Color tokens
-const ACCENT_COLOR = "#165E52";
-const BORDER_COLOR = "#cfece6";
-const BG_LIGHT_GREEN = "#e1f4ef";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import EmptyState from "../../../components/ui/EmptyState";
 
 
 
@@ -355,103 +353,104 @@ export default function LoanManagement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#165E52]"></div>
+      <div className="min-h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-tea-700 dark:border-tea-300"></div>
       </div>
     );
   }
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-lg text-red-600">{error}</div>
+      <div className="min-h-full flex items-center justify-center">
+        <div className="text-lg text-red-600 dark:text-red-400">{error}</div>
       </div>
     );
   }
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       {/* Header */}
-      <div className="bg-white shadow-md border-b" style={{ borderColor: BORDER_COLOR }}>
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold mb-1" style={{ color: ACCENT_COLOR }}>
-                Loan Management
-              </h1>
-              <div className="text-lg  text-black-200  px-4 py-2 inline-block rounded-lg">
-                {monthNames[selectedMonth]} {selectedYear}
-              </div>
+      <Card className="mb-6">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300 mb-1">
+              Loan Management
+            </h1>
+            <div className="text-sm text-ink/60 dark:text-muted-dark">
+              {monthNames[selectedMonth]} {selectedYear}
             </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">Month:</label>
-                <select
-                  value={selectedMonth}
-                  onChange={e => setSelectedMonth(parseInt(e.target.value))}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-gray-900 font-medium"
-                >
-                  {getAvailableMonths(selectedYear).map(idx => (
-                    <option key={idx} value={idx}>{monthNames[idx]}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">Year:</label>
-                <select
-                  value={selectedYear}
-                  onChange={e => {
-                    const newYear = parseInt(e.target.value);
-                    setSelectedYear(newYear);
-                    const availableMonths = getAvailableMonths(newYear);
-                    if (!availableMonths.includes(selectedMonth)) {
-                      setSelectedMonth(availableMonths[availableMonths.length - 1]);
-                    }
-                  }}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-gray-900 font-medium"
-                >
-                  {availableYears.map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
-              </div>
+          </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-ink/70 dark:text-ink-dark/70">Month:</label>
+              <select
+                value={selectedMonth}
+                onChange={e => setSelectedMonth(parseInt(e.target.value))}
+                className="px-3 py-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark font-medium focus:outline-none focus:ring-2 focus:ring-tea-500/40"
+              >
+                {getAvailableMonths(selectedYear).map(idx => (
+                  <option key={idx} value={idx}>{monthNames[idx]}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-ink/70 dark:text-ink-dark/70">Year:</label>
+              <select
+                value={selectedYear}
+                onChange={e => {
+                  const newYear = parseInt(e.target.value);
+                  setSelectedYear(newYear);
+                  const availableMonths = getAvailableMonths(newYear);
+                  if (!availableMonths.includes(selectedMonth)) {
+                    setSelectedMonth(availableMonths[availableMonths.length - 1]);
+                  }
+                }}
+                className="px-3 py-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark font-medium focus:outline-none focus:ring-2 focus:ring-tea-500/40"
+              >
+                {availableYears.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Summary Cards */}
-      <div className="max-w-7xl mx-auto px-6 pt-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
   {[
     {
       type: "active",
       label: "Active Loans",
       value: apiLoanStats.approvedLoanTotal,
       count: apiLoanStats.approvedLoanCount,
-      icon: <Users size={30} color="black" />,
-      borderColor: "#165E52",
-      ringColor: "ring-[#165E52]/30",
+      icon: Users,
+      iconClass: "text-tea-700 dark:text-tea-300",
+      borderClass: "border-tea-600 dark:border-tea-500",
     },
     {
       type: "pending",
       label: "Pending Loans",
       value: apiLoanStats.pendingLoanRequestTotal,
       count: apiLoanStats.pendingLoanRequestCount,
-      icon: <Clock size={30} color="black" />,
-      borderColor: "#f59e0b",
-      ringColor: "ring-[#f59e0b]/30",
+      icon: Clock,
+      iconClass: "text-amber-600 dark:text-amber-400",
+      borderClass: "border-amber-500 dark:border-amber-500",
     },
     {
       type: "completed",
       label: "Completed Loans",
       value: apiLoanStats.completedLoanTotal,
       count: apiLoanStats.completedLoanCount,
-      icon: <Users size={30} color="black" />,
-      borderColor: "#1d4ed8", // blue-700
-      ringColor: "ring-[#1d4ed8]/30",
+      icon: Users,
+      iconClass: "text-blue-700 dark:text-blue-300",
+      borderClass: "border-blue-700 dark:border-blue-500",
     },
   ].map((card) => (
-    <div
+    <Card
       key={card.type}
+      hoverable
+      className={`!border cursor-pointer transition-all duration-200 ${card.borderClass} ${
+        currentView === card.type ? "ring-2 ring-tea-500 scale-[1.02] shadow-card" : ""
+      }`}
       onClick={async () => {
         setCurrentView(card.type);
         
@@ -518,87 +517,66 @@ export default function LoanManagement() {
           }
         }
       }}
-      className={`bg-white p-6 rounded-lg shadow-md cursor-pointer transition-transform hover:scale-[1.02] ${
-        currentView === card.type ? `${card.ringColor} ring-2` : ""
-      }`}
-      style={{
-        border: `1px solid ${card.borderColor}`,
-      }}
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-black">{card.label}</p>
-          <p className="text-3xl font-bold text-black">
+          <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">{card.label}</p>
+          <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">
             {card.count}
           </p>
-          <p className="text-xs text-gray-600">Rs. {card.value.toLocaleString()}</p>
+          <p className="text-xs text-ink/40 dark:text-muted-dark mt-1">Rs. {card.value.toLocaleString()}</p>
         </div>
-        <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
-          {card.icon}
+        <div className="h-12 w-12 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+          <card.icon size={24} className={card.iconClass} />
         </div>
       </div>
-    </div>
+    </Card>
   ))}
 </div>
 
-
         {/* Filters - Supplier Style Panel */}
-        <div
-          className="bg-white rounded-lg shadow-md border mb-8"
-          style={{ borderColor: BORDER_COLOR }}
-        >
-          <div className="p-4">
+        <Card className="mb-6 !p-4">
             {/* Search & Toggle */}
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
-              <div className="flex-1 max-w-md">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+              <div className="flex-1 max-w-md w-full">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/40 dark:text-muted-dark h-4 w-4" />
                   <input
                     type="text"
                     placeholder="Search by supplier or loan ID..."
                     name="search"
                     value={searchTerm}
                     onChange={handleFilterChange}
-                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#165E52] text-gray-900"
-                    style={{ borderColor: BORDER_COLOR }}
+                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
                   />
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm"
-                  style={{
-                    backgroundColor: BG_LIGHT_GREEN,
-                    color: ACCENT_COLOR,
-                    border: `2px solid ${BORDER_COLOR}`,
-                  }}
-                >
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filters
-                  <ChevronDown
-                    className={`h-4 w-4 ml-2 transition-transform ${
-                      showFilters ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-              </div>
+              <Button
+                variant={showFilters ? "primary" : "outline"}
+                size="md"
+                icon={Filter}
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                Filters
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${showFilters ? "rotate-180" : ""}`}
+                />
+              </Button>
             </div>
             {/* Expanded Filters */}
             {showFilters && (
               <div
-                className={`grid grid-cols-1 ${currentView === "completed" ? "sm:grid-cols-5" : "sm:grid-cols-4"} gap-4 p-4 bg-gray-50 rounded-lg border`}
-                style={{ borderColor: BORDER_COLOR }}
+                className={`grid grid-cols-1 ${currentView === "completed" ? "sm:grid-cols-5" : "sm:grid-cols-4"} gap-4 p-4 mt-4 bg-surface dark:bg-white/5 rounded-lg border border-tea-100 dark:border-card-border-dark`}
               >
                 {/* Amount */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Amount Range</label>
+                  <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-2">Amount Range</label>
                   <select
                     name="amountRange"
                     value={filters.amountRange}
                     onChange={handleFilterChange}
-                    className="w-full p-2 rounded-md text-sm focus:ring-2 focus:ring-[#165E52] text-gray-900"
-                    style={{ borderColor: BORDER_COLOR }}
+                    className="w-full p-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-card dark:bg-card-dark text-ink dark:text-ink-dark text-sm focus:outline-none focus:ring-2 focus:ring-tea-500/40"
                   >
                     <option value="">All Amounts</option>
                     <option value="under10k">Under Rs. 10,000</option>
@@ -608,13 +586,12 @@ export default function LoanManagement() {
                 </div>
                 {/* Duration */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                  <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-2">Duration</label>
                   <select
                     name="duration"
                     value={filters.duration}
                     onChange={handleFilterChange}
-                    className="w-full p-2 rounded-md text-sm focus:ring-2 focus:ring-[#165E52] text-gray-900"
-                    style={{ borderColor: BORDER_COLOR }}
+                    className="w-full p-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-card dark:bg-card-dark text-ink dark:text-ink-dark text-sm focus:outline-none focus:ring-2 focus:ring-tea-500/40"
                   >
                     <option value="">All Durations</option>
                     <option value="short">Short Term (≤3 months)</option>
@@ -624,13 +601,12 @@ export default function LoanManagement() {
                 </div>
                 {/* Route */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Route</label>
+                  <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-2">Route</label>
                   <select
                     name="route"
                     value={filters.route}
                     onChange={handleFilterChange}
-                    className="w-full p-2 rounded-md text-sm focus:ring-2 focus:ring-[#165E52] text-gray-900"
-                    style={{ borderColor: BORDER_COLOR }}
+                    className="w-full p-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-card dark:bg-card-dark text-ink dark:text-ink-dark text-sm focus:outline-none focus:ring-2 focus:ring-tea-500/40"
                   >
                     <option value="">All Routes</option>
                     <option value="Route A">Route A</option>
@@ -643,7 +619,7 @@ export default function LoanManagement() {
                 {/* Year (for completed only) */}
                 {currentView === "completed" && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Activity Year</label>
+                    <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-2">Activity Year</label>
                     <select
                       name="year"
                       value={filters.year}
@@ -658,29 +634,20 @@ export default function LoanManagement() {
                 )}
                 {/* Clear */}
                 <div className="flex items-end">
-                  <button
-                    onClick={clearFilters}
-                    className="w-full px-4 py-2 text-sm font-medium rounded-md shadow-sm"
-                    style={{
-                      backgroundColor: BG_LIGHT_GREEN,
-                      color: ACCENT_COLOR,
-                      border: `2px solid ${BORDER_COLOR}`,
-                    }}
-                  >
+                  <Button variant="outline" size="sm" className="w-full" onClick={clearFilters}>
                     Clear Filters
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
-          </div>
-        </div>
+        </Card>
 
         {/* Table */}
        {/* Loan Table - Styled like SupplierTable */}
-<div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+<Card className="!p-0 overflow-hidden">
   {/* Header Row */}
-  <div style={{ backgroundColor: "#01251F", color: "white" }}>
-    <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm text-center">
+  <div className="bg-tea-900">
+    <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm text-center text-white">
       <div>Loan ID</div>
       <div>Supplier</div>
       <div>Total Loan</div>
@@ -689,44 +656,39 @@ export default function LoanManagement() {
     </div>
   </div>
 
-  <div className="divide-y divide-gray-200">
+  <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
     {filteredLoans.map((loan) => (
       <div
         key={loan.id}
-        className="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+        className="grid grid-cols-5 gap-4 p-4 items-center hover:bg-tea-50 dark:hover:bg-white/5 transition-colors"
       >
-        <div className="text-center font-semibold text-green-600 text-sm">
+        <div className="text-center font-semibold text-tea-700 dark:text-tea-300 text-sm">
           {loan.id}
         </div>
-        <div className="text-sm text-gray-900 font-medium text-center">
+        <div className="text-sm text-ink dark:text-ink-dark font-medium text-center">
           {loan.supplierName}
         </div>
-        <div className="text-sm text-gray-900 font-semibold text-center">
+        <div className="text-sm text-ink dark:text-ink-dark font-semibold text-center">
           Rs. {loan.totalLoan.toLocaleString()}
         </div>
-        <div className="text-sm font-semibold text-center"
-          style={{
-            color:
-              loan.status === "active"
-                ? "#16a34a"
-                : loan.status === "overdue"
-                ? "#ea580c"
-                : loan.status === "defaulted"
-                ? "#dc2626"
-                : "#6b7280",
-          }}
+        <div
+          className={`text-sm font-semibold text-center ${
+            loan.status === "active"
+              ? "text-green-600 dark:text-green-400"
+              : loan.status === "overdue"
+              ? "text-orange-600 dark:text-orange-400"
+              : loan.status === "defaulted"
+              ? "text-red-600 dark:text-red-400"
+              : "text-ink/50 dark:text-muted-dark"
+          }`}
         >
           {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
         </div>
         <div className="flex justify-center">
           <button
             onClick={() => handleViewDetails(loan)}
-            className="p-2 rounded-full transition-colors"
+            className="p-2 rounded-full border border-tea-700 text-tea-700 hover:bg-tea-50 dark:border-tea-400 dark:text-tea-300 dark:hover:bg-tea-900/30 transition-colors"
             title="View Details"
-            style={{
-              border: "1.5px solid #165E52",
-              color: "#165E52",
-            }}
           >
             <Eye className="h-4 w-4" />
           </button>
@@ -736,32 +698,19 @@ export default function LoanManagement() {
 
     {/* Empty State */}
     {filteredLoans.length === 0 && (
-      <div className="p-12 text-center text-gray-500">
-        <div className="bg-gray-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-          <Users className="h-10 w-10 text-gray-400" />
-        </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-1">
-          No loans found
-        </h3>
-        <p className="text-gray-600 text-sm">
-          Try adjusting your filters or search...
-        </p>
-      </div>
+      <EmptyState
+        icon={Users}
+        title="No loans found"
+        description="Try adjusting your filters or search..."
+      />
     )}
   </div>
 
   {/* Optional: Pagination Footer (remove if not paginating) */}
-  
-  <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 text-sm text-gray-600">
+  <div className="bg-surface dark:bg-white/5 px-6 py-4 border-t border-tea-100 dark:border-card-border-dark text-sm text-ink/60 dark:text-muted-dark">
     Showing 1–10 of {filteredLoans.length} loans
   </div>
- 
-</div>
-
-
-        {/* Footer */}
-       
-      </div>
+</Card>
     </div>
   );
 }

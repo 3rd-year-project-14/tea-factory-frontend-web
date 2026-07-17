@@ -1,20 +1,13 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import Button from "../../../components/ui/Button";
 
-// Design Tokens
-const ACCENT_COLOR = "#165E52";
-const BTN_COLOR = "#01251F";
-const BORDER_COLOR = "#cfece6";
-const HEADER_BG = "#e1f4ef";
+const inputClass =
+  "w-full rounded-lg px-4 py-2 text-sm border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40";
 
 // Dummy driver list (REPLACE with prop if needed)
 const drivers = [
-  {
-    id: "1",
-    name: "Nimal Perera",
-    phone: "0711234567",
-    type: "inhouse-driver",
-  },
+  { id: "1", name: "Nimal Perera", phone: "0711234567", type: "inhouse-driver" },
   { id: "2", name: "Kamal Silva", phone: "0779876543", type: "inhouse-driver" },
 ];
 
@@ -42,24 +35,17 @@ export default function CreateRoutePage({ onCancel }) {
   };
 
   return (
-    <div
-      className="flex flex-col w-[540px] max-w-[95vw] rounded-2xl border shadow-2xl overflow-hidden mx-auto mt-10 mb-0"
-      style={{ borderColor: BORDER_COLOR, backgroundColor: "white" }}
-    >
+    <div className="flex flex-col w-[540px] max-w-[95vw] rounded-2xl border border-tea-100 dark:border-card-border-dark shadow-card overflow-hidden mx-auto mt-10 mb-0 bg-card dark:bg-card-dark">
       {/* Header */}
-      <div
-        className="p-5 flex justify-between items-center border-b"
-        style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}
-      >
-        <h2 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
+      <div className="p-5 flex justify-between items-center border-b border-tea-100 dark:border-card-border-dark bg-tea-50 dark:bg-tea-900/20">
+        <h2 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
           Create New Route
         </h2>
 
         {onCancel && (
           <button
             onClick={onCancel}
-            className="p-1 rounded hover:bg-[#dff4ef]"
-            style={{ color: ACCENT_COLOR }}
+            className="p-1 rounded text-tea-700 dark:text-tea-300 hover:bg-tea-100 dark:hover:bg-white/10"
             aria-label="Close"
             type="button"
           >
@@ -69,13 +55,9 @@ export default function CreateRoutePage({ onCancel }) {
       </div>
 
       {/* Form content with tighter vertical spacing */}
-      <form className="p-6 space-y-3" style={{ marginBottom: 0 }}>
-        {/* Route Name */}
+      <form className="p-6 space-y-3">
         <div>
-          <label
-            className="block mb-1 text-sm font-medium"
-            style={{ color: ACCENT_COLOR }}
-          >
+          <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
             Route Name
           </label>
           <input
@@ -84,18 +66,14 @@ export default function CreateRoutePage({ onCancel }) {
             value={formData.routeName}
             onChange={handleChange}
             placeholder="e.g., Colombo - Kandy"
-            className="w-full border rounded-lg px-4 py-2 text-sm"
-            style={{ borderColor: BORDER_COLOR }}
+            className={inputClass}
           />
         </div>
 
         {/* Row 1: Start Location & End Location */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label
-              className="block mb-1 text-sm font-medium"
-              style={{ color: ACCENT_COLOR }}
-            >
+            <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
               Start Location
             </label>
             <input
@@ -104,16 +82,12 @@ export default function CreateRoutePage({ onCancel }) {
               value={formData.startLocation}
               onChange={handleChange}
               placeholder="e.g., Colombo"
-              className="w-full border rounded-lg px-4 py-2 text-sm"
-              style={{ borderColor: BORDER_COLOR }}
+              className={inputClass}
             />
           </div>
 
           <div>
-            <label
-              className="block mb-1 text-sm font-medium"
-              style={{ color: ACCENT_COLOR }}
-            >
+            <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
               End Location
             </label>
             <input
@@ -122,8 +96,7 @@ export default function CreateRoutePage({ onCancel }) {
               value={formData.endLocation}
               onChange={handleChange}
               placeholder="e.g., Kandy"
-              className="w-full border rounded-lg px-4 py-2 text-sm"
-              style={{ borderColor: BORDER_COLOR }}
+              className={inputClass}
             />
           </div>
         </div>
@@ -131,10 +104,7 @@ export default function CreateRoutePage({ onCancel }) {
         {/* Row 2: Distance & Estimated Time */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label
-              className="block mb-1 text-sm font-medium"
-              style={{ color: ACCENT_COLOR }}
-            >
+            <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
               Distance (km)
             </label>
             <input
@@ -143,20 +113,12 @@ export default function CreateRoutePage({ onCancel }) {
               value={formData.distance}
               onChange={handleChange}
               placeholder="e.g., 120"
-              className="w-full border rounded-lg px-4 py-2 text-sm"
-              style={{
-                borderColor: BORDER_COLOR,
-                background: "#f0faf7",
-                color: ACCENT_COLOR,
-              }}
+              className={inputClass}
             />
           </div>
 
           <div>
-            <label
-              className="block mb-1 text-sm font-medium"
-              style={{ color: ACCENT_COLOR }}
-            >
+            <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
               Estimated Time
             </label>
             <input
@@ -165,26 +127,21 @@ export default function CreateRoutePage({ onCancel }) {
               value={formData.estimatedTime}
               onChange={handleChange}
               placeholder="e.g., 3.5 hours"
-              className="w-full border rounded-lg px-4 py-2 text-sm"
-              style={{ borderColor: BORDER_COLOR }}
+              className={inputClass}
             />
           </div>
         </div>
 
         {/* Driver Type */}
         <div>
-          <label
-            className="block mb-1 text-sm font-medium"
-            style={{ color: ACCENT_COLOR }}
-          >
+          <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
             Driver Type
           </label>
           <select
             name="driverType"
             value={formData.driverType}
             onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2 text-sm bg-white"
-            style={{ borderColor: BORDER_COLOR }}
+            className={inputClass}
           >
             <option value="inhouse">Inhouse Driver</option>
             <option value="private">Private Driver</option>
@@ -194,20 +151,15 @@ export default function CreateRoutePage({ onCancel }) {
         {/* Only Visible When Driver Type is Inhouse */}
         {formData.driverType === "inhouse" && (
           <>
-            {/* Assigned Inhouse Driver */}
-            <div style={{ marginBottom: "0.5rem" }}>
-              <label
-                className="block mb-1 text-sm font-medium"
-                style={{ color: ACCENT_COLOR }}
-              >
+            <div>
+              <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
                 Assigned Inhouse Driver
               </label>
               <select
                 name="assignedDriver"
                 value={formData.assignedDriver}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-4 py-2 text-sm bg-white"
-                style={{ borderColor: BORDER_COLOR }}
+                className={inputClass}
               >
                 <option value="">Select Driver</option>
                 {drivers.map((d) => (
@@ -218,12 +170,8 @@ export default function CreateRoutePage({ onCancel }) {
               </select>
             </div>
 
-            {/* Assigned Inhouse Vehicle */}
             <div>
-              <label
-                className="block mb-1 text-sm font-medium"
-                style={{ color: ACCENT_COLOR }}
-              >
+              <label className="block mb-1 text-sm font-medium text-tea-700 dark:text-tea-300">
                 Assigned Inhouse Vehicle
               </label>
               <input
@@ -232,45 +180,27 @@ export default function CreateRoutePage({ onCancel }) {
                 value={formData.assignedVehicle}
                 onChange={handleChange}
                 placeholder="e.g., AB-1234"
-                className="w-full border rounded-lg px-4 py-2 text-sm"
-                style={{ borderColor: BORDER_COLOR }}
+                className={inputClass}
               />
             </div>
           </>
         )}
       </form>
 
-      {/* Footer with no extra bottom margin */}
-      <div
-        className="p-4 flex justify-end gap-3 border-t"
-        style={{
-          backgroundColor: HEADER_BG,
-          borderColor: BORDER_COLOR,
-          marginTop: 0,
-        }}
-      >
-        <button
-          onClick={onCancel}
-          className="px-6 py-2 rounded-lg text-sm font-medium"
-          style={{
-            background: "transparent",
-            color: ACCENT_COLOR,
-            border: `2px solid ${BORDER_COLOR}`,
-          }}
-          type="button"
-        >
+      {/* Footer */}
+      <div className="p-4 flex justify-end gap-3 border-t border-tea-100 dark:border-card-border-dark bg-tea-50 dark:bg-tea-900/20">
+        <Button variant="outline" onClick={onCancel} type="button">
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="primary"
           onClick={() => {
             console.log("Form submitted:", formData);
           }}
-          className="px-6 py-2 rounded-lg text-sm font-medium text-white"
-          style={{ backgroundColor: BTN_COLOR }}
           type="button"
         >
           Submit
-        </button>
+        </Button>
       </div>
     </div>
   );

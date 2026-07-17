@@ -10,6 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { useTheme } from "../../contexts/ThemeContext";
 
 
 ChartJS.register(
@@ -23,11 +24,17 @@ ChartJS.register(
 );
 
 
-const ACCENT_COLOR = "#b4e4dcff";
+const ACCENT_COLOR_LIGHT = "#b4e4dcff";
+const ACCENT_COLOR_DARK = "#4ADE9E";
 
 
 const TeaSupplyChart = ({ data, period = "daily" }) => {
   const chartRef = useRef(null);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const accentColor = isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR_LIGHT;
+  const textColor = isDark ? "#A0ABA3" : "#1e293b";
+  const gridColor = isDark ? "rgba(160, 171, 163, 0.15)" : "rgba(0, 0, 0, 0.1)";
 
 
   // Different data sets for different periods
@@ -40,10 +47,10 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
             {
               label: "Tea Supply (kg)",
               data: [450, 520, 380, 600, 490, 670, 430],
-              backgroundColor: ACCENT_COLOR,
-              hoverBackgroundColor: "#165E52", // Custom hover color
-        hoverBorderColor: "#165E52",
-              borderColor: ACCENT_COLOR,
+              backgroundColor: accentColor,
+              hoverBackgroundColor: isDark ? "#3DDC97" : "#165E52",
+              hoverBorderColor: isDark ? "#3DDC97" : "#165E52",
+              borderColor: accentColor,
               borderWidth: 1,
               borderRadius: 8,
               borderSkipped: false,
@@ -73,8 +80,8 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
                 12000, 14500, 13200, 15800, 16200, 17500, 18200, 16800, 15200,
                 13800, 12500, 11200,
               ],
-              backgroundColor: ACCENT_COLOR,
-              borderColor: ACCENT_COLOR,
+              backgroundColor: accentColor,
+              borderColor: accentColor,
               borderWidth: 1,
               borderRadius: 8,
               borderSkipped: false,
@@ -88,8 +95,8 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
             {
               label: "Tea Supply (kg)",
               data: [185000, 198000, 210000, 195000, 220000, 180000],
-              backgroundColor: ACCENT_COLOR,
-              borderColor: ACCENT_COLOR,
+              backgroundColor: accentColor,
+              borderColor: accentColor,
               borderWidth: 1,
               borderRadius: 8,
               borderSkipped: false,
@@ -114,14 +121,14 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
           period.charAt(0).toUpperCase() + period.slice(1)
         } Tea Collection`,
         font: { size: 18 },
-        color: "#1e293b",
+        color: textColor,
         padding: { top: 10, bottom: 20 },
       },
       datalabels: {
         display: true,
         anchor: "end",
         align: "top",
-        color: "#1e293b",
+        color: textColor,
         font: { weight: "bold", size: 11 },
         formatter: (value) => value + " kg",
       },
@@ -150,14 +157,14 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
         title: {
           display: true,
           text: "Tea Supply (kg)",
-          color: "#1e293b",
+          color: textColor,
           font: { weight: "bold" },
         },
         grid: {
-          color: "rgba(0, 0, 0, 0.1)",
+          color: gridColor,
         },
         ticks: {
-          color: "#1e293b",
+          color: textColor,
           font: { size: 11 },
         },
       },
@@ -165,14 +172,14 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
         title: {
           display: true,
           text: "Time Period",
-          color: "#1e293b",
+          color: textColor,
           font: { weight: "bold" },
         },
         grid: {
           display: false,
         },
         ticks: {
-          color: "#1e293b",
+          color: textColor,
           font: { size: 11 },
         },
       },
@@ -194,6 +201,3 @@ const TeaSupplyChart = ({ data, period = "daily" }) => {
 
 
 export default TeaSupplyChart;
-
-
-

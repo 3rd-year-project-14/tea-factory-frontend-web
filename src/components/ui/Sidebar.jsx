@@ -3,6 +3,9 @@ import {
   BadgeAlert,
   BarChart3,
   Bell,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   DollarSign,
   Home,
   ListCheck,
@@ -17,11 +20,6 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-// Custom Accent Green
-const ACCENT_COLOR = "#104137";
-
-// For your project logo, adjust the src path to match your assets location.
-// Example: "/assets/logo.png"
 const LOGO_SRC = "/assets/logo2.png";
 
 const sidebarLinks = {
@@ -92,19 +90,11 @@ const sidebarLinks = {
       path: "/factoryManager/announcements",
       icon: Bell,
     },
-    // { name: "Routes", path: "/factoryManager/routes", icon: Route },
     { name: "Inventory", path: "/factoryManager/inventory", icon: Package },
-    // { name: "Drivers", path: "/factoryManager/drivers", icon: Users },
-    // { name: "Payments New", path: "/factoryManager/payment/main", icon: Users },
     {
       name: "Payments",
       icon: DollarSign,
       children: [
-        // {
-        //   name: "Payments Proceed",
-        //   path: "/factoryManager/payment/proceed",
-        //   icon: DollarSign,
-        // },
         {
           name: "Payments",
           path: "/factoryManager/payment/payments",
@@ -144,65 +134,84 @@ const sidebarLinks = {
   ],
 };
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed = false, onToggle }) {
   const { user } = useAuth();
   const location = useLocation();
   const role = user?.role;
   const [paymentsOpen, setPaymentsOpen] = React.useState(false);
 
-  // Use sidebarLinks[role] directly; Payments handled in rendering below
-  let linksToShow = sidebarLinks[role];
+  const linksToShow = sidebarLinks[role];
 
   return (
     <div
-      className="w-62 h-screen text-white flex flex-col"
-      style={{ backgroundColor: ACCENT_COLOR }}
+      className={`h-screen bg-tea-900 text-white flex flex-col transition-all duration-300 ${
+        collapsed ? "w-20" : "w-64"
+      }`}
     >
       {/* Header */}
-      <div className="p-6 border-b" style={{ borderColor: "#104137" }}>
-        <div className="flex items-center space-x-3">
-          <div className="bg-white rounded-lg flex items-center justify-center w-12 h-12">
+      <div className="p-4 border-b border-white/10 flex items-center justify-between">
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="bg-white rounded-xl flex items-center justify-center w-10 h-10 shrink-0 shadow-soft">
             <img
               src={LOGO_SRC}
               alt="PureLeaf Logo"
-              className="w-9 h-9 object-contain"
+              className="w-7 h-7 object-contain"
             />
           </div>
-          <div>
-            <h3 className="text-xl font-bold">PureLeaf</h3>
-            <p className="text-sm" style={{ color: "#cde7de" }}>
-              Tea Factory System
-            </p>
-          </div>
+          {!collapsed && (
+            <div className="whitespace-nowrap">
+              <h3 className="text-lg font-heading font-bold leading-tight">
+                PureLeaf
+              </h3>
+              <p className="text-xs text-tea-100/60">Tea Factory System</p>
+            </div>
+          )}
         </div>
       </div>
 
+      {onToggle && (
+        <button
+          onClick={onToggle}
+          aria-label="Toggle sidebar"
+          className={`mx-4 mt-3 flex items-center gap-2 rounded-xl py-2 text-tea-100/60 hover:bg-white/10 hover:text-white transition-colors duration-200 ${
+            collapsed ? "justify-center" : "justify-center px-3"
+          }`}
+        >
+          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          {!collapsed && <span className="text-xs font-medium">Collapse</span>}
+        </button>
+      )}
+
       {/* Menu Items */}
-      <nav className="flex-1 mt-6 px-4">
+      <nav className="flex-1 mt-4 px-3 overflow-y-auto custom-scrollbar space-y-1">
         {linksToShow?.map((link) => {
-          // For Factory Manager, render Payments as collapsible
           if (role === "FACTORY_MANAGER" && link.name === "Payments") {
             return (
               <div key={link.name}>
                 <button
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 font-medium transition-all duration-200 ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 ${
                     paymentsOpen
-                      ? "shadow-lg text-white bg-[#104137]"
-                      : "text-white/70 hover:bg-[#104137] hover:text-white"
+                      ? "bg-gradient-to-r from-tea-600 to-tea-500 text-white shadow-soft"
+                      : "text-tea-100/70 hover:bg-white/5 hover:text-white"
                   }`}
                   onClick={() => setPaymentsOpen((open) => !open)}
-                  style={{
-                    backgroundColor: paymentsOpen ? "#104137" : "transparent",
-                    // additional style if needed
-                  }}
                 >
-                  <link.icon className="w-5 h-5" />
-                  <span>{link.name}</span>
-                  <span className="ml-auto">{paymentsOpen ? "▲" : "▼"}</span>
+                  <link.icon className="w-5 h-5 shrink-0" />
+                  {!collapsed && (
+                    <>
+                      <span>{link.name}</span>
+                      <ChevronDown
+                        size={16}
+                        className={`ml-auto transition-transform duration-200 ${
+                          paymentsOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </>
+                  )}
                 </button>
 
-                {paymentsOpen && (
-                  <div className="ml-6">
+                {paymentsOpen && !collapsed && (
+                  <div className="ml-5 mt-1 border-l border-white/10 pl-2 space-y-1">
                     {link.children.map((child) => {
                       const ChildIcon = child.icon;
                       const isActive = location.pathname === child.path;
@@ -210,18 +219,13 @@ export default function Sidebar() {
                         <Link
                           key={child.name}
                           to={child.path}
-                          className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg mb-1 font-medium transition-all duration-200 ${
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                             isActive
-                              ? "shadow-lg text-white bg-[#104137]"
-                              : "text-white/70 hover:bg-[#104137] hover:text-white"
+                              ? "bg-white/10 text-white"
+                              : "text-tea-100/60 hover:bg-white/5 hover:text-white"
                           }`}
-                          style={{
-                            backgroundColor: isActive
-                              ? "#104137"
-                              : "transparent",
-                          }}
                         >
-                          <ChildIcon className="w-4 h-4" />
+                          <ChildIcon className="w-4 h-4 shrink-0" />
                           <span>{child.name}</span>
                         </Link>
                       );
@@ -231,25 +235,21 @@ export default function Sidebar() {
               </div>
             );
           }
-          // Render other links as usual
           const Icon = link.icon;
-          // Highlight parent if inside nested route
           const isActive = location.pathname.startsWith(link.path);
           return (
             <Link
               key={link.name}
               to={link.path}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 font-medium transition-all duration-200 ${
+              title={collapsed ? link.name : undefined}
+              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 ${
                 isActive
-                  ? "shadow-lg text-white"
-                  : "text-white/70 hover:bg-[#124c46] hover:text-white"
+                  ? "bg-gradient-to-r from-tea-600 to-tea-500 text-white shadow-soft"
+                  : "text-tea-100/70 hover:bg-white/5 hover:text-white"
               }`}
-              style={{
-                backgroundColor: isActive ? "#124c46" : "transparent",
-              }}
             >
-              <Icon className="w-5 h-5" />
-              <span>{link.name}</span>
+              <Icon className="w-5 h-5 shrink-0" />
+              {!collapsed && <span>{link.name}</span>}
             </Link>
           );
         })}

@@ -1,7 +1,19 @@
 import { Eye, CheckCircle, XCircle, ChevronLeft, ChevronRight, Package } from "lucide-react";
 import { getStatusColor } from "./fertilizerUtils";
+import Card from "../../../components/ui/Card";
+import EmptyState from "../../../components/ui/EmptyState";
+import { CardSkeleton } from "../../../components/ui/Skeleton";
 
-const ACCENT_COLOR = "#01251F";
+const REQUEST_ID_STYLES = {
+  approved:
+    "bg-tea-50 text-tea-700 border-tea-600 dark:bg-tea-900/30 dark:text-tea-200 dark:border-tea-500",
+  pending:
+    "bg-amber-50 text-amber-700 border-amber-500 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-500",
+  rejected:
+    "bg-red-50 text-red-700 border-red-500 dark:bg-red-900/20 dark:text-red-300 dark:border-red-500",
+  all:
+    "bg-tea-50 text-tea-700 border-tea-600 dark:bg-tea-900/30 dark:text-tea-200 dark:border-tea-500",
+};
 
 export default function FertilizerTable({
   filteredRequests,
@@ -21,11 +33,9 @@ export default function FertilizerTable({
   const totalPages = Math.ceil(totalElements / size);
 
   const goToPage = (uiPage) => {
-    // uiPage is 1-based, backend expects 0-based
     if (onPageChange) onPageChange(uiPage - 1);
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -35,42 +45,13 @@ export default function FertilizerTable({
       day: "numeric",
     });
   };
-  
-  // ✅ Unified green header for all views - like suppliers table
-  const getHeaderColor = () => ({
-    backgroundColor: ACCENT_COLOR,
-    color: "#ffffff",
-  });
-  
-  const getBadgeColor = () => {
-    if (currentView === "approved")
-      return {
-        backgroundColor: "#e1f4ef",
-        color: "#165e52",
-        borderColor: "#165e52",
-      };
-    if (currentView === "pending")
-      return {
-        backgroundColor: "#fffbeb",
-        color: "#b45309",
-        borderColor: "#f59e0b",
-      };
-    if (currentView === "rejected")
-      return {
-        backgroundColor: "#fee2e2",
-        color: "#b91c1c",
-        borderColor: "#ef4444",
-      };
-    return {};
-  };
-  
+
   const getActionButton = (request) => (
     <div className="flex items-center justify-center gap-2">
       <button
         onClick={() => onViewRequest(request)}
-        className="p-2 rounded-full transition-colors"
+        className="p-2 rounded-full border border-tea-700 text-tea-700 hover:bg-tea-50 dark:border-tea-400 dark:text-tea-300 dark:hover:bg-tea-900/30 transition-colors"
         title="View Details"
-        style={{ border: `1.5px solid ${ACCENT_COLOR}`, color: ACCENT_COLOR }}
       >
         <Eye className="h-4 w-4" />
       </button>
@@ -78,17 +59,15 @@ export default function FertilizerTable({
         <>
           <button
             onClick={() => onApprove(request.id)}
-            className="p-2 rounded-full transition-colors"
+            className="p-2 rounded-full border border-green-600 text-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-900/20 transition-colors"
             title="Approve Request"
-            style={{ border: "1.5px solid #16a34a", color: "#16a34a" }}
           >
             <CheckCircle className="h-4 w-4" />
           </button>
           <button
             onClick={() => onReject(request.id)}
-            className="p-2 rounded-full transition-colors"
+            className="p-2 rounded-full border border-red-600 text-red-600 hover:bg-red-50 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
             title="Reject Request"
-            style={{ border: "1.5px solid #dc2626", color: "#dc2626" }}
           >
             <XCircle className="h-4 w-4" />
           </button>
@@ -99,78 +78,63 @@ export default function FertilizerTable({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md border">
-        <div className="p-6 text-center">
-          <div className="animate-pulse flex flex-col items-center">
-            <div className="h-6 w-24 bg-gray-200 mb-4 rounded"></div>
-            <div className="h-32 w-full bg-gray-100 rounded"></div>
-          </div>
-        </div>
+      <div className="space-y-4">
+        <CardSkeleton />
+        <CardSkeleton />
       </div>
     );
   }
 
   if (filteredRequests.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-        <div style={getHeaderColor()}>
-          <div className="grid grid-cols-5 gap-4 p-4 font-medium text-sm text-center">
-            <div>ID</div>
-            <div>Category</div>
-            <div>Company</div>
-            <div>Quantity</div>
-            <div>Actions</div>
-          </div>
-        </div>
-        <div className="p-12 text-center text-gray-500">
-          <div className="bg-gray-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-            <Package className="h-10 w-10 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No requests found</h3>
-          <p className="text-gray-500">
-            {currentView === "pending"
+      <Card className="!p-0 overflow-hidden">
+        <EmptyState
+          icon={Package}
+          title="No requests found"
+          description={
+            currentView === "pending"
               ? "There are no pending fertilizer requests at this time."
               : currentView === "approved"
               ? "No approved fertilizer requests found matching your filters."
               : currentView === "rejected"
               ? "No rejected fertilizer requests found matching your filters."
-              : "No fertilizer requests found matching your filters."}
-          </p>
-        </div>
-      </div>
+              : "No fertilizer requests found matching your filters."
+          }
+        />
+      </Card>
     );
   }
 
-  // Define columns based on view
   const columns = [
     {
       key: "id",
       label: "Request ID",
       render: (r) => (
         <span
-          className="font-semibold text-sm px-3 py-1 rounded-full border"
-          style={getBadgeColor()}
+          className={`font-semibold text-sm px-3 py-1 rounded-full border ${
+            REQUEST_ID_STYLES[currentView] || REQUEST_ID_STYLES.all
+          }`}
         >
           REQ-{String(r.id).padStart(4, "0")}
         </span>
       ),
     },
-    { 
-      key: "category", 
-      label: "Category", 
-      render: (r) => r.categoryName || "-" 
+    {
+      key: "category",
+      label: "Category",
+      render: (r) => r.categoryName || "-",
     },
-    { 
-      key: "company", 
-      label: "Company", 
-      render: (r) => r.companyName || "-" 
+    {
+      key: "company",
+      label: "Company",
+      render: (r) => r.companyName || "-",
     },
     {
       key: "quantity",
       label: "Quantity",
       render: (r) => `${r.quantity} ${r.unit || "kg"}`,
     },
-    ...(currentView === "all" 
+    ...(currentView === "all"
       ? [
           {
             key: "status",
@@ -182,10 +146,9 @@ export default function FertilizerTable({
                 {r.status}
               </span>
             ),
-          }
-        ] 
-      : []
-    ),
+          },
+        ]
+      : []),
     {
       key: "date",
       label: "Requested On",
@@ -199,25 +162,30 @@ export default function FertilizerTable({
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+    <Card className="!p-0 overflow-hidden">
       {/* Table Header */}
-      <div style={getHeaderColor()}>
-        <div className={`grid grid-cols-${columns.length} gap-4 p-4 font-medium text-sm text-center`}>
+      <div className="bg-tea-900">
+        <div
+          className={`grid grid-cols-${columns.length} gap-4 p-4 font-medium text-sm text-center text-white`}
+        >
           {columns.map((col) => (
             <div key={col.key}>{col.label}</div>
           ))}
         </div>
       </div>
-      
+
       {/* Table Body */}
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
         {filteredRequests.map((request) => (
           <div
             key={request.id}
-            className={`grid grid-cols-${columns.length} gap-4 p-4 items-center hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0`}
+            className={`grid grid-cols-${columns.length} gap-4 p-4 items-center hover:bg-tea-50 dark:hover:bg-white/5 transition-colors`}
           >
             {columns.map((col) => (
-              <div key={col.key} className="text-sm text-gray-900 text-center">
+              <div
+                key={col.key}
+                className="text-sm text-ink dark:text-ink-dark text-center"
+              >
                 {col.render(request)}
               </div>
             ))}
@@ -227,16 +195,16 @@ export default function FertilizerTable({
 
       {/* Pagination */}
       {totalElements > 0 && (
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+        <div className="bg-surface dark:bg-white/5 px-6 py-4 border-t border-tea-100 dark:border-card-border-dark">
           <div className="flex items-center justify-between">
-            <div className="flex items-center text-sm text-gray-700">
+            <div className="flex items-center text-sm text-ink/70 dark:text-muted-dark">
               <span>
-                Showing <span className="font-medium">{page * size + 1}</span>{" "}
+                Showing <span className="font-medium text-ink dark:text-ink-dark">{page * size + 1}</span>{" "}
                 to{" "}
-                <span className="font-medium">
+                <span className="font-medium text-ink dark:text-ink-dark">
                   {Math.min((page + 1) * size, totalElements)}
                 </span>{" "}
-                of <span className="font-medium">{totalElements}</span> results
+                of <span className="font-medium text-ink dark:text-ink-dark">{totalElements}</span> results
               </span>
             </div>
             {totalPages > 1 && (
@@ -244,27 +212,26 @@ export default function FertilizerTable({
                 <button
                   onClick={() => !first && goToPage(currentPage - 1)}
                   disabled={first}
-                  className={`p-2 rounded-md border ${
-                    first 
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                      : "bg-white text-gray-700 hover:bg-gray-50"
+                  className={`p-2 rounded-lg border transition-colors ${
+                    first
+                      ? "bg-tea-50 dark:bg-white/5 text-ink/30 dark:text-muted-dark/50 border-tea-100 dark:border-card-border-dark cursor-not-allowed"
+                      : "bg-card dark:bg-card-dark text-ink dark:text-ink-dark border-tea-100 dark:border-card-border-dark hover:bg-tea-50 dark:hover:bg-white/10"
                   }`}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                
-                {/* Simplified page number display */}
-                <div className="text-sm font-medium">
+
+                <div className="text-sm font-medium text-ink dark:text-ink-dark">
                   Page {currentPage} of {totalPages}
                 </div>
-                
+
                 <button
                   onClick={() => !last && goToPage(currentPage + 1)}
                   disabled={last}
-                  className={`p-2 rounded-md border ${
-                    last 
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                      : "bg-white text-gray-700 hover:bg-gray-50"
+                  className={`p-2 rounded-lg border transition-colors ${
+                    last
+                      ? "bg-tea-50 dark:bg-white/5 text-ink/30 dark:text-muted-dark/50 border-tea-100 dark:border-card-border-dark cursor-not-allowed"
+                      : "bg-card dark:bg-card-dark text-ink dark:text-ink-dark border-tea-100 dark:border-card-border-dark hover:bg-tea-50 dark:hover:bg-white/10"
                   }`}
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -274,6 +241,6 @@ export default function FertilizerTable({
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

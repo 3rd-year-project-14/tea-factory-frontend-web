@@ -26,6 +26,8 @@ import {
   adjustTeaRate,
   exportTeaRateReport,
 } from "../../../api/owner";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
 
 const OwnerDashboard = () => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -332,15 +334,15 @@ ${data.data.processed
   };
 
   const ExportModal = () => (
-    <div className="fixed inset-0 backdrop-blur-[2px] bg-white/60 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-[#cfece6]">
-        <div className="flex justify-between items-center p-6 border-b border-[#cfece6]">
-          <h2 className="text-xl font-semibold text-[#165E52]">
+    <div className="fixed inset-0 backdrop-blur-[2px] bg-card dark:bg-card-dark/60 flex items-center justify-center z-50">
+      <div className="bg-card dark:bg-card-dark rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-tea-100 dark:border-card-border-dark">
+        <div className="flex justify-between items-center p-6 border-b border-tea-100 dark:border-card-border-dark">
+          <h2 className="text-xl font-semibold text-tea-700 dark:text-tea-300">
             Export Report
           </h2>
           <button
             onClick={() => setShowExportModal(false)}
-            className="text-[#165E52] opacity-80 hover:opacity-100"
+            className="text-tea-700 dark:text-tea-300 opacity-80 hover:opacity-100"
           >
             <X className="w-6 h-6" />
           </button>
@@ -349,7 +351,7 @@ ${data.data.processed
         <div className="p-6 space-y-6">
           {/* Report Format */}
           <div>
-            <label className="block text-sm font-medium text-[#165E52] mb-3">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
               Report Format
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -359,13 +361,13 @@ ${data.data.processed
                 }
                 className={`p-4 rounded-lg border-2 transition-all ${
                   exportConfig.format === "pdf"
-                    ? "border-[#165E52] bg-[#e1f4ef]"
-                    : "border-[#cfece6] hover:border-[#165E52]"
+                    ? "border-tea-700 dark:border-tea-400 bg-tea-50 dark:bg-tea-900/20"
+                    : "border-tea-100 dark:border-card-border-dark hover:border-tea-700 dark:hover:border-tea-400"
                 }`}
               >
-                <FileText className="w-8 h-8 mx-auto mb-2 text-red-600" />
-                <div className="text-sm font-medium text-black">PDF Report</div>
-                <div className="text-xs text-[#165E52] opacity-80">
+                <FileText className="w-8 h-8 mx-auto mb-2 text-red-600 dark:text-red-400" />
+                <div className="text-sm font-medium text-ink dark:text-ink-dark">PDF Report</div>
+                <div className="text-xs text-tea-700 dark:text-tea-300 opacity-80">
                   Formatted document
                 </div>
               </button>
@@ -375,13 +377,13 @@ ${data.data.processed
                 }
                 className={`p-4 rounded-lg border-2 transition-all ${
                   exportConfig.format === "excel"
-                    ? "border-[#165E52] bg-[#e1f4ef]"
-                    : "border-[#cfece6] hover:border-[#165E52]"
+                    ? "border-tea-700 dark:border-tea-400 bg-tea-50 dark:bg-tea-900/20"
+                    : "border-tea-100 dark:border-card-border-dark hover:border-tea-700 dark:hover:border-tea-400"
                 }`}
               >
-                <FileSpreadsheet className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                <div className="text-sm font-medium text-black">Excel</div>
-                <div className="text-xs text-[#165E52] opacity-80">
+                <FileSpreadsheet className="w-8 h-8 mx-auto mb-2 text-green-600 dark:text-green-400" />
+                <div className="text-sm font-medium text-ink dark:text-ink-dark">Excel</div>
+                <div className="text-xs text-tea-700 dark:text-tea-300 opacity-80">
                   Spreadsheet format
                 </div>
               </button>
@@ -391,13 +393,13 @@ ${data.data.processed
                 }
                 className={`p-4 rounded-lg border-2 transition-all ${
                   exportConfig.format === "csv"
-                    ? "border-[#165E52] bg-[#e1f4ef]"
-                    : "border-[#cfece6] hover:border-[#165E52]"
+                    ? "border-tea-700 dark:border-tea-400 bg-tea-50 dark:bg-tea-900/20"
+                    : "border-tea-100 dark:border-card-border-dark hover:border-tea-700 dark:hover:border-tea-400"
                 }`}
               >
                 <FileText className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                <div className="text-sm font-medium text-black">CSV</div>
-                <div className="text-xs text-[#165E52] opacity-80">
+                <div className="text-sm font-medium text-ink dark:text-ink-dark">CSV</div>
+                <div className="text-xs text-tea-700 dark:text-tea-300 opacity-80">
                   Raw data
                 </div>
               </button>
@@ -406,7 +408,7 @@ ${data.data.processed
 
           {/* Report Type */}
           <div>
-            <label className="block text-sm font-medium text-[#165E52] mb-3">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
               Report Type
             </label>
             <div className="space-y-2">
@@ -422,11 +424,11 @@ ${data.data.processed
                       reportType: e.target.value,
                     })
                   }
-                  className="mr-3 accent-[#165E52]"
+                  className="mr-3 accent-tea-700"
                 />
                 <div>
-                  <div className="font-medium text-black">Summary Report</div>
-                  <div className="text-sm text-[#165E52] opacity-80">
+                  <div className="font-medium text-ink dark:text-ink-dark">Summary Report</div>
+                  <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
                     Key metrics and overview
                   </div>
                 </div>
@@ -443,11 +445,11 @@ ${data.data.processed
                       reportType: e.target.value,
                     })
                   }
-                  className="mr-3 accent-[#165E52]"
+                  className="mr-3 accent-tea-700"
                 />
                 <div>
-                  <div className="font-medium text-black">Detailed Report</div>
-                  <div className="text-sm text-[#165E52] opacity-80">
+                  <div className="font-medium text-ink dark:text-ink-dark">Detailed Report</div>
+                  <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
                     Complete data with all fields
                   </div>
                 </div>
@@ -457,7 +459,7 @@ ${data.data.processed
 
           {/* Date Range */}
           <div>
-            <label className="block text-sm font-medium text-[#165E52] mb-3">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
               Date Range
             </label>
             <div className="min-w-64 w-64">
@@ -469,7 +471,7 @@ ${data.data.processed
                     dateRange: e.target.value,
                   })
                 }
-                className="w-full px-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] appearance-none shadow-sm"
+                className="w-full px-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 appearance-none shadow-sm"
               >
                 <option value="current_month">Current Month</option>
                 <option value="last_month">Last Month</option>
@@ -483,10 +485,10 @@ ${data.data.processed
 
           {/* Include Data Types */}
           <div>
-            <label className="block text-sm font-medium text-[#165E52] mb-3">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
               Include Data
             </label>
-            <div className="min-w-64 w-64 bg-white rounded-lg p-4 border border-[#cfece6] shadow-sm">
+            <div className="min-w-64 w-64 bg-card dark:bg-card-dark rounded-lg p-4 border border-tea-100 dark:border-card-border-dark shadow-sm">
               <div className="space-y-2">
                 <label className="flex items-center">
                   <input
@@ -498,9 +500,9 @@ ${data.data.processed
                         includePending: e.target.checked,
                       })
                     }
-                    className="mr-3 accent-[#165E52]"
+                    className="mr-3 accent-tea-700"
                   />
-                  <span className="text-black">
+                  <span className="text-ink dark:text-ink-dark">
                     Pending Rates ({pendingRates.length})
                   </span>
                 </label>
@@ -516,7 +518,7 @@ ${data.data.processed
                     }
                     className="mr-3 accent-green-600"
                   />
-                  <span className="text-black">
+                  <span className="text-ink dark:text-ink-dark">
                     Approved Rates ({approvedRates.length})
                   </span>
                 </label>
@@ -532,7 +534,7 @@ ${data.data.processed
                     }
                     className="mr-3 accent-red-600"
                   />
-                  <span className="text-black">
+                  <span className="text-ink dark:text-ink-dark">
                     Rejected Rates (
                     {
                       processedRates.filter((r) => r.status === "rejected")
@@ -547,7 +549,7 @@ ${data.data.processed
 
           {/* Factory Selection */}
           <div>
-            <label className="block text-sm font-medium text-[#165E52] mb-3">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
               Factories
             </label>
             <div className="min-w-64 w-64">
@@ -559,14 +561,14 @@ ${data.data.processed
                     factories: e.target.value,
                   })
                 }
-                className="w-full px-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] appearance-none shadow-sm"
+                className="w-full px-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 appearance-none shadow-sm"
               >
                 <option value="all">All Factories</option>
                 {factories.map((factory) => (
                   <option
                     key={factory}
                     value={factory}
-                    className="bg-white text-black"
+                    className="bg-card dark:bg-card-dark text-ink dark:text-ink-dark"
                   >
                     {factory}
                   </option>
@@ -577,8 +579,8 @@ ${data.data.processed
 
           {/* Additional Options */}
           {exportConfig.format === "pdf" && (
-            <div className="min-w-64 w-64 bg-white rounded-lg p-4 border border-[#cfece6] shadow-sm mt-4">
-              <label className="block text-sm font-medium text-[#165E52] mb-3">
+            <div className="min-w-64 w-64 bg-card dark:bg-card-dark rounded-lg p-4 border border-tea-100 dark:border-card-border-dark shadow-sm mt-4">
+              <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-3">
                 Additional Options
               </label>
               <label className="flex items-center">
@@ -593,22 +595,22 @@ ${data.data.processed
                   }
                   className="mr-3 accent-purple-600"
                 />
-                <span className="text-black">Include Charts and Graphs</span>
+                <span className="text-ink dark:text-ink-dark">Include Charts and Graphs</span>
               </label>
             </div>
           )}
         </div>
 
-        <div className="flex justify-end gap-3 p-6 border-t border-[#cfece6] bg-[#f8fdfc]">
+        <div className="flex justify-end gap-3 p-6 border-t border-tea-100 dark:border-card-border-dark bg-surface dark:bg-surface-dark">
           <button
             onClick={() => setShowExportModal(false)}
-            className="px-4 py-2 text-[#165E52] bg-white border border-[#cfece6] rounded-lg hover:bg-[#e1f4ef]"
+            className="px-4 py-2 text-tea-700 dark:text-tea-300 bg-card dark:bg-card-dark border border-tea-100 dark:border-card-border-dark rounded-lg hover:bg-tea-50 dark:bg-tea-900/20"
           >
             Cancel
           </button>
           <button
             onClick={generateReport}
-            className="px-6 py-2 bg-[#01251F] text-white rounded-lg hover:bg-[#01251F] flex items-center gap-2"
+            className="px-6 py-2 bg-tea-900 text-white rounded-lg hover:bg-tea-900 flex items-center gap-2"
           >
             <Download className="w-4 h-4" />
             Generate Report
@@ -622,11 +624,11 @@ ${data.data.processed
     const [adjustedRate, setAdjustedRate] = useState(rate.proposedRate);
     const [reason, setReason] = useState("");
     return (
-      <div className="mt-4 p-4 bg-[#e1f4ef] rounded-lg border border-[#cfece6] shadow-sm">
-        <h4 className="font-semibold mb-3 text-[#165E52]">Adjust Rate</h4>
+      <div className="mt-4 p-4 bg-tea-50 dark:bg-tea-900/20 rounded-lg border border-tea-100 dark:border-card-border-dark shadow-sm">
+        <h4 className="font-semibold mb-3 text-tea-700 dark:text-tea-300">Adjust Rate</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-[#165E52] mb-1">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-1">
               Adjusted Rate (Rs.)
             </label>
             <input
@@ -635,19 +637,19 @@ ${data.data.processed
               min="0"
               value={adjustedRate}
               onChange={(e) => setAdjustedRate(e.target.value)}
-              className="w-full p-2 border border-[#cfece6] rounded-lg focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] bg-white text-black"
+              className="w-full p-2 border border-tea-100 dark:border-card-border-dark rounded-lg focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 bg-card dark:bg-card-dark text-ink dark:text-ink-dark"
               placeholder="Enter adjusted rate"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#165E52] mb-1">
+            <label className="block text-sm font-medium text-tea-700 dark:text-tea-300 mb-1">
               Adjustment Reason
             </label>
             <input
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full p-2 border border-[#cfece6] rounded-lg focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] bg-white text-black"
+              className="w-full p-2 border border-tea-100 dark:border-card-border-dark rounded-lg focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 bg-card dark:bg-card-dark text-ink dark:text-ink-dark"
               placeholder="Reason for adjustment"
             />
           </div>
@@ -661,7 +663,7 @@ ${data.data.processed
           </button>
           <button
             onClick={onCancel}
-            className="bg-[#01251F] hover:bg-[#01251F] text-white px-4 py-2 rounded-lg"
+            className="bg-tea-900 hover:bg-tea-900 text-white px-4 py-2 rounded-lg"
           >
             Cancel
           </button>
@@ -672,7 +674,7 @@ ${data.data.processed
 
   const RateCard = ({ rate, type = "pending" }) => (
     <div
-      className={`bg-white rounded-lg shadow-sm border-l-4 ${
+      className={`bg-card dark:bg-card-dark rounded-lg shadow-sm border-l-4 ${
         rate.urgent && type === "pending"
           ? "border-red-500"
           : type === "approved"
@@ -681,24 +683,24 @@ ${data.data.processed
           ? "border-green-500"
           : rate.status === "rejected"
           ? "border-red-500"
-          : "border-[#165E52]"
-      } border border-[#cfece6] p-6 mb-4`}
+          : "border-tea-700 dark:border-tea-400"
+      } border border-tea-100 dark:border-card-border-dark p-6 mb-4`}
     >
       <div className="flex justify-between items-start mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <Factory className="w-5 h-5 text-[#165E52]" />
-            <h3 className="text-lg font-semibold text-black">
+            <Factory className="w-5 h-5 text-tea-700 dark:text-tea-300" />
+            <h3 className="text-lg font-semibold text-ink dark:text-ink-dark">
               {rate.factoryName}
             </h3>
             {rate.urgent && type === "pending" && (
-              <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+              <span className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs px-2 py-1 rounded-full flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
                 Urgent
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2 text-sm text-[#165E52] opacity-80 mt-1">
+          <div className="flex items-center gap-2 text-sm text-tea-700 dark:text-tea-300 opacity-80 mt-1">
             <User className="w-4 h-4" />
             <span>Manager: {rate.manager}</span>
             <span className="mx-2">•</span>
@@ -707,11 +709,11 @@ ${data.data.processed
           </div>
         </div>
         <div className="text-right">
-          <div className="text-sm text-[#165E52] opacity-80">
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
             Submitted: {new Date(rate.submittedDate).toLocaleString()}
           </div>
           {rate.processedDate && (
-            <div className="text-sm text-[#165E52] opacity-80">
+            <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
               Processed: {new Date(rate.processedDate).toLocaleString()}
             </div>
           )}
@@ -719,34 +721,34 @@ ${data.data.processed
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <div className="bg-[#f8fdfc] p-3 rounded border border-[#cfece6]">
-          <div className="text-sm text-[#165E52] opacity-80">
+        <div className="bg-surface dark:bg-surface-dark p-3 rounded border border-tea-100 dark:border-card-border-dark">
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
             Final Rate Per Kg
           </div>
-          <div className="text-lg font-semibold text-black">
+          <div className="text-lg font-semibold text-ink dark:text-ink-dark">
             Rs. {(rate.currentRate || rate.originalRate || 0).toFixed(2)}
           </div>
         </div>
-        <div className="bg-[#f8fdfc] p-3 rounded border border-[#cfece6]">
-          <div className="text-sm text-[#165E52] opacity-80">
+        <div className="bg-surface dark:bg-surface-dark p-3 rounded border border-tea-100 dark:border-card-border-dark">
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
             {type === "approved" ? "Adjusted Rate (%)" : "Monthly Rate (%)"}
           </div>
-          <div className="text-lg font-semibold text-black">
+          <div className="text-lg font-semibold text-ink dark:text-ink-dark">
             {type === "approved"
               ? (rate.adjustedRate || 0).toFixed(2)
               : (rate.proposedRate || 0).toFixed(2)}
             %
           </div>
         </div>
-        <div className="bg-green-50 p-3 rounded border border-[#cfece6]">
-          <div className="text-sm text-[#165E52] opacity-80">Total Weight</div>
-          <div className="text-lg font-semibold text-green-600">
+        <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded border border-tea-100 dark:border-card-border-dark">
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">Total Weight</div>
+          <div className="text-lg font-semibold text-green-600 dark:text-green-400">
             {(rate.totalWeight || 0).toLocaleString()} kg
           </div>
         </div>
-        <div className="bg-yellow-50 p-3 rounded border border-[#cfece6]">
-          <div className="text-sm text-[#165E52] opacity-80">Total Payout</div>
-          <div className="text-lg font-semibold text-yellow-600">
+        <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded border border-tea-100 dark:border-card-border-dark">
+          <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">Total Payout</div>
+          <div className="text-lg font-semibold text-amber-600 dark:text-amber-400">
             Rs. {(rate.totalPayout || 0).toLocaleString()}
           </div>
         </div>
@@ -754,19 +756,19 @@ ${data.data.processed
 
       {type === "pending" && rate.nsa && rate.gsa && (
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-[#f8fdfc] p-3 rounded border border-[#cfece6]">
-            <div className="text-sm text-[#165E52] opacity-80">
+          <div className="bg-surface dark:bg-surface-dark p-3 rounded border border-tea-100 dark:border-card-border-dark">
+            <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
               N.S.A (Net Sale Average)
             </div>
-            <div className="text-lg font-semibold text-black">
+            <div className="text-lg font-semibold text-ink dark:text-ink-dark">
               Rs. {rate.nsa.toFixed(2)}
             </div>
           </div>
-          <div className="bg-[#f8fdfc] p-3 rounded border border-[#cfece6]">
-            <div className="text-sm text-[#165E52] opacity-80">
+          <div className="bg-surface dark:bg-surface-dark p-3 rounded border border-tea-100 dark:border-card-border-dark">
+            <div className="text-sm text-tea-700 dark:text-tea-300 opacity-80">
               G.S.A (Gross Sale Average)
             </div>
-            <div className="text-lg font-semibold text-black">
+            <div className="text-lg font-semibold text-ink dark:text-ink-dark">
               Rs. {rate.gsa.toFixed(2)}
             </div>
           </div>
@@ -776,16 +778,16 @@ ${data.data.processed
       {/* Removed status banner for approved RateCard */}
 
       {type === "processed" && rate.status === "rejected" && rate.reason && (
-        <div className="bg-red-50 border border-red-200 p-3 rounded mb-4">
-          <div className="text-sm text-red-800">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 p-3 rounded mb-4">
+          <div className="text-sm text-red-800 dark:text-red-200">
             <strong>Rejection Reason:</strong> {rate.reason}
           </div>
         </div>
       )}
 
       {type === "processed" && rate.adjustedBy && (
-        <div className="bg-[#e1f4ef] border border-[#cfece6] p-3 rounded mb-4">
-          <div className="text-sm text-[#165E52]">
+        <div className="bg-tea-50 dark:bg-tea-900/20 border border-tea-100 dark:border-card-border-dark p-3 rounded mb-4">
+          <div className="text-sm text-tea-700 dark:text-tea-300">
             <strong>Rate adjusted by:</strong> {rate.adjustedBy}
             (from Rs. {rate.originalRate} to Rs. {rate.finalRate})
           </div>
@@ -803,12 +805,12 @@ ${data.data.processed
           </button>
           <button
             onClick={() => setEditingRate(rate.id)}
-            className="bg-[#01251F] hover:bg-[#01251F] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-tea-900 hover:bg-tea-900 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <Edit3 className="w-4 h-4" />
             Adjust & Approve
           </button>
-          {/* <button className="bg-[#165E52] hover:bg-[#165E52] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+          {/* <button className="bg-tea-700 hover:bg-tea-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
             <Eye className="w-4 h-4" />
             View Details
           </button> */}
@@ -849,145 +851,100 @@ ${data.data.processed
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fdfc]">
+    <div className="min-h-full">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b ">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-[#165E52]">
-                Tea Rate Management
-              </h1>
-              <p className="text-[#165E52] opacity-80 mt-1">
-                Owner Dashboard - Rate Approval & Management
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              {/* Refresh Button */}
-              <button
-                onClick={refreshData}
-                disabled={loading}
-                className="bg-[#165E52] hover:bg-[#165E52] text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
-              >
-                <RefreshCw
-                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
-                />
-                {loading ? "Loading..." : "Refresh"}
-              </button>
-              <button
-                onClick={() => setShowExportModal(true)}
-                className="bg-[#01251F] hover:bg-[#01251F] text-white px-4 py-2 rounded-lg flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Export Report
-              </button>
-            </div>
+      <Card className="mb-6">
+        <div className="flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
+              Tea Rate Management
+            </h1>
+            <p className="text-sm text-ink/60 dark:text-muted-dark mt-1">
+              Owner Dashboard - Rate Approval & Management
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              icon={RefreshCw}
+              onClick={refreshData}
+              disabled={loading}
+              className={loading ? "[&_svg]:animate-spin" : ""}
+            >
+              {loading ? "Loading..." : "Refresh"}
+            </Button>
+            <Button variant="primary" icon={Download} onClick={() => setShowExportModal(true)}>
+              Export Report
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Error Message */}
       {error && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <span className="text-red-800 font-medium">Error</span>
-            </div>
-            <p className="text-red-700 mt-1">{error}</p>
-            <button
-              onClick={refreshData}
-              className="mt-2 text-red-600 hover:text-red-800 underline"
-            >
-              Try again
-            </button>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <span className="text-red-800 dark:text-red-200 font-medium">Error</span>
           </div>
+          <p className="text-red-700 dark:text-red-300 mt-1">{error}</p>
+          <button
+            onClick={refreshData}
+            className="mt-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 underline"
+          >
+            Try again
+          </button>
         </div>
       )}
 
       {/* Loading State */}
       {loading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-          <div className="text-center py-8">
-            <RefreshCw className="w-8 h-8 animate-spin mx-auto text-[#165E52]" />
-            <p className="text-[#165E52] mt-2">Loading tea rates...</p>
-          </div>
+        <div className="text-center py-8">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto text-tea-700 dark:text-tea-300" />
+          <p className="text-tea-700 dark:text-tea-300 mt-2">Loading tea rates...</p>
         </div>
       )}
 
       {!loading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div>
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-black">
-                    Pending Approvals
-                  </p>
-                  <p className="text-3xl font-bold text-black">
-                    {pendingRates.length}
-                  </p>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {[
+              { label: "Pending Approvals", value: pendingRates.length, icon: Clock },
+              { label: "Approved Rates", value: approvedRates.length, icon: CheckCircle },
+              { label: "Total Factories", value: factories.length, icon: Factory },
+              { label: "Total Submissions", value: pendingRates.length + processedRates.length, icon: TrendingUp },
+            ].map((card) => (
+              <Card key={card.label} hoverable>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">
+                      {card.label}
+                    </p>
+                    <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">
+                      {card.value}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+                    <card.icon className="w-6 h-6 text-tea-700 dark:text-tea-300" />
+                  </div>
                 </div>
-                <Clock className="w-8 h-8 text-black" />
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6]  ">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-black">
-                    Approved Rates
-                  </p>
-                  <p className="text-3xl font-bold text-black">
-                    {approvedRates.length}
-                  </p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-black" />
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] ">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-black">
-                    Total Factories
-                  </p>
-                  <p className="text-3xl font-bold text-black">
-                    {factories.length}
-                  </p>
-                </div>
-                <Factory className="w-8 h-8 text-black" />
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-black transition duration-200 hover:shadow-lg hover:border-[#cfece6] ">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-black">
-                    Total Submissions
-                  </p>
-                  <p className="text-3xl font-bold text-black">
-                    {pendingRates.length + processedRates.length}
-                  </p>
-                </div>
-                <TrendingUp className="w-8 h-8 text-black" />
-              </div>
-            </div>
+              </Card>
+            ))}
           </div>
 
           {/* Filters */}
-          <div className="bg-white/80 backdrop-blur p-6 rounded-lg shadow-sm border border-[#cfece6] mb-6">
+          <Card className="mb-6">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-64">
                 <div className="relative">
-                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#165E52] opacity-80" />
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-tea-700 dark:text-tea-300 opacity-80" />
                   <input
                     type="text"
                     placeholder="Search factories or managers..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52]"
+                    className="w-full pl-10 pr-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400"
                   />
                 </div>
               </div>
@@ -995,14 +952,14 @@ ${data.data.processed
                 <select
                   value={selectedFactory}
                   onChange={(e) => setSelectedFactory(e.target.value)}
-                  className="w-full px-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] appearance-none shadow-sm"
+                  className="w-full px-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 appearance-none shadow-sm"
                 >
                   <option value="all">All Factories</option>
                   {factories.map((factory) => (
                     <option
                       key={factory}
                       value={factory}
-                      className="bg-white text-black"
+                      className="bg-card dark:bg-card-dark text-ink dark:text-ink-dark"
                     >
                       {factory}
                     </option>
@@ -1013,7 +970,7 @@ ${data.data.processed
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="w-full px-4 py-2 border border-[#cfece6] rounded-lg bg-white text-black focus:ring-2 focus:ring-[#165E52] focus:border-[#165E52] appearance-none shadow-sm"
+                  className="w-full px-4 py-2 border border-tea-100 dark:border-card-border-dark rounded-lg bg-card dark:bg-card-dark text-ink dark:text-ink-dark focus:ring-2 focus:ring-tea-500/40 focus:border-tea-700 dark:focus:border-tea-400 appearance-none shadow-sm"
                 >
                   <option value="all">All Months</option>
                   <option value="July">July 2025</option>
@@ -1022,24 +979,24 @@ ${data.data.processed
                 </select>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Tabs */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#cfece6]">
-            <div className="border-b border-[#cfece6]">
+          <Card className="!p-0">
+            <div className="border-b border-tea-100 dark:border-card-border-dark">
               <nav className="flex space-x-8 px-6">
                 <button
                   onClick={() => setActiveTab("pending")}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === "pending"
-                      ? "border-[#165E52] text-[#165E52]"
-                      : "border-transparent text-[#165E52] opacity-80 hover:opacity-100 hover:border-[#cfece6]"
+                      ? "border-tea-700 dark:border-tea-400 text-tea-700 dark:text-tea-300"
+                      : "border-transparent text-tea-700 dark:text-tea-300 opacity-80 hover:opacity-100 hover:border-tea-700 dark:hover:border-tea-400"
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4" />
                     Pending Approvals
-                    <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
+                    <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 text-xs px-2 py-1 rounded-full">
                       {filteredRates(pendingRates).length}
                     </span>
                   </div>
@@ -1048,14 +1005,14 @@ ${data.data.processed
                   onClick={() => setActiveTab("approved")}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === "approved"
-                      ? "border-[#165E52] text-[#165E52]"
-                      : "border-transparent text-[#165E52] opacity-80 hover:opacity-100 hover:border-[#cfece6]"
+                      ? "border-tea-700 dark:border-tea-400 text-tea-700 dark:text-tea-300"
+                      : "border-transparent text-tea-700 dark:text-tea-300 opacity-80 hover:opacity-100 hover:border-tea-700 dark:hover:border-tea-400"
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4" />
                     Approved Rates
-                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                    <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded-full">
                       {filteredRates(approvedRates).length}
                     </span>
                   </div>
@@ -1064,8 +1021,8 @@ ${data.data.processed
                   onClick={() => setActiveTab("history")}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === "history"
-                      ? "border-[#165E52] text-[#165E52]"
-                      : "border-transparent text-[#165E52] opacity-80 hover:opacity-100 hover:border-[#cfece6]"
+                      ? "border-tea-700 dark:border-tea-400 text-tea-700 dark:text-tea-300"
+                      : "border-transparent text-tea-700 dark:text-tea-300 opacity-80 hover:opacity-100 hover:border-tea-700 dark:hover:border-tea-400"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -1081,18 +1038,18 @@ ${data.data.processed
                 <div>
                   {filteredRates(pendingRates).length === 0 ? (
                     <div className="text-center py-12">
-                      <Clock className="w-12 h-12 text-[#cfece6] mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-[#165E52] mb-2">
+                      <Clock className="w-12 h-12 text-tea-300 dark:text-tea-700 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-tea-700 dark:text-tea-300 mb-2">
                         No Pending Rates
                       </h3>
-                      <p className="text-[#165E52] opacity-80">
+                      <p className="text-tea-700 dark:text-tea-300 opacity-80">
                         All rate submissions have been processed.
                       </p>
                     </div>
                   ) : (
                     <div>
                       <div className="mb-4 flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-[#165E52]">
+                        <h3 className="text-lg font-semibold text-tea-700 dark:text-tea-300">
                           Pending Rate Approvals (
                           {filteredRates(pendingRates).length})
                         </h3>
@@ -1109,18 +1066,18 @@ ${data.data.processed
                 <div>
                   {filteredRates(approvedRates).length === 0 ? (
                     <div className="text-center py-12">
-                      <CheckCircle className="w-12 h-12 text-[#cfece6] mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-[#165E52] mb-2">
+                      <CheckCircle className="w-12 h-12 text-tea-300 dark:text-tea-700 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-tea-700 dark:text-tea-300 mb-2">
                         No Approved Rates
                       </h3>
-                      <p className="text-[#165E52] opacity-80">
+                      <p className="text-tea-700 dark:text-tea-300 opacity-80">
                         No rates have been approved yet.
                       </p>
                     </div>
                   ) : (
                     <div>
                       <div className="mb-4 flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-[#165E52]">
+                        <h3 className="text-lg font-semibold text-tea-700 dark:text-tea-300">
                           Recently Approved Rates (
                           {filteredRates(approvedRates).length})
                         </h3>
@@ -1139,18 +1096,18 @@ ${data.data.processed
                 <div>
                   {filteredRates(processedRates).length === 0 ? (
                     <div className="text-center py-12">
-                      <History className="w-12 h-12 text-[#cfece6] mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-[#165E52] mb-2">
+                      <History className="w-12 h-12 text-tea-300 dark:text-tea-700 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-tea-700 dark:text-tea-300 mb-2">
                         No Rate History
                       </h3>
-                      <p className="text-[#165E52] opacity-80">
+                      <p className="text-tea-700 dark:text-tea-300 opacity-80">
                         No processed rates found for the selected filters.
                       </p>
                     </div>
                   ) : (
                     <div>
                       <div className="mb-4 flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-[#165E52]">
+                        <h3 className="text-lg font-semibold text-tea-700 dark:text-tea-300">
                           Rate Processing History (
                           {filteredRates(processedRates).length})
                         </h3>
@@ -1163,7 +1120,7 @@ ${data.data.processed
                 </div>
               )}
             </div>
-          </div>
+          </Card>
         </div>
       )}
 

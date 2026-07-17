@@ -101,3 +101,23 @@ export async function getAllSupplierFertilizerRequests() {
   const { data } = await axios.get(supplierBase);
   return data;
 }
+
+export async function getAllItems() {
+  const { data } = await axios.get("/items");
+  return data;  
+}
+
+export async function createItem(payload) {
+  const { data } = await axios.post("./items", payload);
+  return data;
+}
+
+export async function updateItem(id, payload) {
+  const { data } = await axios.put(`./items/${id}`, payload);
+  return data;
+}
+
+export async function deleteItem(id) {
+  const { data } = await axios.delete(`./items/${id}`);
+  return data;
+}

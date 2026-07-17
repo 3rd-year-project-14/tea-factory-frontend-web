@@ -170,14 +170,14 @@ export default function InventorySuppliersPage() {
 
   if (!selectedRoute) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-full flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mb-4">
             Route Not Found
           </h2>
           <button
             onClick={handleBackToRoutes}
-            className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700"
+            className="bg-tea-700 text-white px-4 py-2 rounded-lg hover:bg-tea-800 transition-colors"
           >
             Back to Routes
           </button>
@@ -187,7 +187,7 @@ export default function InventorySuppliersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       <InventoryHeader
         currentView="suppliers"
         selectedRoute={selectedRoute}
@@ -205,29 +205,26 @@ export default function InventorySuppliersPage() {
         onBackToRoutes={handleBackToRoutes}
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <SummaryCards summary={summary} currentView="suppliers" />
+      <SummaryCards summary={summary} currentView="suppliers" />
 
-        <InventoryFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          currentView="suppliers"
-        />
+      <InventoryFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+        currentView="suppliers"
+      />
 
-        <MainContent
-          currentView="suppliers"
-          suppliersData={suppliersData}
-          filteredData={suppliersData}
-          summary={summary}
-          onViewSupplierDetail={handleViewSupplierDetail}
-          page={page}
-          totalPages={totalPages}
-          totalElements={totalElements}
-          setPage={setPage}
-          loading={loading}
-          ACCENT_COLOR={ACCENT_COLOR}
-        />
-      </div>
+      <MainContent
+        currentView="suppliers"
+        suppliersData={suppliersData}
+        filteredData={suppliersData}
+        summary={summary}
+        onViewSupplierDetail={handleViewSupplierDetail}
+        page={page}
+        totalPages={totalPages}
+        totalElements={totalElements}
+        setPage={setPage}
+        loading={loading}
+      />
     </div>
   );
 }

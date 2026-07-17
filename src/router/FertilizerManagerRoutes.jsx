@@ -2,7 +2,9 @@ import { Route } from "react-router-dom";
 import Layout from "../layouts/Layout";
 import Dashboard from "../pages/FertilizerManager/dashboard";
 import ReportPage from "../pages/FertilizerManager/Report/report";
+
 import Request from "../pages/FertilizerManager/Request/supplierRequest";
+
 import StockRequest from "../pages/FertilizerManager/Stock/stockRequest";
 import StocksComponent from "../pages/FertilizerManager/Stock/stocks";
 import ViewStock from "../pages/FertilizerManager/Stock/ViewStock";
@@ -71,13 +73,4 @@ export default [
       </Layout>
     }
   />,
-  // <Route
-  //   key="history"
-  //   path="/fertilizerManager/history"
-  //   element={
-  //     <Layout>
-  //       <History />
-  //     </Layout>
-  //   }
-  // />,
 ];

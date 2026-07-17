@@ -1,52 +1,13 @@
 import React, { useState } from "react";
-import {
-  UserCircle,
-  AlertTriangle,
-  CheckCircle2,
-  Search,
-  Plus,
-   Truck, // <-- Add this line
-} from "lucide-react";
-
-const ACCENT_COLOR = "#165E52"; // Title & highlights
-const BUTTON_COLOR = "#172526"; // Buttons
+import { CheckCircle2, Search, Truck } from "lucide-react";
+import Card from "../../../components/ui/Card";
 
 const allVehicles = [
-  {
-    id: "TRK-001",
-    type: "Lorry",
-    model: "Tata Ace",
-    status: "Available",
-    driver: "Mr. Silva",
-  },
-  {
-    id: "TRK-002",
-    type: "Pickup Truck",
-    model: "Tata Ace",
-    status: "In Use",
-    driver: "Mr. Perera",
-  },
-  {
-    id: "TRK-003",
-    type: "Lorry",
-    model: "Tata Ace",
-    status: "Maintenance",
-    driver: null,
-  },
-  {
-    id: "TRK-004",
-    type: "Pickup Truck",
-    model: "Tata Ace",
-    status: "Available",
-    driver: "Mr. Kumar",
-  },
-  {
-    id: "TRK-005",
-    type: "Lorry",
-    model: "Tata Ace",
-    status: "Available",
-    driver: "Mr. Fernando",
-  },
+  { id: "TRK-001", type: "Lorry", model: "Tata Ace", status: "Available", driver: "Mr. Silva" },
+  { id: "TRK-002", type: "Pickup Truck", model: "Tata Ace", status: "In Use", driver: "Mr. Perera" },
+  { id: "TRK-003", type: "Lorry", model: "Tata Ace", status: "Maintenance", driver: null },
+  { id: "TRK-004", type: "Pickup Truck", model: "Tata Ace", status: "Available", driver: "Mr. Kumar" },
+  { id: "TRK-005", type: "Lorry", model: "Tata Ace", status: "Available", driver: "Mr. Fernando" },
 ];
 
 const breakdownVehicles = [
@@ -98,59 +59,48 @@ export default function Emergency() {
     Object.keys(assignments).length === breakdownVehicles.length;
 
   return (
-    <div className="min-h-screen bg-[#f8fdfc] p-6">
+    <div className="min-h-full">
       {/* Header */}
-      <div className="bg-white shadow-md border-b border-gray-200 mb-8">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-          <div className="flex items-center gap-3">
-       
-            <h1 className="text-3xl font-bold" style={{ color: ACCENT_COLOR }}>
-              Emergency Vehicle Replacement
-            </h1>
-          </div>
-        </div>
-      </div>
+      <Card className="mb-6">
+        <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
+          Emergency Vehicle Replacement
+        </h1>
+      </Card>
 
       {/* Search and Filter */}
-      <div className="bg-white rounded-lg shadow-sm border border-[#cfece6] p-4 flex flex-col md:flex-row justify-between gap-4 mb-6">
+      <Card className="mb-6">
         <div className="relative w-full md:w-72">
           <input
             type="text"
             placeholder="Search available vehicles or drivers..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-4 pr-10 py-2 text-sm border border-[#cfece6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent bg-[#f8fdfc] text-[#165E52]"
+            className="w-full pl-4 pr-10 py-2 text-sm rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-tea-700 dark:text-tea-200 placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
             autoComplete="off"
           />
-          <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink/40 dark:text-muted-dark" />
         </div>
-      </div>
+      </Card>
 
       {/* Assign Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {breakdownVehicles.map((broken) => (
-          <div
-            key={broken.id}
-            className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-5 border border-[#cfece6] transition hover:shadow-lg hover:border-[#a9d5c6]"
-          >
+          <Card key={broken.id} hoverable className="flex flex-col gap-5">
             {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Truck className="text-[#000000] w-8 h-8" />
-
-                <div>
-                  <h2 className="font-bold text-lg text-[#000000]">
-                    {broken.id} - {broken.model}
-                  </h2>
-                  <p className="text-sm text-[##000000] opacity-70">
-                    {broken.type}
-                  </p>
-                </div>
+            <div className="flex items-center gap-4">
+              <Truck className="text-tea-700 dark:text-tea-300 w-8 h-8" />
+              <div>
+                <h2 className="font-bold text-lg text-ink dark:text-ink-dark">
+                  {broken.id} - {broken.model}
+                </h2>
+                <p className="text-sm text-ink/60 dark:text-muted-dark">
+                  {broken.type}
+                </p>
               </div>
             </div>
 
             {/* Info */}
-            <div className="text-[#000000] space-y-1 text-sm font-medium">
+            <div className="text-ink/80 dark:text-ink-dark/80 space-y-1 text-sm font-medium">
               <p>
                 <span className="font-semibold">Driver:</span> {broken.driver}
               </p>
@@ -165,11 +115,11 @@ export default function Emergency() {
 
             {/* Selector */}
             <div>
-              <label className="block text-sm font-semibold text-[#000000] mb-1">
+              <label className="block text-sm font-semibold text-ink/70 dark:text-ink-dark/70 mb-1">
                 Assign Replacement Vehicle
               </label>
               <select
-                className="w-full border rounded-lg px-3 py-2 bg-[#f8fdfc] border-[#cfece6] focus:outline-none focus:ring-2 focus:ring-[#165E52]"
+                className="w-full rounded-lg px-3 py-2 border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
                 value={assignments[broken.id] || ""}
                 onChange={(e) => handleAssign(broken.id, e.target.value)}
               >
@@ -178,9 +128,7 @@ export default function Emergency() {
                   <option
                     key={v.id}
                     value={v.id}
-                    disabled={
-                      isAssigned(v.id) && assignments[broken.id] !== v.id
-                    }
+                    disabled={isAssigned(v.id) && assignments[broken.id] !== v.id}
                   >
                     {v.id} - {v.driver || "No Driver"} ({v.type})
                   </option>
@@ -189,21 +137,19 @@ export default function Emergency() {
             </div>
 
             {/* Confirm Button */}
-            <div>
-              <button
-                onClick={handleConfirm}
-                disabled={!allAssigned}
-                className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white text-sm transition-colors duration-200 ${
-                  allAssigned
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-[#172526] cursor-not-allowed"
-                }`}
-              >
-                <CheckCircle2 size={18} />
-                Confirm Assignments
-              </button>
-            </div>
-          </div>
+            <button
+              onClick={handleConfirm}
+              disabled={!allAssigned}
+              className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white text-sm transition-colors duration-200 ${
+                allAssigned
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-tea-900/60 dark:bg-white/10 cursor-not-allowed"
+              }`}
+            >
+              <CheckCircle2 size={18} />
+              Confirm Assignments
+            </button>
+          </Card>
         ))}
       </div>
     </div>

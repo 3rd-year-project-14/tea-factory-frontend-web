@@ -2,12 +2,11 @@ import { Paperclip, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addAnnouncement } from "../../../api/owner";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
 
-const ACCENT_COLOR = "#165E52";
-const BTN_COLOR = "#01251F";
-const BORDER_COLOR = "#cfece6";
-const HEADER_BG = "#e1f4ef";
-const INPUT_BG = "#ffffff";
+const inputClass =
+  "w-full px-4 py-3 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40";
 
 export default function AddAnnouncement() {
   const [form, setForm] = useState({
@@ -82,267 +81,223 @@ export default function AddAnnouncement() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  console.log("Passing values to backend:");
-  console.log("topic:", form.topic);
-  console.log("subject:", form.subject);
-  console.log("content:", form.content);
-  console.log("factories:", form.factories);
-  console.log("attachments:", form.attachments.map(att => att.name));
+    const formData = new FormData();
+    formData.append("topic", form.topic);
+    formData.append("subject", form.subject);
+    formData.append("content", form.content);
+    form.factories.forEach(f => formData.append("factories", Number(f)));
+    form.attachments.forEach((att) => {
+      formData.append("attachments", att.file);
+    });
 
-  // ---- FormData create කරන්න ----
-  const formData = new FormData();
-
-  // factories string -> number array
-  formData.append("topic", form.topic);
-  formData.append("subject", form.subject);
-  formData.append("content", form.content);
-  form.factories.forEach(f => formData.append("factories", Number(f)));
-  form.attachments.forEach((att) => {
-    formData.append("attachments", att.file);
-  });
-
-  try {
-    const result = await addAnnouncement(formData);
-    console.log("Backend response:", result);
-    navigate(-1);
-  } catch (error) {
-    // axios error may have response data
-    console.error("Error sending announcement:", error?.response || error?.message || error);
-  }
-};
-
+    try {
+      const result = await addAnnouncement(formData);
+      console.log("Backend response:", result);
+      navigate(-1);
+    } catch (error) {
+      console.error("Error sending announcement:", error?.response || error?.message || error);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-full">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Add Announcement
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Owner Dashboard - Add a New Announcement
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate(-1)}
-                type="button"
-                className="flex items-center text-gray-500 hover:text-gray-700 text-lg font-medium px-4 py-2 rounded-lg border border-gray-300 bg-white transition-colors"
-                style={{ borderColor: BORDER_COLOR }}
-              >
-                <span className="mr-2">&#8592;</span> Back
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="px-6 py-2 rounded-lg font-medium shadow transition-colors"
-                style={{ backgroundColor: BTN_COLOR, color: "white" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = ACCENT_COLOR)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = BTN_COLOR)
-                }
-              >
-                Save Announcement
-              </button>
-            </div>
+      <Card className="mb-6">
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
+              Add Announcement
+            </h1>
+            <p className="text-ink/60 dark:text-muted-dark mt-1 text-sm">
+              Owner Dashboard - Add a New Announcement
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => navigate(-1)} type="button">
+              <span className="mr-2">&#8592;</span> Back
+            </Button>
+            <Button variant="primary" onClick={handleSubmit}>
+              Save Announcement
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Form */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm">
-          <form onSubmit={handleSubmit} className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Left Column */}
-              <div className="space-y-6">
-                <div className="border-b border-gray-100 pb-4 mb-6">
-                  <h3 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
-                    Announcement Details
-                  </h3>
-                </div>
+      <Card>
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left Column */}
+            <div className="space-y-6">
+              <div className="border-b border-tea-100 dark:border-card-border-dark pb-4 mb-6">
+                <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
+                  Announcement Details
+                </h3>
+              </div>
 
-                {/* Topic */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Topic :
-                  </label>
-                  <select
-                    value={form.topic}
-                    onChange={(e) => handleInputChange("topic", e.target.value)}
-                    className="w-full px-4 py-3 border rounded-lg text-gray-900 focus:ring-2 focus:ring-[#165e52]"
-                    style={{ borderColor: BORDER_COLOR }}
+              <div>
+                <label className="block text-ink/70 dark:text-ink-dark/70 font-medium mb-2">
+                  Topic :
+                </label>
+                <select
+                  value={form.topic}
+                  onChange={(e) => handleInputChange("topic", e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">Select topic</option>
+                  {topicOptions.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-ink/70 dark:text-ink-dark/70 font-medium mb-2">
+                  Subject :
+                </label>
+                <input
+                  type="text"
+                  value={form.subject}
+                  onChange={(e) => handleInputChange("subject", e.target.value)}
+                  className={inputClass}
+                  placeholder="Enter announcement subject"
+                />
+              </div>
+
+              <div>
+                <label className="block text-ink/70 dark:text-ink-dark/70 font-medium mb-2">
+                  Content :
+                </label>
+                <textarea
+                  value={form.content}
+                  onChange={(e) => handleInputChange("content", e.target.value)}
+                  rows={5}
+                  className={`${inputClass} resize-none`}
+                  placeholder="Enter announcement content"
+                />
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+              <div className="border-b border-tea-100 dark:border-card-border-dark pb-4 mb-6">
+                <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
+                  Assignment & Attachments
+                </h3>
+              </div>
+
+              {/* Factories */}
+              <div>
+                <label className="block text-ink/70 dark:text-ink-dark/70 font-medium mb-2">
+                  Factories :
+                </label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className={`${inputClass} text-left`}
                   >
-                    <option value="">Select topic</option>
-                    {topicOptions.map((t) => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </select>
+                    {form.factories.length > 0
+                      ? factoryOptions
+                          .filter((f) => form.factories.includes(f.id))
+                          .map((f) => f.name)
+                          .join(", ")
+                      : "Select factories"}
+                  </button>
+                  {dropdownOpen && (
+                    <ul className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-lg border border-tea-100 dark:border-card-border-dark bg-card dark:bg-card-dark shadow-card z-50">
+                      {factoryOptions.map((factory) => (
+                        <li
+                          key={factory.id}
+                          className={`flex items-center px-4 py-2 cursor-pointer text-ink dark:text-ink-dark hover:bg-tea-50 dark:hover:bg-white/10 ${
+                            form.factories.includes(factory.id)
+                              ? "bg-tea-100 dark:bg-white/10 font-semibold"
+                              : ""
+                          }`}
+                          onClick={() => handleFactoryToggle(factory.id)}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={form.factories.includes(factory.id)}
+                            readOnly
+                            className="w-4 h-4 mr-2"
+                          />
+                          {factory.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-
-                {/* Subject */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Subject :
-                  </label>
-                  <input
-                    type="text"
-                    value={form.subject}
-                    onChange={(e) =>
-                      handleInputChange("subject", e.target.value)
-                    }
-                    className="w-full px-4 py-3 border rounded-lg text-gray-900 focus:ring-2 focus:ring-[#165e52]"
-                    placeholder="Enter announcement subject"
-                    style={{ borderColor: BORDER_COLOR }}
-                  />
-                </div>
-
-                {/* Content */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Content :
-                  </label>
-                  <textarea
-                    value={form.content}
-                    onChange={(e) =>
-                      handleInputChange("content", e.target.value)
-                    }
-                    rows={5}
-                    className="w-full px-4 py-3 border rounded-lg text-gray-900 focus:ring-2 focus:ring-[#165e52] resize-none"
-                    placeholder="Enter announcement content"
-                    style={{ borderColor: BORDER_COLOR }}
-                  />
+                <div className="text-sm text-ink/50 dark:text-muted-dark mt-1">
+                  {form.factories.length} selected
                 </div>
               </div>
 
-              {/* Right Column */}
-              <div className="space-y-6">
-                <div className="border-b border-gray-100 pb-4 mb-6">
-                  <h3 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
-                    Assignment & Attachments
-                  </h3>
-                </div>
-
-                {/* Factories */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Factories :
-                  </label>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setDropdownOpen(!dropdownOpen)}
-                      className="w-full px-4 py-3 border rounded-lg text-left text-gray-900 bg-white"
-                      style={{ borderColor: BORDER_COLOR }}
+              {/* File Upload */}
+              <div>
+                <label className="block text-ink/70 dark:text-ink-dark/70 font-medium mb-2">
+                  Attach Files
+                </label>
+                <div className="space-y-4">
+                  <div className="flex items-center flex-wrap gap-3">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="fileUpload"
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.xlsx,.xls"
+                    />
+                    <label
+                      htmlFor="fileUpload"
+                      className="flex items-center space-x-2 bg-tea-900 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-tea-800 transition-colors"
                     >
-                      {form.factories.length > 0
-                        ? factoryOptions
-                            .filter((f) => form.factories.includes(f.id))
-                            .map((f) => f.name)
-                            .join(", ")
-                        : "Select factories"}
-                    </button>
-                    {dropdownOpen && (
-                      <ul className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-lg border bg-white shadow-lg z-50">
-                        {factoryOptions.map((factory) => (
-                          <li
-                            key={factory.id}
-                            className={`flex items-center px-4 py-2 cursor-pointer hover:bg-[#e1f4ef] ${
-                              form.factories.includes(factory.id)
-                                ? "bg-[#d4eadf] font-semibold"
-                                : ""
-                            }`}
-                            onClick={() => handleFactoryToggle(factory.id)}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={form.factories.includes(factory.id)}
-                              readOnly
-                              className="w-4 h-4 mr-2"
-                            />
-                            {factory.name}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                      <Paperclip className="w-4 h-4" />
+                      <span>Choose Files</span>
+                    </label>
+                    <span className="text-sm text-ink/50 dark:text-muted-dark">
+                      Supported: PDF, DOC, DOCX, JPG, PNG, TXT, XLSX
+                    </span>
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    {form.factories.length} selected
-                  </div>
-                </div>
 
-                {/* File Upload */}
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Attach Files
-                  </label>
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <input
-                        type="file"
-                        multiple
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        id="fileUpload"
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.xlsx,.xls"
-                      />
-                      <label
-                        htmlFor="fileUpload"
-                        className="flex items-center space-x-2 bg-[#01251f] text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-[#165e52]"
-                      >
-                        <Paperclip className="w-4 h-4" />
-                        <span>Choose Files</span>
-                      </label>
-                      <span className="ml-3 text-sm text-gray-500">
-                        Supported: PDF, DOC, DOCX, JPG, PNG, TXT, XLSX
-                      </span>
-                    </div>
-
-                    {form.attachments.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-gray-700">
-                          Selected Files:
-                        </p>
-                        {form.attachments.map((attachment) => (
-                          <div
-                            key={attachment.id}
-                            className="flex items-center justify-between p-3 border rounded-lg bg-gray-50"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <Paperclip className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm text-gray-700">
-                                {attachment.name}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                ({attachment.size})
-                              </span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleRemoveAttachment(attachment.id)
-                              }
-                              className="p-1 text-red-500 hover:text-red-700"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
+                  {form.attachments.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-ink/70 dark:text-ink-dark/70">
+                        Selected Files:
+                      </p>
+                      {form.attachments.map((attachment) => (
+                        <div
+                          key={attachment.id}
+                          className="flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-white/5 border border-tea-100 dark:border-card-border-dark"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <Paperclip className="w-4 h-4 text-ink/50 dark:text-muted-dark" />
+                            <span className="text-sm text-ink dark:text-ink-dark">
+                              {attachment.name}
+                            </span>
+                            <span className="text-xs text-ink/50 dark:text-muted-dark">
+                              ({attachment.size})
+                            </span>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAttachment(attachment.id)}
+                            className="p-1 text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </form>
-        </div>
-      </div>
+          </div>
+        </form>
+      </Card>
     </div>
   );
 }

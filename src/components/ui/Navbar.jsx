@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Bell } from "lucide-react";
+import { Bell, Menu, Search } from "lucide-react";
 import NotificationDropdown from "./NotificationDropdown";
 import ProfileDropdown from "./ProfileDropdown";
+import ThemeToggle from "./ThemeToggle";
 import UserAvatar from "./UserAvatar";
 
-const ACCENT_COLOR = "#01251F";
-const FONT_FAMILY = "Inter, Segoe UI, Arial, sans-serif"; // More professional and modern
-
-const Navbar = () => {
-  // Get current date in Sri Lanka time zone
+const Navbar = ({ onMenuClick }) => {
   const date = () => {
     const date = new Date();
     return date.toLocaleDateString("en-GB", {
@@ -40,32 +37,51 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      className="bg-white border-b border-gray-200 px-6 py-2 shadow-sm relative"
-      style={{ fontFamily: FONT_FAMILY, fontWeight: 500 }}
-    >
-      <div className="flex items-center justify-between">
-        {/* Company Name */}
-        <div className="flex flex-col items-start">
-          <span className="text-3xl font-bold text-black tracking-tight font-sans">
-            {user?.factoryName || "Factory Name"}
-          </span>
-          <span className="text-s text-gray-500 font-normal mt-1">
-            {todayDate}
-          </span>
+    <nav className="bg-card dark:bg-card-dark border-b border-tea-100 dark:border-card-border-dark px-6 py-3 shadow-soft relative font-sans">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          {onMenuClick && (
+            <button
+              onClick={onMenuClick}
+              className="p-2 rounded-lg text-ink/60 dark:text-muted-dark hover:bg-tea-50 dark:hover:bg-white/5 transition-colors lg:hidden"
+              aria-label="Toggle menu"
+            >
+              <Menu size={20} />
+            </button>
+          )}
+          <div className="flex flex-col items-start">
+            <span className="text-2xl font-heading font-bold text-ink dark:text-ink-dark tracking-tight">
+              {user?.factoryName || "Factory Name"}
+            </span>
+            <span className="text-xs text-ink/50 dark:text-muted-dark font-normal">
+              {todayDate}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center space-x-4 ml-auto">
-          {/* Notifications */}
+        <div className="hidden md:flex items-center flex-1 max-w-sm relative">
+          <Search
+            size={16}
+            className="absolute left-3 text-ink/40 dark:text-muted-dark"
+          />
+          <input
+            type="text"
+            placeholder="Quick search..."
+            className="w-full pl-9 pr-3 py-2 text-sm rounded-lg bg-surface dark:bg-white/5 border border-tea-100 dark:border-card-border-dark text-ink dark:text-ink-dark placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-tea-500/40"
+          />
+        </div>
+
+        <div className="flex items-center space-x-3 ml-auto">
+          <ThemeToggle />
+
           <div className="relative">
             <button
               onClick={toggleNotifications}
-              className="relative p-2 text-[#172526] hover:text-black hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#172526]/20"
+              className="relative p-2 text-ink/70 dark:text-muted-dark hover:text-tea-700 dark:hover:text-tea-200 hover:bg-tea-50 dark:hover:bg-white/5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-tea-500/20"
               aria-label="Notifications"
             >
               <Bell className="w-5 h-5" />
-              {/* Notification badge */}
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold drop-shadow">
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                 3
               </span>
             </button>
@@ -74,24 +90,22 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* User Profile */}
           <div className="relative">
             <button
               onClick={toggleProfile}
-              className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[#172526]/20"
+              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-tea-50 dark:hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-tea-500/20"
             >
               <UserAvatar name={user?.username} />
               <div className="hidden md:block text-left">
-                <p className="font-semibold text-sm text-[#172526] leading-tight">
+                <p className="font-semibold text-sm text-ink dark:text-ink-dark leading-tight">
                   {user?.name || ""}
                 </p>
-                <p className="text-gray-500 text-xs capitalize font-medium">
+                <p className="text-ink/50 dark:text-muted-dark text-xs capitalize font-medium">
                   {user?.role?.toLowerCase() || "Supervisor"}
                 </p>
               </div>
-              {/* Dropdown Arrow */}
               <svg
-                className={`w-4 h-4 text-gray-400 ml-1 transition-transform ${
+                className={`w-4 h-4 text-ink/40 dark:text-muted-dark ml-1 transition-transform ${
                   showProfile ? "rotate-180" : ""
                 }`}
                 fill="none"
@@ -113,7 +127,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Backdrop for dropdowns */}
       {(showNotifications || showProfile) && (
         <div className="fixed inset-0 z-10" onClick={closeDropdowns} />
       )}

@@ -14,6 +14,9 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import EmptyState from "../../../components/ui/EmptyState";
 
 export default function DriverRoute() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,7 +53,6 @@ export default function DriverRoute() {
     if (!tripId) return;
     setLoading(true);
     setError(null);
-    // Fetch stats summary for cards
     getTripWeighingSummary(tripId, currentView)
       .then((summary) => {
         setStats({
@@ -63,7 +65,6 @@ export default function DriverRoute() {
         setError(err.message);
       });
 
-    // Fetch bags for weighed view with pagination & search
     if (currentView === "weighed") {
       getWeighedBagsForTripPaginated(tripId, {
         page,
@@ -83,12 +84,9 @@ export default function DriverRoute() {
         })
         .finally(() => setLoading(false));
     } else if (currentView === "completed") {
-      // Fetch sessionId from trip summary, then fetch paginated bag weights
       getTripSummary(tripId)
         .then((summary) => {
           const sessionId = summary.sessionId;
-          console.log("Trip summary data:", summary);
-          console.log("Session ID:", sessionId);
           if (!sessionId) {
             setBags([]);
             setTotalPages(1);
@@ -96,10 +94,8 @@ export default function DriverRoute() {
             setLoading(false);
             return;
           }
-          // status should be 'completed' for completed view
           getBagWeightsBySession(sessionId, "completed", page, searchTerm)
             .then((data) => {
-              console.log("Completed view data:", data);
               setBags(Array.isArray(data.content) ? data.content : []);
               setTotalPages(data.totalPages || 1);
               setTotalElements(data.totalElements || 0);
@@ -135,90 +131,63 @@ export default function DriverRoute() {
   };
 
   return (
-    <div className="h-full bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-5">
+    <div className="h-full">
+      <div className="space-y-5">
         {/* Header */}
-        <div className="bg-white p-4 shadow-sm">
-          <h1 className="text-2xl font-bold" style={{ color: "#165E52" }}>
+        <Card>
+          <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
             Route Details
           </h1>
-        </div>
+        </Card>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            {
-              label: "No of Suppliers",
-              value: totalSuppliers,
-              icon: <Users className="text-[#000000] w-5 h-5" />,
-            },
-            {
-              label: "No of Bags",
-              value: totalBags,
-              icon: <Package className="text-[#000000] w-5 h-5" />,
-            },
+            { label: "No of Suppliers", value: totalSuppliers, icon: Users },
+            { label: "No of Bags", value: totalBags, icon: Package },
           ].map((card, idx) => (
-            <div
-              key={idx}
-              className="bg-white px-4 py-3 rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg"
-              style={{ borderColor: "#000000" }}
-            >
+            <Card key={idx} hoverable>
               <div className="flex items-center justify-between">
                 <div>
-                  <p
-                    className="text-sm font-medium"
-                    style={{ color: "#000000" }}
-                  >
+                  <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">
                     {card.label}
                   </p>
-                  <p className="text-2xl font-bold text-[#000000]">
+                  <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">
                     {card.value}
                   </p>
                 </div>
-                <div className="h-10 w-10 bg-[#f3f4f6] rounded-full flex items-center justify-center text-lg">
-                  {card.icon}
+                <div className="h-10 w-10 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+                  <card.icon className="text-tea-700 dark:text-tea-300 w-5 h-5" />
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
 
         {/* Route Info + Search (always rendered) */}
-        <div
-          className="bg-white rounded-lg shadow-sm p-4 border"
-          style={{ borderColor: "#cfece6" }}
-        >
+        <Card>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
-              <label
-                className="text-sm font-semibold mb-1 block"
-                style={{ color: "#165E52" }}
-              >
+              <label className="text-sm font-semibold mb-1 block text-tea-700 dark:text-tea-300">
                 Route No
               </label>
-              <div className="text-lg font-bold text-[#01251F]">
+              <div className="text-lg font-bold text-ink dark:text-ink-dark">
                 {routeId || "Route ID Not Available"}
               </div>
             </div>
             <div>
-              <label
-                className="text-sm font-semibold mb-1 block"
-                style={{ color: "#165E52" }}
-              >
+              <label className="text-sm font-semibold mb-1 block text-tea-700 dark:text-tea-300">
                 Route Name
               </label>
-              <div className="text-lg font-bold text-gray-800">
+              <div className="text-lg font-bold text-ink dark:text-ink-dark">
                 {routeName || "Route Name Not Available"}
               </div>
             </div>
             <div>
-              <label
-                className="text-sm font-semibold mb-1 block"
-                style={{ color: "#165E52" }}
-              >
+              <label className="text-sm font-semibold mb-1 block text-tea-700 dark:text-tea-300">
                 Driver Name
               </label>
-              <div className="text-lg font-bold text-gray-800">
+              <div className="text-lg font-bold text-ink dark:text-ink-dark">
                 {driverName || "Driver Name Not Available"}
               </div>
             </div>
@@ -228,46 +197,35 @@ export default function DriverRoute() {
                 type="text"
                 value={searchInput}
                 onChange={(e) => {
-                  setPage(0); // Reset to first page on search
+                  setPage(0);
                   setSearchInput(e.target.value);
                 }}
                 placeholder="Search"
-                className="w-full px-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50
-             focus:outline-none focus:ring-2 focus:ring-[#165E52] focus:border-transparent"
+                className="w-full px-4 pr-10 py-2 text-sm rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
               />
-              <Search className="absolute text-gray-400 h-4 w-4 right-3 top-3" />
+              <Search className="absolute text-ink/40 dark:text-muted-dark h-4 w-4 right-3 top-1/2 -translate-y-1/2" />
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Loading/Error messages (do not unmount search) */}
         {loading && isBase && (
-          <div className="bg-white p-4 rounded shadow text-center text-gray-600">
+          <Card className="text-center text-ink/60 dark:text-muted-dark">
             Loading bag details...
-          </div>
+          </Card>
         )}
         {error && (
-          <div className="bg-red-100 text-red-700 p-4 rounded shadow text-center">
+          <div className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg text-center">
             {error}
           </div>
         )}
 
         {/* Supplier Action Bar */}
-        <div
-          className="bg-white rounded-lg shadow-sm p-4 border"
-          style={{ borderColor: "#cfece6" }}
-        >
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <h2
-                className="text-lg font-semibold"
-                style={{ color: "#165E52" }}
-              >
-                Supplier Bags
-              </h2>
-            </div>
-          </div>
-        </div>
+        <Card>
+          <h2 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
+            Supplier Bags
+          </h2>
+        </Card>
 
         {/* Main content changes by currentView */}
         {isBase && (
@@ -275,26 +233,19 @@ export default function DriverRoute() {
             {currentView === "weighed" ? (
               totalElements === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="text-green-600 font-semibold text-lg mb-4">
+                  <div className="text-green-600 dark:text-green-400 font-semibold text-lg mb-4">
                     All Bags Weighed
                   </div>
-                  <button
-                    onClick={() => navigate(-1)}
-                    className="px-6 py-2 rounded-lg font-medium bg-[#165E52] text-white hover:bg-[#11453f] transition"
-                  >
+                  <Button variant="primary" onClick={() => navigate(-1)}>
                     Back
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {getColumns(bags).map((colBags, colIdx) => (
-                      <div
-                        key={colIdx}
-                        className="bg-white rounded-lg border overflow-hidden"
-                        style={{ borderColor: "#cfece6" }}
-                      >
-                        <div className="bg-[#01251F] text-white p-3 text-sm font-semibold text-center">
+                      <Card key={colIdx} className="!p-0 overflow-hidden">
+                        <div className="bg-tea-900 text-white p-3 text-sm font-semibold text-center">
                           Bag Numbers
                         </div>
                         <div>
@@ -308,18 +259,16 @@ export default function DriverRoute() {
                                   },
                                 });
                               }}
-                              className="p-4 text-center hover:bg-gray-50 cursor-pointer transition font-medium text-[#01251F] border-b last:border-b-0"
+                              className="p-4 text-center hover:bg-tea-50 dark:hover:bg-white/5 cursor-pointer transition-colors font-medium text-ink dark:text-ink-dark border-b border-tea-100 dark:border-card-border-dark last:border-b-0"
                             >
                               {bag.bagNumber || bag.bagNo}
                             </div>
                           ))}
                           {colBags.length === 0 && (
-                            <div className="p-8 text-center text-gray-500">
-                              No bags found.
-                            </div>
+                            <EmptyState icon={Package} title="No bags found" description="" />
                           )}
                         </div>
-                      </div>
+                      </Card>
                     ))}
                   </div>
                   <PaginationControls
@@ -333,46 +282,40 @@ export default function DriverRoute() {
             ) : currentView === "completed" ? (
               totalElements === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="text-green-600 font-semibold text-lg mb-4">
+                  <div className="text-green-600 dark:text-green-400 font-semibold text-lg mb-4">
                     No supplier summary found
                   </div>
-                  <button
-                    onClick={() => navigate(-1)}
-                    className="px-6 py-2 rounded-lg font-medium bg-[#165E52] text-white hover:bg-[#11453f] transition"
-                  >
+                  <Button variant="primary" onClick={() => navigate(-1)}>
                     Back
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <>
-                  <div
-                    className="bg-white rounded-lg border overflow-hidden"
-                    style={{ borderColor: "#cfece6" }}
-                  >
-                    <div className="bg-[#01251F] text-white grid grid-cols-4 gap-4 p-3 text-sm font-semibold text-center">
+                  <Card className="!p-0 overflow-hidden">
+                    <div className="bg-tea-900 text-white grid grid-cols-4 gap-4 p-3 text-sm font-semibold text-center">
                       <div>Supplier ID</div>
                       <div>Supplier Name</div>
                       <div>Total Bags</div>
                       <div>Tare Weight</div>
                     </div>
-                    <div className="divide-y divide-gray-100">
+                    <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
                       {bags.map((s, idx) => (
                         <div
                           key={idx}
                           className="grid grid-cols-4 gap-4 p-4 text-center"
                         >
-                          <div className="font-medium text-[#01251F]">
+                          <div className="font-medium text-ink dark:text-ink-dark">
                             {s.supplierId}
                           </div>
-                          <div className="font-medium text-[#165E52]">
+                          <div className="font-medium text-tea-700 dark:text-tea-300">
                             {s.supplierName}
                           </div>
-                          <div className="font-medium">{s.bagTotal}</div>
-                          <div className="font-medium">{s.tareWeight}</div>
+                          <div className="font-medium text-ink/80 dark:text-ink-dark/80">{s.bagTotal}</div>
+                          <div className="font-medium text-ink/80 dark:text-ink-dark/80">{s.tareWeight}</div>
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </Card>
                   <PaginationControls
                     page={page}
                     totalPages={totalPages}

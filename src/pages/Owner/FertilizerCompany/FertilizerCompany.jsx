@@ -7,6 +7,13 @@ import {
   updateFertilizerCompany,
   deleteFertilizerCompany,
 } from "../../../api/owner";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import Badge from "../../../components/ui/Badge";
+import EmptyState from "../../../components/ui/EmptyState";
+
+const inputClass =
+  "w-full p-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40";
 
 // Form component
 const CompanyForm = ({ company, categories, onSave, onClose }) => {
@@ -94,23 +101,22 @@ const CompanyForm = ({ company, categories, onSave, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-card dark:bg-card-dark rounded-2xl shadow-card max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-gray-800">
+            <h2 className="text-xl font-heading font-bold text-ink dark:text-ink-dark">
               {company ? "Edit Fertilizer Company" : "Add New Fertilizer Company"}
             </h2>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <button onClick={onClose} className="text-ink/50 dark:text-muted-dark hover:text-ink dark:hover:text-ink-dark transition-colors">
               <X size={20} />
             </button>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
-              {/* ...inputs as before... */}
               {/* Company Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="name">
+                <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-1" htmlFor="name">
                   Company Name *
                 </label>
                 <input
@@ -119,13 +125,13 @@ const CompanyForm = ({ company, categories, onSave, onClose }) => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className={inputClass}
                   required
                 />
               </div>
               {/* Address */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="address">
+                <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-1" htmlFor="address">
                   Address *
                 </label>
                 <input
@@ -134,13 +140,13 @@ const CompanyForm = ({ company, categories, onSave, onClose }) => {
                   name="address"
                   value={formData.address}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className={inputClass}
                   required
                 />
               </div>
               {/* Contact Person */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="contactPerson">
+                <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-1" htmlFor="contactPerson">
                   Contact Person *
                 </label>
                 <input
@@ -149,13 +155,13 @@ const CompanyForm = ({ company, categories, onSave, onClose }) => {
                   name="contactPerson"
                   value={formData.contactPerson}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className={inputClass}
                   required
                 />
               </div>
               {/* Contact Number */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="contactNumber">
+                <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-1" htmlFor="contactNumber">
                   Contact Number *
                 </label>
                 <input
@@ -164,13 +170,13 @@ const CompanyForm = ({ company, categories, onSave, onClose }) => {
                   name="contactNumber"
                   value={formData.contactNumber}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className={inputClass}
                   required
                 />
               </div>
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
+                <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-1" htmlFor="email">
                   Email *
                 </label>
                 <input
@@ -179,35 +185,35 @@ const CompanyForm = ({ company, categories, onSave, onClose }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className={inputClass}
                   required
                 />
               </div>
               {/* Categories */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-1">
                   Fertilizer Categories *
                 </label>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {formData.categories.map((category, idx) => (
-                    <div key={idx} className="bg-green-100 px-3 py-1 rounded-full flex items-center">
-                      <span className="text-sm text-green-800">{category}</span>
+                    <div key={idx} className="bg-tea-100 dark:bg-tea-900/30 px-3 py-1 rounded-full flex items-center">
+                      <span className="text-sm text-tea-800 dark:text-tea-200">{category}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveCategory(category)}
-                        className="ml-2 text-green-600 hover:text-green-800"
+                        className="ml-2 text-tea-600 dark:text-tea-300 hover:text-tea-800 dark:hover:text-tea-100"
                       >
                         <X size={16} />
                       </button>
                     </div>
                   ))}
                   {formData.categories.length === 0 && (
-                    <p className="text-sm text-gray-500 italic">No categories selected</p>
+                    <p className="text-sm text-ink/50 dark:text-muted-dark italic">No categories selected</p>
                   )}
                 </div>
                 <div className="flex gap-2 mb-3">
                   <select
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className={inputClass}
                     onChange={handleCategorySelect}
                     value="select"
                   >
@@ -230,39 +236,35 @@ const CompanyForm = ({ company, categories, onSave, onClose }) => {
                     value={formData.newCategory}
                     onChange={handleInputChange}
                     placeholder="Add new category"
-                    className="flex-grow p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className={`flex-grow ${inputClass}`}
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="primary"
                     onClick={handleAddNewCategory}
-                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
                     disabled={!formData.newCategory.trim()}
                   >
                     <Plus size={20} />
-                  </button>
+                  </Button>
                 </div>
                 {formData.categories.length === 0 && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-red-500 dark:text-red-400 mt-1">
                     Please add at least one fertilizer category
                   </p>
                 )}
               </div>
             </div>
             <div className="mt-6 flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="primary"
                 disabled={formData.categories.length === 0}
               >
                 {company ? "Update" : "Save"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>
@@ -271,8 +273,6 @@ const CompanyForm = ({ company, categories, onSave, onClose }) => {
   );
 };
 
-// ...existing code...
-
 const FertilizerCompany = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [companies, setCompanies] = useState([]);
@@ -280,12 +280,10 @@ const FertilizerCompany = () => {
   const [categories, setCategories] = useState([]);
   const [totalFertilizers, setTotalFertilizers] = useState(0);
 
-  // Fetch companies from backend
   useEffect(() => {
     const fetchCompanies = async () => {
       const data = await getFertilizerCompanies();
       setCompanies(data);
-      // Extract unique categories
       const allCategories = Array.from(
         new Set(data.flatMap((company) => company.categories))
       );
@@ -307,12 +305,10 @@ const FertilizerCompany = () => {
 
   const handleSaveCompany = async (companyData) => {
     if (editingCompany) {
-      // Update
       const updated = await updateFertilizerCompany(editingCompany.id, companyData);
       setCompanies((prev) =>
         prev.map((c) => (c.id === updated.id ? updated : c))
       );
-      // Update categories
       const newCategories = Array.from(
         new Set([...categories, ...companyData.categories])
       );
@@ -320,7 +316,6 @@ const FertilizerCompany = () => {
       setTotalFertilizers(newCategories.length);
       handleCloseModal();
     } else {
-      // Create
       const created = await createFertilizerCompany(companyData);
       setCompanies((prev) => [...prev, created]);
       const newCategories = Array.from(
@@ -336,7 +331,6 @@ const FertilizerCompany = () => {
     await deleteFertilizerCompany(id);
     const remainingCompanies = companies.filter((company) => company.id !== id);
     setCompanies(remainingCompanies);
-    // Recalculate categories
     const remainingCategories = Array.from(
       new Set(remainingCompanies.flatMap((company) => company.categories))
     );
@@ -345,104 +339,94 @@ const FertilizerCompany = () => {
   };
 
   return (
-    <div className="p-6">
-      {/* ...rest of the UI as before... */}
+    <div className="min-h-full">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
           Fertilizer Companies
         </h1>
-        <button
-          className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white py-2 px-4 rounded-lg transition-colors"
-          onClick={() => handleOpenModal()}
-        >
-          <Plus size={20} />
+        <Button variant="primary" icon={Plus} onClick={() => handleOpenModal()}>
           Add Company
-        </button>
+        </Button>
       </div>
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <Card hoverable>
+          <h2 className="text-sm font-medium text-ink/60 dark:text-muted-dark mb-2">
             Total Companies
           </h2>
-          <p className="text-3xl font-bold text-green-700">
+          <p className="text-3xl font-heading font-bold text-tea-700 dark:text-tea-300">
             {companies.length}
           </p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">
+        </Card>
+        <Card hoverable>
+          <h2 className="text-sm font-medium text-ink/60 dark:text-muted-dark mb-2">
             Total Fertilizer Types
           </h2>
-          <p className="text-3xl font-bold text-green-700">
+          <p className="text-3xl font-heading font-bold text-tea-700 dark:text-tea-300">
             {totalFertilizers}
           </p>
-        </div>
+        </Card>
       </div>
       {/* Companies Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <Card className="!p-0 overflow-hidden">
+        <table className="min-w-full">
+          <thead className="bg-tea-900">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 Company Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 Contact Person
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 Contact Number
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 Email
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 Categories
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-tea-100 dark:divide-card-border-dark">
             {companies.map((company) => (
-              <tr key={company.id} className="hover:bg-gray-50">
+              <tr key={company.id} className="hover:bg-tea-50 dark:hover:bg-white/5 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-ink dark:text-ink-dark">
                     {company.name}
                   </div>
-                  <div className="text-sm text-gray-500">{company.address}</div>
+                  <div className="text-sm text-ink/50 dark:text-muted-dark">{company.address}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-ink/70 dark:text-ink-dark/70">
                   {company.contactPerson}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-ink/70 dark:text-ink-dark/70">
                   {company.contactNumber}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-ink/70 dark:text-ink-dark/70">
                   {company.email}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex flex-wrap gap-1">
                     {company.categories.map((category, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800"
-                      >
-                        {category}
-                      </span>
+                      <Badge key={index} variant="success">{category}</Badge>
                     ))}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
                     <button
-                      className="text-indigo-600 hover:text-indigo-900"
+                      className="text-tea-700 dark:text-tea-300 hover:text-tea-800 dark:hover:text-tea-200"
                       onClick={() => handleOpenModal(company)}
                     >
                       <Edit size={18} />
                     </button>
                     <button
-                      className="text-red-600 hover:text-red-900"
+                      className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                       onClick={() => handleDeleteCompany(company.id)}
                     >
                       <Trash size={18} />
@@ -453,17 +437,14 @@ const FertilizerCompany = () => {
             ))}
             {companies.length === 0 && (
               <tr>
-                <td
-                  colSpan="6"
-                  className="px-6 py-4 text-center text-sm text-gray-500"
-                >
-                  No companies found. Add a company to get started.
+                <td colSpan="6">
+                  <EmptyState title="No companies found" description="Add a company to get started." />
                 </td>
               </tr>
             )}
           </tbody>
         </table>
-      </div>
+      </Card>
       {/* Company Form Modal */}
       {isModalOpen && (
         <CompanyForm

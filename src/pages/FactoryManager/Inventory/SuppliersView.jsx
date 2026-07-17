@@ -1,6 +1,9 @@
 import { Eye, Users } from "lucide-react";
 
 import PaginationControls from "../../../components/ui/PaginationControls";
+import Card from "../../../components/ui/Card";
+import EmptyState from "../../../components/ui/EmptyState";
+import { CardSkeleton } from "../../../components/ui/Skeleton";
 
 export default function SuppliersView({
   suppliersData,
@@ -11,11 +14,20 @@ export default function SuppliersView({
   setPage,
   loading,
 }) {
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-xl shadow border border-[#d1e7dd] overflow-hidden">
+    <Card className="!p-0 overflow-hidden">
       {/* Table Header */}
-      <div className="bg-[#172526] text-white">
-        <div className="grid grid-cols-6 gap-4 p-4 font-semibold text-sm">
+      <div className="bg-tea-900">
+        <div className="grid grid-cols-6 gap-4 p-4 font-semibold text-sm text-white">
           <div className="text-center">Supplier ID</div>
           <div className="text-center">Supplier Name</div>
           <div className="text-center">Weight (kg)</div>
@@ -26,34 +38,34 @@ export default function SuppliersView({
       </div>
 
       {/* Table Body */}
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-tea-100 dark:divide-card-border-dark">
         {suppliersData.map((supplier) => {
           return (
             <div
               key={supplier.id}
-              className="grid grid-cols-6 gap-4 p-4 items-center hover:bg-gray-50 transition"
+              className="grid grid-cols-6 gap-4 p-4 items-center hover:bg-tea-50 dark:hover:bg-white/5 transition-colors"
             >
               <div className="flex justify-center">
-                <span className="text-sm font-semibold text-[#172526] bg-[#edf3f2] px-3 py-1 rounded-full border border-[#d1e7dd]">
+                <span className="text-sm font-semibold text-tea-700 dark:text-tea-200 bg-tea-50 dark:bg-tea-900/30 px-3 py-1 rounded-full border border-tea-600 dark:border-tea-500">
                   {supplier.id}
                 </span>
               </div>
-              <div className="text-center text-sm font-medium text-gray-800">
+              <div className="text-center text-sm font-medium text-ink dark:text-ink-dark">
                 {supplier.supplierName}
               </div>
-              <div className="text-center text-sm text-gray-700 font-semibold">
+              <div className="text-center text-sm text-ink/80 dark:text-ink-dark/80 font-semibold">
                 {supplier.totalWeight.toFixed(1)}
               </div>
-              <div className="text-center text-sm text-gray-700 font-semibold">
+              <div className="text-center text-sm text-ink/80 dark:text-ink-dark/80 font-semibold">
                 {supplier.totalBags}
               </div>
-              <div className="text-center text-sm text-gray-700 font-medium">
+              <div className="text-center text-sm text-ink/80 dark:text-ink-dark/80 font-medium">
                 {supplier.totalNetWeight.toFixed(1)}
               </div>
               <div className="flex justify-center">
                 <button
                   onClick={() => onViewSupplierDetail(supplier)}
-                  className="text-[#172526] hover:bg-[#edf3f2] p-2 rounded-full transition"
+                  className="p-2 rounded-full border border-tea-700 text-tea-700 hover:bg-tea-50 dark:border-tea-400 dark:text-tea-300 dark:hover:bg-tea-900/30 transition-colors"
                   title="View Details"
                 >
                   <Eye className="w-4 h-4" />
@@ -63,28 +75,12 @@ export default function SuppliersView({
           );
         })}
 
-        {suppliersData.length === 0 && !loading && (
-          <div className="p-10 text-center text-gray-500">
-            <div className="flex justify-center mb-2">
-              <Users className="w-12 h-12 text-gray-300" />
-            </div>
-
-            <h3 className="text-lg font-semibold text-gray-800 mb-1">
-              No suppliers found
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Please adjust your filters or search term.
-            </p>
-          </div>
-        )}
-
-        {loading && (
-          <div className="p-10 text-center text-gray-500">
-            <div className="flex justify-center mb-2">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#172526]"></div>
-            </div>
-            <p className="text-gray-600 text-sm">Loading suppliers...</p>
-          </div>
+        {suppliersData.length === 0 && (
+          <EmptyState
+            icon={Users}
+            title="No suppliers found"
+            description="Please adjust your filters or search term."
+          />
         )}
       </div>
 
@@ -97,6 +93,6 @@ export default function SuppliersView({
           setPage={setPage}
         />
       )}
-    </div>
+    </Card>
   );
 }

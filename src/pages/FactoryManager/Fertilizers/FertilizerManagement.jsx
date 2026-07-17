@@ -154,45 +154,43 @@ export default function FertilizerManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full">
       {/* Header */}
       <FertilizerHeader />
-      
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Summary Cards */}
-        <FertilizerSummaryCards
-          metrics={metrics}
-          currentView={currentView}
-          setCurrentView={setCurrentView}
-        />
-        
-        {/* Filters */}
-        <FertilizerFilters
-          filters={filters}
-          handleFilterChange={handleFilterChange}
-          clearFilters={clearFilters}
-          categories={fertilizerCategories}
-          companies={fertilizerCompanies}
-          currentView={currentView}
-        />
-        
-        {/* Table */}
-        <FertilizerTable
-          filteredRequests={filteredRequests}
-          currentView={currentView}
-          loading={loading}
-          onViewRequest={handleViewRequest}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          page={page}
-          size={size}
-          totalElements={totalElements}
-          first={first}
-          last={last}
-          onPageChange={handlePageChange}
-        />
-      </div>
-      
+
+      {/* Summary Cards */}
+      <FertilizerSummaryCards
+        metrics={metrics}
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+      />
+
+      {/* Filters */}
+      <FertilizerFilters
+        filters={filters}
+        handleFilterChange={handleFilterChange}
+        clearFilters={clearFilters}
+        categories={fertilizerCategories}
+        companies={fertilizerCompanies}
+        currentView={currentView}
+      />
+
+      {/* Table */}
+      <FertilizerTable
+        filteredRequests={filteredRequests}
+        currentView={currentView}
+        loading={loading}
+        onViewRequest={handleViewRequest}
+        onApprove={handleApprove}
+        onReject={handleReject}
+        page={page}
+        size={size}
+        totalElements={totalElements}
+        first={first}
+        last={last}
+        onPageChange={handlePageChange}
+      />
+
       {/* Modal */}
       {selectedRequest && (
         <FertilizerRequestModal

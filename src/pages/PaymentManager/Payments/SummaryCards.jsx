@@ -1,48 +1,38 @@
 import { Scale, DollarSign, CheckCircle, Clock } from "lucide-react";
+import Card from "../../../components/ui/Card";
 
 export default function SummaryCards({ currentView, summary }) {
-  const baseCardStyle =
-    "bg-white p-6 rounded-lg shadow-md transition-transform cursor-pointer hover:scale-[1.02]";
-  const borderStyle = { border: "1.5px solid black" };
-
   if (currentView === "routes") {
+    const cards = [
+      {
+        label: "Total Weight",
+        value: `${summary.totalWeight?.toFixed(1) || "0.0"} kg`,
+        sub: `${summary.routeCount || 0} routes • ${summary.supplierCount || 0} suppliers`,
+        icon: Scale,
+      },
+      {
+        label: "Total Amount",
+        value: `Rs. ${summary.total?.toLocaleString() || "0"}`,
+        sub: `${summary.routeCount || 0} routes • ${summary.supplierCount || 0} suppliers`,
+        icon: DollarSign,
+      },
+    ];
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        {/* Total Weight */}
-        <div className={baseCardStyle} style={borderStyle}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-black">Total Weight</p>
-              <p className="text-2xl font-bold text-black">
-                {summary.totalWeight?.toFixed(1) || "0.0"} kg
-              </p>
-              <p className="text-xs text-gray-500">
-                {summary.routeCount || 0} routes • {summary.supplierCount || 0} suppliers
-              </p>
+        {cards.map((card, idx) => (
+          <Card key={idx} hoverable>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">{card.label}</p>
+                <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">{card.value}</p>
+                <p className="text-xs text-ink/40 dark:text-muted-dark mt-1">{card.sub}</p>
+              </div>
+              <div className="h-12 w-12 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+                <card.icon size={24} className="text-tea-700 dark:text-tea-300" />
+              </div>
             </div>
-            <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
-              <Scale size={30} color="black" />
-            </div>
-          </div>
-        </div>
-
-        {/* Total Amount */}
-        <div className={baseCardStyle} style={borderStyle}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-black">Total Amount</p>
-              <p className="text-2xl font-bold text-black">
-                Rs. {summary.total?.toLocaleString() || "0"}
-              </p>
-              <p className="text-xs text-gray-500">
-                {summary.routeCount || 0} routes • {summary.supplierCount || 0} suppliers
-              </p>
-            </div>
-            <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
-              <DollarSign size={30} color="black" />
-            </div>
-          </div>
-        </div>
+          </Card>
+        ))}
       </div>
     );
   }
@@ -52,43 +42,43 @@ export default function SummaryCards({ currentView, summary }) {
       {
         label: "Total Weight",
         value: `${summary.totalWeight?.toFixed(1) || "0.0"} kg`,
-        icon: <Scale size={30} color="black" />,
+        icon: Scale,
+        iconClass: "text-tea-700 dark:text-tea-300",
       },
       {
         label: "Total Amount",
         value: `Rs. ${summary.total?.toLocaleString() || "0"}`,
-        icon: <DollarSign size={30} color="black" />,
+        icon: DollarSign,
+        iconClass: "text-tea-700 dark:text-tea-300",
       },
       {
         label: "Paid",
         value: `Rs. ${summary.paid?.toLocaleString() || "0"}`,
-        icon: <CheckCircle size={30} color="black" />,
+        icon: CheckCircle,
+        iconClass: "text-green-600 dark:text-green-400",
       },
       {
         label: "Pending",
         value: `Rs. ${summary.pending?.toLocaleString() || "0"}`,
-        icon: <Clock size={30} color="black" />,
+        icon: Clock,
+        iconClass: "text-amber-600 dark:text-amber-400",
       },
     ];
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {cards.map((card, idx) => (
-          <div
-            key={idx}
-            className={baseCardStyle}
-            style={borderStyle}
-          >
+          <Card key={idx} hoverable>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-black">{card.label}</p>
-                <p className="text-2xl font-bold text-black">{card.value}</p>
+                <p className="text-sm font-medium text-ink/60 dark:text-muted-dark">{card.label}</p>
+                <p className="text-2xl font-heading font-bold text-ink dark:text-ink-dark mt-1">{card.value}</p>
               </div>
-              <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center">
-                {card.icon}
+              <div className="h-12 w-12 bg-tea-50 dark:bg-tea-900/30 rounded-full flex items-center justify-center shrink-0">
+                <card.icon size={24} className={card.iconClass} />
               </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     );

@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+
+const inputClass =
+  "w-full p-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40";
 
 export default function AddDriverDetails({ vehicles }) {
   const location = useLocation();
@@ -30,7 +35,6 @@ export default function AddDriverDetails({ vehicles }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Fake API call example — replace with actual backend request
     const response = await fetch("/api/driver/addDetails", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -38,7 +42,6 @@ export default function AddDriverDetails({ vehicles }) {
     });
 
     if (response.ok) {
-      // On success navigate to driver list or driver view page
       navigate("/transportManager/driver/all");
     } else {
       alert("Failed to add driver details!");
@@ -46,13 +49,13 @@ export default function AddDriverDetails({ vehicles }) {
   };
 
   return (
-    <div className="max-w-md mx-auto p-8 bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-6 text-center">
+    <Card className="max-w-md mx-auto">
+      <h2 className="text-xl font-heading font-bold mb-6 text-center text-tea-700 dark:text-tea-300">
         Add Driver - Step 2 (Details)
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block mb-1 font-semibold" htmlFor="type">
+          <label className="block mb-1 font-semibold text-ink/70 dark:text-ink-dark/70" htmlFor="type">
             Driver Type
           </label>
           <select
@@ -60,17 +63,14 @@ export default function AddDriverDetails({ vehicles }) {
             name="type"
             value={form.type}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className={inputClass}
           >
             <option value="INHOUSE">INHOUSE</option>
             <option value="PRIVATE">PRIVATE</option>
           </select>
         </div>
         <div>
-          <label
-            className="block mb-1 font-semibold"
-            htmlFor="assigned_vehicle_id"
-          >
+          <label className="block mb-1 font-semibold text-ink/70 dark:text-ink-dark/70" htmlFor="assigned_vehicle_id">
             Assigned Vehicle
           </label>
           <select
@@ -78,21 +78,18 @@ export default function AddDriverDetails({ vehicles }) {
             name="assigned_vehicle_id"
             value={form.assigned_vehicle_id}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className={inputClass}
           >
             <option value="">Select a Vehicle</option>
             {vehicles?.map((v) => (
-              <option
-                key={v.vehicleNumber || v.id}
-                value={v.vehicleNumber || v.id}
-              >
+              <option key={v.vehicleNumber || v.id} value={v.vehicleNumber || v.id}>
                 {v.vehicleNumber || "ID: " + v.id} - {v.vehicleType || v.type}
               </option>
             ))}
           </select>
         </div>
         <div>
-          <label className="block mb-1 font-semibold" htmlFor="phone">
+          <label className="block mb-1 font-semibold text-ink/70 dark:text-ink-dark/70" htmlFor="phone">
             Phone Number
           </label>
           <input
@@ -101,12 +98,12 @@ export default function AddDriverDetails({ vehicles }) {
             name="phone"
             value={form.phone}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className={inputClass}
             placeholder="0771234567"
           />
         </div>
         <div>
-          <label className="block mb-1 font-semibold" htmlFor="license_no">
+          <label className="block mb-1 font-semibold text-ink/70 dark:text-ink-dark/70" htmlFor="license_no">
             License Number
           </label>
           <input
@@ -115,11 +112,11 @@ export default function AddDriverDetails({ vehicles }) {
             name="license_no"
             value={form.license_no}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className={inputClass}
           />
         </div>
         <div>
-          <label className="block mb-1 font-semibold" htmlFor="nic">
+          <label className="block mb-1 font-semibold text-ink/70 dark:text-ink-dark/70" htmlFor="nic">
             NIC
           </label>
           <input
@@ -128,16 +125,13 @@ export default function AddDriverDetails({ vehicles }) {
             name="nic"
             value={form.nic}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className={inputClass}
           />
         </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-700 text-white p-3 rounded hover:bg-blue-800 transition"
-        >
+        <Button type="submit" variant="primary" className="w-full justify-center">
           Submit Driver Details
-        </button>
+        </Button>
       </form>
-    </div>
+    </Card>
   );
 }

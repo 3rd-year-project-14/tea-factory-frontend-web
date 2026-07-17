@@ -4,14 +4,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { createUserWithEmailAndPassword, getIdToken } from "firebase/auth";
-import { auth } from "../../../firebase"; // adjust path if needed
+import { auth } from "../../../firebase";
+import Button from "../../../components/ui/Button";
 
-// Design Tokens
-const ACCENT_COLOR = "#165E52";
-const BTN_COLOR = "#01251F";
-const BORDER_COLOR = "#cfece6";
-const HEADER_BG = "#e1f4ef";
-const INPUT_BG = "#ffffff";
+const inputClass =
+  "w-full rounded-lg px-4 py-3 border border-tea-100 dark:border-card-border-dark h-12 bg-surface dark:bg-white/5 text-tea-700 dark:text-tea-200 placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40";
 
 const roles = [
   { label: 'Factory Manager', value: 'FACTORY_MANAGER' },
@@ -91,7 +88,6 @@ export default function AddManagersInterface() {
         firebaseUid: user.uid,
         name: formData.name,
         email: formData.email,
-        // password: formData.password,
         nic: formData.nic,
         contactNo: formData.mobile,
         role: formData.role,
@@ -119,39 +115,21 @@ export default function AddManagersInterface() {
   };
 
   return (
-    <div className="min-h-screen p-4">
-      <div
-        className="max-w-6xl mx-auto rounded-2xl border shadow-2xl overflow-hidden bg-white"
-        style={{ borderColor: BORDER_COLOR }}
-      >
+    <div className="min-h-full">
+      <div className="max-w-6xl mx-auto rounded-2xl border border-tea-100 dark:border-card-border-dark shadow-card overflow-hidden bg-card dark:bg-card-dark">
         {/* Header */}
-        <div
-          className="px-8 py-6 border-b"
-          style={{ backgroundColor: HEADER_BG, borderColor: BORDER_COLOR }}
-        >
-          <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-bold text-gray-900" 
-            // style={{ color: ACCENT_COLOR }}
-            >
+        <div className="px-8 py-6 border-b border-tea-100 dark:border-card-border-dark bg-tea-50 dark:bg-tea-900/20">
+          <div className="flex justify-between items-center flex-wrap gap-4">
+            <h2 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
               Add Manager
             </h2>
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate(-1)}
-                type="button"
-                className="flex items-center text-gray-500 hover:text-gray-700 text-lg font-medium px-4 py-2 rounded-lg border bg-white transition-colors"
-                style={{ borderColor: BORDER_COLOR }}
-              >
+              <Button variant="outline" onClick={() => navigate(-1)} type="button">
                 <span className="mr-2">&#8592;</span> Back
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-8 py-2 rounded-lg text-white font-medium shadow-md transition-colors"
-                style={{ backgroundColor: BTN_COLOR }}
-                type="button"
-              >
+              </Button>
+              <Button variant="primary" onClick={handleSave} type="button">
                 Save & Give Access
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -159,18 +137,16 @@ export default function AddManagersInterface() {
         {/* Form Section */}
         <div className="px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
             {/* Left Column */}
             <div className="space-y-6">
-              <div className="border-b border-gray-100 pb-4 mb-6">
-                <h3 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
+              <div className="border-b border-tea-100 dark:border-card-border-dark pb-4 mb-6">
+                <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
                   Personal Information
                 </h3>
               </div>
 
-              {/* Name */}
               <div>
-                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
                   Name :
                 </label>
                 <input
@@ -178,19 +154,13 @@ export default function AddManagersInterface() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border h-12"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
+                  className={inputClass}
                   placeholder="Enter manager name"
                 />
               </div>
 
-              {/* Address */}
               <div>
-                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
                   Address :
                 </label>
                 <input
@@ -198,19 +168,13 @@ export default function AddManagersInterface() {
                   name="address"
                   value={formData.address}
                   onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border h-12"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
+                  className={inputClass}
                   placeholder="Enter manager address"
                 />
               </div>
 
-              {/* NIC */}
               <div>
-                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
                   NIC :
                 </label>
                 <input
@@ -218,19 +182,13 @@ export default function AddManagersInterface() {
                   name="nic"
                   value={formData.nic}
                   onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border h-12"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
+                  className={inputClass}
                   placeholder="Enter NIC number"
                 />
               </div>
 
-              {/* Mobile */}
               <div>
-                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
                   Mobile Number :
                 </label>
                 <input
@@ -238,19 +196,13 @@ export default function AddManagersInterface() {
                   name="mobile"
                   value={formData.mobile}
                   onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border h-12"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
+                  className={inputClass}
                   placeholder="Enter mobile number"
                 />
               </div>
 
-              {/* Email */}
               <div>
-                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
                   E-mail :
                 </label>
                 <input
@@ -258,19 +210,13 @@ export default function AddManagersInterface() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border h-12"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
+                  className={inputClass}
                   placeholder="Enter email address"
                 />
               </div>
 
-              {/* Password */}
               <div>
-                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
                   Password :
                 </label>
                 <input
@@ -278,12 +224,7 @@ export default function AddManagersInterface() {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full rounded-lg px-4 py-3 border h-12"
-                  style={{
-                    borderColor: BORDER_COLOR,
-                    backgroundColor: INPUT_BG,
-                    color: ACCENT_COLOR,
-                  }}
+                  className={inputClass}
                   placeholder="Enter password"
                 />
               </div>
@@ -291,15 +232,15 @@ export default function AddManagersInterface() {
 
             {/* Right Column */}
             <div className="space-y-6">
-              <div className="border-b border-gray-100 pb-4 mb-6">
-                <h3 className="text-lg font-semibold" style={{ color: ACCENT_COLOR }}>
+              <div className="border-b border-tea-100 dark:border-card-border-dark pb-4 mb-6">
+                <h3 className="text-lg font-heading font-semibold text-tea-700 dark:text-tea-300">
                   Role & Assignment
                 </h3>
               </div>
 
               {/* Role Dropdown */}
               <div>
-                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
                   Role :
                 </label>
                 <div className="relative">
@@ -309,22 +250,17 @@ export default function AddManagersInterface() {
                     value={roles.find(r => r.value === formData.role)?.label || ""}
                     onClick={() => toggleDropdown('role')}
                     placeholder="Select Role"
-                    className="w-full rounded-lg px-4 py-3 border h-12 cursor-pointer"
-                    style={{
-                      borderColor: BORDER_COLOR,
-                      backgroundColor: INPUT_BG,
-                      color: ACCENT_COLOR,
-                    }}
+                    className={`${inputClass} cursor-pointer`}
                   />
-                  <ChevronDown size={20} className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${dropdowns.role ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={20} className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink/40 dark:text-muted-dark ${dropdowns.role ? 'rotate-180' : ''}`} />
                   {dropdowns.role && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-green-400 rounded-lg shadow-2xl z-50">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card dark:bg-card-dark border border-tea-500 rounded-lg shadow-card z-50">
                       {roles.map((role) => (
                         <button
                           key={role.value}
                           type="button"
                           onClick={() => selectOption('role', role.value)}
-                          className="w-full px-4 py-3 text-left hover:bg-green-50 focus:bg-green-100 transition-colors"
+                          className="w-full px-4 py-3 text-left text-ink dark:text-ink-dark hover:bg-tea-50 dark:hover:bg-white/10 focus:bg-tea-100 dark:focus:bg-white/20 transition-colors"
                         >
                           {role.label}
                         </button>
@@ -336,7 +272,7 @@ export default function AddManagersInterface() {
 
               {/* Factory Dropdown */}
               <div>
-                <label className="block mb-2 text-sm font-medium" style={{ color: ACCENT_COLOR }}>
+                <label className="block mb-2 text-sm font-medium text-tea-700 dark:text-tea-300">
                   Factory :
                 </label>
                 <div className="relative">
@@ -346,22 +282,17 @@ export default function AddManagersInterface() {
                     value={factoryOptions.find(f => f.id === formData.factory)?.name || ""}
                     onClick={() => toggleDropdown('factory')}
                     placeholder="Select Factory"
-                    className="w-full rounded-lg px-4 py-3 border h-12 cursor-pointer"
-                    style={{
-                      borderColor: BORDER_COLOR,
-                      backgroundColor: INPUT_BG,
-                      color: ACCENT_COLOR,
-                    }}
+                    className={`${inputClass} cursor-pointer`}
                   />
-                  <ChevronDown size={20} className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${dropdowns.factory ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={20} className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink/40 dark:text-muted-dark ${dropdowns.factory ? 'rotate-180' : ''}`} />
                   {dropdowns.factory && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-green-400 rounded-lg shadow-2xl z-50">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-card dark:bg-card-dark border border-tea-500 rounded-lg shadow-card z-50">
                       {factoryOptions.map((factory) => (
                         <button
                           key={factory.id}
                           type="button"
                           onClick={() => selectOption('factory', factory.id)}
-                          className="w-full px-4 py-3 text-left hover:bg-green-50 focus:bg-green-100 transition-colors"
+                          className="w-full px-4 py-3 text-left text-ink dark:text-ink-dark hover:bg-tea-50 dark:hover:bg-white/10 focus:bg-tea-100 dark:focus:bg-white/20 transition-colors"
                         >
                           {factory.name}
                         </button>
@@ -370,10 +301,10 @@ export default function AddManagersInterface() {
                   )}
                 </div>
               </div>
-            </div> {/* ✅ CLOSED Right Column */}
-          </div> {/* ✅ CLOSE Grid */}
-        </div> {/* ✅ CLOSE Form Section */}
-      </div> {/* ✅ CLOSE Form Container */}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getBagWeightIdBySupplyRequest, updateEmptyBagTare } from "../../../api/inventoryManager/bagWeight";
 import { getSupplierInfoBySupplyRequest, getBagDetailsBySupplyRequest } from "../../../api/inventoryManager/leafWeight";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
 
 export default function Supplier() {
   const navigate = useNavigate();
@@ -19,14 +21,11 @@ export default function Supplier() {
     getBagWeightIdBySupplyRequest(supplyRequestId)
       .then((data) => setBagWeightId(data ? data : null))
       .catch(() => setBagWeightId(null));
-    // Fetch supplier info
     getSupplierInfoBySupplyRequest(supplyRequestId)
       .then((data) => {
         setSupplierInfo(data);
-        console.log("Supplier info from API:", data);
       })
       .catch(() => setSupplierInfo(null));
-    // Fetch weighed bags
     getBagDetailsBySupplyRequest(supplyRequestId, "weighed")
       .then((data) => {
         const bags = Array.isArray(data) ? data : [];
@@ -38,9 +37,6 @@ export default function Supplier() {
         setSelectedBags([]);
       });
   }, [supplyRequestId]);
-
-  // sessionId is now available from location.state
-  console.log("Bag Weight ID:", bagWeightId);
 
   const handleEnter = async () => {
     if (apiSuccess) {
@@ -57,7 +53,6 @@ export default function Supplier() {
       setApiSuccess(true);
       setSubmitted(false);
       setSelectedBagsWeight("");
-      console.log("Bag weights submitted successfully!");
     } catch (err) {
       setSubmitted(false);
       setApiSuccess(false);
@@ -66,79 +61,61 @@ export default function Supplier() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-5 pb-5 px-4">
-      <div className="max-w-8xl mx-auto space-y-4">
+    <div className="min-h-full">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
-          <h1 className="text-2xl font-bold" style={{ color: "#165E52" }}>
+        <Card>
+          <h1 className="text-2xl font-heading font-bold text-tea-700 dark:text-tea-300">
             Empty Bag Weighing
           </h1>
-        </div>
+        </Card>
 
-        {/* Supplier Info Section (not cards) */}
-        <div
-          className="bg-white rounded-lg shadow-sm p-4 mb-6 border"
-          style={{ borderColor: "#cfece6" }}
-        >
+        {/* Supplier Info Section */}
+        <Card>
           <div className="grid grid-cols-3 gap-6">
             <div>
-              <label
-                className="text-sm font-semibold mb-1 block"
-                style={{ color: "#165E52" }}
-              >
+              <label className="text-sm font-semibold mb-1 block text-tea-700 dark:text-tea-300">
                 Supplier ID
               </label>
-              <div className="text-lg font-semibold text-[#01251F]">
+              <div className="text-lg font-semibold text-ink dark:text-ink-dark">
                 {supplierInfo?.supplierId || "-"}
               </div>
             </div>
             <div>
-              <label
-                className="text-sm font-semibold mb-1 block"
-                style={{ color: "#165E52" }}
-              >
+              <label className="text-sm font-semibold mb-1 block text-tea-700 dark:text-tea-300">
                 Supplier Name
               </label>
-              <div className="text-lg font-semibold text-gray-900">
+              <div className="text-lg font-semibold text-ink dark:text-ink-dark">
                 {supplierInfo?.supplierName || "Supplier Name Not Available"}
               </div>
             </div>
             <div>
-              <label
-                className="text-sm font-semibold mb-1 block"
-                style={{ color: "#165E52" }}
-              >
+              <label className="text-sm font-semibold mb-1 block text-tea-700 dark:text-tea-300">
                 Total Bags
               </label>
-              <div className="text-lg font-semibold text-gray-900">
+              <div className="text-lg font-semibold text-ink dark:text-ink-dark">
                 {teaBags.length}
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Action Bar */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 ">
-          <div className="flex justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Bags Containing Tea Leaves
-              </h2>
-            </div>
-          </div>
-        </div>
+        <Card>
+          <h2 className="text-lg font-heading font-semibold text-ink dark:text-ink-dark">
+            Bags Containing Tea Leaves
+          </h2>
+        </Card>
 
         {/* Bags Table */}
-        {/* <div className="bg-white rounded-lg shadow-sm border overflow-hidden "> */}
-        {/* <div className="bg-white rounded-lg shadow-sm border overflow-hidden max-w-md mx-auto"> */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden max-w-md">
-          <div className="bg-[#01251F] text-white">
+        <Card className="!p-0 overflow-hidden max-w-md">
+          <div className="bg-tea-900 text-white">
             <div className="p-3 font-medium text-center">Bag No</div>
           </div>
           <div
-            className="divide-y divide-gray-200"
+            className="divide-y divide-tea-100 dark:divide-card-border-dark"
             style={{
-              maxHeight: teaBags.length > 5 ? "320px" : "auto", // ~5 rows * 64px
+              maxHeight: teaBags.length > 5 ? "320px" : "auto",
               overflowY: teaBags.length > 5 ? "auto" : "visible",
               minHeight: "45px",
             }}
@@ -146,26 +123,26 @@ export default function Supplier() {
             {teaBags.map((bag, index) => (
               <div
                 key={index}
-                className="p-4 text-center bg-emerald-50 font-medium text-emerald-700"
+                className="p-4 text-center bg-tea-50 dark:bg-tea-900/20 font-medium text-tea-700 dark:text-tea-300"
               >
                 <span className="px-2 py-1 rounded">{bag.bagNo}</span>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* In Factory Section */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border-emerald-200 border transition-all duration-200 pb-10">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <Card>
+          <h2 className="text-lg font-heading font-semibold text-ink dark:text-ink-dark mb-4">
             In Factory
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-2">
                 Selected Bags
               </label>
-              <div className="text-sm text-gray-600 bg-emerald-50 p-3 rounded-lg border border-emerald-200 min-h-10 flex items-center">
+              <div className="text-sm text-ink dark:text-ink-dark bg-tea-50 dark:bg-tea-900/20 p-3 rounded-lg border border-tea-100 dark:border-card-border-dark min-h-10 flex items-center">
                 {selectedBags.length > 0
                   ? selectedBags.join(", ")
                   : "No bags selected"}
@@ -173,14 +150,14 @@ export default function Supplier() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink/70 dark:text-ink-dark/70 mb-2">
                 Selected Bags Weight
               </label>
               <input
                 type="number"
                 value={selectedBagsWeight}
                 onChange={(e) => setSelectedBagsWeight(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-3 py-2 rounded-lg border border-tea-100 dark:border-card-border-dark bg-surface dark:bg-white/5 text-ink dark:text-ink-dark placeholder:text-ink/40 dark:placeholder:text-muted-dark focus:outline-none focus:ring-2 focus:ring-tea-500/40"
                 placeholder="Enter weight"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -195,7 +172,9 @@ export default function Supplier() {
             </div>
 
             <div>
-              <button
+              <Button
+                variant="primary"
+                className="w-full justify-center"
                 onClick={handleEnter}
                 disabled={
                   !apiSuccess &&
@@ -204,19 +183,18 @@ export default function Supplier() {
                     !selectedBagsWeight ||
                     !bagWeightId)
                 }
-                className={`bg-[#01251F] hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 w-full transform hover:scale-105`}
               >
                 {apiSuccess ? "Back to Route" : "Enter"}
-              </button>
+              </Button>
               {!bagWeightId && (
-                <div className="mt-2 text-sm text-red-600 font-medium">
+                <div className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium">
                   No bag record found for today. Please check the date or supply
                   request.
                 </div>
               )}
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
